@@ -3,7 +3,8 @@ import xgboost as xgb
 from sklearn import metrics
 from sklearn.model_selection import StratifiedKFold
 
-def XGBClassifierRandomSearch(feature, label, iter_num=1000, scoring=0.5, cv=5, cv_num=3):
+
+def RandomSearch(feature, label, iter_num=1000, scoring=0.5, cv=5, cv_num=3):
     start = time.time()
     for i in range(1, iter_num):
         params = {'learning_rate': np.random.choice(np.linspace(0.01, 0.1, 10).round(2)),
