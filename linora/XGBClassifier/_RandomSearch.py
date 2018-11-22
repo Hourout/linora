@@ -1,6 +1,7 @@
 import sys
 import time
 from collections import Counter
+from multiprocessing import cpu_count
 
 import numpy as np
 import xgboost as xgb
@@ -8,11 +9,12 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 
 
 def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5, cv_num=3,
-                 metrics_min=True, speedy=True, gpu=False):
+                 metrics_min=True, speedy=True, gpu=False, timeseries=None):
     start = time.time()
     if speedy:
         train_size = round(min(20000, feature.shape[0]*0.3)/feature.shape[0], 2)
     tree_method = 'gpu_hist' if gpu else 'auto'
+    n_job = 1 if gpu else int(np.ceil(cpu_count()*0.8))
     weight_dict = Counter(label)
     if len(weight_dict)==2:
         weight = np.ceil(weight_dict[min(weight_dict)]/weight_dict[max(weight_dict)])
@@ -32,7 +34,7 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
                   'gamma': np.random.choice(np.linspace(0, 0.6, 13)).round(0),
                   'max_delta_step': int(np.random.choice(np.linspace(0, 10, 11))),
                   'scale_pos_weight': int(np.random.choice(np.linspace(0, weight, weight))),
-                  'n_jobs': 14,'random_state': 27, 'objective': loss, tree_method=tree_method}
+                  'n_jobs':n_job, 'random_state': 27, 'objective': loss, 'tree_method':tree_method}
         model = xgb.XGBClassifier(**params)
         score = []
         if speedy:
