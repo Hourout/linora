@@ -2,12 +2,16 @@ import sys
 import time
 from collections import Counter
 
+import numpy as np
 import xgboost as xgb
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 
-def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, metrics_min=True, cv=5, cv_num=3):
+def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5, cv_num=3,
+                 timeseries=False, metrics_min=True, speedy=True):
     start = time.time()
+    if speedy:
+        train_size = round(min(20000, feature.shape[0]*0.3)/feature.shape[0], 2)
     weight_dict = Counter(label)
     if len(weight_dict)==2:
         weight = np.ceil(weight_dict[min(weight_dict)]/weight_dict[max(weight_dict)])
@@ -30,13 +34,21 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, metr
                   'n_jobs': 14,'random_state': 27, 'objective': loss}
         model = xgb.XGBClassifier(**params)
         score = []
-        skf = StratifiedKFold(n_splits=cv, shuffle=True, random_state=int(str(time.time())[-1]))
-        for n, (train_index, test_index) in enumerate(skf.split(feature, label)):
-            if n == cv_num:
-                break
-            model.fit(feature.loc[train_index], label[train_index])
-            cv_pred = model.predict(feature.loc[test_index])
-            score.append(metrics(label[test_index].values, cv_pred))
+        if speedy:
+            for i in range(cv_num):
+                X_train, X_test, y_train, y_test = train_test_split(feature, label, train_size=train_size,
+                                                                    random_state=int(str(time.time())[-1]), stratify=label)
+                model.fit(X_train, y_train)
+                cv_pred = model.predict(X_test)
+                score.append(metrics(y_test.values, cv_pred))
+        else:
+            skf = StratifiedKFold(n_splits=cv, shuffle=True, random_state=int(str(time.time())[-1]))
+            for n, (train_index, test_index) in enumerate(skf.split(feature, label)):
+                if n == cv_num:
+                    break
+                model.fit(feature.loc[train_index], label[train_index])
+                cv_pred = model.predict(feature.loc[test_index])
+                score.append(metrics(label[test_index].values, cv_pred))
         cv_score = round(np.mean(score), 4)
         if metrics_min:
             if cv_score<scoring:
@@ -46,8 +58,8 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, metr
             if cv_score>scoring:
                 scoring = cv_score
                 best_params = params
-        sys.stdout.write("random search percent: {}, run time {} min, best score: {}, best param：{}\r".format(
+        sys.stdout.write("XGBClassifier random search percent: {}, run time {} min, best score: {}, best param：{}\r".format(
             round(i/iter_num*100,2), divmod((time.time()-start),60)[0], scoring, best_params)
         sys.stdout.flush()
-    print("XGBoost param finetuning with random search run time: %d min %.2f s" % divmod((time.time() - start), 60))
+    print("XGBClassifier param finetuning with random search run time: %d min %.2f s" % divmod((time.time() - start), 60))
     return best_params
