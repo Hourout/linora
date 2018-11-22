@@ -36,13 +36,13 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
         score = []
         if speedy:
             for i in range(cv_num):
-                X_train, X_test, y_train, y_test = train_test_split(feature, label, train_size=train_size,
-                                                                    random_state=int(str(time.time())[-1]), stratify=label)
+                X_train, X_test, y_train, y_test = train_test_split(feature, label, train_size=train_size, stratify=label,
+                                                                    random_state=np.random.choice(range(100), 1)[0])
                 model.fit(X_train, y_train)
                 cv_pred = model.predict(X_test)
                 score.append(metrics(y_test.values, cv_pred))
         else:
-            skf = StratifiedKFold(n_splits=cv, shuffle=True, random_state=int(str(time.time())[-1]))
+            skf = StratifiedKFold(n_splits=cv, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
             for n, (train_index, test_index) in enumerate(skf.split(feature, label)):
                 if n == cv_num:
                     break
