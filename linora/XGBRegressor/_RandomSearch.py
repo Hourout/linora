@@ -55,8 +55,8 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
             if cv_score>scoring:
                 scoring = cv_score
                 best_params = params
-        sys.stdout.write("XGBClassifier random search percent: {}, run time {} min, best score: {}, best param：{}\r".format(
+        sys.stdout.write("XGBRegressor random search percent: {}, run time {} min, best score: {}, best param：{}\r".format(
             round(i/iter_num*100,2), divmod((time.time()-start),60)[0], scoring, best_params)
         sys.stdout.flush()
-    print("XGBClassifier param finetuning with random search run time: %d min %.2f s" % divmod((time.time() - start), 60))
+    print("XGBRegressor param finetuning with random search run time: %d min %.2f s" % divmod((time.time() - start), 60))
     return best_params
