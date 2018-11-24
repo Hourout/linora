@@ -93,7 +93,7 @@ linora.XGBRanker.GridSearch(feature, label, group, metrics, scoring=0.5, cv=5, c
 - speedy：bool，default True,whether can user fast search;
 - speedy_param：tuple,default (20000, 0.3)，only work when speedy=True，first param means min sample number in fast search,second param means min samlpe rate in [0,1],and get the i
 min number between them;
-- gpu：bool，default False，whether use gpu;
+- gpu：bool，only False;
 
 ```python
 linora.XGBRanker.RandomSearch(feature, label, group, metrics, iter_num=1000, scoring=0.5, cv=5, cv_num=3, metrics_min=True, speedy=True, speedy_param=(20000, 0.3), gpu=False)
@@ -112,5 +112,5 @@ linora.XGBRanker.RandomSearch(feature, label, group, metrics, iter_num=1000, sco
 - speedy：bool，default True,whether can user fast search;
 - speedy_param：tuple,default (20000, 0.3)，only work when speedy=True，first param means min sample number in fast search,second param means min samlpe rate in [0,1],and get the i
 min number between them;
-- gpu：bool，default False，whether use gpu;
+- gpu：bool，only False;
 
