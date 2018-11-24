@@ -7,9 +7,8 @@
 [![PyPI](https://img.shields.io/pypi/v/linora.svg)](https://pypi.python.org/pypi/linora)
 ![PyPI format](https://img.shields.io/pypi/format/linora.svg)
 
-Beefly is efficient visualization training packages of Keras, enabling the live visualization of loss function and metrics during training process.
+Beefly is easy automatic hyperparameter optimization machine learning algorithms and libraries for XGBoost LightGBM and other.
 
-Beefly is process in the Jupyter Notebook, so we recommend Jupyter Notebook as Beefly's developing environment.
 
 
 ## [API Document](https://github.com/Hourout/linora/blob/master/document/English_API.md)
