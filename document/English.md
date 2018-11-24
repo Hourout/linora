@@ -1,5 +1,5 @@
 # Linora
- Linora is a efficent machine learning hyper parameters automated tuning Library,supporting XGBoost、LightGBM、CatBoost and other algorithm that implement by sklearn. 
+Linora is a efficent machine learning hyper parameters automated tuning Library,supporting XGBoost、LightGBM、CatBoost and other algorithm that implement by sklearn. 
  
 ## [API document](https://github.com/Hourout/linora/blob/master/document/English_API.md)
 
