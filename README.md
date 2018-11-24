@@ -7,8 +7,8 @@
 [![PyPI](https://img.shields.io/pypi/v/linora.svg)](https://pypi.python.org/pypi/linora)
 ![PyPI format](https://img.shields.io/pypi/format/linora.svg)
 
-Beefly is easy automatic hyperparameter optimization machine learning algorithms and libraries for XGBoost LightGBM and other.
-
+Linora is a efficent machine learning hyper parameters automated tuning Library,supporting XGBoost、LightGBM、CatBoost and other algorithm that implement by sklearn. 
+ 
 
 
 ## [API Document](https://github.com/Hourout/linora/blob/master/document/English_API.md)
@@ -30,8 +30,19 @@ pip install git+git://github.com/Hourout/linora.git
 ```
 
 ## Feature
+-XGBoost
+  - Support XGBClassifier in RandomSearch、GridSearch
+  - Support XGBRegressor in RandomSearch、GridSearch
+  - Support XGBRanker in RandomSearch、GridSearch
+  - Support cpu、gpu
+  - Support fast search、k-fold search
 
-
+-LightGBM
+  - Support LGBClassifier in RandomSearch、GridSearch
+  - Support LGBRegressor in RandomSearch、GridSearch
+  - Support LGBRanker in RandomSearch、GridSearch
+  - Support cpu、gpu
+  - Support fast search、k-fold search
 
 ## Example
 - [linora.XGBRanker](https://github.com/Hourout/linora/blob/master/example/XGBRanker.ipynb)
