@@ -3,7 +3,7 @@
 
 
 ![PyPI version](https://img.shields.io/pypi/pyversions/linora.svg)
-![PyPI license](https://img.shields.io/pypi/l/linora.svg)
+![Github license](https://img.shields.io/github/license/Hourout/linora.svg)
 [![PyPI](https://img.shields.io/pypi/v/linora.svg)](https://pypi.python.org/pypi/linora)
 ![PyPI format](https://img.shields.io/pypi/format/linora.svg)
 
