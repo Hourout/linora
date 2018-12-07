@@ -1,10 +1,11 @@
-
-
 from linora import XGBClassifier
 from linora import XGBRanker
 from linora import XGBRegressor
 
-__version__ = '0.1.0'
-__author__ = 'JinQing Lee, Gaojie Wei'
+from linora import LGBClassifier
 
-#__all__ = ['XGBClassifier', 'XGBRanker', 'XGBRegressor']
+from linora import GEClassifier
+from linora import GERegressor
+
+__version__ = '0.2.0'
+__author__ = 'JinQing Lee, Gaojie Wei'
