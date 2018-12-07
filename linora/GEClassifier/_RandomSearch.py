@@ -40,7 +40,7 @@ def RandomSearch(feature, label, estimator, params, metrics, iter_num=1000, scor
             if cv_score>scoring:
                 scoring = cv_score
                 best_params = param.copy()
-        sys.stdout.write("XGBClassifier random search percent: {}%, run time {} min, best score: {}, best param：{}\r".format(
+        sys.stdout.write("GEClassifier random search percent: {}%, run time {} min, best score: {}, best param：{}\r".format(
             round(i/iter_num*100,2), divmod((time.time()-start),60)[0], scoring, best_params))
         sys.stdout.flush()
     print("GEClassifier param finetuning with random search run time: %d min %.2f s" % divmod((time.time() - start), 60))
