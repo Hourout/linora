@@ -6,7 +6,7 @@ def readme():
         return f.read()
 
 setup(name='linora',
-      version='0.1.0',
+      version='0.2.0',
       install_requires=['pandas>=0.20.3', 'scikit-learn>=0.19.1', 'xgboost>=0.81'],
       description='Easy automatic hyperparameter optimization algorithms and libraries for XGBoost and LightGBM.',
       long_description=readme(),
@@ -15,7 +15,7 @@ setup(name='linora',
       author='JinQing Lee, Gaojie Wei',
       author_email='hourout@163.com',
       keywords=['hyperparameter-optimization', 'XGBoost', 'LightGBM'],
-      license='MIT',
+      license='Apache License Version 2.0',
       classifiers=[
           'Intended Audience :: Developers',
           'Intended Audience :: Education',
@@ -23,7 +23,7 @@ setup(name='linora',
           'Topic :: Scientific/Engineering',
           'Topic :: Scientific/Engineering :: Artificial Intelligence',
           'Topic :: Scientific/Engineering :: Visualization',
-          'License :: OSI Approved :: MIT License',
+          'License :: OSI Approved :: Apache Software License',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6'
       ],
