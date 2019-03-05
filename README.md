@@ -11,9 +11,7 @@ Linora is a efficent machine learning hyper parameters automated tuning Library,
  
 
 
-## [API Document](https://github.com/Hourout/linora/blob/master/document/English_API.md)
-## [API文档](https://github.com/Hourout/linora/blob/master/document/Chinese_API.md)
-## [中文介绍](https://github.com/Hourout/linora/blob/master/document/Chinese.md)
+| [API Document](https://github.com/Hourout/linora/blob/master/document/English_API.md) | [API文档](https://github.com/Hourout/linora/blob/master/document/Chinese_API.md) | [中文介绍](https://github.com/Hourout/linora/blob/master/document/Chinese.md) |
 
 ## Installation
 
