@@ -28,7 +28,7 @@ def GridSearch(feature, label, group, metrics, scoring=0.5, cv=5, cv_num=3,
                       test_size = 1-round(min(speedy_param[0], feature.shape[0]*speedy_param[1])/feature.shape[0], 2).
         gpu: whether use gpu.
     Returns:
-        a best XGBClassifier model params dict.
+        a best XGBRanker model params dict.
     Raises:
         params error.
     """
