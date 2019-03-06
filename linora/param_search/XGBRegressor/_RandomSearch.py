@@ -14,7 +14,7 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
     Args:
         feature: pandas dataframe, model's feature.
         label: pandas series, model's label.
-        loss: XGBClassifier param 'objective'.
+        loss: XGBRegressor param 'objective'.
         metrics: model metrics function.
         scoring: metrics error opt base line value.
         cv: cross validation fold.
