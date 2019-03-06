@@ -1,3 +1,3 @@
-from tensorseries.metrics import distance
-from tensorseries.metrics._regression import *
-from tensorseries.metrics._classification import *
+from linora.metrics import distance
+from linora.metrics._regression import *
+from linora.metrics._classification import *
