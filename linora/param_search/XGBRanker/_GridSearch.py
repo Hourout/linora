@@ -17,7 +17,7 @@ def GridSearch(feature, label, group, metrics, scoring=0.5, cv=5, cv_num=3,
     Args:
         feature: pandas dataframe, model's feature.
         label: pandas series, model's label.
-        loss: XGBClassifier param 'objective'.
+        loss: XGBRanker param 'objective'.
         metrics: model metrics function.
         scoring: metrics error opt base line value.
         cv: cross validation fold.
