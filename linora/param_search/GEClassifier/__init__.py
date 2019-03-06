@@ -1,2 +1,2 @@
-from linora.GEClassifier._RandomSearch import RandomSearch
-from linora.GEClassifier._GridSearch import GridSearch
+from linora.param_search.GEClassifier._RandomSearch import RandomSearch
+from linora.param_search.GEClassifier._GridSearch import GridSearch
