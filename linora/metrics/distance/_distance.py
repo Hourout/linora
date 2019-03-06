@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-__all__ = ['euclidean', 'manhattan', 'chebyshev', 'minkowski, 'hamming',
+__all__ = ['euclidean', 'manhattan', 'chebyshev', 'minkowski', 'hamming',
            'jaccard', 'pearson', 'cosine'
           ]
 
