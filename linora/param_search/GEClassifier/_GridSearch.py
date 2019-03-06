@@ -19,7 +19,7 @@ def GridSearch(feature, label, estimator, params, cv_params, metrics, scoring=0.
     logging.basicConfig(level=logging.ERROR)
     start = time.time()
     if speedy:
-        train_size = round(min(speedy_param[0], feature.shape[0]*speedy_param[1])/feature.shape[0], 2)
+        test_size = 1-round(min(speedy_param[0], feature.shape[0]*speedy_param[1])/feature.shape[0], 2)
     for _, cv_param in cv_params.items():
         cv_param_name = [i for i in cv_param]
         cv_param_value = [cv_param[i] for i in cv_param_name]
@@ -30,7 +30,7 @@ def GridSearch(feature, label, estimator, params, cv_params, metrics, scoring=0.
             score = []
             if speedy:
                 for i in range(cv_num):
-                    X_train, X_test, y_train, y_test = train_test_split(feature, label, train_size=train_size, stratify=label,
+                    X_train, X_test, y_train, y_test = train_test_split(feature, label, test_size=test_size, stratify=label,
                                                                         random_state=np.random.choice(range(100), 1)[0])
                     model.fit(X_train, y_train)
                     cv_pred = model.predict_proba(X_test)
