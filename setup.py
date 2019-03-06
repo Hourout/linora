@@ -6,7 +6,7 @@ def readme():
         return f.read()
 
 setup(name='linora',
-      version='0.2.0',
+      version='0.3.0',
       install_requires=['pandas>=0.20.3', 'scikit-learn>=0.19.1', 'xgboost>=0.81'],
       description='Easy automatic hyperparameter optimization algorithms and libraries for XGBoost and LightGBM.',
       long_description=readme(),
