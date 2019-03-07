@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pyecharts as pe
+from linora.metrics import confusion_matrix
 
 __all__ = ['ks_curve', 'roc_curve', 'pr_curve', 'lift_curve', 'gain_curve', 'gini_curve',
            'confusion_matrix_map']
