@@ -89,7 +89,6 @@ def gain_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Gain Curve.html'
     t['fp'] = t.index+1-t.tp
     t['precision'] = t.tp/(t.tp+t.fp)
     t.index = np.round(((t.index+1)/len(t)), 2)
-    print(t)
     line = pe.Line("Gain Curve")
     line.add("Gain", t.index.tolist(), t.precision.round(4).tolist(),
              is_smooth=True, yaxis_type='value', xaxis_type='value')
@@ -103,7 +102,6 @@ def gini_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Gini Curve.html'
     t = t.sort_values(['prob', 'label']).reset_index(drop=True)
     t['cum'] = t.label.cumsum()/t.label.sum()
     t.index = np.round(((t.index+1)/len(t)), 2)
-    print(t)
     line = pe.Line("Gini Curve")
     line.add("Random", [0]+t.index.tolist(), [0]+t.index.tolist(),
              is_fill=True, area_opacity=0.4,
@@ -117,7 +115,6 @@ def confusion_matrix_map(y_true, y_pred, jupyter=True, path="Confusion Matrix Ma
     t = confusion_matrix(y_true, y_pred)
     t = pd.DataFrame([[i, m,n ] for i,j in t.to_dict().items() for m, n in j.items()],
                      columns=['actual', 'predict', 'over_values'])
-    print(t.drop_duplicates(['actual']))
     heatmap = pe.HeatMap("Confusion Matrix Map")
     heatmap.add("Confusion Matrix", t.drop_duplicates(['actual']).actual.values, t.drop_duplicates(['predict']).predict.values,
                 t.values, is_visualmap=True, xaxis_name='Actual', yaxis_name='Predict',
