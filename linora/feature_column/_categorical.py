@@ -1,11 +1,15 @@
-__all__ = ['categorical_binarizer', 'categorical_encoder']
+from functools import reduce
 
-def categorical_binarizer(feature, feature_scale=None):
-    scale = feature_scale if feature_scale is not None else feature.mean()
-    t = feature.clip(upper=scale).replace({scale:scale+0.1}).clip(scale).replace({scale:0, scale+0.1:1}).astype('int')
-    return t, scale
+__all__ = ['categorical_encoder', 'categorical_hash', 'categorical_crossed']
+
 
 def categorical_encoder(feature, feature_scale=None):
     scale = feature_scale if feature_scale is not None else {j:i for i,j in feature.drop_duplicates().reset_index(drop=True).to_dict().items()}
     t = feature.replace(scale)
     return t, scale
+
+def categorical_hash(feature, hash_bucket_size):
+    return feature.fillna('').astype(str).map(lambda x:hash(x))%hash_bucket_size
+
+def categorical_crossed(feature_list, hash_bucket_size):
+    return reduce(lambda x,y:x+y, [i.fillna('').astype(str) for i in feature_list]).map(lambda x:hash(x))%hash_bucket_size
