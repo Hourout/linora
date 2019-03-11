@@ -1,6 +1,6 @@
 import numpy as np
 
-__all__ ['normalize_minmax', 'normalize_maxabs', 'normalize_max', 'normalize_l1', 'normalize_l2',
+__all__ = ['normalize_minmax', 'normalize_maxabs', 'normalize_max', 'normalize_l1', 'normalize_l2',
          'normalize_norm', 'normalize_robust']
 
 def normalize_minmax(feature, feature_range=(0, 1), feature_scale=None):
