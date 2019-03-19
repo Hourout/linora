@@ -6,6 +6,15 @@ __all__ = ['binary_accuracy', 'categorical_accuracy', 'recall', 'precision', 'co
            'categorical_crossentropy', 'ks', 'gini', 'psi']
 
 def binary_accuracy(y_true, y_pred, prob=0.5, pos_label=1):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        prob: probability threshold.
+        pos_label: positive label.
+    Returns:
+        the fraction of correctly classified samples (float).
+    """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     if t.prob.nunique()!=2:
@@ -16,6 +25,13 @@ def binary_accuracy(y_true, y_pred, prob=0.5, pos_label=1):
     return (t.label==t.prob).mean()
 
 def categorical_accuracy(y_true, y_pred):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+    Returns:
+        the fraction of correctly classified samples (float).
+    """
     return (y_true==y_pred).mean()
 
 def recall(y_true, y_pred, pos_label=1):
