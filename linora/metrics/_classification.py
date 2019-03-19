@@ -5,11 +5,11 @@ __all__ = ['binary_accuracy', 'categorical_accuracy', 'recall', 'precision', 'co
            'fbeta_score', 'f1_score', 'auc_roc', 'auc_pr', 'binary_crossentropy', 
            'categorical_crossentropy', 'ks', 'gini', 'psi']
 
-def binary_accuracy(y_true, y_pred, prob=0.5):
+def binary_accuracy(y_true, y_pred, prob=0.5, pos_label=1):
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     if t.prob.nunique()!=2:
-        label_dict = {i:1 if i==label else 0 for i in t.label.unique()}
+        label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
         t['label'] = t.label.replace(label_dict)
         t.loc[t.prob>=prob, 'prob'] = 1
         t.loc[t.prob<prob, 'prob'] = 0
@@ -35,7 +35,7 @@ def fbeta_score(y_true, y_pred, beta, pos_label=1):
     return r*p*(1+np.power(beta, 2))/(np.power(beta, 2)*p+r)
 
 def f1_score(y_true, y_pred, pos_label=1):
-    return fbeta_score(y_true, y_pred, beta=1, label=pos_label)
+    return fbeta_score(y_true, y_pred, beta=1, pos_label=pos_label)
 
 def auc_roc(y_true, y_pred, pos_label=1):
     assert y_true.nunique()==2, "`y_true` should be binary classification."
