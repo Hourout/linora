@@ -5,6 +5,16 @@ __all__ = ['binary_accuracy', 'categorical_accuracy', 'recall', 'precision', 'co
            'fbeta_score', 'f1_score', 'auc_roc', 'auc_pr', 'binary_crossentropy', 
            'categorical_crossentropy', 'ks', 'gini', 'psi']
 
+def classified_func(y_true, y_pred, prob=0.5, pos_label=1):
+    t = pd.DataFrame({'prob':y_pred, 'label':y_true})
+    assert t.label.nunique()==2, "`y_true` should be binary classification."
+    if t.prob.nunique()!=2:
+        label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
+        t['label'] = t.label.replace(label_dict)
+        t.loc[t.prob>=prob, 'prob'] = 1
+        t.loc[t.prob<prob, 'prob'] = 0
+    return t
+
 def binary_accuracy(y_true, y_pred, prob=0.5, pos_label=1):
     """
     Args:
@@ -15,13 +25,7 @@ def binary_accuracy(y_true, y_pred, prob=0.5, pos_label=1):
     Returns:
         the fraction of correctly classified samples (float).
     """
-    t = pd.DataFrame({'prob':y_pred, 'label':y_true})
-    assert t.label.nunique()==2, "`y_true` should be binary classification."
-    if t.prob.nunique()!=2:
-        label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
-        t['label'] = t.label.replace(label_dict)
-        t.loc[t.prob>=prob, 'prob'] = 1
-        t.loc[t.prob<prob, 'prob'] = 0
+    t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
     return (t.label==t.prob).mean()
 
 def categorical_accuracy(y_true, y_pred):
@@ -34,26 +38,80 @@ def categorical_accuracy(y_true, y_pred):
     """
     return (y_true==y_pred).mean()
 
-def recall(y_true, y_pred, pos_label=1):
-    return y_pred[y_true==pos_label].mean()
+def recall(y_true, y_pred, prob=0.5, pos_label=1):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        prob: probability threshold.
+        pos_label: positive label.
+    Returns:
+        Recall of the positive class in binary classification.
+    """
+    t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
+    return t.prob[t.label==pos_label].mean()
 
-def precision(y_true, y_pred, pos_label=1):
-    return y_true[y_pred==pos_label].mean()
+def precision(y_true, y_pred, prob=0.5, pos_label=1):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        prob: probability threshold.
+        pos_label: positive label.
+    Returns:
+        Precision of the positive class in binary classification.
+    """
+    t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
+    return t.label[t.prob==pos_label].mean()
 
 def confusion_matrix(y_true, y_pred):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+    Returns:
+        Confusion matrix.
+    """
     t = pd.DataFrame({'actual':y_true, 'predict':y_pred})
     t = pd.crosstab(t.predict, t.actual)
     return t
 
-def fbeta_score(y_true, y_pred, beta, pos_label=1):
-    r = recall(y_true, y_pred, pos_label)
-    p = precision(y_true, y_pred, pos_label)
+def fbeta_score(y_true, y_pred, beta, prob=0.5, pos_label=1):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        beta : weight of precision in harmonic mean.
+        prob: probability threshold.
+        pos_label: positive label.
+    Returns:
+        Fbeta score of the positive class in binary classification.
+    """
+    r = recall(y_true, y_pred, prob, pos_label)
+    p = precision(y_true, y_pred, prob, pos_label)
     return r*p*(1+np.power(beta, 2))/(np.power(beta, 2)*p+r)
 
-def f1_score(y_true, y_pred, pos_label=1):
-    return fbeta_score(y_true, y_pred, beta=1, pos_label=pos_label)
+def f1_score(y_true, y_pred, prob=0.5, pos_label=1):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        prob: probability threshold.
+        pos_label: positive label.
+    Returns:
+        F1 score of the positive class in binary classification.
+    """
+    return fbeta_score(y_true, y_pred, beta=1, prob=prob, pos_label=pos_label)
 
 def auc_roc(y_true, y_pred, pos_label=1):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        pos_label: positive label.
+    Returns:
+        Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
+    """
     assert y_true.nunique()==2, "`y_true` should be binary classification."
     t = pd.concat([y_true, y_pred], axis=1)
     t.columns = ['label', 'prob']
@@ -63,6 +121,14 @@ def auc_roc(y_true, y_pred, pos_label=1):
     return auc
 
 def auc_pr(y_true, y_pred, pos_label=1):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        pos_label: positive label.
+    Returns:
+        Area Under the Receiver Operating Characteristic Curve (PR AUC) from prediction scores.
+    """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -90,6 +156,14 @@ def categorical_crossentropy(y_true, y_pred, one_hot=True):
     return t
 
 def ks(y_true, y_pred, pos_label=1):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted probability, as returned by a classifier.
+        pos_label: positive label.
+    Returns:
+        Ks score of the positive class in binary classification.
+    """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -103,6 +177,14 @@ def ks(y_true, y_pred, pos_label=1):
     return ks
 
 def gini(y_true, y_pred, pos_label=1):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted probability, as returned by a classifier.
+        pos_label: positive label.
+    Returns:
+        Gini score of the positive class in binary classification.
+    """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
