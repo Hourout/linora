@@ -2,7 +2,7 @@ import sys
 import time
 
 import numpy as np
-from sklearn.model_selection import StratifiedKFold, train_test_split
+from linora.sample_splits import kfold, train_test_split
 
 
 def RandomSearch(feature, label, estimator, params, metrics, iter_num=1000, scoring=0.5, cv=5, cv_num=3,
@@ -38,19 +38,19 @@ def RandomSearch(feature, label, estimator, params, metrics, iter_num=1000, scor
         score = []
         if speedy:
             for _ in range(cv_num):
-                X_train, X_test, y_train, y_test = train_test_split(feature, label, test_size=test_size, stratify=label,
-                                                                    random_state=np.random.choice(range(100), 1)[0])
-                model.fit(X_train, y_train)
-                cv_pred = model.predict_proba(X_test)
-                score.append(metrics(y_test.values, cv_pred))
+                index_list = train_test_split(feature, stratify=label, test_size=test_size,
+                                              shuffle=True, random_state=np.random.choice(range(100), 1)[0])
+                model.fit(feature.loc[index_list[0]], label[index_list[0]])
+                cv_pred = pd.Series(model.predict_proba(feature.loc[index_list[1]]), index=label[index_list[1]].index)
+                score.append(metrics(label[index_list[1]], cv_pred))
         else:
-            skf = StratifiedKFold(n_splits=cv, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
-            for n, (train_index, test_index) in enumerate(skf.split(feature, label)):
+            index_list = kfold(feature, stratify=label, n_splits=cv, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
+            for n, index in enumerate(index_list):
                 if n == cv_num:
                     break
-                model.fit(feature.loc[train_index], label[train_index])
-                cv_pred = model.predict_proba(feature.loc[test_index])
-                score.append(metrics(label[test_index].values, cv_pred))
+                model.fit(feature.loc[index[0]], label[index[0]])
+                cv_pred = pd.Series(model.predict_proba(feature.loc[index[1]]), index=label[index[1]].index)
+                score.append(metrics(label[index[1]], cv_pred))
         cv_score = round(np.mean(score), 4)
         if metrics_min:
             if cv_score<scoring:
