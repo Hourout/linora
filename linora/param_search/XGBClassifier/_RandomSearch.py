@@ -5,7 +5,7 @@ from multiprocessing import cpu_count
 
 import numpy as np
 import xgboost as xgb
-from sklearn.model_selection import StratifiedKFold, train_test_split
+from linora.sample_splits import kfold, train_test_split
 
 
 def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5, cv_num=3,
