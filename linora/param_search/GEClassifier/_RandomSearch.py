@@ -2,6 +2,7 @@ import sys
 import time
 
 import numpy as np
+import pandas as pd
 from linora.sample_splits import kfold, train_test_split
 
 
