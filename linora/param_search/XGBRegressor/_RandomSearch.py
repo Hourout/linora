@@ -3,6 +3,7 @@ import time
 from multiprocessing import cpu_count
 
 import numpy as np
+import pandas as pd
 import xgboost as xgb
 from linora.sample_splits import kfold, train_test_split
 
