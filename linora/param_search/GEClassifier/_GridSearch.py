@@ -4,6 +4,7 @@ import logging
 import itertools
 
 import numpy as np
+import pandas as pd
 from linora.sample_splits import kfold, train_test_split
 
 
