@@ -8,7 +8,7 @@ from linora.sample_splits import kfold, train_test_split
 
 
 def RandomSearch(feature, label, estimator, params, metrics, iter_num=1000, scoring=0.5, cv=5, cv_num=3,
-                 metrics_min=True, speedy=True, speedy_param=(20000, 0.3)):
+                 metrics_min=True, speedy=True, speedy_param=(20000, 0.3), stratify=None):
     """General model params search use RandomSearch method.
     
     Args:
@@ -40,13 +40,13 @@ def RandomSearch(feature, label, estimator, params, metrics, iter_num=1000, scor
         score = []
         if speedy:
             for _ in range(cv_num):
-                index_list = train_test_split(feature, test_size=test_size,
+                index_list = train_test_split(feature, stratify=stratify, test_size=test_size,
                                               shuffle=True, random_state=np.random.choice(range(100), 1)[0])
                 model.fit(feature.loc[index_list[0]], label[index_list[0]])
                 cv_pred = pd.Series(model.predict(feature.loc[index_list[1]]), index=label[index_list[1]].index)
                 score.append(metrics(label[index_list[1]], cv_pred))
         else:
-            index_list = kfold(feature, n_splits=cv, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
+            index_list = kfold(feature, stratify=stratify, n_splits=cv, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
             for n, index in enumerate(index_list):
                 if n == cv_num:
                     break
