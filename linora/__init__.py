@@ -8,7 +8,8 @@ from linora import sample_splits
 
 __version__ = '0.5.0'
 __author__ = 'JinQing Lee'
-__hello__ = print("""
+def _hello():
+    print("""
 ------------------------------------------------------------------------------------
       Linora
 --------------------
