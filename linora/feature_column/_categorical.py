@@ -20,7 +20,7 @@ def categorical_hash(feature, hash_bucket_size):
 def categorical_crossed(feature_list, hash_bucket_size):
     return reduce(lambda x,y:x+y, [i.fillna('').astype(str) for i in feature_list]).map(lambda x:hash(x))%hash_bucket_size
 
-def categorical_onehot_binarizer(feature, feature_scale=None, prefix='columns', dtype='int32'):
+def categorical_onehot_binarizer(feature, feature_scale=None, prefix='columns', dtype='int8'):
     assert not any(feature.isnull()), "`feature' should be not contains NaN"
     scale = feature.drop_duplicates().tolist()
     if feature_scale is not None:
@@ -31,25 +31,24 @@ def categorical_onehot_binarizer(feature, feature_scale=None, prefix='columns', 
             if prefix+'_'+str(i) not in t.columns:
                 t[prefix+'_'+str(i)] = 0
         scale = feature_scale
+        t = t[[prefix+'_'+str(i) for i in feature_scale]]
     else:
         t = pd.get_dummies(feature, prefix=prefix, dtype=dtype)
+        t = t[[prefix+'_'+str(i) for i in scale]]
     return t, scale
 
-def categorical_onehot_multiple(feature, feature_scale=None, prefix='columns', dtype='int32'):
+def categorical_onehot_multiple(feature, feature_scale=None, prefix='columns', dtype='int8'):
     assert not any(feature.isnull()), "`feature' should be not contains NaN"
-    scale2 = list(set(itertools.chain.from_iterable(temp)))
+    scale2 = list(set(itertools.chain.from_iterable(feature)))
     scale = feature_scale if feature_scale is not None else scale2
     class_mapping = defaultdict(int)
     class_mapping.default_factory = class_mapping.__len__
     [class_mapping[i] for i in scale]
-    col = [class_mapping[i] for i in itertools.chain.from_iterable(temp)]
+    col = [class_mapping[i] for i in itertools.chain.from_iterable(feature)]
     row = [i for i in itertools.chain.from_iterable(map(lambda x,y:[x]*len(y), range(len(feature)), feature))]
-    t = np.zeros([len(feature), len(scale2)], dtype='int8')
+    t = np.zeros([max(row)+1, max(col)+1], dtype=dtype)
     t[row, col] = 1
-    t = pd.DataFrame(t, columns=[prefix+'_'+i for i in scale2], dtype=dtype)
-    if t.shape[1]-len(scale)>0:
-        t = t.drop(t.columns[len(scale):].tolist(), axis=1)
-    for i in set.difference(set(scale), set(scale2)):
-        if prefix+'_'+str(i) not in t.columns:
-                t[prefix+'_'+str(i)] = 0
+    if feature_scale is not None:
+        t = t[:, :len(feature_scale)]
+    t = pd.DataFrame(t, columns=[prefix+'_'+str(i) for i in scale])
     return t, scale
