@@ -45,7 +45,7 @@ def categorical_onehot_multiple(feature, feature_scale=None, prefix='columns', d
     [class_mapping[i] for i in scale]
     col = [class_mapping[i] for i in itertools.chain.from_iterable(feature)]
     row = [i for i in itertools.chain.from_iterable(map(lambda x,y:[x]*len(y), range(len(feature)), feature))]
-    t = np.zeros([max(row)+1, max(col)+1], dtype=dtype)
+    t = np.zeros([max(row)+1, len(class_mapping)], dtype=dtype)
     t[row, col] = 1
     if feature_scale is not None:
         t = t[:, :len(feature_scale)]
