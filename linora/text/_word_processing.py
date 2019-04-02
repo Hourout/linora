@@ -1,13 +1,16 @@
 import itertools
 import collections
 
-__all__ = ['word_count', 'word_low_freq', 'word_filter']
+__all__ = ['WordCount', 'LowFreqWord', 'WordFilter']
 
-def word_count(sequence):
+def WordCount(sequence):
     return collections.Counter(itertools.chain.from_iterable(sequence))
 
-def word_low_freq(word_count_dict, threshold=3):
+def LowFreqWord(word_count_dict, threshold=3):
     return [i for i,j in word_count_dict.items() if j<=threshold]
     
-def word_filter(sequence, filter_word_list):
-    return list(filter(lambda x:x not in filter_word_list, sequence))
+def WordFilter(sequence, filter_word_list):
+    t = []
+    for i in sequence:
+        t.extend([[x for x in i if x not in filter_word_list]])
+    return t
