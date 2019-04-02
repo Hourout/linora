@@ -38,9 +38,8 @@ def categorical_onehot_binarizer(feature, feature_scale=None, prefix='columns', 
     return t, scale
 
 def categorical_onehot_multiple(feature, feature_scale=None, prefix='columns', dtype='int8'):
-    assert not any(feature.isnull()), "`feature' should be not contains NaN"
-    scale2 = list(set(itertools.chain.from_iterable(feature)))
-    scale = feature_scale if feature_scale is not None else scale2
+    assert not any(feature.isnull()), "`feature' should be not contains NaN."
+    scale = feature_scale if feature_scale is not None else list(set(itertools.chain.from_iterable(feature)))
     class_mapping = defaultdict(int)
     class_mapping.default_factory = class_mapping.__len__
     [class_mapping[i] for i in scale]
