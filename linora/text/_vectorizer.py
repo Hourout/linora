@@ -3,7 +3,7 @@ import collections
 import numpy as np
 import pandas as pd
 
-__all__ = ['CountVectorizer']
+__all__ = ['CountVectorizer', 'TfidfVectorizer']
 
 def CountVectorizer(feature, feature_scale=None, prefix='columns', dtype='int8'):
     scale = feature_scale if feature_scale is not None else list(set(itertools.chain.from_iterable(feature)))
@@ -24,3 +24,11 @@ def CountVectorizer(feature, feature_scale=None, prefix='columns', dtype='int8')
         t = t[:, :len(feature_scale)]
     t = pd.DataFrame(t, columns=[prefix+'_'+str(i) for i in scale])
     return t, scale
+
+def TfidfVectorizer(count_vectorizer, norm='l2'):
+    t = (count_vectorizer*(np.log((count_vectorizer.shape[0]+1)/(count_vectorizer.replace({0:None}).count()+1))+1))
+    if norm=='l2':
+        t = (t.T/np.sqrt(np.sum(np.square(t), axis=1))).T
+    elif norm=='l1':
+        t = (t.T/np.sum(np.abs(t), axis=1)).T
+    return t
