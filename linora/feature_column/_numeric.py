@@ -10,7 +10,7 @@ def numeric_binarizer(feature, feature_scale=None):
 
 def numeric_bucketized(feature, boundaries):
     t = feature.copy()
-    t[feature<l[0]] = 0
+    t[feature<boundaries[0]] = 0
     for r, i in enumerate(boundaries):
         t[feature>=i] = r+1
     return t.astype('int')
