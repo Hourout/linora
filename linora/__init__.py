@@ -4,6 +4,7 @@ from linora import param_search
 from linora import feature_column
 from linora import feature_selection
 from linora import sample_splits
+from linora import text
 
 
 __version__ = '0.5.0'
