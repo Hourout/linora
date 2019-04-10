@@ -1,7 +1,8 @@
 import itertools
 import numpy as np
 
-__all__ = ['select_best_length', 'word_to_index', 'word_index_sequence', 'pad_sequences']
+__all__ = ['select_best_length', 'word_to_index', 'word_index_sequence', 'pad_sequences',
+           'index_vector_matrix']
 
 def select_best_length(sequence, sample_rate=0.8):
     t = sorted(map(lambda x:len(x), sequence))
@@ -39,3 +40,17 @@ def pad_sequences(sequence, maxlen=None, dtype='int32', padding='pre', truncatin
     else:
         raise ValueError('Padding type "%s" not understood or Truncating type "%s" not understood' % (padding, truncating))
     return t
+
+def index_vector_matrix(word_index_dict, word_vector_dict, embed_dim=300, initialize='zero', dtype='float32'):
+    word_count = len(word_index_dict)+1
+    init = {'zero':lambda x,y:np.zeros((x,y), dtype=dtype),
+            'one':lambda x,y:np.ones((x,y), dtype=dtype),
+            'norm':lambda x,y:np.random.normal(size=(x,y), dtype=dtype)}
+    index_embed_matrix = init[initialize](word_count, embed_dim)
+    for word, index in word_index_dict.items():
+        l = len(word_vector_dict[word])
+        if l>embed_dim:
+            index_embed_matrix[index, :] = word_vector_dict[word][:embed_dim]
+        else:
+            index_embed_matrix[index, :l] = word_vector_dict[word]
+    return index_embed_matrix
