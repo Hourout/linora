@@ -1,7 +1,12 @@
 import numpy as np
 
-__all__ = ['normalize_minmax', 'normalize_maxabs', 'normalize_max', 'normalize_l1', 'normalize_l2',
-         'normalize_norm', 'normalize_robust']
+__all__ = ['normalize_meanminmax', 'normalize_minmax', 'normalize_maxabs', 'normalize_max',
+           'normalize_l1', 'normalize_l2', 'normalize_norm', 'normalize_robust']
+
+def normalize_meanminmax(feature, feature_scale=None):
+    scale = feature_scale if feature_scale is not None else (feature.mean(), feature.min(), feature.max())
+    t = (feature-scale[0])/(scale[2]-scale[1])
+    return t, scale
 
 def normalize_minmax(feature, feature_range=(0, 1), feature_scale=None):
     scale = feature_scale if feature_scale is not None else (feature.min(), feature.max())
