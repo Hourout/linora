@@ -241,8 +241,8 @@ def binary_report(y_true, y_pred, prob=0.5, pos_label=1, printable=False, printi
               'auc_roc':round(auc_roc(t.label, t.prob, pos_label=pos_label), 4),
               'auc_pr':round(auc_pr(t.label, t.prob, pos_label=pos_label), 4),
               'fmi':round(tp/np.sqrt((tp+fp)*(tp+fn)), 4),
-              'RMSE_label':round(np.sqrt(np.sum(np.square((t.label-t.prob)))), 4),
-              'RMSE_prob':round(np.sqrt(np.sum(np.square((t.label-y_pred)))), 4)
+              'RMSE_label':round(np.sqrt(np.mean(np.square((t.label-t.prob)))), 4),
+              'RMSE_prob':round(np.sqrt(np.mean(np.square((t.label-y_pred)))), 4)
              }
     if printable:
         print("\n{}".format(printinfo))
