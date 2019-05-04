@@ -3,7 +3,7 @@ import pandas as pd
 
 __all__ = ['binary_accuracy', 'categorical_accuracy', 'recall', 'precision', 'confusion_matrix',
            'fbeta_score', 'f1_score', 'auc_roc', 'auc_pr', 'binary_crossentropy', 
-           'categorical_crossentropy', 'ks', 'gini', 'psi']
+           'categorical_crossentropy', 'ks', 'gini', 'psi', 'fmi', 'binary_report']
 
 def classified_func(y_true, y_pred, prob=0.5, pos_label=1):
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
@@ -203,3 +203,56 @@ def psi(y_true, y_pred, threshold):
     predict = actual.merge(predict, on='label', how='outer')
     psi = ((predict.prob1-predict.prob2)*np.log((predict.prob1/(predict.prob2+0.00000001)))).sum()
     return psi
+
+def fmi(y_true, y_pred, prob=0.5, pos_label=1):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        prob: probability threshold.
+        pos_label: positive label.
+    Returns:
+        FMI of the positive class in binary classification.
+    """
+    t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
+    t = pd.crosstab(t.label, t.prob)
+    return t.iat[1, 1]/np.sqrt((t.iat[1, 1]+t.iat[1, 0])*(t.iat[1, 1]+t.iat[0, 1]))
+
+def binary_report(y_true, y_pred, prob=0.5, pos_label=1, printable=False, printinfo='Binary Classification Report'):
+    """
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        prob: probability threshold.
+        pos_label: positive label.
+    Returns:
+        binary report of the positive class in binary classification.
+    """
+    t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
+    cm = pd.crosstab(t.label, t.prob)
+    tp = cm.iat[1, 1]
+    fn = cm.iat[1, 0]
+    fp = cm.iat[0, 1]
+    tn = cm.iat[0, 0]
+    result = {'accuracy':round((tp+tn)/(tp+tn+fp+fn), 4),
+              'precision':round(tp/(tp+fp), 4),
+              'recall':round(tp/(tp+fn), 4),
+              'f1_score':round(2*(tp/(tp+fp))*(tp/(tp+fn))/((tp/(tp+fp))+(tp/(tp+fn))), 4),
+              'auc_roc':round(auc_roc(t.label, t.prob, pos_label=pos_label), 4),
+              'auc_pr':round(auc_pr(t.label, t.prob, pos_label=pos_label), 4),
+              'fmi':round(tp/np.sqrt((tp+fp)*(tp+fn)), 4),
+              'RMSE_label':round(np.sqrt(np.sum(np.square((t.label-t.prob)))), 4),
+              'RMSE_prob':round(np.sqrt(np.sum(np.square((t.label-y_pred)))), 4)
+             }
+    if printable:
+        print("\n{}".format(printinfo))
+        print("Accuracy: %.4g" % result['accuracy'])
+        print("Precision: %.4g" % result['precision'])
+        print("Recall: %.4g" % result['recall'])
+        print("F1_score: %.4g" % result['f1_score'])
+        print("AUC_ROC Score: %f" % result['auc_roc'])
+        print("AUC_PR Score: %f" % result['auc_pr'])
+        print("FMI: %f" % result['fmi'])
+        print("RMSE_label: %.4g" % result['RMSE_label'])
+        print("RMSE_prob: %.4g" % result['RMSE_prob'])
+    return result
