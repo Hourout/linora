@@ -11,7 +11,7 @@ def select_best_length(sequence, sample_rate=0.8):
 def word_to_index(sequence):
     return {v: k + 1 for k, v in enumerate(set(itertools.chain.from_iterable(sequence)))}
 
-def word_index_sequence(sequence, word_index_dict):
+def word_index_sequence(sequence, word_index_dict, pad_value=0):
     t = []
     for i in sequence:
         index = []
@@ -19,7 +19,7 @@ def word_index_sequence(sequence, word_index_dict):
             try:
                 index.append(word_index_dict[j])
             except:
-                index.append(0)
+                index.append(pad_value)
         t.extend([index])
     return t
 
