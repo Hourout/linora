@@ -6,8 +6,8 @@ def readme():
         return f.read()
 
 setup(name='linora',
-      version='0.5.0',
-      install_requires=['pandas>=0.24.1', 'scikit-learn>=0.20.2', 'xgboost>=0.81', 'pyecharts>=0.5.11',
+      version='0.6.0',
+      install_requires=['pandas>=0.24.1', 'scikit-learn>=0.20.2', 'xgboost>=0.81', 'pyecharts>=1.0.0',
                         'pyecharts_snapshot>=0.1.10', 'numpy>=1.16.2'],
       description='Simple and efficient tools for data mining and data analysis.',
       long_description=readme(),
@@ -25,7 +25,6 @@ setup(name='linora',
           'Topic :: Scientific/Engineering :: Artificial Intelligence',
           'Topic :: Scientific/Engineering :: Visualization',
           'License :: OSI Approved :: Apache Software License',
-          'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7'
       ],
