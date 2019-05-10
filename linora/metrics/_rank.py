@@ -1,8 +1,9 @@
 import pandas as pd
 
-__all__  = ['mapk']
+__all__  = ['mapk', 'hit_ratio', 'mean_reciprocal_rank']
 
 def mapk(y_true, y_pred, k):
+    """Mean Average Precision k"""
     def apk(actual, predict, k):
         if len(predict)>k:
             predict = predict[:k]
@@ -14,3 +15,22 @@ def mapk(y_true, y_pred, k):
                 score += nums / (i+1.0)
         return score / min(len(actual), k) if actual else 0.0
     return pd.DataFrame({'label1':y_true, 'label2':y_pred}).apply(lambda x:apk(x[0], x[1], k=k), axis=1).mean()
+
+def hit_ratio(y_true, y_pred, k):
+    """Hit Ratio k"""
+    t = pd.DataFrame({'label1':y_true, 'label2':y_pred})
+    a = t.apply(lambda x:len(set(x[0]).intersection(set(x[1]))) if len(x[1])<=k else len(set(x[0]).intersection(set(x[1][:k]))), axis=1).sum()
+    b = t.label1.map(lambda x:len(set(x))).sum()
+    return a/b
+
+def mean_reciprocal_rank(y_true, y_pred, k):
+    """Mean Reciprocal Rank"""
+    def mrr(actual, predict, k):
+        if len(predict)>k:
+            predict = predict[:k]
+        try:
+            rank = 1./(predict.index(actual)+1)
+        except:
+            rank = 0
+        return rank
+    return pd.DataFrame({'label1':y_true, 'label2':y_pred}).apply(lambda x: mrr(x[0], x[1], k=k), axis=1).mean()
