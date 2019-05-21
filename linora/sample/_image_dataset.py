@@ -1,4 +1,4 @@
-imprt os
+import os
 import pathlib
 import itertools
 import pandas as pd
