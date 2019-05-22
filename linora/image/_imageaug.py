@@ -1,5 +1,5 @@
 import tensorflow as tf
-from linra.image._image import *
+from linora.image._image import *
 
 __all__ = ['ImageAug']
 
