@@ -30,3 +30,15 @@ pip install git+git://github.com/Hourout/linora.git
 
 
 ## Example
+[more example](https://github.com/Hourout/linora/blob/master/example/example.md)
+
+```
+import linora as la
+
+# plot ks curve
+label = [1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1]
+label_prob = [0.8, 0.4, 0.2, 0.5, 0.9, 0.2, 0.8, 0.6, 0.1, 0.3, 0.8, 0.3, 0.9, 0.2, 0.84, 
+              0.2, 0.5, 0.23, 0.83, 0.71, 0.34, 0.3, 0.2, 0.7, 0.2, 0.8, 0.3, 0.59, 0.26, 0.16, 0.13, 0.8]
+la.chart.ks_curve(label, label_prob)
+```
+![](https://github.com/Hourout/linora/blob/master/image/ks_curve.png)
