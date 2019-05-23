@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.python.ops.image_ops_impl import _ImageDimensions
 
-__all__ = ['read_image', 'RandomBrightness', 'RandomContrast', 'RandomHue',
+__all__ = ['read_image', 'save_image', 'RandomBrightness', 'RandomContrast', 'RandomHue',
            'RandomSaturation', 'RandomGamma', 'RandomFlipLeftRight', 'RandomFlipTopBottom',
            'RandomTranspose', 'RandomRotation', 'RandomCropCentralResize', 'RandomCropPointResize',
            'Normalize', 'RandomRescale', 'RandomNoiseGaussian', 'RandomNoisePoisson',
@@ -47,6 +47,22 @@ def read_image(filename, channel=0, image_format='mix', **kwarg):
     else:
         raise ValueError('image_format should be one of "mix", "jpg", "jpeg", "png", "gif", "bmp".')
     return image if kwarg else image.numpy()
+
+def save_image(image, filename):
+    """Writes image to the file at input filename. 
+    
+    Args:
+        image:    A Tensor of type string. scalar. The content to be written to the output file.
+        filename: A string. scalar. The name of the file to which we write the contents.
+    Raises:
+        ValueError: If `filename` is not in `[`jpg`, `jpeg`, `png`]`.
+    """
+    if filename.split('.')[-1] in ['jpg', 'jpeg']:
+        tf.io.write_file(filename, tf.io.encode_jpeg(image))
+    elif filename.split('.')[-1]=='png':
+        tf.io.write_file(filename, tf.image.encode_png(image))
+    else:
+        raise ValueError('filename should be one of [`jpg`, `jpeg`, `png`].')
 
 def RandomBrightness(image, delta, seed=None, **kwarg):
     """Adjust the brightness of RGB or Grayscale images.
