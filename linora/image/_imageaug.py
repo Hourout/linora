@@ -40,6 +40,17 @@ class ImageAug():
         """
         return ImageAug(read_image(filename, channel, image_format, _=True))
     
+    def save_image(self, filename):
+        """Writes image to the file at input filename. 
+    
+        Args:
+            image:    A Tensor of type string. scalar. The content to be written to the output file.
+            filename: A string. scalar. The name of the file to which we write the contents.
+        Raises:
+            ValueError: If `filename` is not in `[`jpg`, `jpeg`, `png`]`.
+        """
+        return save_image(self._image, filename)
+    
     def RandomBrightness(self, delta, seed=None):
         """Adjust the brightness of RGB or Grayscale images.
     
