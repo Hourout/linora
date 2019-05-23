@@ -1,5 +1,6 @@
 # Linora
 
+![](https://github.com/Hourout/linora/blob/master/image/linora.png)
 
 
 ![PyPI version](https://img.shields.io/pypi/pyversions/linora.svg)
@@ -28,19 +29,7 @@ pip install git+git://github.com/Hourout/linora.git
 ```
 
 ## Feature
--XGBoost
-  - Support XGBClassifier in RandomSearch、GridSearch
-  - Support XGBRegressor in RandomSearch、GridSearch
-  - Support XGBRanker in RandomSearch、GridSearch
-  - Support cpu、gpu
-  - Support fast search、k-fold search
 
--LightGBM
-  - Support LGBClassifier in RandomSearch、GridSearch
-  - Support LGBRegressor in RandomSearch、GridSearch
-  - Support LGBRanker in RandomSearch、GridSearch
-  - Support cpu、gpu
-  - Support fast search、k-fold search
 
 ## Example
 - [linora.XGBRanker](https://github.com/Hourout/linora/blob/master/example/XGBRanker.ipynb)
