@@ -32,14 +32,14 @@ def kfold(df, stratify=None, n_splits=3, shuffle=False, random_state=None):
     """
     t = df.sample(frac=1, random_state=random_state).index if shuffle else df.index
     if stratify is None:
-        m = np.floor(len(t)/n_splits)
+        m = int(np.floor(len(t)/n_splits))
         fold = [t[i*m:(i+1)*m].tolist() for i in range(n_splits-1)]+[t[(n_splits-1)*m:].tolist()]
     else:
         t = stratify[t]
         fold = []
         for label in t.unique():
             a = t[t==label].index
-            m = np.floor(len(a)/n_splits)
+            m = int(np.floor(len(a)/n_splits))
             fold.append([a[i*m:(i+1)*m].tolist() for i in range(n_splits-1)]+[a[(n_splits-1)*m:].tolist()])
         t = [[] for i in range(n_splits)]
         for i in fold:
