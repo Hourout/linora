@@ -30,7 +30,7 @@ pip install git+git://github.com/Hourout/linora.git
 
 
 ## Example
-[more example](https://github.com/Hourout/linora/blob/master/example/example.md)
+[more example](https://github.com/Hourout/linora/blob/master/example/readme.md)
 
 ```
 import linora as la
