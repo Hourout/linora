@@ -385,7 +385,7 @@ def RandomCropCentralResize(image, central_rate, size, method=0, seed=None, **kw
         image = tf.image.central_crop(image, central_fraction=random_central_rate)
     else:
         raise ValueError('central_rate should be one of int, float, tuple, list.')
-    image = tf.image.resize_images(image, size=size, method=method)
+    image = tf.image.resize(image, size=size, method=method)
     return image if kwarg else image.numpy()
 
 def RandomCropPointResize(image, height_rate, width_rate, size, method=0, seed=None, **kwarg):
