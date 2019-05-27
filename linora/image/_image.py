@@ -576,25 +576,25 @@ def RandomNoisePoisson(image, scale=1, lam=1.0, seed=None, **kwarg):
 def RandomNoiseMask(image, keep_prob=0.95, seed=None, **kwarg):
     """Mask noise apply to image.
     
-    With probability `keep_prob`, outputs the input element scaled up by
+    With probability `drop_prob`, outputs the input element scaled up by
     `1`, otherwise outputs `0`. 
     
     Tips:
         1 mean pixel have no change.
-        a suitable interval is [0.9, 1].
+        a suitable interval is (0., 0.1].
     Args:
         image: Either a 3-D float Tensor of shape [height, width, depth], or a 4-D
                Tensor of shape [batch_size, height, width, depth].
-        keep_prob: should be in the interval (0, 1].
-                   if int or float, the probability that each element is kept.
+        keep_prob: should be in the interval (0, 1.].
+                   if float, the probability that each element is drop.
                    if tuple or list, randomly picked in the interval
-                   `[keep_prob[0], keep_prob[1])`, the probability that each element is kept.
+                   `[keep_prob[0], keep_prob[1])`, the probability that each element is drop.
         seed: A Python integer. Used to create a random seed.
               See `tf.set_random_seed` for behavior.
     Returns:
         3-D / 4-D float Tensor, as per the input.
     Raises:
-        ValueError: If `keep_prob` is not in `(0, 1]`.
+        ValueError: If `keep_prob` is not in `(0, 1.]`.
     """
     image = tf.cast(image, dtype=tf.float32)
     image_shape = tf.cast(_ImageDimensions(image, image.get_shape().ndims), dtype=tf.int32)
