@@ -306,10 +306,10 @@ def RandomTranspose(image, random=True, seed=None, **kwarg):
     assert isinstance(random, bool), 'random should be bool type.'
     if random:
         r = tf.random.uniform([2], 0, 1, seed=seed)
-        image = tf.case([(tf.less(r[0], r[1]), lambda: tf.image.transpose_image(image))],
+        image = tf.case([(tf.less(r[0], r[1]), lambda: tf.image.transpose(image))],
                         default=lambda: image)
     else:
-        image = tf.image.transpose_image(image)
+        image = tf.image.transpose(image)
     return image if kwarg else image.numpy()
 
 def RandomRotation(image, k=[0, 1, 2, 3], seed=None, **kwarg):
