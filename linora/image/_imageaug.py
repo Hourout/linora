@@ -470,4 +470,4 @@ class ImageAug():
     
     def show(self):
         """plot numpy array image."""
-        return tf.keras.preprocessing.image.array_to_img(self._image.numpy())
+        return tf.keras.preprocessing.image.array_to_img(self._image.numpy().astype('uint8'))
