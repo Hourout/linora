@@ -565,10 +565,10 @@ def RandomNoisePoisson(image, scale=1, lam=1.0, seed=None, **kwarg):
     image = tf.cast(image, dtype=tf.float32)
     image_shape = tf.cast(_ImageDimensions(image, image.get_shape().ndims), dtype=tf.int32)
     if isinstance(lam, (int, float)):
-        image = tf.math.add(tf.math.multiply(tf.random.poisson(lam, image_shape, seed=seed), new_scale), image)
+        image = tf.math.add(tf.math.multiply(tf.random.poisson(image_shape, lam, seed=seed), new_scale), image)
     elif isinstance(lam, (tuple, list)):
         random_lam = tf.random.uniform([], lam[0], lam[1])
-        image = tf.math.add(tf.math.multiply(tf.random.poisson(random_lam, image_shape, seed=seed), new_scale), image)
+        image = tf.math.add(tf.math.multiply(tf.random.poisson(image_shape, random_lam, seed=seed), new_scale), image)
     else:
         raise ValueError('lam type should be one of int, float, tuple, list.')
     return image if kwarg else image.numpy()
