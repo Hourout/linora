@@ -15,9 +15,9 @@ def _hello():
 ------------------------------------------------------------------------------------
       Linora
 --------------------
-      Version      : -- 0.6.0  --
+      Version      : --  {}  --
       Author       : JinQing Lee
       License      : Apache-2.0
       Homepage     : https://github.com/Hourout/linora
       Description  : Simple and efficient tools for data mining and data analysis.
-------------------------------------------------------------------------------------""")
+------------------------------------------------------------------------------------""".format(__version__))
