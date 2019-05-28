@@ -339,6 +339,13 @@ def RandomRotation(image, k=[0, 1, 2, 3], seed=None, **kwarg):
         raise ValueError('k should be int one of [1, 2, 3] or sublist in the [0, 1, 2, 3].')
     return image if kwarg else image.numpy()
 
+def resize_method(mode):
+    mode_dict = {0:tf.image.ResizeMethod.BILINEAR, 1:tf.image.ResizeMethod.NEAREST_NEIGHBOR,
+                 2:tf.image.ResizeMethod.BICUBIC, 3:tf.image.ResizeMethod.AREA,
+                 4:tf.image.ResizeMethod.LANCZOS3, 5:tf.image.ResizeMethod.LANCZOS5,
+                 6:tf.image.ResizeMethod.GAUSSIAN, 7:tf.image.ResizeMethod.MITCHELLCUBIC}
+    return mode_dict[mode]
+
 def RandomCropCentralResize(image, central_rate, size, method=0, seed=None, **kwarg):
     """Crop the central region of the image(s) and resize specify shape.
     
@@ -356,7 +363,8 @@ def RandomCropCentralResize(image, central_rate, size, method=0, seed=None, **kw
     batch of images (`image` is a 4-D Tensor).
     
     Tips:
-        method should be one of [0, 1, 2, 3], "0:bilinear", "1:nearest_neighbor", "2:bicubic", "3:area".
+        method should be one of [0, 1, 2, 3, 4, 5, 6, 7], "0:bilinear", "1:nearest", "2:bicubic",
+        "3:area", "4:lanczos3", "5:lanczos5", "6:gaussian", "7:mitchellcubic".
     Args:
         image: Either a 3-D float Tensor of shape [height, width, depth], or a 4-D
                Tensor of shape [batch_size, height, width, depth].
@@ -366,7 +374,8 @@ def RandomCropCentralResize(image, central_rate, size, method=0, seed=None, **kw
         size: A 1-D int32 Tensor of 2 elements: `new_height, new_width`.
               The new size for the images.
         method: int, default 0. resize image shape method.
-                should be one of "0:bilinear", "1:nearest_neighbor", "2:bicubic", "3:area"
+                should be one of "0:bilinear", "1:nearest", "2:bicubic", "3:area", "4:lanczos3",
+                "5:lanczos5", "6:gaussian", "7:mitchellcubic".
         seed: A Python integer. Used to create a random seed.
               See `tf.set_random_seed` for behavior.
     Returns:
@@ -375,7 +384,8 @@ def RandomCropCentralResize(image, central_rate, size, method=0, seed=None, **kw
         ValueError: if central_crop_fraction is not within (0, 1].
     """
     assert isinstance(size, (tuple, list)), 'size should be one of tuple, list.'
-    assert method in [0, 1, 2, 3], 'method should be one of "0:bilinear", "1:nearest_neighbor", "2:bicubic", "3:area"'
+    assert method in [0, 1, 2, 3, 4, 5, 6, 7], """method should be one of "0:bilinear", "1:nearest", "2:bicubic",
+    "3:area", "4:lanczos3", "5:lanczos5", "6:gaussian", "7:mitchellcubic" """
     if isinstance(central_rate, (int, float)):
         assert 0<central_rate<=1, 'if central_rate type one of int or float, must be in the interval (0, 1].'
         image = tf.image.central_crop(image, central_fraction=central_rate)
@@ -385,7 +395,7 @@ def RandomCropCentralResize(image, central_rate, size, method=0, seed=None, **kw
         image = tf.image.central_crop(image, central_fraction=random_central_rate)
     else:
         raise ValueError('central_rate should be one of int, float, tuple, list.')
-    image = tf.image.resize(image, size=size, method=method)
+    image = tf.image.resize(image, size=size, method=resize_method(method))
     return image if kwarg else image.numpy()
 
 def RandomCropPointResize(image, height_rate, width_rate, size, method=0, seed=None, **kwarg):
@@ -397,7 +407,8 @@ def RandomCropPointResize(image, height_rate, width_rate, size, method=0, seed=N
     batch of images (`image` is a 4-D Tensor).
     
     Tips:
-        method should be one of [0, 1, 2, 3], "0:bilinear", "1:nearest_neighbor", "2:bicubic", "3:area".
+        method should be one of [0, 1, 2, 3, 4, 5, 6, 7], "0:bilinear", "1:nearest", "2:bicubic",
+        "3:area", "4:lanczos3", "5:lanczos5", "6:gaussian", "7:mitchellcubic".
     Args:
         image: Either a 3-D float Tensor of shape [height, width, depth], or a 4-D
                Tensor of shape [batch_size, height, width, depth].
@@ -406,7 +417,8 @@ def RandomCropPointResize(image, height_rate, width_rate, size, method=0, seed=N
         size: A 1-D int32 Tensor of 2 elements: `new_height, new_width`.
               The new size for the images.
         method: int, default 0. resize image shape method.
-                should be one of "0:bilinear", "1:nearest_neighbor", "2:bicubic", "3:area"
+                should be one of "0:bilinear", "1:nearest", "2:bicubic", "3:area", "4:lanczos3",
+                "5:lanczos5", "6:gaussian", "7:mitchellcubic".
         seed: A Python integer. Used to create a random seed.
               See `tf.set_random_seed` for behavior.
     Returns:
@@ -418,7 +430,8 @@ def RandomCropPointResize(image, height_rate, width_rate, size, method=0, seed=N
     assert isinstance(width_rate, (int, float)), 'width_rate should be one of int, float.'
     assert 0<height_rate<=1 and 0<width_rate<=1, 'height_rate and width_rate should be in the interval (0, 1].'
     assert isinstance(size, (tuple, list)), 'size should be one of tuple, list.'
-    assert method in [0, 1, 2, 3], 'method should be one of "0:bilinear", "1:nearest_neighbor", "2:bicubic", "3:area"'
+    assert method in [0, 1, 2, 3, 4, 5, 6, 7], """method should be one of "0:bilinear", "1:nearest", "2:bicubic",
+    "3:area", "4:lanczos3", "5:lanczos5", "6:gaussian", "7:mitchellcubic" """
     image = tf.cast(image, dtype=tf.float32)
     shape = tf.cast(_ImageDimensions(image, image.get_shape().ndims), dtype=tf.float32)
     offset_height = tf.cast(tf.math.multiply(tf.random.uniform([], 0, 1-height_rate, seed=seed), shape[-3]), dtype=tf.int32)
@@ -426,7 +439,7 @@ def RandomCropPointResize(image, height_rate, width_rate, size, method=0, seed=N
     target_height = tf.cast(tf.math.multiply(height_rate, shape[-3]), dtype=tf.int32)
     target_width = tf.cast(tf.math.multiply(width_rate, shape[-2]), dtype=tf.int32)
     image = tf.image.crop_to_bounding_box(image, offset_height, offset_width, target_height, target_width)
-    image = tf.image.resize_images(image, size=size, method=method)
+    image = tf.image.resize(image, size=size, method=resize_method(method))
     return image if kwarg else image.numpy()
 
 def Normalize(image, mean=None, std=None, **kwarg):
@@ -476,6 +489,7 @@ def RandomRescale(image, scale, seed=None, **kwarg):
     Raises:
         scale type error.
     """
+    image = tf.cast(image, dtype=tf.float32)
     if isinstance(scale, (int, float)):
         image = tf.math.multiply(image, scale)
     elif isinstance(scale, (tuple, list)):
