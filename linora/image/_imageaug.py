@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 from linora.image._image import *
 
@@ -466,8 +467,8 @@ class ImageAug():
     
     def run(self):
         """return numpy array image."""
-        return self._image.numpy()
+        return self._image if type(self._image)==np.ndarray else self._image.numpy()
     
     def show(self):
         """plot numpy array image."""
-        return tf.keras.preprocessing.image.array_to_img(self._image.numpy().astype('uint8'))
+        return tf.keras.preprocessing.image.array_to_img((self._image if type(self._image)==np.ndarray else self._image.numpy()).astype('uint8'))
