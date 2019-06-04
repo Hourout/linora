@@ -8,13 +8,13 @@ def numeric_binarizer(feature, feature_scale=None):
     t = feature.clip(upper=scale).replace({scale:scale+0.1}).clip(scale).replace({scale:0, scale+0.1:1}).astype('int')
     return t, scale
 
-def numeric_bucketized(feature, boundaries):
+def numeric_bucketized(feature, boundaries, miss_pad=-1, dtype='int64'):
     t = feature.copy()
     bound = sorted(boundaries)
     t[feature<bound[0]] = 0
     for r, i in enumerate(bound):
         t[feature>=i] = r+1
-    return t.astype('int')
+    return t.fillna(miss_pad).astype(dtype)
 
 def numeric_padding(feature, method='mean', feature_scale=None):
     assert method in ['mean', 'median'], "`method` should be one of ['mean', 'median']."
