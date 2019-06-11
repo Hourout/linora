@@ -1,20 +1,20 @@
-import itertools
-import collections
+from itertools import chain
+from collections import defaultdict, Counter
 import numpy as np
 import pandas as pd
 
 __all__ = ['CountVectorizer', 'TfidfVectorizer']
 
 def CountVectorizer(feature, feature_scale=None, prefix='columns', dtype='int8'):
-    scale = feature_scale if feature_scale is not None else list(set(itertools.chain.from_iterable(feature)))
-    class_mapping = collections.defaultdict(int)
+    scale = feature_scale if feature_scale is not None else list(set(chain.from_iterable(feature)))
+    class_mapping = defaultdict(int)
     class_mapping.default_factory = class_mapping.__len__
     [class_mapping[i] for i in scale]
     row = []
     col = []
     values = []
     for r, x in enumerate(feature):
-        y = collections.Counter(x)
+        y = Counter(x)
         row.extend([r]*len(y))
         col.extend([class_mapping[i] for i in y])
         values.extend(y.values())
