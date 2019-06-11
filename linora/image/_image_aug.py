@@ -9,4 +9,4 @@ __all__ = ['ImageAug']
 
 class ImageAug(ImageIoAug, ImageColorAug, ImageNoiseAug, ImageResizeAug, ImageRescaleAug, ImagePositionAug):
     def __init__(self, image=None):
-        super(IoAug, self).__init__(image)
+        super(ImageAug, self).__init__(image)
