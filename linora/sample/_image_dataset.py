@@ -1,6 +1,7 @@
 import os
 import pathlib
-import itertools
+from itertools import chain
+
 import pandas as pd
 
 __all__ = ['ImageDataset', 'ImageClassificationFolderDataset']
@@ -12,7 +13,7 @@ class ImageDataset():
         self.image_format = image_format
 
         p = pathlib.Path(self.root)
-        self.data = pd.DataFrame(itertools.chain.from_iterable((p.rglob(f'*.{i}') for i in self.image_format)), columns=['image'])
+        self.data = pd.DataFrame(chain.from_iterable((p.rglob(f'*.{i}') for i in self.image_format)), columns=['image'])
         if label_func is not None:
             self.data['label'] = self.data.image.map(lambda x:label_func(x.name))
         self.data['image'] = self.data.astype(str)
