@@ -1,5 +1,5 @@
-import itertools
-import collections
+from itertools import chain
+from collections import Counter
 
 __all__ = ['sequence_preprocess', 'word_count', 'word_low_freq', 'word_high_freq', 'filter_word',
            'filter_punctuation']
@@ -11,7 +11,7 @@ def sequence_preprocess(sequence):
     return t
 
 def word_count(sequence):
-    return collections.Counter(itertools.chain.from_iterable(sequence))
+    return Counter(chain.from_iterable(sequence))
 
 def word_low_freq(word_count_dict, threshold=3):
     return [i for i,j in word_count_dict.items() if j<=threshold]
