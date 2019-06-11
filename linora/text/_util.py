@@ -1,4 +1,4 @@
-import itertools
+from itertools import chain
 import numpy as np
 
 __all__ = ['select_best_length', 'word_to_index', 'word_index_sequence', 'pad_sequences',
@@ -9,7 +9,7 @@ def select_best_length(sequence, sample_rate=0.8):
     return t[int(np.ceil(len(sequence)*sample_rate))]
 
 def word_to_index(sequence):
-    return {v: k + 1 for k, v in enumerate(set(itertools.chain.from_iterable(sequence)))}
+    return {v: k + 1 for k, v in enumerate(set(chain.from_iterable(sequence)))}
 
 def word_index_sequence(sequence, word_index_dict, pad_value=0):
     t = []
