@@ -7,6 +7,17 @@ __all__ = ['ks_curve', 'roc_curve', 'pr_curve', 'lift_curve', 'gain_curve', 'gin
            'confusion_matrix_map']
 
 def ks_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Kolmogorov-Smirnov Curve.html'):
+    """plot Kolmogorov-Smirnov Curve.
+    
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        pos_label: positive label.
+        jupyter: if plot in jupyter, default True.
+        path: if jupyter is False, result save a html file.
+    Returns:
+        A pyecharts polt object.
+    """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -29,6 +40,17 @@ def ks_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Kolmogorov-Smirnov
     return line.render_notebook() if jupyter else line.render(path)
 
 def roc_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Receiver Operating Characteristic Curve.html'):
+    """plot Receiver Operating Characteristic Curve.
+    
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        pos_label: positive label.
+        jupyter: if plot in jupyter, default True.
+        path: if jupyter is False, result save a html file.
+    Returns:
+        A pyecharts polt object.
+    """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -50,6 +72,17 @@ def roc_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Receiver Operatin
     return line.render_notebook() if jupyter else line.render(path)
     
 def pr_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Precision Recall Curve.html'):
+    """plot Precision Recall Curve.
+    
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        pos_label: positive label.
+        jupyter: if plot in jupyter, default True.
+        path: if jupyter is False, result save a html file.
+    Returns:
+        A pyecharts polt object.
+    """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -70,6 +103,17 @@ def pr_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Precision Recall C
     return line.render_notebook() if jupyter else line.render(path)
 
 def lift_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Lift Curve.html'):
+    """plot Lift Curve.
+    
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        pos_label: positive label.
+        jupyter: if plot in jupyter, default True.
+        path: if jupyter is False, result save a html file.
+    Returns:
+        A pyecharts polt object.
+    """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -90,6 +134,17 @@ def lift_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Lift Curve.html'
     return line.render_notebook() if jupyter else line.render(path)
 
 def gain_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Gain Curve.html'):
+    """plot Gain Curve.
+    
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        pos_label: positive label.
+        jupyter: if plot in jupyter, default True.
+        path: if jupyter is False, result save a html file.
+    Returns:
+        A pyecharts polt object.
+    """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -108,6 +163,17 @@ def gain_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Gain Curve.html'
     return line.render_notebook() if jupyter else line.render(path)
 
 def gini_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Gini Curve.html'):
+    """plot Gini Curve.
+    
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        pos_label: positive label.
+        jupyter: if plot in jupyter, default True.
+        path: if jupyter is False, result save a html file.
+    Returns:
+        A pyecharts polt object.
+    """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -126,6 +192,16 @@ def gini_curve(y_true, y_pred, pos_label=1, jupyter=True, path='Gini Curve.html'
     return line.render_notebook() if jupyter else line.render(path)
 
 def confusion_matrix_map(y_true, y_pred, jupyter=True, path="Confusion Matrix Map.html"):
+    """plot Confusion Matrix Map.
+    
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        jupyter: if plot in jupyter, default True.
+        path: if jupyter is False, result save a html file.
+    Returns:
+        A pyecharts polt object.
+    """
     t = confusion_matrix(y_true, y_pred)
     t = pd.DataFrame([[i, m,n ] for i,j in t.to_dict().items() for m, n in j.items()],
                      columns=['actual', 'predict', 'over_values'])
