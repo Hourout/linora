@@ -4,6 +4,16 @@ import pandas as pd
 __all__ = ['kl_divergence', 'js_divergence', 'mutual_information_rate', 'pointwise_mutual_information_rate']
 
 def kl_divergence(x, y, continuous=False, bucket_num=1000):
+    """kl divergence.
+    
+    Args:
+        x: pd.Series, sample feature value.
+        y: pd.Series, sample feature value.
+        continuous: default False, whether it is a continuous value. if True, normalized x and y.
+        bucket_num: default 1000, if continuous is True, perform bucket operations on features.
+    Returns:
+        kl divergence value.
+    """
     if continuous:
         x1 = (x-min(x.min(), y.min()))/(max(x.max(), y.max())-min(x.min(), y.min()))
         y1 = (y-min(x.min(), y.min()))/(max(x.max(), y.max())-min(x.min(), y.min()))
@@ -17,6 +27,16 @@ def kl_divergence(x, y, continuous=False, bucket_num=1000):
     return t
 
 def js_divergence(x, y, continuous=False, bucket_num=1000):
+    """js divergence.
+    
+    Args:
+        x: pd.Series, sample feature value.
+        y: pd.Series, sample feature value.
+        continuous: default False, whether it is a continuous value. if True, normalized x and y.
+        bucket_num: default 1000, if continuous is True, perform bucket operations on features.
+    Returns:
+        js divergence value.
+    """
     if continuous:
         x1 = (x-min(x.min(), y.min()))/(max(x.max(), y.max())-min(x.min(), y.min()))
         y1 = (y-min(x.min(), y.min()))/(max(x.max(), y.max())-min(x.min(), y.min()))
@@ -32,6 +52,14 @@ def js_divergence(x, y, continuous=False, bucket_num=1000):
     return 0.5*(t1+t2)
 
 def mutual_information(feature1, feature2):
+    """mutual information.
+    
+    Args:
+        feature1: pd.Series, sample feature value.
+        feature2: pd.Series, sample feature value.
+    Returns:
+        mutual information value.
+    """
     t = feature1.value_counts(normalize=True).reset_index()
     t.columns = ['label', 'label_mean']
     t['temp'] = 0
@@ -47,6 +75,14 @@ def mutual_information(feature1, feature2):
     return t.mutual_information.sum()
 
 def pointwise_mutual_information(feature1, feature2):
+    """pointwise mutual information.
+    
+    Args:
+        feature1: pd.Series, sample feature value.
+        feature2: pd.Series, sample feature value.
+    Returns:
+        pointwise mutual information value.
+    """
     t = feature1.value_counts(normalize=True).reset_index()
     t.columns = ['label', 'label_mean']
     t['temp'] = 0
@@ -61,7 +97,23 @@ def pointwise_mutual_information(feature1, feature2):
     return np.power(np.cumprod(np.log2(t.label2_mean/t.label_mean/t.label1_mean)).max(), 1/len(t))
 
 def mutual_information_rate(feature1, feature2):
+    """mutual information rate.
+    
+    Args:
+        feature1: pd.Series, sample feature value.
+        feature2: pd.Series, sample feature value.
+    Returns:
+        mutual information rate value.
+    """
     return mutual_information(feature1, feature2)/min(mutual_information(feature1, feature1), mutual_information(feature2, feature2))
 
 def pointwise_mutual_information_rate(feature1, feature2):
+    """pointwise mutual information rate.
+    
+    Args:
+        feature1: pd.Series, sample feature value.
+        feature2: pd.Series, sample feature value.
+    Returns:
+        pointwise mutual information rate value.
+    """
     return pointwise_mutual_information(feature1, feature2)/min(pointwise_mutual_information(feature1, feature1), pointwise_mutual_information(feature2, feature2))
