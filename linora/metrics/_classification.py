@@ -142,11 +142,34 @@ def auc_pr(y_true, y_pred, pos_label=1):
     return auc
 
 def binary_crossentropy(y_true, y_pred):
+    """Computes the crossentropy metric between the labels and predictions.
+    
+    This is the crossentropy metric class to be used when there are only two label classes (0 and 1).
+    
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted probability, as returned by a classifier.
+    Returns:
+        binary crossentropy of the positive class in binary classification.
+    """
     t = np.exp(y_pred-np.max(y_pred))
     t = -(np.log(t/t.sum())*y_true).mean()
     return t
 
-def categorical_crossentropy(y_true, y_pred, one_hot=True):
+def categorical_crossentropy(y_true, y_pred, one_hot=False):
+    """Computes the crossentropy metric between the labels and predictions.
+    
+    This is the crossentropy metric class to be used when there are multiple label classes (2 or more). 
+    Here we assume that labels are given as a one_hot representation. 
+    eg., When labels values are [2, 0, 1], y_true = [[0, 0, 1], [1, 0, 0], [0, 1, 0]].
+    
+    Args:
+        y_true: pd.Series, ground truth (correct) labels.
+        y_pred: pd.Series, predicted probability, as returned by a classifier.
+        one_hot: default True, Whether y_true is a one_hot variable.
+    Returns:
+        categorical crossentropy of the positive class in categorical classification.
+    """
     assert y_pred.shape[1]==y_true.nunique(), "`y_pred` and `y_true` dim not same."
     t = np.exp(y_pred.T-np.max(y_pred, axis=1))
     if one_hot:
@@ -194,6 +217,14 @@ def gini(y_true, y_pred, pos_label=1):
     return gini
 
 def psi(y_true, y_pred, threshold):
+    """
+    Args:
+        y_true: pd.Series, a feature variable.
+        y_pred: pd.Series, a feature variable.
+        threshold: list, a threshold list.
+    Returns:
+        psi value of two variable.
+    """
     actual = (y_true-y_true.min())/(y_true.max()-y_true.min())
     predict = (y_pred-y_pred.min())/(y_pred.max()-y_pred.min())
     actual = pd.cut(actual, threshold, labels=range(1, len(threshold))).value_counts(normalize=True).reset_index()
