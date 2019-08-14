@@ -9,6 +9,15 @@ __all__ = ['ImageDataset', 'ImageClassificationFolderDataset']
 
 class ImageDataset():
     def __init__(self, root, image_format=['png', 'jpg', 'jpeg'], label_func=None):
+        """Construct an image dataset label index.
+        
+        Args:
+            root: image dataset file root.
+            image_format: list, default ['png', 'jpg', 'jpeg'].
+            label_func: if label_func is None, self.data['label'] is not exist; function is apply to self.data['image'].
+        Returns:
+            class, self.data['image'] is image path, self.data['label'] is image label.
+        """
         self.root = root
         self.image_format = image_format
 
@@ -20,6 +29,15 @@ class ImageDataset():
 
 class ImageClassificationFolderDataset():
     def __init__(self, root, image_format=['png', 'jpg', 'jpeg'], label_encoder=False):
+        """Construct an image dataset label index.
+        
+        Args:
+            root: image dataset file root.
+            image_format: list, default ['png', 'jpg', 'jpeg'].
+            label_encoder: whether encode labels with value between 0 and n_classes-1.
+        Returns:
+            class, self.data['image'] is image path, self.data['label'] is image label.
+        """
         self.root = root
         self.image_format = image_format    
 
