@@ -27,12 +27,19 @@ pip install git+git://github.com/Hourout/linora.git
 ```
 
 ## Feature
-
+- metrics
+- metrics charts
+- feature columns
+- feature selection
+- image augmentation
+- text processing
+- model param search
+- sample splits
 
 ## Example
 [more example](https://github.com/Hourout/linora/blob/master/example/readme.md)
 
-```
+```python
 import linora as la
 
 # plot ks curve
