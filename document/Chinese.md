@@ -1,6 +1,6 @@
 # Linora
 
-Linora是一个简洁高效的机器学习超三参数自动化调优的训练库，支持XGBoost、LightGBM、CatBoost以及其他具有sklearn模式的算法实例。
+Linora是一个简洁高效的数据挖掘和数据分析工具，最大限度让你不使用sklearn也能做相关数据挖掘任务，同时完美兼容pandas，相比skearn运行速度更快且更省内存。
 
 
 ## [API文档](https://github.com/Hourout/linora/blob/master/document/Chinese_API.md)
@@ -18,22 +18,28 @@ pip install git+git://github.com/Hourout/linora.git
 
 
 ## 功能
--XGBoost
-  - 支持XGBClassifier中随机搜索（RandomSearch）、坐标下降搜索（GridSearch）
-  - 支持XGBRegressor中随机搜索（RandomSearch）、坐标下降搜索（GridSearch）
-  - 支持XGBRanker中随机搜索（RandomSearch）、坐标下降搜索（GridSearch）
-  - 支持支持cpu、gpu计算
-  - 支持快速搜索、k折搜索
 
--LightGBM
-  - 支持LGBClassifier中随机搜索（RandomSearch）、坐标下降搜索（GridSearch）
-  - 支持LGBRegressor中随机搜索（RandomSearch）、坐标下降搜索（GridSearch）
-  - 支持LGBRanker中随机搜索（RandomSearch）、坐标下降搜索（GridSearch）
-  - 支持支持cpu、gpu计算
-  - 支持快速搜索、k折搜索
+- metrics：机器学习评估模块
+- metrics charts：机器学习评估可视化模块
+- feature columns：特征工程模块
+- feature selection：特征选择模块
+- image augmentation：图像增强模块
+- text processing：文本处理模块
+- model param search：模型超参数搜索模块
+- sample splits：样本分割模块
+
 
 
 ## Example
-- [linora.XGBRanker](https://github.com/Hourout/linora/blob/master/example/XGBRanker.ipynb)
-- [linora.XGBClassifier](https://github.com/Hourout/linora/blob/master/example/XGBClassifier.ipynb)
-- [linora.XGBRegressor](https://github.com/Hourout/linora/blob/master/example/XGBRegressor.ipynb)
+[more example](https://github.com/Hourout/linora/blob/master/example/readme.md)
+
+```python
+import linora as la
+
+# plot ks curve
+label = [1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1]
+label_prob = [0.8, 0.4, 0.2, 0.5, 0.9, 0.2, 0.8, 0.6, 0.1, 0.3, 0.8, 0.3, 0.9, 0.2, 0.84, 
+              0.2, 0.5, 0.23, 0.83, 0.71, 0.34, 0.3, 0.2, 0.7, 0.2, 0.8, 0.3, 0.59, 0.26, 0.16, 0.13, 0.8]
+la.chart.ks_curve(label, label_prob)
+```
+![](https://github.com/Hourout/linora/blob/master/image/ks_curve.png)
