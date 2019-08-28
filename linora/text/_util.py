@@ -14,7 +14,7 @@ def select_best_length(sequence, sample_rate=0.8):
         int length, sample max keep length.
     """
     t = sorted(map(lambda x:len(x), sequence))
-    return t[int(np.ceil(len(sequence)*sample_rate))]
+    return t[int(np.ceil(len(sequence)*sample_rate))-1]
 
 def word_to_index(sequence):
     """Sequence word transfer to index.
