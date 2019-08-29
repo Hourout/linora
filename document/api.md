@@ -4,11 +4,11 @@
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.chart.ks_curve | KS curve | KS曲线 |
-| la.chart.roc_curve | ROC curve | ROC曲线 |
-| la.chart.pr_curve | PR curve | PR曲线 |
-| la.chart.gain_curve | Gain curve | Gain曲线 |
-| la.chart.gini_curve | Gini curve | Gini曲线 |
+| la.chart.ks_curve | KS curve | KS曲线图 |
+| la.chart.roc_curve | ROC curve | ROC曲线图 |
+| la.chart.pr_curve | PR curve | PR曲线图 |
+| la.chart.gain_curve | Gain curve | Gain曲线图 |
+| la.chart.gini_curve | Gini curve | Gini曲线图 |
 | la.chart.confusion_matrix_map | Confusion matrix map | 混淆矩阵图 |
 
 - ## la.feature_column
@@ -50,59 +50,59 @@
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.metrics.distance.euclidean |  |  |
-| la.metrics.distance.manhattan |  |  |
-| la.metrics.distance.chebyshev |  |  |
-| la.metrics.distance.minkowski |  |  |
-| la.metrics.distance.hamming |  |  |
-| la.metrics.distance.jaccard |  |  |
-| la.metrics.distance.pearson |  |  |
-| la.metrics.distance.cosine |  |  |
-| la.metrics.distance.levenshtein |  |  |
-| la.metrics.distance.kl_divergence |  |  |
-| la.metrics.distance.js_divergence |  |  |
+| la.metrics.distance.euclidean |  | 欧氏距离 |
+| la.metrics.distance.manhattan |  | 曼哈顿距离 |
+| la.metrics.distance.chebyshev |  | 切比雪夫距离 |
+| la.metrics.distance.minkowski |  | 闵可夫斯基距离 |
+| la.metrics.distance.hamming |  | 汉明距离 |
+| la.metrics.distance.jaccard |  | 雅可比距离 |
+| la.metrics.distance.pearson |  | 皮尔逊距离 |
+| la.metrics.distance.cosine |  | 余玄距离 |
+| la.metrics.distance.levenshtein |  | 莱文斯坦距离 |
+| la.metrics.distance.kl_divergence |  | kl散度 |
+| la.metrics.distance.js_divergence |  | js散度 |
 | la.metrics.distance.mutual_information_rate |  |  |
 | la.metrics.distance.pointwise_mutual_information_rate |  |  |
-| la.metrics.binary_accuracy |  |  |
-| la.metrics.categorical_accuracy |  |  |
-| la.metrics.recall |  |  |
-| la.metrics.precision |  |  |
-| la.metrics.confusion_matrix |  |  |
-| la.metrics.fbeta_score |  |  |
-| la.metrics.f1_score |  |  |
-| la.metrics.auc_roc |  |  |
-| la.metrics.auc_pr |  |  |
-| la.metrics.binary_crossentropy |  |  |
-| la.metrics.categorical_crossentropy |  |  |
-| la.metrics.ks |  |  |
-| la.metrics.gini |  |  |
-| la.metrics.psi |  |  |
-| la.metrics.fmi |  |  |
-| la.metrics.binary_report |  |  |
-| la.metrics.mapk |  |  |
-| la.metrics.hit_ratio |  |  |
+| la.metrics.binary_accuracy |  | 二分类精准率 |
+| la.metrics.categorical_accuracy |  | 多分类精准率 |
+| la.metrics.recall |  | 召回率 |
+| la.metrics.precision |  | 准确率 |
+| la.metrics.confusion_matrix |  | 混淆矩阵 |
+| la.metrics.fbeta_score |  | f分数 |
+| la.metrics.f1_score |  | f1分数 |
+| la.metrics.auc_roc |  | ROC曲线下面积 |
+| la.metrics.auc_pr |  | PR曲线下面积 |
+| la.metrics.binary_crossentropy |  | 二分类交叉熵 |
+| la.metrics.categorical_crossentropy |  | 多分类交叉熵 |
+| la.metrics.ks |  | KS值 |
+| la.metrics.gini |  | Gini值 |
+| la.metrics.psi |  | Psi值 |
+| la.metrics.fmi |  | FMI值 |
+| la.metrics.binary_report |  | 二分类报告 |
+| la.metrics.mapk |  | topK平均准确率 |
+| la.metrics.hit_ratio |  | hit比率 |
 | la.metrics.mean_reciprocal_rank |  |  |
 | la.metrics.normal_loss |  |  |
-| la.metrics.mean_absolute_error |  |  |
-| la.metrics.mean_squared_error |  |  |
-| la.metrics.mean_absolute_percentage_error |  |  |
-| la.metrics.hinge |  |  |
+| la.metrics.mean_absolute_error |  | 平均绝对误差 |
+| la.metrics.mean_squared_error |  | 均方误差 |
+| la.metrics.mean_absolute_percentage_error |  | 平均绝对百分比误差 |
+| la.metrics.hinge |  | hinge距离 |
 | la.metrics.explained_variance_score |  |  |
-| la.metrics.median_absolute_error |  |  |
-| la.metrics.r2_score |  |  |
+| la.metrics.median_absolute_error |  | 中位数绝对误差 |
+| la.metrics.r2_score |  | R方 |
 
 - ## la.param_search
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.param_search.XGBRegressor.RandomSearch |  |  |
-| la.param_search.XGBRegressor.GridSearch |  |  |
-| la.param_search.XGBClassifier.RandomSearch |  |  |
-| la.param_search.XGBClassifier.GridSearch |  |  |
-| la.param_search.XGBRanker.RandomSearch |  |  |
-| la.param_search.XGBRanker.GridSearch |  |  |
-| la.param_search.GERegressor.RandomSearch |  |  |
-| la.param_search.GEClassifier.RandomSearch |  |  |
+| la.param_search.XGBRegressor.RandomSearch |  | XGBRegressor随机超参数搜索 |
+| la.param_search.XGBRegressor.GridSearch |  | XGBRegressor网格超参数搜索 |
+| la.param_search.XGBClassifier.RandomSearch |  | XGBClassifier随机超参数搜索 |
+| la.param_search.XGBClassifier.GridSearch |  | XGBClassifier网格超参数搜索 |
+| la.param_search.XGBRanker.RandomSearch |  | XGBRanker随机超参数搜索 |
+| la.param_search.XGBRanker.GridSearch |  | XGBRanker网格超参数搜索 |
+| la.param_search.GERegressor.RandomSearch |  | 通用算法随机超参数搜索 |
+| la.param_search.GEClassifier.RandomSearch |  | 通用算法网格超参数搜索 |
 
 - ## la.sample
 
