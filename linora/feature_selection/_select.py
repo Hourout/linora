@@ -41,7 +41,7 @@ def single_columns(df):
     return t
 
 def correlation_columns(df, correlation_threshold=0.9):
-    """Find single value features
+    """Find features whose correlation coefficient is greater than a certain threshold.
     
     Parameters
     ----------
@@ -59,7 +59,7 @@ def correlation_columns(df, correlation_threshold=0.9):
     return [column for column in t.columns if any(t[column].abs()>=correlation_threshold)]
 
 def cv_columns(df, cv_threshold=0.):
-    """Find single value features
+    """Find features with coefficients of variation less than a certain threshold.
     
     Parameters
     ----------
