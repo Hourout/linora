@@ -7,6 +7,7 @@
 | la.chart.ks_curve | KS curve | KS曲线图 |
 | la.chart.roc_curve | ROC curve | ROC曲线图 |
 | la.chart.pr_curve | PR curve | PR曲线图 |
+| la.chart.lift_curve | Lift curve | Lift曲线图 |
 | la.chart.gain_curve | Gain curve | Gain曲线图 |
 | la.chart.gini_curve | Gini curve | Gini曲线图 |
 | la.chart.confusion_matrix_map | Confusion matrix map | 混淆矩阵图 |
@@ -50,19 +51,19 @@
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.metrics.distance.euclidean |  | 欧氏距离 |
-| la.metrics.distance.manhattan |  | 曼哈顿距离 |
-| la.metrics.distance.chebyshev |  | 切比雪夫距离 |
-| la.metrics.distance.minkowski |  | 闵可夫斯基距离 |
-| la.metrics.distance.hamming |  | 汉明距离 |
-| la.metrics.distance.jaccard |  | 雅可比距离 |
-| la.metrics.distance.pearson |  | 皮尔逊距离 |
-| la.metrics.distance.cosine |  | 余玄距离 |
-| la.metrics.distance.levenshtein |  | 莱文斯坦距离 |
-| la.metrics.distance.kl_divergence |  | kl散度 |
-| la.metrics.distance.js_divergence |  | js散度 |
-| la.metrics.distance.mutual_information_rate |  | 互信息率 |
-| la.metrics.distance.pointwise_mutual_information_rate |  | 逐点互信息率 |
+| la.metrics.distance.euclidean | euclidean distance | 欧氏距离 |
+| la.metrics.distance.manhattan | manhattan distance | 曼哈顿距离 |
+| la.metrics.distance.chebyshev | chebyshev distance | 切比雪夫距离 |
+| la.metrics.distance.minkowski | minkowski distance | 闵可夫斯基距离 |
+| la.metrics.distance.hamming | hamming distance | 汉明距离 |
+| la.metrics.distance.jaccard | jaccard distance | 雅可比距离 |
+| la.metrics.distance.pearson | pearson distance | 皮尔逊距离 |
+| la.metrics.distance.cosine | cosine distance | 余玄距离 |
+| la.metrics.distance.levenshtein | levenshtein distance | 莱文斯坦距离 |
+| la.metrics.distance.kl_divergence | kl divergence | kl散度 |
+| la.metrics.distance.js_divergence | js divergence | js散度 |
+| la.metrics.distance.mutual_information_rate | mutual information rate. | 互信息率 |
+| la.metrics.distance.pointwise_mutual_information_rate | pointwise mutual information rate | 逐点互信息率 |
 | la.metrics.binary_accuracy |  | 二分类精准率 |
 | la.metrics.categorical_accuracy |  | 多分类精准率 |
 | la.metrics.recall |  | 召回率 |
@@ -95,31 +96,31 @@
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.param_search.XGBRegressor.RandomSearch |  | XGBRegressor随机超参数搜索 |
-| la.param_search.XGBRegressor.GridSearch |  | XGBRegressor网格超参数搜索 |
-| la.param_search.XGBClassifier.RandomSearch |  | XGBClassifier随机超参数搜索 |
-| la.param_search.XGBClassifier.GridSearch |  | XGBClassifier网格超参数搜索 |
-| la.param_search.XGBRanker.RandomSearch |  | XGBRanker随机超参数搜索 |
-| la.param_search.XGBRanker.GridSearch |  | XGBRanker网格超参数搜索 |
-| la.param_search.GERegressor.RandomSearch |  | 通用算法随机超参数搜索 |
-| la.param_search.GEClassifier.RandomSearch |  | 通用算法网格超参数搜索 |
+| la.param_search.XGBRegressor.RandomSearch | XGBRegressor random hyperparameter search | XGBRegressor随机超参数搜索 |
+| la.param_search.XGBRegressor.GridSearch | XGBRegressor grid hyperparameter search | XGBRegressor网格超参数搜索 |
+| la.param_search.XGBClassifier.RandomSearch | XGBClassifier random hyperparameter search | XGBClassifier随机超参数搜索 |
+| la.param_search.XGBClassifier.GridSearch | XGBClassifier grid hyperparameter search | XGBClassifier网格超参数搜索 |
+| la.param_search.XGBRanker.RandomSearch | XGBRanker random hyperparameter search | XGBRanker随机超参数搜索 |
+| la.param_search.XGBRanker.GridSearch | XGBRanker grid hyperparameter search | XGBRanker网格超参数搜索 |
+| la.param_search.GERegressor.RandomSearch | general algorithm random hyperparameter search | 通用算法随机超参数搜索 |
+| la.param_search.GEClassifier.RandomSearch | general algorithm grid hyperparameter search | 通用算法网格超参数搜索 |
 
 - ## la.sample
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.sample.ImageDataset |  | 图像样本生成 |
-| la.sample.ImageClassificationFolderDataset |  | 图像分类样本生成 |
+| la.sample.ImageDataset | Construct an image dataset label index | 图像样本生成 |
+| la.sample.ImageClassificationFolderDataset | Construct an image dataset label index | 图像分类样本生成 |
 
 - ## la.sample_splits
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.sample_splits.kfold |  | K折交叉验证 |
-| la.sample_splits.train_test_split |  | 划分训练测试集 |
-| la.sample_splits.timeseries_train_test_split |  | 划分时间序列训练测试集 |
-| la.sample_splits.timeseries_walk_forward_fold |  | 向前走折叠时间序列的交叉验证器 |
-| la.sample_splits.timeseries_kfold |  | 时间序列K折交叉验证 |
+| la.sample_splits.kfold | K-Folds cross-validator | K折交叉验证 |
+| la.sample_splits.train_test_split | Split DataFrame or matrices into random train and test subsets | 划分训练测试集 |
+| la.sample_splits.timeseries_train_test_split | Split DataFrame or matrices into random train and test subsets for timeseries | 划分时间序列训练测试集 |
+| la.sample_splits.timeseries_walk_forward_fold | Walk Forward Folds cross-validator for timeseries | 向前走折叠时间序列的交叉验证器 |
+| la.sample_splits.timeseries_kfold | K-Folds cross-validator for timeseries | 时间序列K折交叉验证 |
 
 - ## la.image
 
