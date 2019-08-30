@@ -61,8 +61,8 @@
 | la.metrics.distance.levenshtein |  | 莱文斯坦距离 |
 | la.metrics.distance.kl_divergence |  | kl散度 |
 | la.metrics.distance.js_divergence |  | js散度 |
-| la.metrics.distance.mutual_information_rate |  |  |
-| la.metrics.distance.pointwise_mutual_information_rate |  |  |
+| la.metrics.distance.mutual_information_rate |  | 互信息率 |
+| la.metrics.distance.pointwise_mutual_information_rate |  | 逐点互信息率 |
 | la.metrics.binary_accuracy |  | 二分类精准率 |
 | la.metrics.categorical_accuracy |  | 多分类精准率 |
 | la.metrics.recall |  | 召回率 |
@@ -81,13 +81,13 @@
 | la.metrics.binary_report |  | 二分类报告 |
 | la.metrics.mapk |  | topK平均准确率 |
 | la.metrics.hit_ratio |  | hit比率 |
-| la.metrics.mean_reciprocal_rank |  |  |
-| la.metrics.normal_loss |  |  |
+| la.metrics.mean_reciprocal_rank |  | 平均倒数排序误差 |
+| la.metrics.normal_loss |  | 平均标准回归误差 |
 | la.metrics.mean_absolute_error |  | 平均绝对误差 |
 | la.metrics.mean_squared_error |  | 均方误差 |
 | la.metrics.mean_absolute_percentage_error |  | 平均绝对百分比误差 |
 | la.metrics.hinge |  | hinge距离 |
-| la.metrics.explained_variance_score |  |  |
+| la.metrics.explained_variance_score |  | 解释方差回归损失 |
 | la.metrics.median_absolute_error |  | 中位数绝对误差 |
 | la.metrics.r2_score |  | R方 |
 
@@ -108,59 +108,59 @@
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.sample.ImageDataset |  |  |
-| la.sample.ImageClassificationFolderDataset |  |  |
+| la.sample.ImageDataset |  | 图像样本生成 |
+| la.sample.ImageClassificationFolderDataset |  | 图像分类样本生成 |
 
 - ## la.sample_splits
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.sample_splits.kfold |  |  |
-| la.sample_splits.train_test_split |  |  |
-| la.sample_splits.timeseries_train_test_split |  |  |
-| la.sample_splits.timeseries_walk_forward_fold |  |  |
-| la.sample_splits.timeseries_kfold |  |  |
+| la.sample_splits.kfold |  | K折交叉验证 |
+| la.sample_splits.train_test_split |  | 划分训练测试集 |
+| la.sample_splits.timeseries_train_test_split |  | 划分时间序列训练测试集 |
+| la.sample_splits.timeseries_walk_forward_fold |  | 向前走折叠时间序列的交叉验证器 |
+| la.sample_splits.timeseries_kfold |  | 时间序列K折交叉验证 |
 
 - ## la.image
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.image.read_image |  |  |
-| la.image.save_image |  |  |
-| la.image.ImageAug |  |  |
-| la.image.RandomBrightness |  |  |
-| la.image.RandomContrast |  |  |
-| la.image.RandomHue |  |  |
-| la.image.RandomSaturation |  |  |
-| la.image.RandomGamma |  |  |
-| la.image.RandomNoiseGaussian |  |  |
-| la.image.RandomNoisePoisson |  |  |
-| la.image.RandomNoiseMask |  |  |
-| la.image.RandomNoiseSaltPepper |  |  |
-| la.image.RandomNoiseRainbow |  |  |
-| la.image.RandomFlipLeftRight |  |  |
-| la.image.RandomFlipTopBottom |  |  |
-| la.image.RandomTranspose |  |  |
-| la.image.RandomRotation |  |  |
-| la.image.Normalize |  |  |
-| la.image.RandomRescale |  |  |
-| la.image.RandomCropCentralResize |  |  |
-| la.image.RandomCropPointResize |  |  |
+| la.image.read_image |  | 读取图像 |
+| la.image.save_image |  | 保存图像 |
+| la.image.ImageAug |  | 图像增强类 |
+| la.image.RandomBrightness |  | 随机调整图像亮度 |
+| la.image.RandomContrast |  | 随机调整图像对比度 |
+| la.image.RandomHue |  | 随机调整图像色调 |
+| la.image.RandomSaturation |  | 随机调整图像饱和度 |
+| la.image.RandomGamma |  | 图像Gamma校正 |
+| la.image.RandomNoiseGaussian |  | 随机增加图像高斯噪声 |
+| la.image.RandomNoisePoisson |  | 随机增加图像泊松噪声 |
+| la.image.RandomNoiseMask |  | 随机增加图像mask噪声 |
+| la.image.RandomNoiseSaltPepper |  | 随机增加图像椒盐噪声 |
+| la.image.RandomNoiseRainbow |  | 随机增加图像彩虹噪声 |
+| la.image.RandomFlipLeftRight |  | 随机图像左右翻转 |
+| la.image.RandomFlipTopBottom |  | 随机图像上下翻转 |
+| la.image.RandomTranspose |  | 随机图像对称翻转 |
+| la.image.RandomRotation |  | 随机图像90°倍数旋转 |
+| la.image.Normalize |  | 图像正态标准化 |
+| la.image.RandomRescale |  | 图像数值等比例缩放 |
+| la.image.RandomCropCentralResize |  | 随机中心裁剪并resize |
+| la.image.RandomCropPointResize |  | 随机点裁剪并resize |
 
 - ## la.text
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.text.CountVectorizer |  |  |
-| la.text.TfidfVectorizer |  |  |
-| la.text.select_best_length |  |  |
-| la.text.word_to_index |  |  |
-| la.text.word_index_sequence |  |  |
-| la.text.pad_sequences |  |  |
-| la.text.index_vector_matrix |  |  |
-| la.text.sequence_preprocess |  |  |
-| la.text.word_count |  |  |
-| la.text.word_low_freq |  |  |
-| la.text.word_high_freq |  |  |
-| la.text.filter_word |  |  |
-| la.text.filter_punctuation |  |  |
+| la.text.CountVectorizer |  | 文档向量计数 |
+| la.text.TfidfVectorizer |  | 文档tfidf值 |
+| la.text.select_best_length |  | 选择文档最佳长度 |
+| la.text.word_to_index |  | 词转化索引 |
+| la.text.word_index_sequence |  | 词序列索引化 |
+| la.text.pad_sequences |  | 序列截断与填充 |
+| la.text.index_vector_matrix |  | 索引向量矩阵 |
+| la.text.sequence_preprocess |  | 序列预处理（只含中文） |
+| la.text.word_count |  | 词计数字典 |
+| la.text.word_low_freq |  | 查找词计数字典低频词 |
+| la.text.word_high_freq |  | 查找词计数字典高频词 |
+| la.text.filter_word |  | 过滤指定词 |
+| la.text.filter_punctuation |  | 过滤标点符号 |
