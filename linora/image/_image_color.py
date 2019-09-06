@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 __all__ = ['RandomBrightness', 'RandomContrast', 'RandomHue',
-           'RandomSaturation', 'RandomGamma']
+           'RandomSaturation', 'RandomGamma', 'RandomPencilSketch']
 
 
 def RandomBrightness(image, delta, seed=None, **kwarg):
@@ -175,3 +175,40 @@ def RandomGamma(image, gamma, seed=None, **kwarg):
     else:
         raise ValueError('gamma should be one of int, float, list, tuple.')
     return image if kwarg else image.numpy()
+
+def RandomPencilSketch(image, delta=0.1, seed=None, **kwarg):
+    """Adjust the pencil sketch of RGB.
+    
+    Args:
+        image: Tensor or array. An image.
+        delta: if int, float, Amount to add to the pixel values.
+               if list, tuple, randomly picked in the interval
+               `[delta[0], delta[1])` to add to the pixel values.
+               a suitable interval is [0.1, 0.5].
+        seed: A Python integer. Used to create a random seed. See
+             `tf.set_random_seed` for behavior.
+    Returns:
+        A pencil_sketch-adjusted tensor of the same shape as `image`.
+    """
+    if isinstance(delta, (list, tuple)):
+        random_delta = tf.random.uniform([], delta[0], delta[1], seed=seed)
+    else:
+        random_delta = delta
+        
+    temp = tf.cast(image, tf.float32)
+    t = temp[:, 1:]-temp[:, :-1]
+    grad_y = tf.concat([t[:,0:1], (t[:, 1:]+t[:, :-1])/2, t[:, -1:]], 1)*random_delta
+    t = temp[1:, :]-temp[:-1, :]
+    grad_x = tf.concat([t[0:1,:], (t[1:, :]+t[:-1, :])/2, t[-1:, :]], 0)*random_delta
+
+    A = tf.math.sqrt(tf.math.square(grad_x)+tf.math.square(grad_y)+1.)
+    uni_x = tf.math.divide(grad_x, A)
+    uni_y = tf.math.divide(grad_y, A)
+    uni_z = tf.math.divide(1., A)
+
+    dx = tf.math.cos(3.141592653589793/2.2)*tf.math.cos(3.141592653589793/4)
+    dy = tf.math.cos(3.141592653589793/2.2)*tf.math.sin(3.141592653589793/4)
+    dz = tf.math.sin(3.141592653589793/2.2)
+
+    b = tf.clip_by_value(255.*(dx*uni_x + dy*uni_y + dz*uni_z), 0., 255.)
+    return b if kwarg else b.numpy()
