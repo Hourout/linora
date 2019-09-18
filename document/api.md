@@ -126,42 +126,43 @@
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.image.read_image |  | 读取图像 |
-| la.image.save_image |  | 保存图像 |
-| la.image.ImageAug |  | 图像增强类 |
-| la.image.RandomBrightness |  | 随机调整图像亮度 |
-| la.image.RandomContrast |  | 随机调整图像对比度 |
-| la.image.RandomHue |  | 随机调整图像色调 |
-| la.image.RandomSaturation |  | 随机调整图像饱和度 |
-| la.image.RandomGamma |  | 图像Gamma校正 |
-| la.image.RandomNoiseGaussian |  | 随机增加图像高斯噪声 |
-| la.image.RandomNoisePoisson |  | 随机增加图像泊松噪声 |
-| la.image.RandomNoiseMask |  | 随机增加图像mask噪声 |
-| la.image.RandomNoiseSaltPepper |  | 随机增加图像椒盐噪声 |
-| la.image.RandomNoiseRainbow |  | 随机增加图像彩虹噪声 |
-| la.image.RandomFlipLeftRight |  | 随机图像左右翻转 |
-| la.image.RandomFlipTopBottom |  | 随机图像上下翻转 |
-| la.image.RandomTranspose |  | 随机图像对称翻转 |
-| la.image.RandomRotation |  | 随机图像90°倍数旋转 |
-| la.image.Normalize |  | 图像正态标准化 |
-| la.image.RandomRescale |  | 图像数值等比例缩放 |
-| la.image.RandomCropCentralResize |  | 随机中心裁剪并resize |
-| la.image.RandomCropPointResize |  | 随机点裁剪并resize |
+| la.image.read_image | Convenience function for read image | 读取图像 |
+| la.image.save_image | Writes image to the file at input filename | 保存图像 |
+| la.image.ImageAug | image augmentation class | 图像增强类 |
+| la.image.RandomBrightness | Adjust the brightness of RGB or Grayscale images | 随机调整图像亮度 |
+| la.image.RandomContrast | Adjust contrast of RGB or grayscale images | 随机调整图像对比度 |
+| la.image.RandomHue | Adjust hue of an RGB image | 随机调整图像色调 |
+| la.image.RandomSaturation | Adjust saturation of an RGB image | 随机调整图像饱和度 |
+| la.image.RandomGamma | Performs Gamma Correction on the input image | 图像Gamma校正 |
+| la.image.RandomNoiseGaussian | Gaussian noise apply to image | 随机增加图像高斯噪声 |
+| la.image.RandomNoisePoisson | Poisson noise apply to image | 随机增加图像泊松噪声 |
+| la.image.RandomNoiseMask | Mask noise apply to image | 随机增加图像mask噪声 |
+| la.image.RandomNoiseSaltPepper | Salt-Pepper noise apply to image | 随机增加图像椒盐噪声 |
+| la.image.RandomNoiseRainbow | Rainbowr noise apply to image | 随机增加图像彩虹噪声 |
+| la.image.RandomFlipLeftRight | Randomly flips an image horizontally | 随机图像左右翻转 |
+| la.image.RandomFlipTopBottom | Randomly flips an image vertically | 随机图像上下翻转 |
+| la.image.RandomTranspose | Transpose image by swapping the height and width dimension | 随机图像对称翻转 |
+| la.image.RandomRotation | Rotate image counter-clockwise by 90 degrees | 随机图像90°倍数旋转 |
+| la.image.Normalize | Normalize scales `image` to have mean and variance | 图像正态标准化 |
+| la.image.RandomRescale | Rescale apply to image | 图像数值等比例缩放 |
+| la.image.RandomCropCentralResize | Crop the central region of the image and resize specify shape | 随机中心裁剪并resize |
+| la.image.RandomCropPointResize | Crop the any region of the image and resize specify shape | 随机点裁剪并resize |
+| la.image.RandomPencilSketch | Adjust the pencil sketch of RGB | 随机铅笔画塑形 |
 
 - ## la.text
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.text.CountVectorizer |  | 文档向量计数 |
-| la.text.TfidfVectorizer |  | 文档tfidf值 |
-| la.text.select_best_length |  | 选择文档最佳长度 |
-| la.text.word_to_index |  | 词转化索引 |
-| la.text.word_index_sequence |  | 词序列索引化 |
-| la.text.pad_sequences |  | 序列截断与填充 |
-| la.text.index_vector_matrix |  | 索引向量矩阵 |
-| la.text.sequence_preprocess |  | 序列预处理（只含中文） |
-| la.text.word_count |  | 词计数字典 |
-| la.text.word_low_freq |  | 查找词计数字典低频词 |
-| la.text.word_high_freq |  | 查找词计数字典高频词 |
-| la.text.filter_word |  | 过滤指定词 |
-| la.text.filter_punctuation |  | 过滤标点符号 |
+| la.text.CountVectorizer | convert a collection of text documents to a matrix of token counts | 文档向量计数 |
+| la.text.TfidfVectorizer | transform a count matrix to a normalized tf or tf-idf representation | 文档tfidf值 |
+| la.text.select_best_length | select best length for sequence with keep rate | 选择文档最佳长度 |
+| la.text.word_to_index | sequence word transfer to index | 词转化索引 |
+| la.text.word_index_sequence | sequence word transfer to sequence index | 词序列索引化 |
+| la.text.pad_sequences | pads sequences to the same length | 序列截断与填充 |
+| la.text.index_vector_matrix | make index vector matrix with shape `(len(word_index_dict), embed_dim)` | 索引向量矩阵 |
+| la.text.sequence_preprocess | sequence preprocess, keep only Chinese | 序列预处理（只含中文） |
+| la.text.word_count | sequence word count | 词计数字典 |
+| la.text.word_low_freq | filter low frequency words | 查找词计数字典低频词 |
+| la.text.word_high_freq | filter high frequency words | 查找词计数字典高频词 |
+| la.text.filter_word | fequence filter words with a filter word list | 过滤指定词 |
+| la.text.filter_punctuation | sequence preprocess, filter punctuation | 过滤标点符号 |
