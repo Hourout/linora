@@ -25,7 +25,7 @@ class ImageDataset():
         self.data = pd.DataFrame(chain.from_iterable((p.rglob(f'*.{i}') for i in self.image_format)), columns=['image'])
         if label_func is not None:
             self.data['label'] = self.data.image.map(lambda x:label_func(x.name))
-        self.data['image'] = self.data.astype(str)
+        self.data['image'] = self.data.astype(str).map(lambda x:eval(repr(x).replace("\\", '/').replace("//", '/')))
 
 class ImageClassificationFolderDataset():
     def __init__(self, root, image_format=['png', 'jpg', 'jpeg'], label_encoder=False):
