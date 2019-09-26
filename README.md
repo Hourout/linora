@@ -5,6 +5,8 @@
 ![Github license](https://img.shields.io/github/license/Hourout/linora.svg)
 [![PyPI](https://img.shields.io/pypi/v/linora.svg)](https://pypi.python.org/pypi/linora)
 ![PyPI format](https://img.shields.io/pypi/format/linora.svg)
+![contributors](https://img.shields.io/github/contributors/Hourout/linora)
+![downloads](https://img.shields.io/pypi/dm/linora.svg)
 
 Linora is a simple and efficient tools for data mining and data analysis.
  
