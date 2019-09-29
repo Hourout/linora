@@ -272,18 +272,22 @@ def binary_report(y_true, y_pred, prob=0.5, pos_label=1, printable=False, printi
               'auc_roc':round(auc_roc(t.label, t.prob, pos_label=pos_label), 4),
               'auc_pr':round(auc_pr(t.label, t.prob, pos_label=pos_label), 4),
               'fmi':round(tp/np.sqrt((tp+fp)*(tp+fn)), 4),
+              'gini':round(gini(t.label, t.prob), 4),
+              'ks':round(ks(t.label, t.prob), 4),
               'RMSE_label':round(np.sqrt(np.mean(np.square((t.label-t.prob)))), 4),
               'RMSE_prob':round(np.sqrt(np.mean(np.square((t.label-y_pred)))), 4)
              }
     if printable:
         print("\n{}".format(printinfo))
-        print("Accuracy: %.4g" % result['accuracy'])
-        print("Precision: %.4g" % result['precision'])
-        print("Recall: %.4g" % result['recall'])
-        print("F1_score: %.4g" % result['f1_score'])
-        print("AUC_ROC Score: %f" % result['auc_roc'])
-        print("AUC_PR Score: %f" % result['auc_pr'])
-        print("FMI: %f" % result['fmi'])
-        print("RMSE_label: %.4g" % result['RMSE_label'])
-        print("RMSE_prob: %.4g" % result['RMSE_prob'])
+        print("Accuracy: %.4f" % result['accuracy'])
+        print("Precision: %.4f" % result['precision'])
+        print("Recall: %.4f" % result['recall'])
+        print("F1_score: %.4f" % result['f1_score'])
+        print("AUC_ROC Score: %.4f" % result['auc_roc'])
+        print("AUC_PR Score: %.4f" % result['auc_pr'])
+        print("FMI: %.4f" % result['fmi'])
+        print("KS: %.4f" % result['ks'])
+        print("Gini: %.4f" % result['gini'])
+        print("RMSE_label: %.4f" % result['RMSE_label'])
+        print("RMSE_prob: %.4f" % result['RMSE_prob'])
     return result
