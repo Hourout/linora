@@ -130,19 +130,19 @@ class ImageColorAug(object):
         return self
 
     def RandomPencilSketch(image, delta=0.1, seed=None, **kwarg):
-    """Adjust the pencil sketch of RGB.
-    
-    Args:
-        image: Tensor or array. An image.
-        delta: if int, float, Amount to add to the pixel values.
-               if list, tuple, randomly picked in the interval
-               `[delta[0], delta[1])` to add to the pixel values.
-               a suitable interval is [0.1, 0.5].
-        seed: A Python integer. Used to create a random seed. See
-             `tf.set_random_seed` for behavior.
-    Returns:
-        A pencil_sketch-adjusted tensor of the same shape as `image`.
-    """
+        """Adjust the pencil sketch of RGB.
+
+        Args:
+            image: Tensor or array. An image.
+            delta: if int, float, Amount to add to the pixel values.
+                   if list, tuple, randomly picked in the interval
+                   `[delta[0], delta[1])` to add to the pixel values.
+                   a suitable interval is [0.1, 0.5].
+            seed: A Python integer. Used to create a random seed. See
+                 `tf.set_random_seed` for behavior.
+        Returns:
+            A pencil_sketch-adjusted tensor of the same shape as `image`.
+        """
         self._image = RandomPencilSketch(self._image, delta, seed, _=True)
         return self
     
