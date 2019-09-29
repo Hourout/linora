@@ -129,7 +129,7 @@ class ImageColorAug(object):
         self._image = RandomGamma(self._image, gamma, seed, _=True)
         return self
 
-    def RandomPencilSketch(image, delta=0.1, seed=None, **kwarg):
+    def RandomPencilSketch(self, delta=0.1, seed=None):
         """Adjust the pencil sketch of RGB.
 
         Args:
