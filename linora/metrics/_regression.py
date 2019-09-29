@@ -117,18 +117,18 @@ def regression_report(y_true, y_pred, printable=False, printinfo='Regression Rep
     result = {'mean_absolute_error':mean_absolute_error(y_true, y_pred),
               'mean_squared_error':mean_squared_error(y_true, y_pred),
               'mean_absolute_percentage_error':mean_absolute_percentage_error(y_true, y_pred),
-              'hinge':hinge(y_true, y_pred),
+              'hinge_loss':hinge(y_true, y_pred),
               'explained_variance_score':explained_variance_score(y_true, y_pred),
               'median_absolute_error':median_absolute_error(y_true, y_pred),
               'r2_score':r2_score(y_true, y_pred)
              }
     if printable:
         print("\n{}".format(printinfo))
-        print("mean_absolute_error: %.4g" % result['mean_absolute_error'])
-        print("mean_squared_error: %.4g" % result['mean_squared_error'])
-        print("mean_absolute_percentage_error: %.4g" % result['mean_absolute_percentage_error'])
-        print("hinge: %.4g" % result['hinge'])
-        print("explained_variance_score: %f" % result['explained_variance_score'])
-        print("median_absolute_error: %f" % result['median_absolute_error'])
-        print("r2_score: %f" % result['r2_score'])
+        print("mean_absolute_error: %.4f" % result['mean_absolute_error'])
+        print("mean_squared_error: %.4f" % result['mean_squared_error'])
+        print("mean_absolute_percentage_error: %.4f" % result['mean_absolute_percentage_error'])
+        print("hinge_loss: %.4f" % result['hinge_loss'])
+        print("explained_variance_score: %.4f" % result['explained_variance_score'])
+        print("median_absolute_error: %.4f" % result['median_absolute_error'])
+        print("r2_score: %.4f" % result['r2_score'])
     return result
