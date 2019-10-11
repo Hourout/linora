@@ -51,3 +51,8 @@ label_prob = [0.8, 0.4, 0.2, 0.5, 0.9, 0.2, 0.8, 0.6, 0.1, 0.3, 0.8, 0.3, 0.9, 0
 la.chart.ks_curve(label, label_prob)
 ```
 ![](https://github.com/Hourout/linora/blob/master/image/ks_curve.png)
+
+## Contact
+Please contact me if you have any related questions or improvements.
+
+[WeChat](https://github.com/Hourout/linora/blob/master/image/hourout_wechat.jpg)
