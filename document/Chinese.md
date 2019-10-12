@@ -3,7 +3,7 @@
 Linora是一个简洁高效的数据挖掘和数据分析工具，最大限度让你不使用sklearn也能做相关数据挖掘任务，同时完美兼容pandas，相比sklearn运行速度更快且更省内存。
 
 
-## [API文档](https://github.com/Hourout/linora/blob/master/document/Chinese_API.md)
+## [API文档](https://github.com/Hourout/linora/blob/master/document/api.md)
 
 
 ## 安装
