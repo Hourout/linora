@@ -1,34 +1,34 @@
 import numpy as np
 
-__all__ = ['HyperParameters']
+__all__ = ['HyperParametersRandom']
 
-class HyperParameters():
+class HyperParametersRandom():
     def __init__(self):
-        self.values = {}
-        self.space = {}
+        self.params = {}
+        self._space = {}
         
     def Boolean(self, name, default=None):
-        self.values[name] = np.random.choice([True, False]) if default is None else default
-        if name not in self.space:
-            self.space[name] = {'mode':'Boolean', 'default':default}
+        self.params[name] = np.random.choice([True, False]) if default is None else default
+        if name not in self._space:
+            self._space[name] = {'mode':'Boolean', 'default':default}
     
     def Float(self, name, min_value, max_value, step=2, default=None):
-        self.values[name] = round(np.random.uniform(min_value, max_value), step) if default is None else default
-        if name not in self.space:
-            self.space[name] = {'mode':'Float', 'min_value':min_value, 'max_value':max_value, 'step':step, 'default':default}
+        self.params[name] = round(np.random.uniform(min_value, max_value), step) if default is None else default
+        if name not in self._space:
+            self._space[name] = {'mode':'Float', 'min_value':min_value, 'max_value':max_value, 'step':step, 'default':default}
     
     def Int(self, name, min_value, max_value, default=None):
-        self.values[name] = round(np.random.uniform(min_value, max_value)) if default is None else default
-        if name not in self.space:
-            self.space[name] = {'mode':'Int', 'min_value':min_value, 'max_value':max_value, 'default':default}
+        self.params[name] = round(np.random.uniform(min_value, max_value)) if default is None else default
+        if name not in self._space:
+            self._space[name] = {'mode':'Int', 'min_value':min_value, 'max_value':max_value, 'default':default}
         
     def Choice(self, name, values, default=None):
-        self.values[name] = np.random.choice(values) if default is None else default
-        if name not in self.space:
-            self.space[name] = {'mode':'Choice', 'values':values, 'default':default}
+        self.params[name] = np.random.choice(values) if default is None else default
+        if name not in self._space:
+            self._space[name] = {'mode':'Choice', 'values':values, 'default':default}
     
-    def params_update(self):
-        for param_name, param_config in self.space.items():
+    def update(self):
+        for param_name, param_config in self._space.items():
             if param_config['mode']=='Boolean':
                 self.Boolean(param_name)
             if param_config['mode']=='Float':
