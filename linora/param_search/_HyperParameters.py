@@ -1,3 +1,5 @@
+from collections import defaultdict
+import itertools
 import numpy as np
 
 __all__ = ['HyperParametersRandom', 'HyperParametersGrid']
