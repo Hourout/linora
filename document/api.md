@@ -96,6 +96,8 @@
 
 | API | description | 描述 |
 | --- | --- | --- |
+| la.param_search.HyperParametersGrid |  | 网格超参数生成 |
+| la.param_search.HyperParametersRandom |  | 随机超参数生成 |
 | la.param_search.XGBRegressor.RandomSearch | XGBRegressor random hyperparameter search | XGBRegressor随机超参数搜索 |
 | la.param_search.XGBRegressor.GridSearch | XGBRegressor grid hyperparameter search | XGBRegressor网格超参数搜索 |
 | la.param_search.XGBClassifier.RandomSearch | XGBClassifier random hyperparameter search | XGBClassifier随机超参数搜索 |
