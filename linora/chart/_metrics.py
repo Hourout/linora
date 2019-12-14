@@ -205,11 +205,27 @@ def confusion_matrix_map(y_true, y_pred, jupyter=True, path="Confusion Matrix Ma
     t = confusion_matrix(y_true, y_pred)
     t = pd.DataFrame([[i, m,n ] for i,j in t.to_dict().items() for m, n in j.items()],
                      columns=['actual', 'predict', 'over_values'])
-    heatmap = (pe.charts.HeatMap()
-               .add_xaxis(t.drop_duplicates(['actual']).actual.values.tolist())
-               .add_yaxis("Confusion Matrix", t.drop_duplicates(['predict']).predict.values.tolist(), t.values.tolist())
-               .set_global_opts(title_opts=pe.options.TitleOpts(title="Confusion Matrix Map"),
-                                xaxis_opts=pe.options.AxisOpts('Actual'),
-                                yaxis_opts=pe.options.AxisOpts('Predict'),
-                                visualmap_opts=pe.options.VisualMapOpts(min_=0, max_=int(t.over_values.max()))))
+    heatmap = (
+        pe.charts.HeatMap()
+        .add_xaxis(
+            xaxis_data=t.drop_duplicates(['actual']).actual.values.tolist())
+        .add_yaxis(
+            "Confusion Matrix", 
+            yaxis_data=t.drop_duplicates(['predict']).predict.values.tolist(), 
+            value=t.values.tolist(),
+            label_opts=pe.options.LabelOpts(is_show=True, color="#fff", position='inside', horizontal_align="50%")
+        )
+        .set_global_opts(
+            title_opts=pe.options.TitleOpts(title="Confusion Matrix Map"),
+            xaxis_opts=pe.options.AxisOpts(
+                type_="category", 
+                name='Actual', 
+                splitarea_opts=pe.options.SplitAreaOpts(
+                    is_show=True, areastyle_opts=pe.options.AreaStyleOpts(opacity=1))),
+            yaxis_opts=pe.options.AxisOpts(
+                type_="category", 
+                name='Predict', 
+                splitarea_opts=pe.options.SplitAreaOpts(
+                    is_show=True, areastyle_opts=pe.options.AreaStyleOpts(opacity=1))),
+            visualmap_opts=pe.options.VisualMapOpts(min_=0, max_=int(t.over_values.max()))))
     return  heatmap.render_notebook() if jupyter else heatmap.render(path)
