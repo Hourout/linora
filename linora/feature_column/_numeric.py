@@ -16,26 +16,46 @@ def numeric_binarizer(feature, feature_scale=None):
     t = feature.clip(upper=scale).replace({scale:scale+0.1}).clip(scale).replace({scale:0, scale+0.1:1}).astype('int')
     return t, scale
 
-def numeric_bucketized(feature, boundaries, miss_pad=-1, dtype='int64'):
+def numeric_bucketized(feature, boundaries, miss_pad=-1, score=None, miss_score=None, dtype='int64', mode=1):
     """feature bucket.
     
-    Buckets include the left boundary, and exclude the right boundary. 
-    Namely, boundaries=[0., 1., 2.] generates buckets (-inf, 0.), [0., 1.), [1., 2.), and [2., +inf).
-    
+    if mode is True:
+        Buckets include the right boundary, and exclude the left boundary. 
+        Namely, boundaries=[0., 1., 2.] generates buckets (-inf, 0.], (0., 1.], (1., 2.], and (2., +inf).
+    else:
+        Buckets include the left boundary, and exclude the right boundary. 
+        Namely, boundaries=[0., 1., 2.] generates buckets (-inf, 0.), [0., 1.), [1., 2.), and [2., +inf).
+        
     Args:
         feature: pd.Series, sample feature.
         boundaries: A sorted list or tuple of floats specifying the boundaries.
         miss_pad: default -1, feature fillna value.
         dtype: default 'int64', return transfrom dtypes.
+        score: None, A score list or tuple of floats specifying the boundaries.
+        miss_score: None, score fillna value.
+        mode: True.
     Returns:
         normalize feature.
     """
     t = feature.copy()
     bound = sorted(boundaries)
-    t[feature<bound[0]] = 0
-    for r, i in enumerate(bound):
-        t[feature>=i] = r+1
-    return t.fillna(miss_pad).astype(dtype)
+    if mode:
+        for i in range(len(bound)):
+            if i==0:
+                t[feature<=bound[i]] = i
+            else:
+                t[(feature>bound[i-1])&(feature<=bound[i])] = i
+        t[feature>bound[i]] = i+1
+    else:
+        t[feature<bound[0]] = 0
+        for r, i in enumerate(bound):
+            t[feature>=i] = r+1
+    t = t.fillna(miss_pad).astype(dtype)
+    if isinstance(score, list):
+        t = t.replace({i:j for i,j in enumerate(score)})
+        if miss_score is not None:
+            t = t.replace({miss_pad:miss_score}) 
+    return t
 
 def numeric_padding(feature, method='mean', feature_scale=None):
     """feature fillna method.
