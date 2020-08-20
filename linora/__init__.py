@@ -9,7 +9,7 @@ from linora import text
 from linora import image
 from linora import database
 
-__version__ = '0.9.0'
+__version__ = '0.9.4'
 __author__ = 'JinQing Lee'
 
 def _hello():
