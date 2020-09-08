@@ -7,3 +7,5 @@
 [la.image](https://github.com/Hourout/linora/blob/master/example/la.image.ipynb)
 
 [la.text](https://github.com/Hourout/linora/blob/master/example/la.text.ipynb)
+
+[HyperParameters](https://github.com/Hourout/linora/blob/master/example/HyperParameters.md)
