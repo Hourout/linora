@@ -21,7 +21,7 @@ class HyperParametersRandom():
         if name not in self._space:
             self._space[name] = {'mode':'Boolean', 'default':default}
     
-    def Float(self, name, min_value, max_value, step=2, default=None):
+    def Float(self, name, min_value, max_value, round=2, default=None):
         """
         Floating point range, can be evenly divided.
 
@@ -29,12 +29,12 @@ class HyperParametersRandom():
         name: Str. Name of parameter. Must be unique.
         min_value: Float. Lower bound of the range.
         max_value: Float. Upper bound of the range.
-        step: Optional. Int, e.g. 2 mean round(x, 2). smallest meaningful distance between two values. 
+        round: Optional. Int, e.g. 2 mean round(x, 2). smallest meaningful distance between two values. 
         default: Default value to return for the parameter. If unspecified, the default value will be None.
         """
-        self.params[name] = round(np.random.uniform(min_value, max_value), step) if default is None else default
+        self.params[name] = round(np.random.uniform(min_value, max_value), round) if default is None else default
         if name not in self._space:
-            self._space[name] = {'mode':'Float', 'min_value':min_value, 'max_value':max_value, 'step':step, 'default':default}
+            self._space[name] = {'mode':'Float', 'min_value':min_value, 'max_value':max_value, 'round':round, 'default':default}
     
     def Int(self, name, min_value, max_value, default=None):
         """
@@ -70,7 +70,7 @@ class HyperParametersRandom():
             if param_config['mode']=='Boolean':
                 self.Boolean(param_name)
             if param_config['mode']=='Float':
-                self.Float(param_name, param_config['min_value'], param_config['max_value'], param_config['step'])
+                self.Float(param_name, param_config['min_value'], param_config['max_value'], param_config['round'])
             if param_config['mode']=='Int':
                 self.Int(param_name, param_config['min_value'], param_config['max_value'])
             if param_config['mode']=='Choice':
