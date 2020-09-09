@@ -1,3 +1,5 @@
+- la.param_search.HyperParametersRandom()
+
 ```python
 hpr = la.param_search.HyperParametersRandom()
 
@@ -13,6 +15,7 @@ hpr.update()
 hpr.params ==> {'a': False, 'b': 2.09, 'c': 2, 'd': 23}
 ```
 
+- la.param_search.HyperParametersGrid()
 
 ```python
 hpr = la.param_search.HyperParametersGrid()
