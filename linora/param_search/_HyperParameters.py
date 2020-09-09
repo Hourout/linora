@@ -21,7 +21,7 @@ class HyperParametersRandom():
         if name not in self._space:
             self._space[name] = {'mode':'Boolean', 'default':default}
     
-    def Float(self, name, min_value, max_value, round=2, default=None):
+    def Float(self, name, min_value, max_value, rounds=2, default=None):
         """
         Floating point range, can be evenly divided.
 
@@ -29,12 +29,12 @@ class HyperParametersRandom():
         name: Str. Name of parameter. Must be unique.
         min_value: Float. Lower bound of the range.
         max_value: Float. Upper bound of the range.
-        round: Optional. Int, e.g. 2 mean round(x, 2). smallest meaningful distance between two values. 
+        rounds: Optional. Int, e.g. 2 mean round(x, 2). smallest meaningful distance between two values. 
         default: Default value to return for the parameter. If unspecified, the default value will be None.
         """
-        self.params[name] = round(np.random.uniform(min_value, max_value), round) if default is None else default
+        self.params[name] = round(np.random.uniform(min_value, max_value), rounds) if default is None else default
         if name not in self._space:
-            self._space[name] = {'mode':'Float', 'min_value':min_value, 'max_value':max_value, 'round':round, 'default':default}
+            self._space[name] = {'mode':'Float', 'min_value':min_value, 'max_value':max_value, 'round':rounds, 'default':default}
     
     def Int(self, name, min_value, max_value, default=None):
         """
@@ -97,7 +97,7 @@ class HyperParametersGrid():
             self._space[name] = {'mode':'Boolean', 'default':default, 'values':[True, False]}
             self._rank[rank].append(name)
     
-    def Float(self, name, min_value, max_value, step=1, default=None, rank=0):
+    def Float(self, name, min_value, max_value, rounds=1, default=None, rank=0):
         """
         Floating point range, can be evenly divided.
 
@@ -105,13 +105,13 @@ class HyperParametersGrid():
         name: Str. Name of parameter. Must be unique.
         min_value: Float. Lower bound of the range.
         max_value: Float. Upper bound of the range.
-        step: Optional. Int, e.g. 2 mean round(x, 2). smallest meaningful distance between two values. 
+        rounds: Optional. Int, e.g. 2 mean round(x, 2). smallest meaningful distance between two values. 
         default: Default value to return for the parameter. If unspecified, the default value will be None.
         rank: Int, default 0, Importance ordering of parameters.
         """
-        self.params[name] = round(np.random.uniform(min_value, max_value), step) if default is None else default
+        self.params[name] = round(np.random.uniform(min_value, max_value), rounds) if default is None else default
         if name not in self._space:
-            self._space[name] = {'mode':'Float', 'default':default, 'values':np.linspace(min_value, max_value, (max_value-min_value)*10**step).round(step)}
+            self._space[name] = {'mode':'Float', 'default':default, 'values':np.linspace(min_value, max_value, round((max_value-min_value)*10**rounds)+1).round(rounds)}
             self._rank[rank].append(name)
     
     def Int(self, name, min_value, max_value, default=None, rank=0):
