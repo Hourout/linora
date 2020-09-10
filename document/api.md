@@ -40,8 +40,8 @@
 
 | API | description | 描述 |
 | --- | --- | --- |
-| la.feature_selection.woe |  | 特征woe值 |
-| la.feature_selection.iv |  | 特征iv值 |
+| la.feature_selection.woe | feature woe value | 特征woe值 |
+| la.feature_selection.iv | feature iv value | 特征iv值 |
 | la.feature_selection.missing_columns |  | 缺失值选择列 |
 | la.feature_selection.single_columns |  | 单一值选择列 |
 | la.feature_selection.correlation_columns |  | 相关系数选择列 |
@@ -58,7 +58,7 @@
 | la.metrics.distance.hamming | hamming distance | 汉明距离 |
 | la.metrics.distance.jaccard | jaccard distance | 雅可比距离 |
 | la.metrics.distance.pearson | pearson distance | 皮尔逊距离 |
-| la.metrics.distance.cosine | cosine distance | 余玄距离 |
+| la.metrics.distance.cosine | cosine distance | 余弦距离 |
 | la.metrics.distance.levenshtein | levenshtein distance | 莱文斯坦距离 |
 | la.metrics.distance.kl_divergence | kl divergence | kl散度 |
 | la.metrics.distance.js_divergence | js divergence | js散度 |
@@ -87,10 +87,10 @@
 | la.metrics.mean_absolute_error |  | 平均绝对误差 |
 | la.metrics.mean_squared_error |  | 均方误差 |
 | la.metrics.mean_absolute_percentage_error |  | 平均绝对百分比误差 |
-| la.metrics.hinge |  | hinge距离 |
+| la.metrics.hinge | hinge distance | hinge距离 |
 | la.metrics.explained_variance_score |  | 解释方差回归损失 |
-| la.metrics.median_absolute_error |  | 中位数绝对误差 |
-| la.metrics.r2_score |  | R方 |
+| la.metrics.median_absolute_error | median absolute error | 中位数绝对误差 |
+| la.metrics.r2_score | R square | R方 |
 
 - ## la.param_search
 
