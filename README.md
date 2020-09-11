@@ -19,13 +19,13 @@ Linora is a simple and efficient tools for data mining and data analysis.
 To install [this verson from PyPI](https://pypi.org/project/linora/), type:
 
 ```
-pip install linora
+pip3 install linora
 ```
 
 To get the newest one from this repo (note that we are in the alpha stage, so there may be frequent updates), type:
 
 ```
-pip install git+git://github.com/Hourout/linora.git
+pip3 install git+git://github.com/Hourout/linora.git
 ```
 
 ## Feature
