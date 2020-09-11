@@ -9,11 +9,11 @@ Linora是一个简洁高效的数据挖掘和数据分析工具，最大限度�
 ## 安装
 你可以通过pypi进行安装：
 ```
-pip install linora
+pip3 install linora
 ```
 也可以通过源代码安装最新开发版：
 ```
-pip install git+git://github.com/Hourout/linora.git
+pip3 install git+git://github.com/Hourout/linora.git
 ```
 
 
