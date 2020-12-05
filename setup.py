@@ -7,9 +7,16 @@ def readme():
 
 setup(name='linora',
       version='0.9.4',
-      install_requires=['pandas>=0.24.1', 'xgboost>=0.81', 'pyecharts>=1.6.0',
-                        'pyecharts_snapshot>=0.1.10', 'numpy>=1.16.2', 'tensorflow>=2.0.0', 
-                        'sqlalchemy>=1.3.12'],
+      install_requires=[
+          'pandas>=0.24.1', 
+          'xgboost>=0.81', 
+          'pyecharts>=1.6.0',
+          'pyecharts_snapshot>=0.1.10', 
+          'numpy>=1.16.2', 
+          'tensorflow>=2.0.0', 
+          'sqlalchemy>=1.3.12', 
+          'colorlog'
+      ],
       description='Simple and efficient tools for data mining and data analysis.',
       long_description=readme(),
       long_description_content_type='text/markdown',
