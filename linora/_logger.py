@@ -2,14 +2,8 @@ import os
 import logging
 import colorlog
 
-__all__ = ['Logger']
-
-class Logger():
-    def __init__(self, name="", level="INFO", log_file='', write_stream=True, write_file=True,
-                 message_stream='[%(asctime)s] [%(name)s] [%(levelname)8s]: %(message)s',
-                 message_file='[%(asctime)s] [%(name)s] [%(levelname)8s]: %(message)s',
-                ):
-        self.log_colors = {
+class Params(object):
+    log_colors = {
             'DEBUG': 'purple',
             'INFO': 'green',
             'WARNING': 'yellow',
@@ -18,7 +12,7 @@ class Logger():
             'TRAIN': 'cyan',
             'TEST': 'blue'
         }
-        self.log_level = {
+    log_level = {
             'DEBUG':10,
             'INFO':20,
             'TRAIN':21,
@@ -27,85 +21,97 @@ class Logger():
             'ERROR':40,
             'CRITICAL':50
         }
-        self.log_name = name
-        if level in self.log_level:
-            self.log_level_default = level
+    log_level_default = None
+    log_name = None
+    log_file = ''
+    file = None
+    write_stream = None
+    write_file = None
+    message_stream = None
+    write_file_mode = 0
+    
+class Logger():
+    def __init__(self, name="", level="INFO", log_file='', write_stream=True, write_file=True,
+                 write_file_mode=0,
+                 message_stream='[%(asctime)s] [%(name)s] [%(levelname)8s]: %(message)s'):
+        self.params =Params
+        self.params.log_name = name
+        if level in self.params.log_level:
+            self.params.log_level_default = level
         else:
             raise ValueError("`level` must in param dict `log_level`. ")
         
-        if log_file=='':
-            self.log_file = log_file
-        elif os.path.realpath(os.path.dirname(log_file))!=os.path.abspath(log_file):
-            self.log_file = log_file
-        else:
-            raise ValueError("`log_file` must in file name. ")
+        self.params.write_stream = write_stream
+        self.params.write_file = write_file
+        self.params.message_stream = '%(log_color)s'+message_stream
+        self.params.write_file_mode = write_file_mode
+        self.update_log_file(log_file)
         
-        self.write_stream = write_stream
-        self.write_file = write_file
-        self.message_stream = '%(log_color)s'+message_stream
-        self.message_file = message_file
-        
-    def _mylog(self, level, msg, write_stream, write_file):
-        write_stream = write_stream if self.write_stream else self.write_stream
-        write_file = write_file if self.write_file else self.write_file
-        
-        if not write_stream and not write_file:
-            return
+    def log(self, level, msg, write_stream, write_file):
+        write_stream = write_stream if self.params.write_stream else self.params.write_stream
+        write_file = write_file if self.params.write_file else self.params.write_file
         
         if write_file:
-            real_path = os.path.realpath(os.path.dirname(self.log_file))
-            if self.log_file=='':
+            if self.params.log_file=='':
                 pass
-            elif real_path != os.path.abspath(self.log_file):
-                if not os.path.exists(real_path):
-                    os.makedirs(real_path)
+            elif self.params.write_file_mode:
+                self.params.file.write(msg+'\n')
             else:
-                raise ValueError("`log_file` must in file name. ")
-        
-        logging.addLevelName(self.log_level['TRAIN'], 'TRAIN')
-        logging.addLevelName(self.log_level['TEST'], 'TEST')
-        logger = logging.getLogger(self.log_name)
-        logger.setLevel(self.log_level[self.log_level_default])
+                with open(self.params.log_file, 'a+') as f:
+                    f.write(msg+'\n')
         
         if write_stream:
-            formatter_sh = colorlog.ColoredFormatter(self.message_stream, log_colors=self.log_colors)
+            logging.addLevelName(self.params.log_level['TRAIN'], 'TRAIN')
+            logging.addLevelName(self.params.log_level['TEST'], 'TEST')
+            logger = logging.getLogger(self.params.log_name)
+            logger.setLevel(self.params.log_level[self.params.log_level_default])
+        
+            formatter_sh = colorlog.ColoredFormatter(
+                self.params.message_stream, log_colors=self.params.log_colors)
             sh = logging.StreamHandler()
-            sh.setLevel(self.log_level[self.log_level_default])
+            sh.setLevel(self.params.log_level[self.params.log_level_default])
             sh.setFormatter(formatter_sh)
             logger.addHandler(sh)
 
-        if self.log_file!='' and  write_file:
-            formatter_fh = logging.Formatter(self.message_file)
-            fh = logging.FileHandler(self.log_file, encoding="utf-8")
-            fh.setLevel(self.log_level[self.log_level_default])
-            fh.setFormatter(formatter_fh)
-            logger.addHandler(fh)
-        
-        logger.log(self.log_level[level], msg)
-        
-        if write_stream:
+            logger.log(self.params.log_level[level], msg)
             logger.removeHandler(sh)
-        if self.log_file!='' and  write_file:
-            logger.removeHandler(fh)
-            fh.close()
+            
 
     def debug(self, msg, write_stream=True, write_file=True):
-        self._mylog("DEBUG", msg, write_stream, write_file)
+        self.log("DEBUG", msg, write_stream, write_file)
 
     def info(self, msg, write_stream=True, write_file=True):
-        self._mylog("INFO", msg, write_stream, write_file)
+        self.log("INFO", msg, write_stream, write_file)
 
     def warning(self, msg, write_stream=True, write_file=True):
-        self._mylog("WARNING", msg, write_stream, write_file)
+        self.log("WARNING", msg, write_stream, write_file)
 
     def error(self, msg, write_stream=True, write_file=True):
-        self._mylog("ERROR", msg, write_stream, write_file)
+        self.log("ERROR", msg, write_stream, write_file)
 
     def critical(self, msg, write_stream=True, write_file=True):
-        self._mylog("CRITICAL", msg, write_stream, write_file)
+        self.log("CRITICAL", msg, write_stream, write_file)
         
     def train(self, msg, write_stream=True, write_file=True):
-        self._mylog("TRAIN", msg, write_stream, write_file)
+        self.log("TRAIN", msg, write_stream, write_file)
     
     def test(self, msg, write_stream=True, write_file=True):
-        self._mylog("TEST", msg, write_stream, write_file)
+        self.log("TEST", msg, write_stream, write_file)
+
+    def update_log_file(self, log_file):
+        real_path = os.path.realpath(os.path.dirname(log_file))
+        if log_file=='':
+            pass
+        elif real_path != os.path.abspath(log_file):
+            if not os.path.exists(real_path):
+                os.makedirs(real_path)
+            self.params.log_file = log_file
+            if self.params.write_file_mode:
+                self.close()
+                self.params.file = open(self.params.log_file, 'a+')
+        else:
+            raise ValueError("`log_file` must is file name. ")
+            
+    def close(self):
+        if self.params.file is not None:
+            self.params.file.close()
