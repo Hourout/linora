@@ -2,6 +2,8 @@ import os
 import logging
 import colorlog
 
+__all__ = ['Logger']
+
 class Params(object):
     log_colors = {
             'DEBUG': 'purple',
@@ -34,6 +36,17 @@ class Logger():
     def __init__(self, name="", level="INFO", log_file='', write_stream=True, write_file=True,
                  write_file_mode=0,
                  message_stream='[%(asctime)s] [%(name)s] [%(levelname)8s]: %(message)s'):
+        """Logs are printed on the console and stored in files.
+        
+        Args:
+            name: log subject name.
+            level: log printing level.
+            log_file: log file path.
+            write_stream: whether to globally control log printing to the console.
+            write_file: whether to globally control log write to the log file.
+            write_file_mode: 1 is fast mode, 0 is slow mode, default 0.
+            message_stream: printing to the console formatter.
+        """
         self.params =Params
         self.params.log_name = name
         if level in self.params.log_level:
@@ -48,6 +61,14 @@ class Logger():
         self.update_log_file(log_file)
         
     def log(self, level, msg, write_stream, write_file):
+        """Logs are printed on the console and stored in files.
+        
+        Args:
+            level: log printing level.
+            msg: log printing message.
+            write_stream: whether to control log printing to the console.
+            write_file: whether to control log write to the log file.
+        """
         write_stream = write_stream if self.params.write_stream else self.params.write_stream
         write_file = write_file if self.params.write_file else self.params.write_file
         
@@ -78,27 +99,81 @@ class Logger():
             
 
     def debug(self, msg, write_stream=True, write_file=True):
+        """Logs are printed on the console and stored in files.
+        
+        Args:
+            msg: log printing message.
+            write_stream: whether to control log printing to the console.
+            write_file: whether to control log write to the log file.
+        """
         self.log("DEBUG", msg, write_stream, write_file)
 
     def info(self, msg, write_stream=True, write_file=True):
+        """Logs are printed on the console and stored in files.
+        
+        Args:
+            msg: log printing message.
+            write_stream: whether to control log printing to the console.
+            write_file: whether to control log write to the log file.
+        """
         self.log("INFO", msg, write_stream, write_file)
 
     def warning(self, msg, write_stream=True, write_file=True):
+        """Logs are printed on the console and stored in files.
+        
+        Args:
+            msg: log printing message.
+            write_stream: whether to control log printing to the console.
+            write_file: whether to control log write to the log file.
+        """
         self.log("WARNING", msg, write_stream, write_file)
 
     def error(self, msg, write_stream=True, write_file=True):
+        """Logs are printed on the console and stored in files.
+        
+        Args:
+            msg: log printing message.
+            write_stream: whether to control log printing to the console.
+            write_file: whether to control log write to the log file.
+        """
         self.log("ERROR", msg, write_stream, write_file)
 
     def critical(self, msg, write_stream=True, write_file=True):
+        """Logs are printed on the console and stored in files.
+        
+        Args:
+            msg: log printing message.
+            write_stream: whether to control log printing to the console.
+            write_file: whether to control log write to the log file.
+        """
         self.log("CRITICAL", msg, write_stream, write_file)
         
     def train(self, msg, write_stream=True, write_file=True):
+        """Logs are printed on the console and stored in files.
+        
+        Args:
+            msg: log printing message.
+            write_stream: whether to control log printing to the console.
+            write_file: whether to control log write to the log file.
+        """
         self.log("TRAIN", msg, write_stream, write_file)
     
     def test(self, msg, write_stream=True, write_file=True):
+        """Logs are printed on the console and stored in files.
+        
+        Args:
+            msg: log printing message.
+            write_stream: whether to control log printing to the console.
+            write_file: whether to control log write to the log file.
+        """
         self.log("TEST", msg, write_stream, write_file)
 
     def update_log_file(self, log_file):
+        """Update log file path.
+        
+        Args:
+            log_file: log file path.
+        """
         real_path = os.path.realpath(os.path.dirname(log_file))
         if log_file=='':
             pass
@@ -113,5 +188,6 @@ class Logger():
             raise ValueError("`log_file` must is file name. ")
             
     def close(self):
+        """Close log ssesion."""
         if self.params.file is not None:
             self.params.file.close()
