@@ -9,13 +9,12 @@ setup(name='linora',
       version='0.9.4',
       install_requires=[
           'pandas>=0.24.1', 
-          'xgboost>=0.81', 
+          'xgboost>=1.3.0', 
           'pyecharts>=1.6.0',
           'pyecharts_snapshot>=0.1.10', 
-          'numpy>=1.16.2', 
-          'tensorflow>=2.0.0', 
-          'sqlalchemy>=1.3.12', 
-          'colorlog'
+          'numpy>=1.19.4', 
+          'sqlalchemy>=1.3.20', 
+          'colorlog>=4.6.2'
       ],
       description='Simple and efficient tools for data mining and data analysis.',
       long_description=readme(),
@@ -33,8 +32,8 @@ setup(name='linora',
           'Topic :: Scientific/Engineering :: Artificial Intelligence',
           'Topic :: Scientific/Engineering :: Visualization',
           'License :: OSI Approved :: Apache Software License',
-          'Programming Language :: Python :: 3.6',
-          'Programming Language :: Python :: 3.7'
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8'
       ],
       packages=find_packages(),
       zip_safe=False)
