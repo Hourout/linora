@@ -1,7 +1,5 @@
 import os
 
-from PIL import Image
-
 __all__ = ['list_images']
 
 def list_images(directory, file_format=('jpg', 'jpeg', 'bmp', 'png', 'ppm', 'tif', 'tiff')):
