@@ -14,7 +14,8 @@ setup(name='linora',
           'pyecharts_snapshot>=0.1.10', 
           'numpy>=1.19.4', 
           'sqlalchemy>=1.3.20', 
-          'colorlog>=4.6.2'
+          'colorlog>=4.6.2',
+          'pillow>=8.0.1'
       ],
       description='Simple and efficient tools for data mining and data analysis.',
       long_description=readme(),
