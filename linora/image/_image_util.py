@@ -3,7 +3,7 @@ import os
 import numpy as np
 from PIL import Image
 
-__all__ = ['list_images', 'ColorMode', 'image_to_array', 'array_to_image']
+__all__ = ['list_images', 'ColorMode', 'color_convert', 'image_to_array', 'array_to_image']
 
 def list_images(directory, file_format=('jpg', 'jpeg', 'bmp', 'png', 'ppm', 'tif', 'tiff')):
     """Lists all pictures in a directory, including all subdirectories.
