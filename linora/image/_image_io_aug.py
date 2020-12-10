@@ -1,5 +1,6 @@
 import numpy as np
 from linora.image._image_io import *
+from linora.image._image_util import *
 
 class ImageIoAug(object):
     def __init__(self, image=None):
