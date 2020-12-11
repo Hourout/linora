@@ -1,8 +1,21 @@
 import tensorflow as tf
 
-__all__ = ['RandomBrightness', 'RandomContrast', 'RandomHue',
-           'RandomSaturation', 'RandomGamma', 'RandomPencilSketch']
+__all__ = ['color', 'contrast', 'brightness', 'sharpness']
+# __all__ = ['RandomBrightness', 'RandomContrast', 'RandomHue',
+#            'RandomSaturation', 'RandomGamma', 'RandomPencilSketch']
 
+
+def color(image, factor):
+    return ImageEnhance.Color(image).enhance(factor)
+
+def contrast(image, factor):
+    return ImageEnhance.Contrast(image).enhance(factor)
+
+def brightness(image, factor):
+    return ImageEnhance.Brightness(image).enhance(factor)
+
+def sharpness(image, factor):
+    return ImageEnhance.Sharpness(image).enhance(factor)
 
 def RandomBrightness(image, delta, seed=None, **kwarg):
     """Adjust the brightness of RGB or Grayscale images.
