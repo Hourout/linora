@@ -1,38 +1,62 @@
-import tensorflow as tf
+import numpy as np
 
-__all__ = ['Normalize', 'RandomRescale']
-           
-def Normalize(image, mean=None, std=None, **kwarg):
+__all__ = ['normalize_global', 'normalize_channel', 'rescale']
+
+def normalize_global(image, mean=None, std=None):
     """Normalize scales `image` to have mean and variance.
     
-    This op computes `(x - mean) / std`.
-    Args:
-        image: An n-D Tensor where the last 3 dimensions are
-               `[height, width, channels]`.
-        mean: if None, computes image mean.
-              if int float, customize image all channels mean.
-              if tuple list, customize image each channels mean,
-              shape should 3 dims.
-        std: if None, computes image std.
-             if int float, customize image all channels std.
-             if tuple list, customize image each channels std,
-             shape should 3 dims.
-  Returns:
-    The standardized image with same shape as `image`.
-  Raises:
-    ValueError: if the shape of 'image' is incompatible with this function.
-  """
-    image = tf.cast(image, dtype=tf.float32)
-    assert image.get_shape().ndims==3, 'image ndims must be 3.'
-    if mean is None and std is None:
-        image = tf.image.per_image_standardization(image)
-    else:
-        assert isinstance(mean, (int, float, tuple, list)), 'mean type one of int, float, tuple, list.'
-        assert isinstance(std, (int, float, tuple, list)), 'std type one of int, float, tuple, list.'
-        image = tf.math.divide(tf.math.subtract(image, mean), std)
-    return image if kwarg else image.numpy()
+        This op computes `(x - mean) / std`.
+        Args:
+            image: An n-D Tensor where the last 3 dimensions are
+                   `[height, width, channels]`.
+            mean: if None, computes image mean.
+                  if int or float, customize image all channels mean.
+            std: if None, computes image std.
+                 if int or float, customize image all channels std.
+      Returns:
+        The standardized image with same shape as `image`.
+      Raises:
+        ValueError: if the shape of 'image' is incompatible with this function.
+      """
+    if mean is None:
+        mean = image.mean()
+    elif not isinstance(mean, (int, float)):
+        raise ValueError('`mean` must be int or float.')
+    if std is None:
+        std = image.std()
+    elif not isinstance(std, (int, float)):
+        raise ValueError('`std` must be int or float.')
+    return (image-mean)/std
 
-def RandomRescale(image, scale, seed=None, **kwarg):
+def normalize_channel(image, mean=None, std=None):
+    """Normalize scales `image` to have mean and variance.
+    
+        This op computes `(x - mean) / std`.
+        Args:
+            image: An n-D Tensor where the last 3 dimensions are
+                   `[height, width, channels]`.
+            mean: if None, computes image mean.
+                  if tuple or list, customize image each channels mean,
+                  shape should 3 dims.
+            std: if None, computes image std.
+                 if tuple or list, customize image each channels std,
+                 shape should 3 dims.
+      Returns:
+        The standardized image with same shape as `image`.
+      Raises:
+        ValueError: if the shape of 'image' is incompatible with this function.
+      """
+    if mean is None:
+        mean = [image[:,:,i].mean() for i in range(image.shape[2])]
+    elif not isinstance(mean, (list, tuple)):
+        raise ValueError('`mean` must be list or tuple.')
+    if std is None:
+        std = [image[:,:,i].std() for i in range(image.shape[2])]
+    elif not isinstance(std, (list, tuple)):
+        raise ValueError('`std` must be list or tuple.')
+    return (image-mean)/std
+
+def rescale(image, scale):
     """Rescale apply to image.
     
     new pixel = image * scale
@@ -42,19 +66,13 @@ def RandomRescale(image, scale, seed=None, **kwarg):
         scale: if int float, value multiply with image.
                if tuple list, randomly picked in the interval
                `[central_rate[0], central_rate[1])`, value multiply with image.
-        seed: A Python integer. Used to create a random seed.
-              See `tf.set_random_seed` for behavior.
     Returns:
         3-D / 4-D float Tensor, as per the input.
     Raises:
         scale type error.
     """
-    image = tf.cast(image, dtype=tf.float32)
-    if isinstance(scale, (int, float)):
-        image = tf.math.multiply(image, scale)
-    elif isinstance(scale, (tuple, list)):
-        random_scale = tf.random.uniform([], scale[0], scale[1], seed=seed)
-        image = tf.math.multiply(image, random_scale)
-    else:
+    if isinstance(scale, (tuple, list)):
+        scale = np.random.uniform(scale[0], scale[1])
+    elif not isinstance(scale, (int, float)):
         raise ValueError('scale type should be one of int, float, tuple, list.')
-    return image if kwarg else image.numpy()
+    return image*scale
