@@ -6,14 +6,13 @@ def readme():
         return f.read()
 
 setup(name='linora',
-      version='0.9.4',
+      version='1.0.0rc0',
       install_requires=[
-          'pandas>=0.24.1', 
+          'pandas>=1.1.0', 
           'xgboost>=1.3.0', 
           'pyecharts>=1.6.0',
           'pyecharts_snapshot>=0.1.10', 
           'numpy>=1.19.4', 
-          'sqlalchemy>=1.3.20', 
           'colorlog>=4.6.2',
           'pillow>=8.0.1'
       ],
@@ -23,7 +22,7 @@ setup(name='linora',
       url='https://github.com/Hourout/linora',
       author='JinQing Lee',
       author_email='hourout@163.com',
-      keywords=['hyperparameter-optimization', 'XGBoost', 'LightGBM', 'data-mining', 'data-analysis', 'machine-learning'],
+      keywords=['hyperparameter-optimization', 'XGBoost', 'LightGBM', 'data-mining', 'data-analysis', 'machine-learning', 'image', 'text', 'data-science'],
       license='Apache License Version 2.0',
       classifiers=[
           'Intended Audience :: Developers',
