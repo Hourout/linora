@@ -1,53 +1,13 @@
-import tensorflow as tf
+import numpy as np
+from PIL import ImageEnhance
 
 __all__ = ['color', 'contrast', 'brightness', 'sharpness']
-# __all__ = ['RandomBrightness', 'RandomContrast', 'RandomHue',
-#            'RandomSaturation', 'RandomGamma', 'RandomPencilSketch']
 
 
-def color(image, factor):
-    return ImageEnhance.Color(image).enhance(factor)
+def color(image, delta):
+    return ImageEnhance.Color(image).enhance(delta)
 
-def contrast(image, factor):
-    return ImageEnhance.Contrast(image).enhance(factor)
-
-def brightness(image, factor):
-    return ImageEnhance.Brightness(image).enhance(factor)
-
-def sharpness(image, factor):
-    return ImageEnhance.Sharpness(image).enhance(factor)
-
-def RandomBrightness(image, delta, seed=None, **kwarg):
-    """Adjust the brightness of RGB or Grayscale images.
-    
-    Tips:
-        delta extreme value in the interval [-1, 1], >1 to white, <-1 to black.
-        a suitable interval is [-0.5, 0.5].
-        0 means pixel value no change.
-    Args:
-        image: Tensor or array. An image.
-        delta: if int, float, Amount to add to the pixel values.
-               if list, tuple, randomly picked in the interval
-               `[delta[0], delta[1])` to add to the pixel values.
-        seed: A Python integer. Used to create a random seed. See
-             `tf.set_random_seed` for behavior.
-    Returns:
-        A brightness-adjusted tensor of the same shape and type as `image`.
-    Raises:
-        ValueError: if `delta` type is error.
-    """
-    if isinstance(delta, (int, float)):
-        assert -1<=delta<=1, 'delta should be in the interval [-1, 1].'
-        image = tf.image.adjust_brightness(image, delta)
-    elif isinstance(delta, (list, tuple)):
-        assert -1<=delta[0]<delta[1]<=1, 'delta should be 1 >= delta[1] > delta[0] >= -1.'
-        random_delta = tf.random.uniform([], delta[0], delta[1], seed=seed)
-        image = tf.image.adjust_brightness(image, random_delta)
-    else:
-        raise ValueError('delta should be one of int, float, list, tuple.')
-    return image if kwarg else image.numpy()
-
-def RandomContrast(image, delta, seed=None, **kwarg):
+def contrast(image, delta):
     """Adjust contrast of RGB or grayscale images.
     
     `images` is a tensor of at least 3 dimensions.  The last 3 dimensions are
@@ -76,15 +36,38 @@ def RandomContrast(image, delta, seed=None, **kwarg):
     Raises:
         ValueError: if `delta` type is error.
     """
-    if isinstance(delta, (int, float)):
-        image = tf.image.adjust_contrast(image, delta)
-    elif isinstance(delta, (list, tuple)):
+    if isinstance(delta, (list, tuple)):
         assert delta[0]<delta[1], 'delta should be delta[1] > delta[0].'
-        random_delta = tf.random.uniform([], delta[0], delta[1], seed=seed)
-        image = tf.image.adjust_contrast(image, random_delta)
-    else:
-        raise ValueError('delta should be one of int, float, list, tuple.')
-    return image if kwarg else image.numpy()
+        delta = np.random.uniform(delta[0], delta[1])
+    return ImageEnhance.Contrast(image).enhance(delta)
+
+def brightness(image, delta):
+    """Adjust the brightness of RGB or Grayscale images.
+    
+    Tips:
+        delta extreme value in the interval [-1, 1], >1 to white, <-1 to black.
+        a suitable interval is [-0.5, 0.5].
+        0 means pixel value no change.
+    Args:
+        image: Tensor or array. An image.
+        delta: if int, float, Amount to add to the pixel values.
+               if list, tuple, randomly picked in the interval
+               `[delta[0], delta[1])` to add to the pixel values.
+        seed: A Python integer. Used to create a random seed. See
+             `tf.set_random_seed` for behavior.
+    Returns:
+        A brightness-adjusted tensor of the same shape and type as `image`.
+    Raises:
+        ValueError: if `delta` type is error.
+    """
+    if isinstance(delta, (list, tuple)):
+        assert -1<=delta[0]<delta[1]<=1, 'delta should be 1 >= delta[1] > delta[0] >= -1.'
+        delta = np.random.uniform(delta[0], delta[1])
+    return ImageEnhance.Brightness(image).enhance(delta)
+
+def sharpness(image, factor):
+    return ImageEnhance.Sharpness(image).enhance(delta)
+
 
 def RandomHue(image, delta, seed=None, **kwarg):
     """Adjust hue of an RGB image.
