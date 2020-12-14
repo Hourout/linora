@@ -1,24 +1,76 @@
 import numpy as np
 from PIL import Image
 
-__all_ = ['filp_up_left', 'flip_up_right', 'flip_left_right', 'flip_up_down', 'rotate', 'translate']
+__all__ = ['filp_up_left', 'flip_up_right', 'flip_left_right', 'flip_up_down', 'rotate', 'translate']
 
 def filp_up_left(image, random=False):
+    """Randomly flip an image (up to left).
+    
+    With a 1 in 2 chance, outputs the contents of `image` flipped along the
+    second dimension, which is `width`.  Otherwise output the image as-is.
+    
+    Args:
+    image: a Image instance.
+    random: bool, default False.
+            if True, random flip up or left image.
+            if False, flip up or left image.
+    Returns:
+            A Image instance. of the same type and shape as `image`.
+    """
     if random:
         random = np.random.choice([True, False])
     return image.transpose(Image.TRANSPOSE) if not random else image
 
 def flip_up_right(image, random=False):
+    """Randomly flip an image (up to right).
+    
+    With a 1 in 2 chance, outputs the contents of `image` flipped along the
+    second dimension, which is `width`.  Otherwise output the image as-is.
+    
+    Args:
+    image: a Image instance.
+    random: bool, default False.
+            if True, random flip up or right image.
+            if False, flip up or right image.
+    Returns:
+            A Image instance. of the same type and shape as `image`.
+    """
     if random:
         random = np.random.choice([True, False])
     return image.transpose(Image.TRANSVERSE) if not random else image
 
 def flip_left_right(image, random=False):
+    """Randomly flip an image (left to right).
+    
+    With a 1 in 2 chance, outputs the contents of `image` flipped along the
+    second dimension, which is `width`.  Otherwise output the image as-is.
+    
+    Args:
+    image: a Image instance.
+    random: bool, default False.
+            if True, random flip left or rignt image.
+            if False, flip left or right image.
+    Returns:
+            A Image instance. of the same type and shape as `image`.
+    """
     if random:
         random = np.random.choice([True, False])
     return image.transpose(Image.FLIP_LEFT_RIGHT) if not random else image
 
 def flip_up_down(image, random=False):
+    """Randomly flip an image (up to down).
+    
+    With a 1 in 2 chance, outputs the contents of `image` flipped along the
+    second dimension, which is `width`.  Otherwise output the image as-is.
+    
+    Args:
+    image: a Image instance.
+    random: bool, default False.
+            if True, random flip up or down image.
+            if False, flip up or down image.
+    Returns:
+            A Image instance. of the same type and shape as `image`.
+    """
     if random:
         random = np.random.choice([True, False])
     return image.transpose(Image.FLIP_TOP_BOTTOM) if not random else image
