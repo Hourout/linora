@@ -6,11 +6,11 @@ from linora import feature_selection
 from linora import sample
 from linora import sample_splits
 from linora import text
-# from linora import image
+from linora import image
 # from linora import database
 from linora._logger import *
 
-__version__ = '0.9.4'
+__version__ = '1.0.0rc0'
 __author__ = 'JinQing Lee'
 
 def _hello():
