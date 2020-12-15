@@ -19,7 +19,7 @@ class ImageRescaleAug(object):
          ValueError: if the shape of 'image' is incompatible with this function.
        """
         if type(self.image)!=np.ndarray:
-            self.image = self.image_to_array(self.image)
+            self.image_to_array(self.image)
         self.image = normalize_global(self.image, mean, std)
         return self
     
@@ -40,7 +40,7 @@ class ImageRescaleAug(object):
         ValueError: if the shape of 'image' is incompatible with this function.
       """
         if type(self.image)!=np.ndarray:
-            self.image = self.image_to_array(self.image)
+            self.image_to_array(self.image)
         self.image = normalize_channel(self.image, mean, std)
         return self
 
@@ -58,7 +58,7 @@ class ImageRescaleAug(object):
             scale type error.
         """
         if type(self.image)!=np.ndarray:
-            self.image = self.image_to_array(self.image)
+            self.image_to_array(self.image)
         self.image = rescale(scale)
         return self
     
