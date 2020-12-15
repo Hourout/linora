@@ -76,6 +76,31 @@ def flip_up_down(image, random=False):
     return image.transpose(Image.FLIP_TOP_BOTTOM) if not random else image
 
 def rotate(image, angle, expand=True, center=None, translate=None, fillcolor=None):
+    """Returns a rotated copy of this image. This method returns a copy of this image, 
+    rotated the given number of degrees counter clockwise around its centre.
+    
+    Args:
+    image: a Image instance.
+    angle: In degrees counter clockwise.
+           if int or float, rotation angle.
+           if list or tuple, randomly picked in the interval `[angle[0], angle[1])` value.
+    expand: Optional expansion flag. If true, expands the output image to make it large 
+            enough to hold the entire rotated image. If false or omitted, 
+            make the output image the same size as the input image. 
+            Note that the expand flag assumes rotation around the center and no translation.
+            if value is 'random', then the function is random.
+    center: Optional center of rotation (a 2-tuple). Origin is the upper left corner. 
+            Default is the center of the image.
+            if value is 'random', then the function is random.
+    translate: An optional post-rotate translation (a 2-tuple).
+            if value is 'random', then the function is random.
+    fillcolor: An optional color for area outside the rotated image.
+            if value is 'random', fillcolor is one of ['green', 'red', 'white', 'black'].
+            you can also pass in a list of colors.
+    
+    Returns:
+            A Image instance. of the same type and shape as `image`.
+    """
     if isinstance(angle, (list, tuple)):
         assert angle[0]<angle[1], '`angle` must be angle[0]<angle[1].'
         angle = np.random.uniform(angle[0], angle[1])
@@ -92,6 +117,19 @@ def rotate(image, angle, expand=True, center=None, translate=None, fillcolor=Non
     return image.rotate(angle, expand, center, translate, fillcolor)
 
 def translate(image, translate=None, fillcolor=None):
+    """Returns a translate copy of this image. 
+    
+    Args:
+    image: a Image instance.
+    translate: An optional post-rotate translation (a 2-tuple).
+            if value is 'random', then the function is random.
+    fillcolor: An optional color for area outside the rotated image.
+            if value is 'random', fillcolor is one of ['green', 'red', 'white', 'black'].
+            you can also pass in a list of colors.
+    
+    Returns:
+            A Image instance. of the same type and shape as `image`.
+    """
     if translate=='random':
         translate = (np.random.randint(0, image.size[0]*0.8), np.random.randint(0, image.size[1]*0.8))
     if fillcolor=='random':
