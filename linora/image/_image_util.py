@@ -42,7 +42,17 @@ class ColorMode:
     BGR24 = {'mode':'BGR;24', 'description':'24-bit reversed true colour'}
     BGR32 = {'mode':'BGR;32', 'description':'32-bit reversed true colour'}
 
-def color_convert(image, color_mode='RGB'):
+def color_convert(image, color_mode=ColorMode.RGB):
+    """Transform image color mode
+    
+    Args
+        img: PIL Image instance.
+        color_mode: Image color mode, more see la.image.ColorMode
+    Returns
+        PIL Image instance.
+    Raises
+        ValueError: color_mode error.
+    """
     if color_mode == 'grayscale':
         if image.mode not in ('L', 'I;16', 'I'):
             image = image.convert('L')
@@ -56,14 +66,14 @@ def color_convert(image, color_mode='RGB'):
 
 def image_to_array(image, data_format='channels_last', dtype='float32'):
     """Converts a PIL Image instance to a Numpy array.
-    # Arguments
+    Args
         img: PIL Image instance.
         data_format: Image data format,
             either "channels_first" or "channels_last".
         dtype: Dtype to use for the returned array.
-    # Returns
+    Returns
         A 3D Numpy array.
-    # Raises
+    Raises
         ValueError: if invalid `img` or `data_format` is passed.
     """
     if data_format not in {'channels_first', 'channels_last'}:
@@ -83,14 +93,13 @@ def image_to_array(image, data_format='channels_last', dtype='float32'):
 
 def array_to_image(x, data_format='channels_last'):
     """Converts a 3D Numpy array to a PIL Image instance.
-    # Arguments
+    Args
         x: Input Numpy array.
         data_format: Image data format, either "channels_first" or "channels_last".
             Default: "channels_last".
-    # Returns
+    Returns
         A PIL Image instance.
-    # Raises
-        ImportError: if PIL is not available.
+    Raises
         ValueError: if invalid `x` or `data_format` is passed.
     """
     if x.ndim != 3:
