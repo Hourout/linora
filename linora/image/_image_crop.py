@@ -20,13 +20,12 @@ def crop_central(image, central_rate):
     batch of images (`image` is a 4-D Tensor).
     
     Args:
-        image: Either a 3-D float Tensor of shape [height, width, depth], or a 4-D
-               Tensor of shape [batch_size, height, width, depth].
+        image: a Image instance.
         central_rate: if int float, should be in the interval (0, 1], fraction of size to crop.
                       if tuple list, randomly picked in the interval
                       `[central_rate[0], central_rate[1])`, value is fraction of size to crop.
     Returns:
-        3-D / 4-D float Tensor, as per the input.
+        a Image instance.
     Raises:
         ValueError: if central_crop_fraction is not within (0, 1].
     """
@@ -52,12 +51,11 @@ def crop_point(image, height_rate, width_rate):
     batch of images (`image` is a 4-D Tensor).
     
     Args:
-        image: Either a 3-D float Tensor of shape [height, width, depth], or a 4-D
-               Tensor of shape [batch_size, height, width, depth].
+        image: a Image instance.
         height_rate: flaot, in the interval (0, 1].
         width_rate: flaot, in the interval (0, 1].
     Returns:
-        3-D / 4-D float Tensor, as per the input.
+        a Image instance.
     Raises:
         ValueError: if central_crop_fraction is not within (0, 1].
     """
