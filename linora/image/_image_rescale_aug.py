@@ -4,7 +4,7 @@ class ImageRescaleAug(object):
     def __init__(self, image=None):
         self.image = image
     
-    def normalize_global(mean=None, std=None):
+    def normalize_global(self, mean=None, std=None):
         """Normalize scales `image` to have mean and variance.
     
         This op computes `(x - mean) / std`.
@@ -23,7 +23,7 @@ class ImageRescaleAug(object):
         self.image = normalize_global(self.image, mean, std)
         return self
     
-    def normalize_channel(mean=None, std=None):
+    def normalize_channel(self, mean=None, std=None):
         """Normalize scales `image` to have mean and variance.
     
         This op computes `(x - mean) / std`.
@@ -44,7 +44,7 @@ class ImageRescaleAug(object):
         self.image = normalize_channel(self.image, mean, std)
         return self
 
-    def rescale(scale):
+    def rescale(self, scale):
         """Rescale apply to image.
 
         new pixel = image * scale
@@ -59,7 +59,7 @@ class ImageRescaleAug(object):
         """
         if type(self.image)!=np.ndarray:
             self.image_to_array(self.image)
-        self.image = rescale(scale)
+        self.image = rescale(self.image, scale)
         return self
     
     
