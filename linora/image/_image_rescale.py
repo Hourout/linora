@@ -61,13 +61,12 @@ def rescale(image, scale):
     
     new pixel = image * scale
     Args:
-        image: Either a 3-D float Tensor of shape [height, width, depth], or a 4-D
-               Tensor of shape [batch_size, height, width, depth].
+        image: Either a 3-D float Tensor of shape [height, width, channels].
         scale: if int float, value multiply with image.
                if tuple list, randomly picked in the interval
                `[central_rate[0], central_rate[1])`, value multiply with image.
     Returns:
-        3-D / 4-D float Tensor, as per the input.
+        The image with same shape as `image`.
     Raises:
         scale type error.
     """
