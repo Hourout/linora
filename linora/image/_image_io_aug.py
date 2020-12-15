@@ -30,20 +30,45 @@ class ImageIoAug(object):
         return save_image(filename, self.image, file_format=file_format, **kwargs)
     
     def color_convert(self, color_mode='RGB'):
+        """Transform image color mode
+
+        Args
+            img: PIL Image instance.
+            color_mode: Image color mode, more see la.image.ColorMode
+        Returns
+            PIL Image instance.
+        Raises
+            ValueError: color_mode error.
+        """
         self.image = color_convert(self.image, color_mode=color_mode)
         return self
     
     def image_to_array(self, data_format='channels_last', dtype='float32'):
         """Converts a PIL Image instance to a Numpy array.
-        # Arguments
+        
+        Args
             img: PIL Image instance.
             data_format: Image data format,
                 either "channels_first" or "channels_last".
             dtype: Dtype to use for the returned array.
-        # Returns
+        Returns
             A 3D Numpy array.
-        # Raises
+        Raises
             ValueError: if invalid `img` or `data_format` is passed.
         """
-        return image_to_array(self.image, data_format=data_format, dtype=dtype)
+        self.image = image_to_array(self.image, data_format, dtype)
+        return self
         
+    def array_to_image(self, data_format='channels_last'):
+        """Converts a 3D Numpy array to a PIL Image instance.
+        Args
+            x: Input Numpy array.
+            data_format: Image data format, either "channels_first" or "channels_last".
+                Default: "channels_last".
+        Returns
+            A PIL Image instance.
+        Raises
+            ValueError: if invalid `x` or `data_format` is passed.
+        """
+        self.image = array_to_image(self.image, data_format)
+        return self
