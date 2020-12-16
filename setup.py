@@ -9,10 +9,8 @@ setup(name='linora',
       version='1.0.0rc0',
       install_requires=[
           'pandas>=1.1.0', 
-          'xgboost<1.3.0', 
           'pyecharts>=1.6.0',
           'pyecharts_snapshot>=0.1.10', 
-          'numpy>=1.19.4', 
           'colorlog>=4.6.2',
           'pillow>=8.0.1'
       ],
