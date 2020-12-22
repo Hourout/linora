@@ -8,8 +8,7 @@
 ![contributors](https://img.shields.io/github/contributors/Hourout/linora)
 ![downloads](https://img.shields.io/pypi/dm/linora.svg)
 
-Linora is a simple and efficient tools for data mining and data analysis.
- 
+Linora is a simple and efficient data mining and data analysis tool that allows you to do related data mining tasks without using sklearn to the maximum extent. It is perfectly compatible with pandas and runs faster and saves memory compared to sklearn.
 
 
 | [API Document](https://github.com/Hourout/linora/blob/master/document/api.md) | [中文介绍](https://github.com/Hourout/linora/blob/master/document/Chinese.md) |
@@ -19,20 +18,20 @@ Linora is a simple and efficient tools for data mining and data analysis.
 To install [this verson from PyPI](https://pypi.org/project/linora/), type:
 
 ```
-pip3 install linora
+pip(3) install linora
 ```
 
 To get the newest one from this repo (note that we are in the alpha stage, so there may be frequent updates), type:
 
 ```
-pip3 install git+git://github.com/Hourout/linora.git
+pip(3) install git+git://github.com/Hourout/linora.git
 ```
 
 ## Feature
 - metrics
 - metrics charts
-- feature columns
-- feature selection
+- feature columns module
+- feature selection module
 - image augmentation
 - text processing
 - model param search
