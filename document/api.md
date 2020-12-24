@@ -131,25 +131,28 @@
 | la.image.read_image | Convenience function for read image | 读取图像 |
 | la.image.save_image | Writes image to the file at input filename | 保存图像 |
 | la.image.ImageAug | image augmentation class | 图像增强类 |
-| la.image.RandomBrightness | Adjust the brightness of RGB or Grayscale images | 随机调整图像亮度 |
-| la.image.RandomContrast | Adjust contrast of RGB or grayscale images | 随机调整图像对比度 |
-| la.image.RandomHue | Adjust hue of an RGB image | 随机调整图像色调 |
-| la.image.RandomSaturation | Adjust saturation of an RGB image | 随机调整图像饱和度 |
+| la.image.enhance_brightness | Adjust the brightness of RGB or Grayscale images | 随机调整图像亮度 |
+| la.image.enhance_contrast | Adjust contrast of RGB or grayscale images | 随机调整图像对比度 |
+| la.image.enhance_color | Adjust hue of an RGB image | 随机调整图像色调 |
+| la.image.enhance_sharpness| Adjust sharpness of an RGB image | 随机调整图像清晰度 |
 | la.image.RandomGamma | Performs Gamma Correction on the input image | 图像Gamma校正 |
-| la.image.RandomNoiseGaussian | Gaussian noise apply to image | 随机增加图像高斯噪声 |
-| la.image.RandomNoisePoisson | Poisson noise apply to image | 随机增加图像泊松噪声 |
-| la.image.RandomNoiseMask | Mask noise apply to image | 随机增加图像mask噪声 |
-| la.image.RandomNoiseSaltPepper | Salt-Pepper noise apply to image | 随机增加图像椒盐噪声 |
-| la.image.RandomNoiseRainbow | Rainbowr noise apply to image | 随机增加图像彩虹噪声 |
-| la.image.RandomFlipLeftRight | Randomly flips an image horizontally | 随机图像左右翻转 |
-| la.image.RandomFlipTopBottom | Randomly flips an image vertically | 随机图像上下翻转 |
-| la.image.RandomTranspose | Transpose image by swapping the height and width dimension | 随机图像对称翻转 |
-| la.image.RandomRotation | Rotate image counter-clockwise by 90 degrees | 随机图像90°倍数旋转 |
-| la.image.Normalize | Normalize scales `image` to have mean and variance | 图像正态标准化 |
-| la.image.RandomRescale | Rescale apply to image | 图像数值等比例缩放 |
-| la.image.RandomCropCentralResize | Crop the central region of the image and resize specify shape | 随机中心裁剪并resize |
-| la.image.RandomCropPointResize | Crop the any region of the image and resize specify shape | 随机点裁剪并resize |
-| la.image.RandomPencilSketch | Adjust the pencil sketch of RGB | 随机铅笔画塑形 |
+| la.image.noise_gaussian | Gaussian noise apply to image | 随机增加图像高斯噪声 |
+| la.image.noise_poisson | Poisson noise apply to image | 随机增加图像泊松噪声 |
+| la.image.noise_mask | Mask noise apply to image | 随机增加图像mask噪声 |
+| la.image.noise_saltpepper | Salt-Pepper noise apply to image | 随机增加图像椒盐噪声 |
+| la.image.noise_rainbow | Rainbowr noise apply to image | 随机增加图像彩虹噪声 |
+| la.image.flip_left_right | Randomly flips an image horizontally | 随机图像左右翻转 |
+| la.image.flip_up_down | Randomly flips an image vertically | 随机图像上下翻转 |
+| la.image.filp_up_left | Randomly flips an image up to left | 随机图像上左翻转 |
+| la.image.flip_up_right | Randomly flips an image up to right | 随机图像上右翻转 |
+| la.image.translate | Translate image by swapping the height and width dimension | 图像平移 |
+| la.image.rotate | Rotate image counter-clockwise by degrees | 随机图像旋转 |
+| la.image.normalize_global | Normalize scales `image` to have mean and variance with global| 图像全局正态标准化 |
+| la.image.normalize_channel | Normalize scales `image` to have mean and variance with channel| 图像单通道正态标准化 |
+| la.image.rescale | Rescale apply to image | 图像数值等比例缩放 |
+| la.image.crop_central | Crop the central region of the image and resize specify shape | 随机中心裁剪并resize |
+| la.image.crop_point | Crop the any region of the image and resize specify shape | 随机点裁剪并resize |
+| la.image.pencil_sketch | Adjust the pencil sketch of RGB | 随机铅笔画塑形 |
 
 - ## la.text
 
