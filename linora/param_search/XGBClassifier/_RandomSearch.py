@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from linora.sample_splits import kfold, train_test_split
 from linora.param_search._HyperParameters import HyperParametersRandom
+from linora.param_search import __xgboost_version__
 
 
 def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5, cv_num=3,
@@ -38,6 +39,7 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
         params error.
     """
     import xgboost as xgb
+    assert xgb.__version__>=__xgboost_version__, f'xgboost version should be >={__xgboost_version__}.'
     start = time.time()
     best_params={}
     if speedy:
