@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from linora.param_search._HyperParameters import HyperParametersRandom
+from linora.param_search import __xgboost_version__
 
 
 def RandomSearch(feature, label, group, metrics, iter_num=1000, scoring=0.5, cv=5, cv_num=3,
@@ -38,7 +39,7 @@ def RandomSearch(feature, label, group, metrics, iter_num=1000, scoring=0.5, cv=
         params error.
     """
     import xgboost as xgb
-    assert xgb.__version__>='1.2.0', 'xgoobst version must be >=1.2.0'
+    assert xgb.__version__>=__xgboost_version__, f'xgboost version should be >={__xgboost_version__}.'
     start = time.time()
     if gpu:
         raise "XGBRanker is not supported currently."
