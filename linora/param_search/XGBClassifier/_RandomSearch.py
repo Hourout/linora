@@ -84,7 +84,7 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
                 index_list = train_test_split(feature, stratify=label, test_size=test_size,
                                               shuffle=True, random_state=np.random.choice(range(100), 1)[0])
                 model.fit(feature.loc[index_list[0]], label[index_list[0]])
-                cv_pred = pd.Series(model.predict_proba(feature.loc[index_list[1]]), index=label[index_list[1]].index)
+                cv_pred = pd.Series(model.predict_proba(feature.loc[index_list[1]])[:,1], index=label[index_list[1]].index)
                 score.append(metrics(label[index_list[1]], cv_pred))
         else:
             index_list = kfold(feature, stratify=label, n_splits=cv, shuffle=True, 
@@ -93,7 +93,7 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
                 if n == cv_num:
                     break
                 model.fit(feature.loc[index[0]], label[index[0]])
-                cv_pred = pd.Series(model.predict_proba(feature.loc[index[1]]), index=label[index[1]].index)
+                cv_pred = pd.Series(model.predict_proba(feature.loc[index[1]])[:,1], index=label[index[1]].index)
                 score.append(metrics(label[index[1]], cv_pred))
         cv_score = round(np.mean(score), 4)
         if metrics_min:
