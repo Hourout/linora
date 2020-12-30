@@ -90,4 +90,5 @@ def train_test_split(df, stratify=None, test_size=0.2, shuffle=False, random_sta
         for i in fold:
             for j in range(2):
                 t[j] = t[j]+i[j]
+        t = [sorted(t[0]), sorted(t[1])]
     return t
