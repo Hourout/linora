@@ -73,7 +73,7 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
     hp.Choice('booster', ['gbtree'])
     hp.Choice('tree_method', tree_method)
     hp.Choice('importance_type', ["gain", "weight", "cover", "total_gain", "total_cover"])
-    hp.Choice('use_label_encoder':[False])
+    hp.Choice('use_label_encoder', [False])
     
     for i in range(1, iter_num+1):
         hp.update()
