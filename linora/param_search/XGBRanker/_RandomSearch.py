@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from linora.param_search._HyperParameters import HyperParametersRandom
-from linora.param_search.__init__ import __xgboost_version__
+from linora.param_search._config import __xgboost_version__
 
 
 def RandomSearch(feature, label, group, metrics, iter_num=1000, scoring=0.5, cv=5, cv_num=3,
