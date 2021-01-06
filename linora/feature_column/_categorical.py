@@ -9,17 +9,20 @@ __all__ = ['categorical_encoder', 'categorical_hash', 'categorical_crossed',
            'categorical_onehot_binarizer', 'categorical_onehot_multiple']
 
 
-def categorical_encoder(feature, feature_scale=None):
+def categorical_encoder(feature, feature_scale=None, abnormal_value=-1):
     """Encode labels with value between 0 and n_classes-1.
+       
+       if feature values not in feature_scale dict, return `abnormal_value`.
     
     Args:
         feature: pd.Series, sample feature.
         feature_scale: dict, label parameters dict for this estimator.
+        abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
     Returns:
         return encoded labels and label parameters dict.
     """
     scale = feature_scale if feature_scale is not None else {j:i for i,j in feature.drop_duplicates().reset_index(drop=True).to_dict().items()}
-    t = feature.replace(scale)
+    t = pd.Series([scale.get(i, abnormal_value) for i in feature], index=feature.index)
     return t, scale
 
 def categorical_hash(feature, hash_bucket_size):
