@@ -34,7 +34,7 @@ class RandomWalker:
     
     def _deepwalk_walks(self, nodes, walk_num, walk_length, filter_lenth):
         walks = []
-        for _ in range(num_walks):
+        for _ in range(walk_num):
             random.shuffle(nodes)
             walks += [self.deepwalk_walk(walk_length, v, filter_lenth) for v in nodes]
         return walks
@@ -44,5 +44,5 @@ class RandomWalker:
         workers_list = [walk_num//workers]*workers + ([walk_num % workers] if walk_num % workers != 0 else [])
         results = Parallel(n_jobs=workers, verbose=verbose)(
             delayed(method)(nodes, num, walk_length, filter_lenth) for num in workers_list)
-        walks = list(itertools.chain(*results))
+        walks = itertools.chain(filter(lambda x: len(x) > 0, itertools.chain(*results)))
         return walks
