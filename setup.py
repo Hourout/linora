@@ -12,7 +12,8 @@ setup(name='linora',
           'pyecharts>=1.9.0',
           'pyecharts_snapshot>=0.2.0', 
           'colorlog>=4.6.2',
-          'pillow>=8.0.1'
+          'pillow>=8.0.1',
+          'joblib'>='0.17.0'
       ],
       description='Simple and efficient tools for data mining and data analysis.',
       long_description=readme(),
