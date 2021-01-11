@@ -24,12 +24,12 @@ class RandomWalker:
         while len(walk) < walk_length:
             cur = walk[-1]
             cur_nodes = list(self.G.neighbors(cur))
-            if len(cur_nbrs) > 0:
+            if len(cur_nodes) > 0:
                 if walk_prob:
                     cur_weights = [G[cur][i]['weight'] for i in cur_nodes]
                     walk.append(random.choices(cur_nodes, cur_weights)[0])
                 else:
-                    walk.append(random.choice(cur_nbrs))
+                    walk.append(random.choice(cur_nodes))
             else:
                 break
         if len(walk)<=filter_lenth:
