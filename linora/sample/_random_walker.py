@@ -26,7 +26,7 @@ class RandomWalker:
             cur_nodes = list(self.G.neighbors(cur))
             if len(cur_nodes) > 0:
                 if walk_prob:
-                    cur_weights = [G[cur][i]['weight'] for i in cur_nodes]
+                    cur_weights = [self.G[cur][i]['weight'] for i in cur_nodes]
                     walk.append(random.choices(cur_nodes, cur_weights)[0])
                 else:
                     walk.append(random.choice(cur_nodes))
