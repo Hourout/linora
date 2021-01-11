@@ -1,5 +1,6 @@
 import random
 import itertools
+from collections import defaultdict
 
 from joblib import Parallel, delayed
 
@@ -15,6 +16,10 @@ class RandomWalker:
         self.G = G
         self.p = p
         self.q = q
+        self._nodes_weight_dict = defaultdict(lambda :defaultdict(list))
+        for i in self.G.nodes():
+            self._nodes_weight_dict[i]['nodes'] = list(self.G.neighbors(i))
+            self._nodes_weight_dict[i]['weight'] = [self.G[i][j]['weight'] for j in self._nodes_weight_dict[i]['nodes']]
 
     def deepwalk_walks(self, walk_num, walk_length, walk_prob=False, filter_lenth=0, workers=1, verbose=0):
         return self._parallel_walks(self._deepwalk_walks, walk_num, walk_length, walk_prob, filter_lenth, workers, verbose)
@@ -23,11 +28,10 @@ class RandomWalker:
         walk = [start_node]
         while len(walk) < walk_length:
             cur = walk[-1]
-            cur_nodes = list(self.G.neighbors(cur))
+            cur_nodes = self._nodes_weight_dict[cur]['nodes']
             if len(cur_nodes) > 0:
                 if walk_prob:
-                    cur_weights = [self.G[cur][i]['weight'] for i in cur_nodes]
-                    walk.append(random.choices(cur_nodes, cur_weights)[0])
+                    walk.append(random.choices(cur_nodes, self._nodes_weight_dict[cur]['weight'])[0])
                 else:
                     walk.append(random.choice(cur_nodes))
             else:
