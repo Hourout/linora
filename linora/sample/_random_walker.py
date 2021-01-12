@@ -16,12 +16,28 @@ class RandomWalker:
         self.G = G
         self.p = p
         self.q = q
+        
         self._nodes_weight_dict = defaultdict(lambda :defaultdict(list))
         for i in self.G.nodes():
             self._nodes_weight_dict[i]['nodes'] = list(self.G.neighbors(i))
             probs = [self.G[i][j].get('weight', 1.0) for j in self._nodes_weight_dict[i]['nodes']]
             probs_sum = sum(probs)
-            self._nodes_weight_dict[i]['weight'] = [i/probs_sum for i in probs]
+            self._nodes_weight_dict[i]['weights'] = [i/probs_sum for i in probs]
+        
+#         self._edges_weight_dict = defaultdict(lambda :defaultdict(list))
+#         for edge in G.edges():
+#             probs = []
+#             self._edges_weight_dict[edge]['nodes'] = list(self.G.neighbors(edge[1]))
+#             for x in self._edges_weight_dict[edge]['nodes']:
+#                 weight = self.G[edge[1]][x].get('weight', 1.0)
+#                 if x == edge[0]:
+#                     probs.append(weight/self.p)
+#                 elif G.has_edge(x, edge[0]):
+#                     probs.append(weight)
+#                 else:
+#                     probs.append(weight/self.q)
+#             probs_sum = sum(probs)
+#             self._edges_weight_dict[edge]['weights'] = [i/probs_sum for i in probs]
 
     def deepwalk_walks(self, walk_num, walk_length, walk_prob=False, filter_lenth=0, workers=1, verbose=0):
         return self._parallel_walks(self._deepwalk_walks, walk_num, walk_length, walk_prob, filter_lenth, workers, verbose)
@@ -33,7 +49,7 @@ class RandomWalker:
             cur_nodes = self._nodes_weight_dict[cur]['nodes']
             if len(cur_nodes) > 0:
                 if walk_prob:
-                    walk.append(random.choices(cur_nodes, self._nodes_weight_dict[cur]['weight'])[0])
+                    walk.append(random.choices(cur_nodes, self._nodes_weight_dict[cur]['weights'])[0])
                 else:
                     walk.append(random.choice(cur_nodes))
             else:
