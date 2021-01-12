@@ -19,7 +19,9 @@ class RandomWalker:
         self._nodes_weight_dict = defaultdict(lambda :defaultdict(list))
         for i in self.G.nodes():
             self._nodes_weight_dict[i]['nodes'] = list(self.G.neighbors(i))
-            self._nodes_weight_dict[i]['weight'] = [self.G[i][j]['weight'] for j in self._nodes_weight_dict[i]['nodes']]
+            probs = [self.G[i][j].get('weight', 1.0) for j in self._nodes_weight_dict[i]['nodes']]
+            probs_sum = sum(probs)
+            self._nodes_weight_dict[i]['weight'] = [i/probs_sum for i in probs]
 
     def deepwalk_walks(self, walk_num, walk_length, walk_prob=False, filter_lenth=0, workers=1, verbose=0):
         return self._parallel_walks(self._deepwalk_walks, walk_num, walk_length, walk_prob, filter_lenth, workers, verbose)
