@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 import colorlog
 
@@ -31,6 +32,7 @@ class Params(object):
     write_file = None
     message_stream = None
     write_file_mode = 0
+    time = time.time()
     
 class Logger():
     def __init__(self, name="", level="INFO", log_file='', write_stream=True, write_file=True,
@@ -94,8 +96,9 @@ class Logger():
             sh.setFormatter(formatter_sh)
             logger.addHandler(sh)
 
-            logger.log(self.params.log_level[level], msg)
+            logger.log(self.params.log_level[level], f'【{time.time()-self.params.time)}s】'+msg)
             logger.removeHandler(sh)
+            self.params.time = time.time()
             
 
     def debug(self, msg, write_stream=True, write_file=True):
