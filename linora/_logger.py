@@ -37,7 +37,7 @@ class Params(object):
 class Logger():
     def __init__(self, name="", level="INFO", log_file='', write_stream=True, write_file=True,
                  write_file_mode=0,
-                 message_stream='[%(asctime)s] [%(name)s] [%(levelname)8s]: %(message)s'):
+                 message_stream='[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s'):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -96,11 +96,17 @@ class Logger():
             sh.setFormatter(formatter_sh)
             logger.addHandler(sh)
 
-            logger.log(self.params.log_level[level], f'【{time.time()-self.params.time)}s】'+msg)
+            end = time.time()-self.params.time
+            if end < 60:
+                msg = f'[{end:.2f} sec]: '+msg
+            elif end<3600:
+                msg = "[%d min %.2f s]: " % divmod(end, 60)+msg
+            else:
+                msg = f"[{end//3600:.0f} hour %d min %.0f s]: " % divmod(end%3600, 60)+msg
+            logger.log(self.params.log_level[level], msg)
             logger.removeHandler(sh)
             self.params.time = time.time()
             
-
     def debug(self, msg, write_stream=True, write_file=True):
         """Logs are printed on the console and stored in files.
         
