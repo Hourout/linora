@@ -1,11 +1,12 @@
 import os
+import sys
 import time
 import logging
 import colorlog
 
 __all__ = ['Logger']
 
-class Params(object):
+class Params:
     log_colors = {
             'DEBUG': 'purple',
             'INFO': 'green',
@@ -49,7 +50,7 @@ class Logger():
             write_file_mode: 1 is fast mode, 0 is slow mode, default 0.
             message_stream: printing to the console formatter.
         """
-        self.params =Params
+        self.params = Params()
         self.params.log_name = name
         if level in self.params.log_level:
             self.params.log_level_default = level
@@ -58,10 +59,20 @@ class Logger():
         
         self.params.write_stream = write_stream
         self.params.write_file = write_file
-        self.params.message_stream = '%(log_color)s'+message_stream
+        self.params.message_stream = '%(log_color)s' + message_stream
         self.params.write_file_mode = write_file_mode
         self.update_log_file(log_file)
         
+        logging.addLevelName(self.params.log_level['TRAIN'], 'TRAIN')
+        logging.addLevelName(self.params.log_level['TEST'], 'TEST')
+        self.params.logger = logging.getLogger(self.params.log_name)
+        self.params.logger.setLevel(self.params.log_level[self.params.log_level_default])
+        formatter_sh = colorlog.ColoredFormatter(
+            self.params.message_stream, datefmt='%Y-%m-%d %H:%M:%S', log_colors=self.params.log_colors)
+        self.params.sh = logging.StreamHandler()
+        self.params.sh.setLevel(self.params.log_level[self.params.log_level_default])
+        self.params.sh.setFormatter(formatter_sh)
+            
     def log(self, level, msg, write_stream, write_file):
         """Logs are printed on the console and stored in files.
         
@@ -75,36 +86,26 @@ class Logger():
         write_file = write_file if self.params.write_file else self.params.write_file
         
         if write_file:
-            if self.params.log_file=='':
+            if self.params.log_file == '':
                 pass
             elif self.params.write_file_mode:
-                self.params.file.write(msg+'\n')
+                self.params.file.write(msg + '\n')
             else:
                 with open(self.params.log_file, 'a+') as f:
-                    f.write(msg+'\n')
+                    f.write(msg + '\n')
         
         if write_stream:
-            logging.addLevelName(self.params.log_level['TRAIN'], 'TRAIN')
-            logging.addLevelName(self.params.log_level['TEST'], 'TEST')
-            logger = logging.getLogger(self.params.log_name)
-            logger.setLevel(self.params.log_level[self.params.log_level_default])
-        
-            formatter_sh = colorlog.ColoredFormatter(
-                self.params.message_stream, log_colors=self.params.log_colors)
-            sh = logging.StreamHandler()
-            sh.setLevel(self.params.log_level[self.params.log_level_default])
-            sh.setFormatter(formatter_sh)
-            logger.addHandler(sh)
-
             end = time.time()-self.params.time
             if end < 60:
-                msg = f'[{end:.2f} sec]: '+msg
-            elif end<3600:
-                msg = "[%d min %.2f s]: " % divmod(end, 60)+msg
+                msg = f'[{end:.2f} sec]: ' + msg
+            elif end < 3600:
+                msg = "[%d min %.2f s]: " % divmod(end, 60) + msg
             else:
-                msg = f"[{end//3600:.0f} hour %d min %.0f s]: " % divmod(end%3600, 60)+msg
-            logger.log(self.params.log_level[level], msg)
-            logger.removeHandler(sh)
+                msg = f"[{end // 3600:.0f} hour %d min %.0f s]: " % divmod(end % 3600, 60) + msg
+
+            self.params.logger.addHandler(self.params.sh)
+            self.params.logger.log(self.params.log_level[level], msg)
+            self.params.logger.removeHandler(self.params.sh)
             self.params.time = time.time()
             
     def debug(self, msg, write_stream=True, write_file=True):
