@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 import logging
 import colorlog
@@ -33,11 +32,11 @@ class Params:
     write_file = None
     message_stream = None
     write_file_mode = 0
+    overwrite=False
     time = time.time()
     
 class Logger():
-    def __init__(self, name="", level="INFO", log_file='', write_stream=True, write_file=True,
-                 write_file_mode=0,
+    def __init__(self, name="", level="INFO", log_file='', write_file_mode=0, overwrite=False,
                  message_stream='[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s'):
         """Logs are printed on the console and stored in files.
         
@@ -45,9 +44,8 @@ class Logger():
             name: log subject name.
             level: log printing level.
             log_file: log file path.
-            write_stream: whether to globally control log printing to the console.
-            write_file: whether to globally control log write to the log file.
             write_file_mode: 1 is fast mode, 0 is slow mode, default 0.
+            overwrite: whether overwrite log file.
             message_stream: printing to the console formatter.
         """
         self.params = Params()
@@ -57,10 +55,9 @@ class Logger():
         else:
             raise ValueError("`level` must in param dict `log_level`. ")
         
-        self.params.write_stream = write_stream
-        self.params.write_file = write_file
         self.params.message_stream = '%(log_color)s' + message_stream
         self.params.write_file_mode = write_file_mode
+        self.params.overwrite = overwrite
         self.update_log_file(log_file)
         
         logging.addLevelName(self.params.log_level['TRAIN'], 'TRAIN')
@@ -82,17 +79,8 @@ class Logger():
             write_stream: whether to control log printing to the console.
             write_file: whether to control log write to the log file.
         """
-        write_stream = write_stream if self.params.write_stream else self.params.write_stream
-        write_file = write_file if self.params.write_file else self.params.write_file
-        
         if write_file:
-            if self.params.log_file == '':
-                pass
-            elif self.params.write_file_mode:
-                self.params.file.write(msg + '\n')
-            else:
-                with open(self.params.log_file, 'a+') as f:
-                    f.write(msg + '\n')
+            self.write(msg)
         
         if write_stream:
             end = time.time()-self.params.time
@@ -107,8 +95,23 @@ class Logger():
             self.params.logger.log(self.params.log_level[level], msg)
             self.params.logger.removeHandler(self.params.sh)
             self.params.time = time.time()
-            
-    def debug(self, msg, write_stream=True, write_file=True):
+    
+    def write(self, msg):
+        """Logs write to the log file.
+        
+        Args:
+            msg: log message.
+        """
+        try:
+            self.params.file.write(msg + '\n')
+        except:
+            try:
+                with open(self.params.log_file, 'a+') as f:
+                    f.write(msg + '\n')
+            except:
+                pass
+    
+    def debug(self, msg, write_stream=True, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -118,7 +121,7 @@ class Logger():
         """
         self.log("DEBUG", msg, write_stream, write_file)
 
-    def info(self, msg, write_stream=True, write_file=True):
+    def info(self, msg, write_stream=True, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -128,7 +131,7 @@ class Logger():
         """
         self.log("INFO", msg, write_stream, write_file)
 
-    def warning(self, msg, write_stream=True, write_file=True):
+    def warning(self, msg, write_stream=True, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -138,7 +141,7 @@ class Logger():
         """
         self.log("WARNING", msg, write_stream, write_file)
 
-    def error(self, msg, write_stream=True, write_file=True):
+    def error(self, msg, write_stream=True, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -148,7 +151,7 @@ class Logger():
         """
         self.log("ERROR", msg, write_stream, write_file)
 
-    def critical(self, msg, write_stream=True, write_file=True):
+    def critical(self, msg, write_stream=True, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -158,7 +161,7 @@ class Logger():
         """
         self.log("CRITICAL", msg, write_stream, write_file)
         
-    def train(self, msg, write_stream=True, write_file=True):
+    def train(self, msg, write_stream=True, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -168,7 +171,7 @@ class Logger():
         """
         self.log("TRAIN", msg, write_stream, write_file)
     
-    def test(self, msg, write_stream=True, write_file=True):
+    def test(self, msg, write_stream=True, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -193,10 +196,11 @@ class Logger():
             self.params.log_file = log_file
             if self.params.write_file_mode:
                 self.close()
-                self.params.file = open(self.params.log_file, 'a+')
+                mode = 'w' if self.params.overwrite else 'a+'
+                self.params.file = open(self.params.log_file, mode)
         else:
-            raise ValueError("`log_file` must is file name. ")
-            
+            raise ValueError("`log_file` must is file name.")
+    
     def close(self):
         """Close log ssesion."""
         if self.params.file is not None:
