@@ -76,7 +76,6 @@ class Logger():
         Args:
             level: log printing level.
             msg: log printing message.
-            write_stream: whether to control log printing to the console.
             write_file: whether to control log write to the log file.
         """
         if write_file:
