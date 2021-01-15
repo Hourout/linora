@@ -9,6 +9,7 @@ from linora import text
 from linora import image
 # from linora import database
 from linora._logger import *
+from linora._config import *
 
 __version__ = '1.0.0rc1'
 __author__ = 'JinQing Lee'
