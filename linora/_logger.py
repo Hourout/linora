@@ -70,7 +70,7 @@ class Logger():
         self.params.sh.setLevel(self.params.log_level[self.params.log_level_default])
         self.params.sh.setFormatter(formatter_sh)
             
-    def log(self, level, msg, write_stream, write_file):
+    def log(self, level, msg, write_file):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -82,19 +82,18 @@ class Logger():
         if write_file:
             self.write(msg)
         
-        if write_stream:
-            end = time.time()-self.params.time
-            if end < 60:
-                msg = f'[{end:.2f} sec]: ' + msg
-            elif end < 3600:
-                msg = "[%d min %.2f s]: " % divmod(end, 60) + msg
-            else:
-                msg = f"[{end // 3600:.0f} hour %d min %.0f s]: " % divmod(end % 3600, 60) + msg
+        end = time.time()-self.params.time
+        if end < 60:
+            msg = f'[{end:.2f} sec]: ' + msg
+        elif end < 3600:
+            msg = "[%d min %.2f s]: " % divmod(end, 60) + msg
+        else:
+            msg = f"[{end // 3600:.0f} hour %d min %.0f s]: " % divmod(end % 3600, 60) + msg
 
-            self.params.logger.addHandler(self.params.sh)
-            self.params.logger.log(self.params.log_level[level], msg)
-            self.params.logger.removeHandler(self.params.sh)
-            self.params.time = time.time()
+        self.params.logger.addHandler(self.params.sh)
+        self.params.logger.log(self.params.log_level[level], msg)
+        self.params.logger.removeHandler(self.params.sh)
+        self.params.time = time.time()
     
     def write(self, msg):
         """Logs write to the log file.
@@ -111,75 +110,68 @@ class Logger():
             except:
                 pass
     
-    def debug(self, msg, write_stream=True, write_file=False):
+    def debug(self, msg, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
-            write_stream: whether to control log printing to the console.
             write_file: whether to control log write to the log file.
         """
-        self.log("DEBUG", msg, write_stream, write_file)
+        self.log("DEBUG", msg, write_file)
 
-    def info(self, msg, write_stream=True, write_file=False):
+    def info(self, msg, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
-            write_stream: whether to control log printing to the console.
             write_file: whether to control log write to the log file.
         """
-        self.log("INFO", msg, write_stream, write_file)
+        self.log("INFO", msg, write_file)
 
-    def warning(self, msg, write_stream=True, write_file=False):
+    def warning(self, msg, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
-            write_stream: whether to control log printing to the console.
             write_file: whether to control log write to the log file.
         """
-        self.log("WARNING", msg, write_stream, write_file)
+        self.log("WARNING", msg, write_file)
 
-    def error(self, msg, write_stream=True, write_file=False):
+    def error(self, msg, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
-            write_stream: whether to control log printing to the console.
             write_file: whether to control log write to the log file.
         """
-        self.log("ERROR", msg, write_stream, write_file)
+        self.log("ERROR", msg, write_file)
 
-    def critical(self, msg, write_stream=True, write_file=False):
+    def critical(self, msg, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
-            write_stream: whether to control log printing to the console.
             write_file: whether to control log write to the log file.
         """
-        self.log("CRITICAL", msg, write_stream, write_file)
+        self.log("CRITICAL", msg, write_file)
         
-    def train(self, msg, write_stream=True, write_file=False):
+    def train(self, msg, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
-            write_stream: whether to control log printing to the console.
             write_file: whether to control log write to the log file.
         """
-        self.log("TRAIN", msg, write_stream, write_file)
+        self.log("TRAIN", msg, write_file)
     
-    def test(self, msg, write_stream=True, write_file=False):
+    def test(self, msg, write_file=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
-            write_stream: whether to control log printing to the console.
             write_file: whether to control log write to the log file.
         """
-        self.log("TEST", msg, write_stream, write_file)
+        self.log("TEST", msg, write_file)
 
     def update_log_file(self, log_file):
         """Update log file path.
