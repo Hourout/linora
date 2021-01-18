@@ -89,6 +89,8 @@ class Logger():
             msg = f"[{end // 3600:.0f} hour %d min %.0f s]: " % divmod(end % 3600, 60) + msg
         msg = (f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time_now))}]" +
                f" [{self.params.log_name}] [{str.upper(level)}] " + msg)
+        if write_file:
+            self.write(msg)
 
         if len(self.params.last_msg)>len(msg):
             msg = msg+' '*(len(self.params.last_msg)-len(msg))
@@ -98,8 +100,6 @@ class Logger():
         except:
             msg = f'\033[30m{msg}\033[0m'
         print(msg, end='\n' if enter else '\r', file=sys.stderr if self.params.stream=='stderr' else sys.stdout)
-        if write_file:
-            self.write(msg)
         
     def write(self, msg):
         """Logs write to the log file.
