@@ -1,43 +1,49 @@
 import os
+import sys
 import time
-import logging
-import colorlog
+
 
 __all__ = ['Logger']
 
 class Params:
     log_colors = {
-            'DEBUG': 'purple',
-            'INFO': 'green',
-            'WARNING': 'yellow',
-            'ERROR': 'red',
-            'CRITICAL': 'bold_red',
-            'TRAIN': 'cyan',
-            'TEST': 'blue'
-        }
+        'bebug': 'purple',
+        'info': 'green',
+        'warning': 'yellow',
+        'error': 'red',
+        'critical': 'bold_red',
+        'train': 'cyan',
+        'test': 'blue'
+    }
+    log_colors_code = {
+        'purple': '\033[35m{}\033[0m',
+        'green':'\033[32m{}\033[0m',
+        'yellow': '\033[33m{}\033[0m',
+        'red': '\033[31m{}\033[0m',
+        'black': '\033[30m{}\033[0m',
+        'cyan': '\033[36m{}\033[0m',
+        'blue': '\033[34m{}\033[0m'
+    }
     log_level = {
-            'DEBUG':10,
-            'INFO':20,
-            'TRAIN':21,
-            'TEST':22,
-            'WARNING':30,
-            'ERROR':40,
-            'CRITICAL':50
-        }
+        'debug':10,
+        'info':20,
+        'train':21,
+        'test':22,
+        'warning':30,
+        'error':40,
+        'critical':50
+    }
     log_level_default = None
     log_name = None
     log_file = ''
     file = None
-    write_stream = None
-    write_file = None
-    message_stream = None
     write_file_mode = 0
     overwrite=False
     time = time.time()
+    last_msg = ''
     
 class Logger():
-    def __init__(self, name="", level="INFO", log_file='', write_file_mode=0, overwrite=False,
-                 message_stream='[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s'):
+    def __init__(self, name="", level="INFO", log_file='', write_file_mode=0, overwrite=False, stream='stderr'):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -46,54 +52,55 @@ class Logger():
             log_file: log file path.
             write_file_mode: 1 is fast mode, 0 is slow mode, default 0.
             overwrite: whether overwrite log file.
-            message_stream: printing to the console formatter.
+            stream: stderr or stdout, a file-like object (stream), defaults to the current sys.stderr.
         """
         self.params = Params()
-        self.params.log_name = name
-        if level in self.params.log_level:
-            self.params.log_level_default = level
+        self.params.log_name = 'root' if name=="" else name
+        if str.lower(level) in self.params.log_level:
+            self.params.log_level_default = str.lower(level)
         else:
-            raise ValueError("`level` must in param dict `log_level`. ")
+            raise ValueError("`level` must in param dict `Logger.params.log_level`. ")
         
-        self.params.message_stream = '%(log_color)s' + message_stream
         self.params.write_file_mode = write_file_mode
         self.params.overwrite = overwrite
+        self.params.stream = stream
         self.update_log_file(log_file)
-        
-        logging.addLevelName(self.params.log_level['TRAIN'], 'TRAIN')
-        logging.addLevelName(self.params.log_level['TEST'], 'TEST')
-        self.params.logger = logging.getLogger(self.params.log_name)
-        self.params.logger.setLevel(self.params.log_level[self.params.log_level_default])
-        formatter_sh = colorlog.ColoredFormatter(
-            self.params.message_stream, datefmt='%Y-%m-%d %H:%M:%S', log_colors=self.params.log_colors)
-        self.params.sh = logging.StreamHandler()
-        self.params.sh.setLevel(self.params.log_level[self.params.log_level_default])
-        self.params.sh.setFormatter(formatter_sh)
             
-    def log(self, level, msg, write_file):
+    def log(self, level, msg, write_file, enter):
         """Logs are printed on the console and stored in files.
         
         Args:
             level: log printing level.
             msg: log printing message.
             write_file: whether to control log write to the log file.
+            enter: whether to wrap print.
         """
-        if write_file:
-            self.write(msg)
+        if self.params.log_level[str.lower(level)]<self.params.log_level[self.params.log_level_default]:
+            return 
         
-        end = time.time()-self.params.time
+        time_now = time.time()
+        end = time_now-self.params.time
+        self.params.time = time_now
         if end < 60:
             msg = f'[{end:.2f} sec]: ' + msg
         elif end < 3600:
             msg = "[%d min %.2f s]: " % divmod(end, 60) + msg
         else:
             msg = f"[{end // 3600:.0f} hour %d min %.0f s]: " % divmod(end % 3600, 60) + msg
+        msg = (f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time_now))}]" +
+               f" [{self.params.log_name}] [{str.upper(level)}] " + msg)
 
-        self.params.logger.addHandler(self.params.sh)
-        self.params.logger.log(self.params.log_level[level], msg)
-        self.params.logger.removeHandler(self.params.sh)
-        self.params.time = time.time()
-    
+        if len(self.params.last_msg)>len(msg):
+            msg = msg+' '*(len(self.params.last_msg)-len(msg))
+        self.params.last_msg = msg
+        try:
+            msg = self.params.log_colors_code[self.params.log_colors[str.lower(level)]].format(msg)
+        except:
+            msg = f'\033[30m{msg}\033[0m'
+        print(msg, end='\r' if enter else '\n', file=sys.stderr if self.params.stream=='stderr' else sys.stdout)
+        if write_file:
+            self.write(msg)
+        
     def write(self, msg):
         """Logs write to the log file.
         
@@ -109,68 +116,75 @@ class Logger():
             except:
                 pass
     
-    def debug(self, msg, write_file=False):
+    def debug(self, msg, write_file=False, enter=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
+            enter: whether to wrap print.
         """
-        self.log("DEBUG", msg, write_file)
+        self.log("DEBUG", msg, write_file, enter)
 
-    def info(self, msg, write_file=False):
+    def info(self, msg, write_file=False, enter=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
+            enter: whether to wrap print.
         """
-        self.log("INFO", msg, write_file)
+        self.log("INFO", msg, write_file, enter)
 
-    def warning(self, msg, write_file=False):
+    def warning(self, msg, write_file=False, enter=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
+            enter: whether to wrap print.
         """
-        self.log("WARNING", msg, write_file)
+        self.log("WARNING", msg, write_file, enter)
 
-    def error(self, msg, write_file=False):
+    def error(self, msg, write_file=False, enter=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
+            enter: whether to wrap print.
         """
-        self.log("ERROR", msg, write_file)
+        self.log("ERROR", msg, write_file, enter)
 
-    def critical(self, msg, write_file=False):
+    def critical(self, msg, write_file=False, enter=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
+            enter: whether to wrap print.
         """
-        self.log("CRITICAL", msg, write_file)
+        self.log("CRITICAL", msg, write_file, enter)
         
-    def train(self, msg, write_file=False):
+    def train(self, msg, write_file=False, enter=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
+            enter: whether to wrap print.
         """
-        self.log("TRAIN", msg, write_file)
+        self.log("TRAIN", msg, write_file, enter)
     
-    def test(self, msg, write_file=False):
+    def test(self, msg, write_file=False, enter=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
+            enter: whether to wrap print.
         """
-        self.log("TEST", msg, write_file)
+        self.log("TEST", msg, write_file, enter)
 
     def update_log_file(self, log_file):
         """Update log file path.
