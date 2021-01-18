@@ -26,7 +26,10 @@ def Config(file_py=None, file_dict=None, file_json=None, **kwargs):
             for i in dir(temp):
                 if i not in filters:
                     locals()[i] = getattr(temp, i)
-            del temp, filters
+            try:
+                del temp, filters
+            except:
+                pass
         for i, j in kwargs.items():
             locals()[i] = j
         try:
