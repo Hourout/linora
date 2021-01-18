@@ -1,8 +1,11 @@
 __all__ = ['Config']
 
-def Config(**kwargs):
-    class Configs:
+def config(**kwargs):
+    class Config:
         for i, j in kwargs.items():
             locals()[i] = j
-        del i,j
-    return Configs()
+        try:
+            del i,j
+        except:
+            pass
+    return Config()
