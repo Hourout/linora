@@ -97,7 +97,7 @@ class Logger():
             msg = self.params.log_colors_code[self.params.log_colors[str.lower(level)]].format(msg)
         except:
             msg = f'\033[30m{msg}\033[0m'
-        print(msg, end='\r' if enter else '\n', file=sys.stderr if self.params.stream=='stderr' else sys.stdout)
+        print(msg, end='\n' if enter else '\r', file=sys.stderr if self.params.stream=='stderr' else sys.stdout)
         if write_file:
             self.write(msg)
         
@@ -116,7 +116,7 @@ class Logger():
             except:
                 pass
     
-    def debug(self, msg, write_file=False, enter=False):
+    def debug(self, msg, write_file=False, enter=True):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -126,7 +126,7 @@ class Logger():
         """
         self.log("DEBUG", msg, write_file, enter)
 
-    def info(self, msg, write_file=False, enter=False):
+    def info(self, msg, write_file=False, enter=True):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -136,7 +136,7 @@ class Logger():
         """
         self.log("INFO", msg, write_file, enter)
 
-    def warning(self, msg, write_file=False, enter=False):
+    def warning(self, msg, write_file=False, enter=True):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -146,7 +146,7 @@ class Logger():
         """
         self.log("WARNING", msg, write_file, enter)
 
-    def error(self, msg, write_file=False, enter=False):
+    def error(self, msg, write_file=False, enter=True):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -156,7 +156,7 @@ class Logger():
         """
         self.log("ERROR", msg, write_file, enter)
 
-    def critical(self, msg, write_file=False, enter=False):
+    def critical(self, msg, write_file=False, enter=True):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -166,7 +166,7 @@ class Logger():
         """
         self.log("CRITICAL", msg, write_file, enter)
         
-    def train(self, msg, write_file=False, enter=False):
+    def train(self, msg, write_file=False, enter=True):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -176,7 +176,7 @@ class Logger():
         """
         self.log("TRAIN", msg, write_file, enter)
     
-    def test(self, msg, write_file=False, enter=False):
+    def test(self, msg, write_file=False, enter=True):
         """Logs are printed on the console and stored in files.
         
         Args:
