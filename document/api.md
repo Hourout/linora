@@ -1,5 +1,10 @@
 # API document 文档
 
+| API | description | 描述 |
+| --- | --- | --- |
+| la.Config | config function | 参数配置函数 |
+| la.Logger | logging function | 日志函数 |
+
 - ## la.chart
 
 | API | description | 描述 |
@@ -113,6 +118,7 @@
 | --- | --- | --- |
 | la.sample.ImageDataset | Construct an image dataset label index | 图像样本生成 |
 | la.sample.ImageClassificationFolderDataset | Construct an image dataset label index | 图像分类样本生成 |
+| la.sample.RandomWalker | RandomWalker sample | 随机游走样本生成 |
 
 - ## la.sample_splits
 
