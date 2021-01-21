@@ -2,7 +2,7 @@ import io
 
 from PIL import Image
 
-__all__ = ['read_image', 'save_image']
+__all__ = ['read_image', 'save_image', 'encode_base64', 'decode_base64']
 
 def read_image(filename):
     """
@@ -30,3 +30,21 @@ def save_image(filename, image, file_format=None, **kwargs):
 #         warnings.warn('The JPG format does not support RGBA images, converting to RGB.')
         image = image.convert('RGB')
     image.save(filename, format=file_format, **kwargs)
+
+def encode_base64(file):
+    """encode image to string.
+    Args
+        file: image file path.
+    """
+    with open(file, "rb")as f:
+        bs64 = base64.b64encode(f.read()).decode()
+    return bs64
+
+def decode_base64(file, image_str):
+    """decode image to file.
+    Args
+        file: image file path.
+        image_str: image bites string.
+    """
+    with open(file, "wb") as f:
+        f.write(base64.b64decode(image_str))
