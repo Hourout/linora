@@ -39,7 +39,6 @@ class Params:
     file = None
     write_file_mode = 0
     overwrite=False
-    time = time.time()
     last_msg = ''
     
 class Logger():
@@ -64,6 +63,7 @@ class Logger():
         self.params.write_file_mode = write_file_mode
         self.params.overwrite = overwrite
         self.params.stream = stream
+        self.params.time = time.time()
         self.update_log_file(log_file)
             
     def log(self, level, msg, write_file, enter):
