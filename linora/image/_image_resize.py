@@ -2,7 +2,7 @@ from PIL import Image
 
 __all__ = ['ResizeMethod', 'resize']
 
-class ResizeMethod:
+class resize_method:
     """For geometry operations that may map multiple input pixels to a single output pixel, 
     the Python Imaging Library provides different resampling filters.
     
@@ -28,6 +28,8 @@ class ResizeMethod:
     BICUBIC = Image.BICUBIC
     LANCZOS = Image.LANCZOS
     
+ResizeMethod = resize_method()
+
 def resize(image, size, method=ResizeMethod.BILINEAR):
     """Returns a resized copy of this image.
     
