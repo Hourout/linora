@@ -16,7 +16,7 @@ def list_images(directory, file_format=('jpg', 'jpeg', 'bmp', 'png', 'ppm', 'tif
     file_format = tuple('.%s' % e for e in ((file_format,) if isinstance(file_format, str) else file_format))
     return [os.path.join(root, f) for root, _, files in os.walk(directory) for f in files if f.lower().endswith(file_format)]
 
-class ColorMode:
+class color_mode:
     O     = {'mode':'1',      'description':'1-bit pixels, black and white, stored with one pixel per byte'}
     L     = {'mode':'L',      'description':'8-bit pixels, black and white'}
     LA    = {'mode':'LA',     'description':'L with alpha'}
@@ -41,6 +41,8 @@ class ColorMode:
     BGR16 = {'mode':'BGR;16', 'description':'16-bit reversed true colour'}
     BGR24 = {'mode':'BGR;24', 'description':'24-bit reversed true colour'}
     BGR32 = {'mode':'BGR;32', 'description':'32-bit reversed true colour'}
+
+ColorMode = color_mode()
 
 def color_convert(image, color_mode=ColorMode.RGB):
     """Transform image color mode
