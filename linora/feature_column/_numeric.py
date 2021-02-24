@@ -51,7 +51,7 @@ def numeric_bucketized(feature, boundaries, miss_pad=-1, score=None, miss_score=
         for r, i in enumerate(bound):
             t[feature>=i] = r+1
     t = t.fillna(miss_pad).astype(dtype)
-    if isinstance(score, list):
+    if isinstance(score, (tuple, list)):
         t = t.replace({i:j for i,j in enumerate(score)})
         if miss_score is not None:
             t = t.replace({miss_pad:miss_score}) 
