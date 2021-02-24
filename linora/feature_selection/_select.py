@@ -18,7 +18,7 @@ def missing_columns(df, missing_threshold=0.6):
     t : All features with a missing rate greater than `missing_threshold`
     """
     assert 1>=missing_threshold>=0, "`missing_threshold` should be one of [0, 1]."
-    t = (1-df.count()/len(train)).reset_index()
+    t = (1-df.count()/len(df)).reset_index()
     t.columns = ['feature_name', 'missing_rate']
     t = t[t.missing_rate>=missing_threshold].reset_index(drop=True)
     return t
