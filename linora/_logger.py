@@ -64,9 +64,10 @@ class Logger():
         self.params.overwrite = overwrite
         self.params.stream = stream
         self.params.time = time.time()
+        self.params.time_start = self.params.time
         self.update_log_file(log_file)
             
-    def log(self, level, msg, write_file, enter):
+    def log(self, level, msg, write_file, enter, close):
         """Logs are printed on the console and stored in files.
         
         Args:
@@ -79,7 +80,7 @@ class Logger():
             return 
         
         time_now = time.time()
-        end = time_now-self.params.time
+        end = time_now-self.params.time_start if close else time_now-self.params.time
         self.params.time = time_now
         if end < 60:
             msg = f'[{end:.2f} sec]: ' + msg
@@ -101,6 +102,9 @@ class Logger():
             msg = f'\033[30m{msg}\033[0m'
         print(msg, end='\n' if enter else '\r', file=sys.stderr if self.params.stream=='stderr' else sys.stdout)
         
+        if close:
+            self.close()
+        
     def write(self, msg):
         """Logs write to the log file.
         
@@ -116,75 +120,82 @@ class Logger():
             except:
                 pass
     
-    def debug(self, msg, write_file=False, enter=True):
+    def debug(self, msg, write_file=False, enter=True, close=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
             enter: whether to wrap print.
+            close: whether to end the entire log notification.
         """
-        self.log("DEBUG", msg, write_file, enter)
+        self.log("DEBUG", msg, write_file, enter, close)
 
-    def info(self, msg, write_file=False, enter=True):
+    def info(self, msg, write_file=False, enter=True, close=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
             enter: whether to wrap print.
+            close: whether to end the entire log notification.
         """
-        self.log("INFO", msg, write_file, enter)
+        self.log("INFO", msg, write_file, enter, close)
 
-    def warning(self, msg, write_file=False, enter=True):
+    def warning(self, msg, write_file=False, enter=True, close=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
             enter: whether to wrap print.
+            close: whether to end the entire log notification.
         """
-        self.log("WARNING", msg, write_file, enter)
+        self.log("WARNING", msg, write_file, enter, close)
 
-    def error(self, msg, write_file=False, enter=True):
+    def error(self, msg, write_file=False, enter=True, close=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
             enter: whether to wrap print.
+            close: whether to end the entire log notification.
         """
-        self.log("ERROR", msg, write_file, enter)
+        self.log("ERROR", msg, write_file, enter, close)
 
-    def critical(self, msg, write_file=False, enter=True):
+    def critical(self, msg, write_file=False, enter=True, close=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
             enter: whether to wrap print.
+            close: whether to end the entire log notification.
         """
-        self.log("CRITICAL", msg, write_file, enter)
+        self.log("CRITICAL", msg, write_file, enter, close)
         
-    def train(self, msg, write_file=False, enter=True):
+    def train(self, msg, write_file=False, enter=True, close=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
             enter: whether to wrap print.
+            close: whether to end the entire log notification.
         """
-        self.log("TRAIN", msg, write_file, enter)
+        self.log("TRAIN", msg, write_file, enter, close)
     
-    def test(self, msg, write_file=False, enter=True):
+    def test(self, msg, write_file=False, enter=True, close=False):
         """Logs are printed on the console and stored in files.
         
         Args:
             msg: log printing message.
             write_file: whether to control log write to the log file.
             enter: whether to wrap print.
+            close: whether to end the entire log notification.
         """
-        self.log("TEST", msg, write_file, enter)
+        self.log("TEST", msg, write_file, enter, close)
 
     def update_log_file(self, log_file):
         """Update log file path.
