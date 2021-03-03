@@ -15,7 +15,6 @@ def euclidean(x, y, normalize=False):
     Returns:
         euclidean distance value.
     """
-    assert isinstance(normalize, bool), "`normalize` should be bool types."
     std = pd.concat([x, y]).std() if normalize else 1
     return np.sqrt(np.sum(np.square((x-y)/std)))
 
