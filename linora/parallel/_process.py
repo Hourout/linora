@@ -34,7 +34,7 @@ class ProcessLoom():
         if kwargs is None:
             kwargs = dict()
         if key is None:
-            key = len(self.runners)
+            key = len(self.params.runners)
         self.params.tracker_dict[key] = dict()
         self.params.runners.append((func, args, kwargs, key))
         
