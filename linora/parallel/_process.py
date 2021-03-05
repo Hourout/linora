@@ -1,4 +1,7 @@
+import time
+import datetime
 import multiprocessing
+from collections import defaultdict
 
 __all__ = ['ProcessLoom']
 
@@ -16,6 +19,7 @@ class ProcessLoom():
         self.params.time_pause = 0.1
         manager = multiprocessing.Manager()
         self.params.tracker_dict = manager.dict()
+        self.params.runner_dict = defaultdict(lambda :defaultdict())
 
     def add_function(self, func, args=None, kwargs=None, key=None):
         """ Adds function in the Loom
@@ -31,10 +35,8 @@ class ProcessLoom():
             kwargs = dict()
         if key is None:
             key = len(self.runners)
-        
-        run_id = len(self.runners)
-        self.params.tracker_dict[key] = dict()
-        self.params.runners.append((func, args, kwargs, key, run_id))
+        self.params.tracker_dict[key] = defaultdict()
+        self.params.runners.append((func, args, kwargs, key))
         
     def add_work(self, works):
         """ Adds work to the loom
@@ -48,3 +50,55 @@ class ProcessLoom():
             kwargs = work[2] if len(work) > 2 else None
             key = work[3] if len(work) == 4 else None
             self.add_function(work[0], args, kwargs, key)
+
+    def execute(self):
+        while self.params.runners:
+            runner = self.params.runners.pop(0)
+            self._start(runner)
+            self.params.started.append(runner)
+            while self._get_active_runner_count() >= self.params.max_runner:
+                time.sleep(self.params.time_pause)
+        while self._get_active_runner_count():
+            time.sleep(self.params.time_pause)
+        output = self.params.tracker_dict
+        manager = multiprocessing.Manager()
+        self.params.tracker_dict = manager.dict()
+        self.params.runner_dict = defaultdict(lambda :defaultdict())
+        return output
+    
+    def _get_active_runner_count(self):
+        """ Returns the total number of runners running at the present time """
+        count = 0
+        for runner in self.params.started:
+            if (self.params.runner_dict[runner[3]] and self.params.runner_dict[runner[3]].is_alive() 
+                or not self.params.tracker_dict[runner[3]]):
+                    count += 1
+        if count == 0:
+            self.params.started = list()
+        return count
+    
+    def _run(self, runner):
+        """ Runs function runner """
+        output, error, got_error = None, None, False
+        started = datetime.datetime.now()
+        try:
+            output = runner[0](*runner[1], **runner[2])
+        except Exception as e:
+            got_error = True
+            error = str(e)
+        finally:
+            finished = datetime.datetime.now()
+            self.params.tracker_dict[runner[3]] = {
+                "output": output,
+                "started_time": started,
+                "finished_time": finished,
+                "execution_time": (finished - started).total_seconds(),
+                "got_error": got_error,
+                "error": error}
+    
+    def _start(self, runner):
+        """ Starts runner process """
+        self.params.runner_dict[runner[3]] = multiprocessing.Process(target=self._run, args=(runner,))
+        self.params.runner_dict[runner[3]].daemon = True
+        self.params.runner_dict[runner[3]].start()
+    
