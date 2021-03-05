@@ -19,7 +19,7 @@ class ProcessLoom():
         self.params.time_pause = 0.1
         manager = multiprocessing.Manager()
         self.params.tracker_dict = manager.dict()
-        self.params.runner_dict = defaultdict(lambda :defaultdict())
+        self.params.runner_dict = defaultdict()
 
     def add_function(self, func, args=None, kwargs=None, key=None):
         """ Adds function in the Loom
@@ -35,7 +35,7 @@ class ProcessLoom():
             kwargs = dict()
         if key is None:
             key = len(self.runners)
-        self.params.tracker_dict[key] = defaultdict()
+        self.params.tracker_dict[key] = dict()
         self.params.runners.append((func, args, kwargs, key))
         
     def add_work(self, works):
@@ -52,18 +52,44 @@ class ProcessLoom():
             self.add_function(work[0], args, kwargs, key)
 
     def execute(self):
+        """ Executes runners and returns output dictionary containing runner output, error,
+        started time, finished time and execution time of the given runner. runner key or the
+        order in which function was added is the key to get the tracker dictionary.
+        Returns:
+            dict: output dict
+            Examples:
+                {
+                    "runner1 key/order" : {
+                            "output": runner output,
+                            "error": runner errors,
+                            "started_time": datetime.now() time stamp when runner was started
+                            "finished_time": datetime.now() time stamp when runner was completed,
+                            "execution_time: total execution time in seconds",
+                            "got_error": boolean
+                        },
+                    "runner2 key/order" : {
+                            "output": runner output,
+                            "error": runner errors,
+                            "started_time": datetime.now() time stamp when runner was started
+                            "finished_time": datetime.now() time stamp when runner completed,
+                            "execution_time: total execution time in seconds",
+                            "got_error": boolean
+                        }
+                }
+        """
         while self.params.runners:
             runner = self.params.runners.pop(0)
             self._start(runner)
             self.params.started.append(runner)
             while self._get_active_runner_count() >= self.params.max_runner:
                 time.sleep(self.params.time_pause)
+#                 pass
         while self._get_active_runner_count():
             time.sleep(self.params.time_pause)
         output = self.params.tracker_dict
         manager = multiprocessing.Manager()
         self.params.tracker_dict = manager.dict()
-        self.params.runner_dict = defaultdict(lambda :defaultdict())
+        self.params.runner_dict = defaultdict()
         return output
     
     def _get_active_runner_count(self):
