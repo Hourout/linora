@@ -83,7 +83,6 @@ class ProcessLoom():
             self.params.started.append(runner)
             while self._get_active_runner_count() >= self.params.max_runner:
                 time.sleep(self.params.time_pause)
-#                 pass
         while self._get_active_runner_count():
             time.sleep(self.params.time_pause)
         output = self.params.tracker_dict
@@ -127,4 +126,3 @@ class ProcessLoom():
         self.params.runner_dict[runner[3]] = multiprocessing.Process(target=self._run, args=(runner,))
         self.params.runner_dict[runner[3]].daemon = True
         self.params.runner_dict[runner[3]].start()
-    
