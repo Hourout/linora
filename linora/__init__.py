@@ -1,5 +1,6 @@
 from linora import chart
 from linora import metrics
+from linora import parallel
 from linora import param_search
 from linora import feature_column
 from linora import feature_selection
@@ -11,7 +12,7 @@ from linora import image
 from linora._logger import *
 from linora._config import *
 
-__version__ = '1.0.0rc1'
+__version__ = '1.0.0rc2'
 __author__ = 'JinQing Lee'
 
 def _hello():
