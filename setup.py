@@ -6,13 +6,13 @@ def readme():
         return f.read()
 
 setup(name='linora',
-      version='1.0.0rc1',
+      version='1.0.0rc2',
       install_requires=[
           'pandas>=1.2.0', 
           'pyecharts>=1.9.0',
           'pyecharts_snapshot>=0.2.0', 
           'pillow>=8.0.1',
-          'joblib>=0.17.0'
+          'joblib>=1.0.1'
       ],
       description='Simple and efficient tools for data mining and data analysis.',
       long_description=readme(),
