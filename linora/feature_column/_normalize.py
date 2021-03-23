@@ -82,7 +82,7 @@ def normalize_l2(feature, feature_scale=None):
     t = feature/scale
     return t, scale
 
-def normalize_norm(feature, feature_scale=(0, 1)):
+def normalize_norm(feature, feature_scale=None):
     """normalize feature with norm method.
     
     Args:
@@ -91,7 +91,7 @@ def normalize_norm(feature, feature_scale=(0, 1)):
     Returns:
         normalize feature and feature_scale.
     """
-    scale = (0, 1) if feature_scale==(0, 1) else (feature.mean(), feature.std())
+    scale = feature_scale if feature_scale is not None else (feature.mean(), feature.std())
     t = (feature-scale[0])/scale[1]
     return t, scale
 
