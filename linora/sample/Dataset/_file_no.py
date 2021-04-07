@@ -88,6 +88,7 @@ class file_no(DataSet):
         return self.batch_func(loc)
 
 class from_Dataframe(file_no):
+    """Represents a potentially large set of elements from dataframe."""
     def __init__(self, data):
         super(from_Dataframe, self).__init__()
         self.params.data_mode = 'Dataframe_list' if isinstance(data, tuple) else 'Dataframe'
@@ -95,6 +96,7 @@ class from_Dataframe(file_no):
         self.params.data = [i.values for i in data] if isinstance(data, tuple) else data.values
 
 class from_Array(file_no):
+    """Represents a potentially large set of elements from array."""
     def __init__(self, data):
         super(from_Array, self).__init__()
         self.params.data_mode = 'array_list' if isinstance(data, tuple) else 'array'
@@ -102,6 +104,7 @@ class from_Array(file_no):
         self.params.data = data
     
 class from_Image(file_no):
+    """Represents a potentially large set of elements from image file list."""
     def __init__(self, data):
         super(from_Image, self).__init__()
         self.params.data_mode = 'image_list' if isinstance(data, tuple) else 'image'
