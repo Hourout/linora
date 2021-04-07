@@ -1,4 +1,3 @@
-
 import math
 import random
 import itertools
@@ -61,6 +60,7 @@ class file_yes(DataSet):
         return self.params.values[loc]
         
 class from_Csv(file_yes):
+    """Represents a potentially large set of elements from csv file."""
     def __init__(self, file, sep=',', header=None):
         super(from_Csv, self).__init__()
         self.params.sep = sep
