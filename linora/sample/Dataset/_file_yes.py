@@ -3,7 +3,7 @@ import random
 import itertools
 
 import pandas as pd
-from linora.sample.Dataset._dataset import Dataset
+from linora.sample.Dataset._dataset import DataSet
 
 __all__ = ['from_Csv']
 
