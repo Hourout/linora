@@ -1,9 +1,9 @@
 import numpy as np
 from PIL import Image
 
-__all__ = ['filp_up_left', 'flip_up_right', 'flip_left_right', 'flip_up_down', 'rotate', 'translate']
+__all__ = ['flip_up_left', 'flip_up_right', 'flip_left_right', 'flip_up_down', 'rotate', 'translate']
 
-def filp_up_left(image, random=False):
+def flip_up_left(image, random=False):
     """Randomly flip an image (up to left).
     
     With a 1 in 2 chance, outputs the contents of `image` flipped along the
