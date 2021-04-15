@@ -4,7 +4,7 @@ class ImagePositionAug(object):
     def __init__(self, image=None):
         self.image = image
     
-    def filp_up_left(self, random=True):
+    def flip_up_left(self, random=True):
         """Randomly flip an image (up to left).
     
         With a 1 in 2 chance, outputs the contents of `image` flipped along the
@@ -17,7 +17,7 @@ class ImagePositionAug(object):
         Returns:
                 A Image instance. of the same type and shape as `image`.
         """
-        self.image = filp_up_left(self.image, random)
+        self.image = flip_up_left(self.image, random)
         return self
     
     def flip_up_right(self, random=True):
