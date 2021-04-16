@@ -12,7 +12,7 @@ from linora import image
 from linora._logger import *
 from linora._config import *
 
-__version__ = '1.0.0rc2'
+__version__ = '1.0.0rc3'
 __author__ = 'JinQing Lee'
 
 def _hello():
