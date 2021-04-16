@@ -6,7 +6,7 @@ def readme():
         return f.read()
 
 setup(name='linora',
-      version='1.0.0rc2',
+      version='1.0.0rc3',
       install_requires=[
           'pandas>=1.0.0', 
           'pyecharts>=1.9.0',
@@ -30,6 +30,7 @@ setup(name='linora',
           'Topic :: Scientific/Engineering :: Artificial Intelligence',
           'Topic :: Scientific/Engineering :: Visualization',
           'License :: OSI Approved :: Apache Software License',
+          'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8'
       ],
