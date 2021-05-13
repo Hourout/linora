@@ -97,6 +97,13 @@
 | la.metrics.median_absolute_error | median absolute error | 中位数绝对误差 |
 | la.metrics.r2_score | R square | R方 |
 
+- ## la.parallel
+
+| API | description | 描述 |
+| --- | --- | --- |
+| la.parallel.ProcessLoom | executes runners using multi-processing. | 多进程并行 |
+| la.parallel.ThreadLoom | executes runners using threading. | 多线程并行 |
+
 - ## la.param_search
 
 | API | description | 描述 |
@@ -119,6 +126,7 @@
 | la.sample.ImageDataset | Construct an image dataset label index | 图像样本生成 |
 | la.sample.ImageClassificationFolderDataset | Construct an image dataset label index | 图像分类样本生成 |
 | la.sample.RandomWalker | RandomWalker sample | 随机游走样本生成 |
+| la.sample.Dataset | sample Dataset | 样本生成类 |
 
 - ## la.sample_splits
 
@@ -149,7 +157,7 @@
 | la.image.noise_rainbow | Rainbowr noise apply to image | 随机增加图像彩虹噪声 |
 | la.image.flip_left_right | Randomly flips an image horizontally | 随机图像左右翻转 |
 | la.image.flip_up_down | Randomly flips an image vertically | 随机图像上下翻转 |
-| la.image.filp_up_left | Randomly flips an image up to left | 随机图像上左翻转 |
+| la.image.flip_up_left | Randomly flips an image up to left | 随机图像上左翻转 |
 | la.image.flip_up_right | Randomly flips an image up to right | 随机图像上右翻转 |
 | la.image.translate | Translate image by swapping the height and width dimension | 图像平移 |
 | la.image.rotate | Rotate image counter-clockwise by degrees | 随机图像旋转 |
@@ -159,6 +167,11 @@
 | la.image.crop_central | Crop the central region of the image and resize specify shape | 随机中心裁剪并resize |
 | la.image.crop_point | Crop the any region of the image and resize specify shape | 随机点裁剪并resize |
 | la.image.pencil_sketch | Adjust the pencil sketch of RGB | 随机铅笔画塑形 |
+| la.image.list_images | Lists all pictures in a directory, including all subdirectories. |  |
+| la.image.ColorMode |  |  |
+| la.image.color_convert | Transform image color mode |  |
+| la.image.image_to_array | Converts a PIL Image instance to a Numpy array. |  |
+| la.image.array_to_image | Converts a 3D Numpy array to a PIL Image instance. |  |
 
 - ## la.text
 
