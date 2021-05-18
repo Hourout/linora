@@ -4,6 +4,18 @@ class ImageCropAug(object):
     def __init__(self, image=None):
         self.image = image
         
+    def crop(self, box):
+        """
+        Returns a rectangular region from this image. The box is a
+        4-tuple defining the left, upper, right, and lower pixel coordinate.
+        Args:
+            box: The crop rectangle, as a (left, upper, right, lower)-tuple.
+        returns: 
+            a Image instance.
+        """
+        self.image = crop(self.image, box)
+        return self
+
     def crop_central(self, central_rate):
         """Crop the central region of the image.
     
