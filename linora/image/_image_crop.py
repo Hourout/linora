@@ -1,7 +1,20 @@
 import numpy as np
 from PIL import Image
 
-__all__ = ['crop_central', 'crop_point']
+__all__ = ['crop', 'crop_central', 'crop_point']
+
+
+def crop(image, box):
+    """
+    Returns a rectangular region from this image. The box is a
+    4-tuple defining the left, upper, right, and lower pixel coordinate.
+
+    Args:
+        box: The crop rectangle, as a (left, upper, right, lower)-tuple.
+    returns: 
+        a Image instance.
+    """
+    return image.crop(box)
 
 def crop_central(image, central_rate):
     """Crop the central region of the image.
