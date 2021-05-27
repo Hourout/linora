@@ -1,7 +1,11 @@
-import numpy as np
+import colorsys
 from PIL import ImageEnhance
 
-__all__ = ['enhance_color', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness']
+import numpy as np
+
+
+__all__ = ['enhance_color', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
+           'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv']
 
 
 def enhance_color(image, delta):
@@ -98,6 +102,65 @@ def enhance_sharpness(image, delta):
         delta = np.random.uniform(delta[0], delta[1])
     return ImageEnhance.Sharpness(image).enhance(delta)
 
+def rgb_to_hsv(image):
+    """
+    Convert RGB img to HSV img.
+
+    Args:
+        image (numpy.ndarray): NumPy RGB image array of shape (H, W, C) to be converted.
+
+    Returns:
+        numpy.ndarray, NumPy HSV image with same type of image.
+    """
+    r, g, b = image[:, :, 0], image[:, :, 1], image[:, :, 2]
+    to_hsv = np.vectorize(colorsys.rgb_to_hsv)
+    h, s, v = to_hsv(r, g, b)
+    return np.stack((h, s, v), axis=2)
+
+def hsv_to_rgb(image):
+    """
+    Convert HSV img to RGB img.
+
+    Args:
+        image (numpy.ndarray): NumPy HSV image array of shape (H, W, C) to be converted.
+
+    Returns:
+        numpy.ndarray, NumPy HSV image with same shape of image.
+    """
+    h, s, v = image[:, :, 0], image[:, :, 1], image[:, :, 2]
+    to_rgb = np.vectorize(colorsys.hsv_to_rgb)
+    r, g, b = to_rgb(h, s, v)
+    return np.stack((r, g, b), axis=2)
+
+def rgb_to_hls(image):
+    """
+    Convert RGB img to HLS img.
+
+    Args:
+        image (numpy.ndarray): NumPy RGB image array of shape (H, W, C) to be converted.
+
+    Returns:
+        numpy.ndarray, NumPy HLS image with same type of image.
+    """
+    r, g, b = image[:, :, 0], image[:, :, 1], image[:, :, 2]
+    to_hls = np.vectorize(colorsys.rgb_to_hls)
+    h, l, s = to_hls(r, g, b)
+    return np.stack((h, l, s), axis=2)
+
+def hls_to_rgb(image):
+    """
+    Convert HLS img to RGB img.
+
+    Args:
+        image (numpy.ndarray): NumPy HLS image array of shape (H, W, C) to be converted.
+
+    Returns:
+        numpy.ndarray, NumPy HLS image with same shape of image.
+    """
+    h, l, s = image[:, :, 0], image[:, :, 1], image[:, :, 2]
+    to_rgb = np.vectorize(colorsys.hls_to_rgb)
+    r, g, b = to_rgb(h, l, s)
+    return np.stack((r, g, b), axis=2)
 
 def RandomGamma(image, gamma, seed=None, **kwarg):
     """Performs Gamma Correction on the input image.
