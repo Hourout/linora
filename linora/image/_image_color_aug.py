@@ -88,3 +88,16 @@ class ImageColorAug(object):
         self.image = enhance_sharpness(self.image, delta)
         return self
     
+    def color_invert(self):
+        """
+        Invert colors of input PIL image.
+
+        Args:
+            image (PIL image): Image to be color inverted.
+
+        Returns:
+            image (PIL image), Color inverted image.
+
+        """
+        self.image = color_invert(self.image)
+        return self
