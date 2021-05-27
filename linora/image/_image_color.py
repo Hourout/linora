@@ -5,7 +5,7 @@ import numpy as np
 
 
 __all__ = ['enhance_color', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
-           'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv']
+           'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb']
 
 
 def enhance_color(image, delta):
@@ -160,6 +160,36 @@ def hls_to_rgb(image):
     h, l, s = image[:, :, 0], image[:, :, 1], image[:, :, 2]
     to_rgb = np.vectorize(colorsys.hls_to_rgb)
     r, g, b = to_rgb(h, l, s)
+    return np.stack((r, g, b), axis=2)
+
+def rgb_to_yiq(image):
+    """
+    Convert RGB img to YIQ img.
+
+    Args:
+        image (numpy.ndarray): NumPy RGB image array of shape (H, W, C) to be converted.
+
+    Returns:
+        numpy.ndarray, NumPy YIQ image with same type of image.
+    """
+    r, g, b = image[:, :, 0], image[:, :, 1], image[:, :, 2]
+    to_yiq = np.vectorize(colorsys.rgb_to_yiq)
+    y, i, q = to_yiq(r, g, b)
+    return np.stack((y, i, q), axis=2)
+
+def yiq_to_rgb(image):
+    """
+    Convert YIQ img to RGB img.
+
+    Args:
+        image (numpy.ndarray): NumPy YIQ image array of shape (H, W, C) to be converted.
+
+    Returns:
+        numpy.ndarray, NumPy YIQ image with same shape of image.
+    """
+    y, i, q = image[:, :, 0], image[:, :, 1], image[:, :, 2]
+    to_rgb = np.vectorize(colorsys.yiq_to_rgb)
+    r, g, b = to_rgb(y, i, q)
     return np.stack((r, g, b), axis=2)
 
 def RandomGamma(image, gamma, seed=None, **kwarg):
