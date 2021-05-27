@@ -1,11 +1,13 @@
 import colorsys
-from PIL import ImageEnhance
+from PIL import ImageEnhance, ImageOps
 
 import numpy as np
 
 
 __all__ = ['enhance_color', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
-           'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb']
+           'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
+           'color_invert'
+          ]
 
 
 def enhance_color(image, delta):
@@ -191,6 +193,20 @@ def yiq_to_rgb(image):
     to_rgb = np.vectorize(colorsys.yiq_to_rgb)
     r, g, b = to_rgb(y, i, q)
     return np.stack((r, g, b), axis=2)
+
+def color_invert(image):
+    """
+    Invert colors of input PIL image.
+
+    Args:
+        image (PIL image): Image to be color inverted.
+
+    Returns:
+        image (PIL image), Color inverted image.
+
+    """
+    return ImageOps.invert(image)
+
 
 def RandomGamma(image, gamma, seed=None, **kwarg):
     """Performs Gamma Correction on the input image.
