@@ -6,7 +6,7 @@ import numpy as np
 
 __all__ = ['enhance_color', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
            'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
-           'color_invert'
+           'color_invert', 'equalize'
           ]
 
 
@@ -207,6 +207,20 @@ def color_invert(image):
     """
     return ImageOps.invert(image)
 
+def equalize(image):
+    """
+    Equalize the image histogram. This function applies a non-linear
+    mapping to the input image, in order to create a uniform
+    distribution of grayscale values in the output image.
+
+    Args:
+        image (PIL image): Image to be equalized
+
+    Returns:
+        image (PIL image), Equalized image.
+
+    """
+    return ImageOps.equalize(image)
 
 def RandomGamma(image, gamma, seed=None, **kwarg):
     """Performs Gamma Correction on the input image.
