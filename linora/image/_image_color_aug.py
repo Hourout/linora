@@ -101,3 +101,19 @@ class ImageColorAug(object):
         """
         self.image = color_invert(self.image)
         return self
+
+    def equalize(self):
+        """
+        Equalize the image histogram. This function applies a non-linear
+        mapping to the input image, in order to create a uniform
+        distribution of grayscale values in the output image.
+
+        Args:
+            img (PIL image): Image to be equalized
+
+        Returns:
+            img (PIL image), Equalized image.
+
+        """
+        self.image = equalize(self.image)
+        return self
