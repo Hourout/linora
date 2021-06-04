@@ -54,6 +54,6 @@ class ImageClassificationFolderDataset():
         data = data[data.image.map(lambda x: True if str.lower(x.split('/')[-1].split('.')[1]) in self.image_format else False)]
         self.dataset = data.reset_index(drop=True)
         self.name_label_dict = {j: i for i, j in enumerate(data.label.unique())}
-        self.name_label_dict = {'positive':self.name_label_dict, 'negative':{j: i for i, j in self.name_label_dict}}
+        self.name_label_dict = {'positive':self.name_label_dict, 'negative':{j: i for i, j in self.name_label_dict.items()}}
         if label_encoder:
             self.dataset['label'] = self.dataset.label.replace(self.name_label_dict['positive'])
