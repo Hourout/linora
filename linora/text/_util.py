@@ -1,4 +1,5 @@
 from itertools import chain
+
 import numpy as np
 
 __all__ = ['select_best_length', 'word_to_index', 'word_index_sequence', 'pad_sequences',
@@ -47,7 +48,7 @@ def word_index_sequence(sequence, word_index_dict, pad_value=0):
         t.extend([index])
     return t
 
-def pad_sequences(sequence, maxlen=None, dtype='int32', padding='pre', truncating='pre', value=0):
+def pad_sequences(sequence, maxlen, dtype='int32', padding='pre', truncating='pre', value=0):
     """Pads sequences to the same length.
     
     Args:
@@ -64,19 +65,14 @@ def pad_sequences(sequence, maxlen=None, dtype='int32', padding='pre', truncatin
     Returns:
         List of lists with shape `(len(sequences), maxlen)`
     """
-    t = []
     if padding=='post' and truncating=='post':
-        for i in sequence:
-            t.extend([i[:maxlen] if len(i)>maxlen else i+[value]*(maxlen-len(i))])
+        t = [i[:maxlen] if len(i)>maxlen else i+[value]*(maxlen-len(i)) for i in sequence]
     elif padding=='post' and truncating=='pre':
-        for i in sequence:
-            t.extend([i[-maxlen:] if len(i)>maxlen else i+[value]*(maxlen-len(i))])
+        t = [i[-maxlen:] if len(i)>maxlen else i+[value]*(maxlen-len(i)) for i in sequence]
     elif padding=='pre' and truncating=='post':
-        for i in sequence:
-            t.extend([i[:maxlen] if len(i)>maxlen else [value]*(maxlen-len(i))+i])
+        t = [i[:maxlen] if len(i)>maxlen else [value]*(maxlen-len(i))+i for i in sequence]
     elif padding=='pre' and truncating=='pre':
-        for i in sequence:
-            t.extend([i[-maxlen:] if len(i)>maxlen else [value]*(maxlen-len(i))+i])
+        t = [i[-maxlen:] if len(i)>maxlen else [value]*(maxlen-len(i))+i for i in sequence]
     else:
         raise ValueError('Padding type "%s" not understood or Truncating type "%s" not understood' % (padding, truncating))
     return t
