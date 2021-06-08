@@ -1,6 +1,6 @@
 import random
 
-__all__ = ['skipgrams']
+__all__ = ['skipgrams', 'pad_sequences']
 
 def skipgrams(sequence, vocabulary_size,
               window_size=4, negative_samples=1., shuffle=True,
@@ -68,3 +68,34 @@ def skipgrams(sequence, vocabulary_size,
         random.seed(seed)
         random.shuffle(labels)
     return couples, labels
+
+def pad_sequences(sequence, maxlen, dtype='int32', padding='pre', truncating='pre', value=0):
+    """Pads sequences to the same length.
+    
+    Args:
+        sequences: pd.Series or np.array or List of lists, where each element is a sequence.
+        maxlen: Int, maximum length of all sequences.
+        dtype: Type of the output sequences.
+               To pad sequences with variable length strings, you can use `object`.
+        padding: String, 'pre' or 'post':
+                 pad either before or after each sequence.
+        truncating: String, 'pre' or 'post':
+                    remove values from sequences larger than
+                    `maxlen`, either at the beginning or at the end of the sequences.
+        value: Float or String, padding value.
+    Returns:
+        List of lists with shape `(len(sequences), maxlen)`
+    """
+    if not isinstance(sequence[0], list):
+        sequence = [sequence]
+    if padding=='post' and truncating=='post':
+        t = [i[:maxlen] if len(i)>maxlen else i+[value]*(maxlen-len(i)) for i in sequence]
+    elif padding=='post' and truncating=='pre':
+        t = [i[-maxlen:] if len(i)>maxlen else i+[value]*(maxlen-len(i)) for i in sequence]
+    elif padding=='pre' and truncating=='post':
+        t = [i[:maxlen] if len(i)>maxlen else [value]*(maxlen-len(i))+i for i in sequence]
+    elif padding=='pre' and truncating=='pre':
+        t = [i[-maxlen:] if len(i)>maxlen else [value]*(maxlen-len(i))+i for i in sequence]
+    else:
+        raise ValueError('Padding type "%s" not understood or Truncating type "%s" not understood' % (padding, truncating))
+    return t
