@@ -6,6 +6,16 @@ import json
 __all__ = ['Config']
 
 def Config(file_py=None, file_dict=None, file_json=None, **kwargs):
+    """params management.
+    
+    Args:
+        file_py: a python file about param config.
+        file_dict: a dict.
+        file_json: a json file about param config.
+        **kwargs: One or more parameter information added separately.
+    Returns:
+        a param config class.
+    """
     class config:
         if file_dict is not None:
             for i, j in file_dict.items():
