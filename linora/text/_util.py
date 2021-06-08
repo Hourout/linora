@@ -2,8 +2,7 @@ from itertools import chain
 
 import numpy as np
 
-__all__ = ['select_best_length', 'word_to_index', 'word_index_sequence', 'pad_sequences',
-           'index_vector_matrix']
+__all__ = ['select_best_length', 'word_to_index', 'word_index_sequence', 'index_vector_matrix']
 
 def select_best_length(sequence, sample_rate=0.8):
     """Select best length for sequence with keep rate.
@@ -46,35 +45,6 @@ def word_index_sequence(sequence, word_index_dict, pad_value=0):
             except:
                 index.append(pad_value)
         t.extend([index])
-    return t
-
-def pad_sequences(sequence, maxlen, dtype='int32', padding='pre', truncating='pre', value=0):
-    """Pads sequences to the same length.
-    
-    Args:
-        sequences: pd.Series or np.array or List of lists, where each element is a sequence.
-        maxlen: Int, maximum length of all sequences.
-        dtype: Type of the output sequences.
-               To pad sequences with variable length strings, you can use `object`.
-        padding: String, 'pre' or 'post':
-                 pad either before or after each sequence.
-        truncating: String, 'pre' or 'post':
-                    remove values from sequences larger than
-                    `maxlen`, either at the beginning or at the end of the sequences.
-        value: Float or String, padding value.
-    Returns:
-        List of lists with shape `(len(sequences), maxlen)`
-    """
-    if padding=='post' and truncating=='post':
-        t = [i[:maxlen] if len(i)>maxlen else i+[value]*(maxlen-len(i)) for i in sequence]
-    elif padding=='post' and truncating=='pre':
-        t = [i[-maxlen:] if len(i)>maxlen else i+[value]*(maxlen-len(i)) for i in sequence]
-    elif padding=='pre' and truncating=='post':
-        t = [i[:maxlen] if len(i)>maxlen else [value]*(maxlen-len(i))+i for i in sequence]
-    elif padding=='pre' and truncating=='pre':
-        t = [i[-maxlen:] if len(i)>maxlen else [value]*(maxlen-len(i))+i for i in sequence]
-    else:
-        raise ValueError('Padding type "%s" not understood or Truncating type "%s" not understood' % (padding, truncating))
     return t
 
 def index_vector_matrix(word_index_dict, word_vector_dict, embed_dim=300, initialize='norm', dtype='float32'):
