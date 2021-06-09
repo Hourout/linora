@@ -22,9 +22,11 @@ def word_to_index(sequence):
     Args:
         sequence: pd.Series or np.array or List of lists, sample sequence.
     Returns:
-        dict, {word: index}.
+        dict, {word: index}, The higher the frequency, the higher the ranking.
     """
-    return {v: k + 1 for k, v in enumerate(set(chain.from_iterable(sequence)))}
+    t = Counter(chain.from_iterable(sequence))
+    t = sorted(t, key=t.get, reverse=True)
+    return {'positive':{v: k + 1 for k, v in enumerate(t)}, 'negative':{k + 1:v for k, v in enumerate(t)}}
 
 def word_index_sequence(sequence, word_index_dict, pad_value=0):
     """Sequence word transfer to sequence index.
