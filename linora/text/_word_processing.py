@@ -12,10 +12,9 @@ def sequence_preprocess(sequence):
     Returns:
         a only Chinese list.
     """
-    t = []
-    for s in sequence:
-        t.extend([''.join([i for i in s.replace(' ', '') if i>= u'\u4e00' and i<= u'\u9fa5'])])
-    return t
+    if isinstance(sequence, str):
+        return ''.join([i for i in sequence.replace(' ', '') if i>= u'\u4e00' and i<= u'\u9fa5'])
+    return [''.join([i for i in s.replace(' ', '') if i>= u'\u4e00' and i<= u'\u9fa5']) for s in sequence] 
 
 def word_count(sequence):
     """Sequence word count.
@@ -58,10 +57,9 @@ def filter_word(sequence, filter_word_list):
     Returns:
         a list of Lists.
     """
-    t = []
-    for i in sequence:
-        t.extend([[x for x in i if x not in filter_word_list]])
-    return t
+    if isinstance(sequence[0], str):
+        return [x for x in sequence if x not in filter_word_list]
+    return [[x for x in i if x not in filter_word_list] for i in sequence]
 
 def filter_punctuation(sequence, punctuation=None):
     """Sequence preprocess, filter punctuation.
@@ -74,7 +72,6 @@ def filter_punctuation(sequence, punctuation=None):
     """
     punc = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~（），。’‘”“！？》《·、】【；：' if punctuation is None else punctuation
     table = str.maketrans('', '', punc)
-    t = []
-    for s in sequence:
-        t.extend([s.translate(table)])
-    return t
+    if isinstance(sequence, str):
+        return s.translate(table)
+    return [s.translate(table) for s in sequence]
