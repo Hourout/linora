@@ -73,5 +73,5 @@ def filter_punctuation(sequence, punctuation=None):
     punc = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~（），。’‘”“！？》《·、】【；：' if punctuation is None else punctuation
     table = str.maketrans('', '', punc)
     if isinstance(sequence, str):
-        return s.translate(table)
+        return sequence.translate(table)
     return [s.translate(table) for s in sequence]
