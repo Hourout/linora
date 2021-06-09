@@ -1,4 +1,5 @@
 from itertools import chain
+from collections import Counter
 
 import numpy as np
 
@@ -38,16 +39,7 @@ def word_index_sequence(sequence, word_index_dict, pad_value=0):
     Returns:
         List of lists, sequence word transfer to sequence index list.
     """
-    t = []
-    for i in sequence:
-        index = []
-        for j in i:
-            try:
-                index.append(word_index_dict[j])
-            except:
-                index.append(pad_value)
-        t.extend([index])
-    return t
+    return [[word_index_dict.get(j, pad_value) for j in i] for i in sequence]
 
 def index_vector_matrix(word_index_dict, word_vector_dict, embed_dim=300, initialize='norm', dtype='float32'):
     """Make index vector matrix with shape `(len(word_index_dict), embed_dim)`.
