@@ -3,7 +3,8 @@ from collections import Counter
 
 import numpy as np
 
-__all__ = ['select_best_length', 'word_to_index', 'word_index_sequence', 'index_vector_matrix']
+__all__ = ['select_best_length', 'word_to_index', 'word_index_sequence', 'index_vector_matrix',
+           'sequence_index_word']
 
 def select_best_length(sequence, sample_rate=0.8):
     """Select best length for sequence with keep rate.
@@ -39,7 +40,28 @@ def word_index_sequence(sequence, word_index_dict, pad_value=0):
     Returns:
         List of lists, sequence word transfer to sequence index list.
     """
+    if isinstance(sequence[0], str):
+        return [word_index_dict.get(j, pad_value) for j in sequence]
     return [[word_index_dict.get(j, pad_value) for j in i] for i in sequence]
+
+def sequence_index_word(sequence, index_word_dict, pad_value=' ', join=False):
+    """Sequence index transfer to sequence word.
+    
+    Args:
+        sequence: pd.Series or np.array or List of lists, sample sequence.
+        index_word_dict: dict, {index: word}.
+        pad_value: fillna value, if word not in index_word_dict, fillna it.
+        join: whether to merge the converted words.
+    Returns:
+        List of lists, sequence index transfer to sequence word list.
+    """
+    if isinstance(sequence[0], int):
+        if join:
+            return ''.join([index_word_dict.get(j, pad_value) for j in sequence])
+        return [index_word_dict.get(j, pad_value) for j in sequence]
+    if join:
+        return [''.join([index_word_dict.get(j, pad_value) for j in i]) for i in sequence]
+    return [[index_word_dict.get(j, pad_value) for j in i] for i in sequence]
 
 def index_vector_matrix(word_index_dict, word_vector_dict, embed_dim=300, initialize='norm', dtype='float32'):
     """Make index vector matrix with shape `(len(word_index_dict), embed_dim)`.
