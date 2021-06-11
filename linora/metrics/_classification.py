@@ -18,8 +18,8 @@ def classified_func(y_true, y_pred, prob=0.5, pos_label=1):
 def binary_accuracy(y_true, y_pred, prob=0.5, pos_label=1):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
@@ -31,18 +31,22 @@ def binary_accuracy(y_true, y_pred, prob=0.5, pos_label=1):
 def categorical_accuracy(y_true, y_pred):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
     Returns:
         the fraction of correctly classified samples (float).
     """
-    return (y_true==y_pred).mean()
+    if not isinstance(y_true[0], int):
+        y_true = np.argmax(y_true, axis=1)
+    if not isinstance(y_pred[0], int):
+        y_pred = np.argmax(y_pred, axis=1)
+    return (pd.Series(y_true)==pd.Series(y_pred)).mean()
 
 def recall(y_true, y_pred, prob=0.5, pos_label=1):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
@@ -54,8 +58,8 @@ def recall(y_true, y_pred, prob=0.5, pos_label=1):
 def precision(y_true, y_pred, prob=0.5, pos_label=1):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
@@ -67,8 +71,8 @@ def precision(y_true, y_pred, prob=0.5, pos_label=1):
 def confusion_matrix(y_true, y_pred):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
     Returns:
         Confusion matrix.
     """
@@ -79,8 +83,8 @@ def confusion_matrix(y_true, y_pred):
 def fbeta_score(y_true, y_pred, beta, prob=0.5, pos_label=1):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         beta : weight of precision in harmonic mean.
         prob: probability threshold.
         pos_label: positive label.
@@ -94,8 +98,8 @@ def fbeta_score(y_true, y_pred, beta, prob=0.5, pos_label=1):
 def f1_score(y_true, y_pred, prob=0.5, pos_label=1):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
@@ -106,12 +110,14 @@ def f1_score(y_true, y_pred, prob=0.5, pos_label=1):
 def auc_roc(y_true, y_pred, pos_label=1):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         pos_label: positive label.
     Returns:
         Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
     """
+    y_true = pd.Series(y_true)
+    y_pred = pd.Series(y_pred)
     assert y_true.nunique()==2, "`y_true` should be binary classification."
     t = pd.concat([y_true, y_pred], axis=1)
     t.columns = ['label', 'prob']
@@ -123,8 +129,8 @@ def auc_roc(y_true, y_pred, pos_label=1):
 def auc_pr(y_true, y_pred, pos_label=1):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         pos_label: positive label.
     Returns:
         Area Under the Receiver Operating Characteristic Curve (PR AUC) from prediction scores.
@@ -147,11 +153,13 @@ def binary_crossentropy(y_true, y_pred):
     This is the crossentropy metric class to be used when there are only two label classes (0 and 1).
     
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted probability, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
     Returns:
         binary crossentropy of the positive class in binary classification.
     """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
     t = np.exp(y_pred-np.max(y_pred))
     t = -(np.log(t/t.sum())*y_true).mean()
     return t
@@ -164,12 +172,14 @@ def categorical_crossentropy(y_true, y_pred, one_hot=False):
     eg., When labels values are [2, 0, 1], y_true = [[0, 0, 1], [1, 0, 0], [0, 1, 0]].
     
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted probability, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
         one_hot: default True, Whether y_true is a one_hot variable.
     Returns:
         categorical crossentropy of the positive class in categorical classification.
     """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
     assert y_pred.shape[1]==y_true.nunique(), "`y_pred` and `y_true` dim not same."
     t = np.exp(y_pred.T-np.max(y_pred, axis=1))
     if one_hot:
@@ -181,8 +191,8 @@ def categorical_crossentropy(y_true, y_pred, one_hot=False):
 def ks(y_true, y_pred, pos_label=1):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted probability, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
         pos_label: positive label.
     Returns:
         Ks score of the positive class in binary classification.
@@ -202,8 +212,8 @@ def ks(y_true, y_pred, pos_label=1):
 def gini(y_true, y_pred, pos_label=1):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted probability, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
         pos_label: positive label.
     Returns:
         Gini score of the positive class in binary classification.
@@ -219,12 +229,14 @@ def gini(y_true, y_pred, pos_label=1):
 def psi(y_true, y_pred, threshold):
     """
     Args:
-        y_true: pd.Series, a feature variable.
-        y_pred: pd.Series, a feature variable.
+        y_true: pd.Series or array or list, a feature variable.
+        y_pred: pd.Series or array or list, a feature variable.
         threshold: list, a threshold list.
     Returns:
         psi value of two variable.
     """
+    y_true = pd.Series(y_true)
+    y_pred = pd.Series(y_pred)
     actual = (y_true-y_true.min())/(y_true.max()-y_true.min())
     predict = (y_pred-y_pred.min())/(y_pred.max()-y_pred.min())
     actual = pd.cut(actual, threshold, labels=range(1, len(threshold))).value_counts(normalize=True).reset_index()
@@ -238,8 +250,8 @@ def psi(y_true, y_pred, threshold):
 def fmi(y_true, y_pred, prob=0.5, pos_label=1):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
@@ -252,8 +264,8 @@ def fmi(y_true, y_pred, prob=0.5, pos_label=1):
 def binary_report(y_true, y_pred, prob=0.5, pos_label=1, printable=False, printinfo='Binary Classification Report'):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels, as returned by a classifier.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
