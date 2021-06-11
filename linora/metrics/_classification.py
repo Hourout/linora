@@ -3,7 +3,8 @@ import pandas as pd
 
 __all__ = ['binary_accuracy', 'categorical_accuracy', 'recall', 'precision', 'confusion_matrix',
            'fbeta_score', 'f1_score', 'auc_roc', 'auc_pr', 'binary_crossentropy', 
-           'categorical_crossentropy', 'ks', 'gini', 'psi', 'fmi', 'binary_report']
+           'categorical_crossentropy', 'ks', 'gini', 'psi', 'fmi', 'binary_report',
+           'top_k_categorical_accuracy']
 
 def classified_func(y_true, y_pred, prob=0.5, pos_label=1):
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
@@ -303,3 +304,16 @@ def binary_report(y_true, y_pred, prob=0.5, pos_label=1, printable=False, printi
         print("RMSE_label: %.4f" % result['RMSE_label'])
         print("RMSE_prob: %.4f" % result['RMSE_prob'])
     return result
+
+def top_k_categorical_accuracy(y_true, y_pred, k):
+    """
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted probs, as returned by a classifier.
+    Returns:
+        the fraction of correctly classified samples (float).
+    """
+    if not isinstance(y_true[0], int):
+        y_true = np.argmax(y_true, axis=1)
+    y_pred = [[s.index(i) for i in sorted(s)[-k:]] for s in y_pred]
+    return np.mean([1 if j in y_pred[i] else 0 for i,j in enumerate(y_true)])
