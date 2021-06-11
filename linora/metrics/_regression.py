@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 __all__ = ['normal_loss', 'mean_absolute_error', 'mean_squared_error',
            'mean_absolute_percentage_error', 'hinge', 'explained_variance_score',
@@ -11,18 +10,20 @@ def normal_loss(y_true, y_pred, k, log=False, root=False):
     """Mean normal error regression loss.
     
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted values, as returned by a regression.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
         k: int, loss = np.sqrt(loss, 1/k).
         log: default False, whether to log the variable.
         root: default False, whether to sqrt the variable, if True, return rmse loss.
     Returns:
         regression loss values.
     """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
     if log:
-        loss = (np.log1p(y_true)-np.log1p(y_pred)).abs().pow(k).mean()
+        loss = np.power(np.abs(np.log1p(y_true)-np.log1p(y_pred)), k).mean()
     else:
-        loss = (y_true-y_pred).abs().pow(k).mean()
+        loss = np.power(np.abs(y_true-y_pred), k).mean()
     if root:
         loss = np.sqrt(loss, 1/k)
     return loss
@@ -31,8 +32,8 @@ def mean_absolute_error(y_true, y_pred, log=False):
     """Mean absolute error regression loss.
     
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted values, as returned by a regression.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
         log: default False, whether to log the variable.
     Returns:
         regression loss values.
@@ -43,8 +44,8 @@ def mean_squared_error(y_true, y_pred, log=False, root=False):
     """Mean squared error regression loss.
     
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted values, as returned by a regression.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
         log: default False, whether to log the variable.
         root: default False, whether to sqrt the variable, if True, return rmse loss.
     Returns:
@@ -56,63 +57,71 @@ def mean_absolute_percentage_error(y_true, y_pred):
     """Mean absolute percentage error regression loss.
     
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted values, as returned by a regression.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
     Returns:
         regression loss values.
     """
-    return ((y_true-y_pred)/y_true).abs().mean()
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    return np.abs((y_true-y_pred)/y_true).mean()
 
 def hinge(y_true, y_pred, k=1):
     """hinge regression loss.
     
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted values, as returned by a regression.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
         k: int, pow() function dim.
     Returns:
         regression loss values.
     """
-    return (1-y_true*y_pred).clip(lower=0).pow(k).mean()
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    return np.power((1-y_true*y_pred).clip(min=0), k).mean()
 
 def explained_variance_score(y_true, y_pred):
     """explained variance regression loss.
     
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted values, as returned by a regression.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
     Returns:
         regression loss values.
     """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
     return 1-(y_true-y_pred).std()**2/y_true.std()**2
 
 def median_absolute_error(y_true, y_pred):
     """Median absolute error regression loss.
     
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted values, as returned by a regression.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
     Returns:
         regression loss values.
     """
-    return (y_true-y_pred).abs().median()
+    return np.median(np.abs(np.array(y_true)-np.array(y_pred)))
 
 def r2_score(y_true, y_pred):
     """r2 regression loss.
     
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted values, as returned by a regression.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
     Returns:
         regression loss values.
     """
-    return 1-(y_true-y_pred).pow(2).sum()/(y_true-y_true.mean()).pow(2).sum()
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    return 1-np.power(y_true-y_pred, 2).sum()/np.power(y_true-y_true.mean(), 2).sum()
 
 def regression_report(y_true, y_pred, printable=False, printinfo='Regression Report'):
     """
     Args:
-        y_true: pd.Series, ground truth (correct) labels.
-        y_pred: pd.Series, predicted labels.
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels.
     Returns:
         regression report.
     """
