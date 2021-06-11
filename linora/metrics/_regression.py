@@ -3,7 +3,9 @@ import pandas as pd
 
 __all__ = ['normal_loss', 'mean_absolute_error', 'mean_squared_error',
            'mean_absolute_percentage_error', 'hinge', 'explained_variance_score',
-           'median_absolute_error', 'r2_score', 'regression_report']
+           'median_absolute_error', 'r2_score', 'regression_report',
+           'mean_relative_error', 'poisson', 'log_cosh_error'
+          ]
 
 def normal_loss(y_true, y_pred, k, log=False, root=False):
     """Mean normal error regression loss.
@@ -132,3 +134,38 @@ def regression_report(y_true, y_pred, printable=False, printinfo='Regression Rep
         print("median_absolute_error: %.4f" % result['median_absolute_error'])
         print("r2_score: %.4f" % result['r2_score'])
     return result
+
+def mean_relative_error(y_true, y_pred, normalizer):
+    """Computes the mean relative error by normalizing with the given values.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
+        normalizer: The normalizer values with same shape as y_pred.
+    Returns:
+        regression loss values.
+    """
+    return (np.abs(np.array(y_true)-np.array(y_pred))/np.array(normalizer)).mean()
+
+def poisson(y_true, y_pred):
+    """Computes the Poisson loss between y_true and y_pred.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
+    Returns:
+        regression loss values.
+    """
+    return np.mean(np.array(y_pred) - np.array(y_true) * np.log(np.array(y_pred)+ 1e-7))
+
+def log_cosh_error(y_true, y_pred):
+    """Computes the logarithm of the hyperbolic cosine of the prediction error.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
+    Returns:
+        regression loss values.
+    """
+    x = np.array(y_pred) - np.array(y_true)
+    return np.mean(x + np.log(np.exp(-2. * x) + 1.) - np.log(2.))
