@@ -1,13 +1,10 @@
 import os
-import sys
 import json
-import time
-import pickle
-from collections import Counter
 from multiprocessing import cpu_count
 
 import numpy as np
 import pandas as pd
+from linora._logger import Logger
 from linora.sample_splits import kfold, train_test_split
 from linora.param_search._HyperParameters import HyperParametersRandom
 from linora.param_search._config import __xgboost_version__
@@ -38,14 +35,17 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
     Raises:
         params error.
     """
+    import warnings
+    warnings.filterwarnings("ignore")
     import xgboost as xgb
     assert xgb.__version__>=__xgboost_version__, f'xgboost version should be >={__xgboost_version__}.'
-    start = time.time()
+    logger = Logger(name='xgb')
     best_params={}
     if speedy:
         test_size = 1-round(min(speedy_param[0], feature.shape[0]*speedy_param[1])/feature.shape[0], 2)
     tree_method = ['gpu_hist'] if gpu else ['auto', 'exact', 'approx', 'hist']
     n_job = 1 if gpu else int(np.ceil(cpu_count()*0.8))
+    gpu_id = 0 if gpu else None
     
     hp = HyperParametersRandom()
     hp.Float('learning_rate', 0.01, 0.1)
@@ -66,7 +66,9 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
     hp.Choice('objective', [loss])
     hp.Choice('booster', ['gbtree'])
     hp.Choice('tree_method', tree_method)
+    hp.Choice('gpu_id', [gpu_id])
     hp.Choice('importance_type', ["gain", "weight", "cover", "total_gain", "total_cover"])
+    hp.Choice('verbosity', [0])
     
     for i in range(1, iter_num+1):
         hp.update()
@@ -86,25 +88,23 @@ def RandomSearch(feature, label, loss, metrics, iter_num=1000, scoring=0.5, cv=5
                 model.fit(feature.loc[index[0]], label[index[0]])
                 cv_pred = pd.Series(model.predict(feature.loc[index[1]]), index=label[index[1]].index)
                 score.append(metrics(label[index[1]], cv_pred))
-        cv_score = round(np.mean(score), 4)
+        cv_score = np.mean(score)
         if metrics_min:
             if cv_score<scoring:
                 scoring = cv_score
-                best_params = params.copy()
+                best_params = hp.params.copy()
                 if save_model_dir is not None:
-                    pickle.dump(model, open(os.path.join(save_model_dir, "xgb_model.pkl"), "wb"))
+                    model.save_model(os.path.join(save_model_dir, "xgb_model.json"))
                     with open(os.path.join(save_model_dir, "xgb_params.json"),'w') as f:
                         json.dump(best_params, f)
         else:
             if cv_score>scoring:
                 scoring = cv_score
-                best_params = params.copy()
+                best_params = hp.params.copy()
                 if save_model_dir is not None:
-                    pickle.dump(model, open(os.path.join(save_model_dir, "xgb_model.pkl"), "wb"))
+                    model.save_model(os.path.join(save_model_dir, "xgb_model.json"))
                     with open(os.path.join(save_model_dir, "xgb_params.json"),'w') as f:
                         json.dump(best_params, f)
-        sys.stdout.write("XGBRegressor random search percent: {}%, run time {} min, best score: {}, best param：{}\r".format(
-            round(i/iter_num*100,2), divmod((time.time()-start),60)[0], scoring, best_params))
-        sys.stdout.flush()
-    print("XGBRegressor param finetuning with random search run time: %d min %.2f s" % divmod((time.time() - start), 60))
+        logger.info(f"random search progress: {round(i/iter_num*100,2)}%, best score: {scoring:.4}", enter=False)
+    logger.info(f"XGBRegressor param finetuning with random search, best score: {scoring:.4}", close=True)
     return best_params
