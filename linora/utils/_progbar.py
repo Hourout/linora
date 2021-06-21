@@ -6,7 +6,15 @@ class Param:
     pass
 
 class Progbar():
+    """Displays a progress bar."""
     def __init__(self, target, width=30, verbose=1, unit_name='step'):
+        """
+        Args:
+            target: Total number of steps expected, None if unknown.
+            width: Progress bar width on screen.
+            verbose: Verbosity mode, 0 (silent), 1 (verbose), 2 (semi-verbose)
+            unit_name: Display name for step counts (usually "step" or "sample").
+        """
         self.param = Param
         self.param.width = 30
         self.param.target = target
@@ -17,6 +25,13 @@ class Progbar():
         self.param.current = 0
 
     def add(self, current, values=None):
+        """
+        Args:
+            current: add Index of current step, current += current.
+            values: List of tuples: (name, value_for_last_step). 
+                    If name is in stateful_metrics, value_for_last_step will be displayed as-is. 
+                    Else, an average of the metric over time will be displayed.
+        """
         self.param.n += 1
         self.param.current += current
         if self.param.target is not None:
@@ -40,6 +55,13 @@ class Progbar():
             print(msg, end='\r')
             
     def update(self, current, values=None):
+        """
+        Args:
+            current: update Index of current step.
+            values: List of tuples: (name, value_for_last_step). 
+                    If name is in stateful_metrics, value_for_last_step will be displayed as-is. 
+                    Else, an average of the metric over time will be displayed.
+        """
         self.param.n += 1
         if self.param.target is not None:
             if current>self.param.target:
