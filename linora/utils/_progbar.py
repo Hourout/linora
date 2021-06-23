@@ -52,7 +52,10 @@ class Progbar():
         if values is not None:
             msg = msg+' - '+''.join([f"{i[0]}: {i[1]} " for i in values])
         if self.param.verbose:
-            print(msg, end='\r')
+            if current<self.param.target:
+                print(msg+' '*4, end='\r')
+            else:
+                print(msg+' '*4, end='\n')
             
     def update(self, current, values=None):
         """
@@ -84,4 +87,7 @@ class Progbar():
         if values is not None:
             msg = msg+' - '+''.join([f"{i[0]}: {i[1]} " for i in values])
         if self.param.verbose:
-            print(msg, end='\r')
+            if current<self.param.target:
+                print(msg+' '*4, end='\r')
+            else:
+                print(msg+' '*4, end='\n')
