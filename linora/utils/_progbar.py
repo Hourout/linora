@@ -43,7 +43,7 @@ class Progbar():
         
         time_diff = time.time()-self.param.time
         if self.param.target is not None:
-            if current<self.param.target:
+            if self.param.current<self.param.target:
                 msg = msg+f"- EAT: {int(time_diff/self.param.current*(self.param.target-self.param.current))}s"
             else:
                 msg = msg+f"- {int(time_diff)}s {int(time_diff/self.param.n*1000)}ms/{self.param.unit_name}"
@@ -52,7 +52,7 @@ class Progbar():
         if values is not None:
             msg = msg+' - '+''.join([f"{i[0]}: {i[1]} " for i in values])
         if self.param.verbose:
-            if current<self.param.target:
+            if self.param.current<self.param.target:
                 print(msg+' '*4, end='\r')
             else:
                 print(msg+' '*4, end='\n')

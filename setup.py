@@ -20,7 +20,9 @@ setup(name='linora',
       url='https://github.com/Hourout/linora',
       author='JinQing Lee',
       author_email='hourout@163.com',
-      keywords=['hyperparameter-optimization', 'XGBoost', 'LightGBM', 'data-mining', 'data-analysis', 'machine-learning', 'image', 'text', 'data-science'],
+      keywords=['hyperparameter-optimization', 'XGBoost', 'LightGBM', 'data-mining', 
+                'data-analysis', 'machine-learning', 'image', 'text', 'data-science', 
+                'logging', 'parallel', 'feature-engineering', 'metrics'],
       license='Apache License Version 2.0',
       classifiers=[
           'Intended Audience :: Developers',
@@ -32,7 +34,8 @@ setup(name='linora',
           'License :: OSI Approved :: Apache Software License',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
-          'Programming Language :: Python :: 3.8'
+          'Programming Language :: Python :: 3.8',
+          'Programming Language :: Python :: 3.9'
       ],
       packages=find_packages(),
       zip_safe=False)

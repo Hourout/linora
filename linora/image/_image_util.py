@@ -7,16 +7,18 @@ __all__ = ['list_images', 'ColorMode', 'color_convert', 'image_to_array', 'array
 
 def list_images(directory, file_format=('jpg', 'jpeg', 'bmp', 'png', 'ppm', 'tif', 'tiff')):
     """Lists all pictures in a directory, including all subdirectories.
+    
     Args:
-        directory: string, absolute path to the directory
-        file_format: tuple of strings or single string, extensions of the pictures
+        directory: string, absolute path to the directory.
+        file_format: tuple of strings or single string, extensions of the pictures.
     Returns:
-        a list of paths
+        a list of image paths.
     """
     file_format = tuple('.%s' % e for e in ((file_format,) if isinstance(file_format, str) else file_format))
     return [os.path.join(root, f) for root, _, files in os.walk(directory) for f in files if f.lower().endswith(file_format)]
 
 class color_mode:
+    """image color type."""
     O     = {'mode':'1',      'description':'1-bit pixels, black and white, stored with one pixel per byte'}
     L     = {'mode':'L',      'description':'8-bit pixels, black and white'}
     LA    = {'mode':'LA',     'description':'L with alpha'}
@@ -45,14 +47,14 @@ class color_mode:
 ColorMode = color_mode()
 
 def color_convert(image, color_mode=ColorMode.RGB):
-    """Transform image color mode
+    """Transform image color mode.
     
-    Args
-        img: PIL Image instance.
-        color_mode: Image color mode, more see la.image.ColorMode
-    Returns
+    Args:
+        image: PIL Image instance.
+        color_mode: Image color mode, more see api "la.image.ColorMode".
+    Returns:
         PIL Image instance.
-    Raises
+    Raises:
         ValueError: color_mode error.
     """
     if color_mode == 'grayscale':
@@ -68,14 +70,14 @@ def color_convert(image, color_mode=ColorMode.RGB):
 
 def image_to_array(image, data_format='channels_last', dtype='float32'):
     """Converts a PIL Image instance to a Numpy array.
-    Args
-        img: PIL Image instance.
-        data_format: Image data format,
-            either "channels_first" or "channels_last".
+    
+    Args:
+        image: PIL Image instance.
+        data_format: Image data format, either "channels_first" or "channels_last".
         dtype: Dtype to use for the returned array.
-    Returns
+    Returns:
         A 3D Numpy array.
-    Raises
+    Raises:
         ValueError: if invalid `img` or `data_format` is passed.
     """
     if data_format not in {'channels_first', 'channels_last'}:
@@ -95,13 +97,13 @@ def image_to_array(image, data_format='channels_last', dtype='float32'):
 
 def array_to_image(x, data_format='channels_last'):
     """Converts a 3D Numpy array to a PIL Image instance.
-    Args
+    
+    Args:
         x: Input Numpy array.
         data_format: Image data format, either "channels_first" or "channels_last".
-            Default: "channels_last".
-    Returns
+    Returns:
         A PIL Image instance.
-    Raises
+    Raises:
         ValueError: if invalid `x` or `data_format` is passed.
     """
     if x.ndim != 3:

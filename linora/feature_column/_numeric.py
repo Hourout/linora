@@ -1,6 +1,3 @@
-from scipy.stats import norm
-
-
 __all__ = ['numeric_binarizer', 'numeric_bucketized', 'numeric_padding', 'numeric_outlier']
 
 def numeric_binarizer(feature, feature_scale=None):
@@ -84,6 +81,7 @@ def numeric_outlier(feature, keep_rate=0.9545, mode='right', feature_scale=None)
     Returns:
         normalize feature and feature_scale.
     """
+    from scipy.stats import norm
     assert mode in ['left', 'right', 'both'], "`mode` should be one of ['left', 'right', 'both']."
     scale = feature_scale if feature_scale is not None else (feature.mean(), feature.std())
     if mode=='both':

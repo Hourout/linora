@@ -28,7 +28,6 @@ def save_image(filename, image, file_format=None, **kwargs):
         **kwargs: Additional keyword arguments passed to `PIL.Image.save()`.
     """
     if image.mode == 'RGBA' and file_format in ['jpg', 'jpeg']:
-#         warnings.warn('The JPG format does not support RGBA images, converting to RGB.')
         image = image.convert('RGB')
     image.save(filename, format=file_format, **kwargs)
 
