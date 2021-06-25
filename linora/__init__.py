@@ -11,7 +11,7 @@ from linora import image
 from linora import utils
 # from linora import database
 
-__version__ = '1.0.0rc3'
+__version__ = '1.0.0'
 __author__ = 'JinQing Lee'
 
 def _hello():
