@@ -161,7 +161,7 @@ class Schedulers():
             if max(seconds)<40:
                 seconds= 604800+min(seconds)
             else:
-                seconds = [i for i in sorted(seconds) if seconds>=40][0]
+                seconds = [i for i in sorted(seconds) if i>=40][0]
         elif self.config[name]['mode']=='every_month':
             split = self.config[name]['time'].split(':')
 
@@ -177,7 +177,7 @@ class Schedulers():
                                       int(split[2]), int(split[3]), time_now.microsecond
                                      ) for i in split[0].split(',')]
             seconds = [i.timestamp()-time_now.timestamp() for i in seconds]
-            seconds = [i for i in sorted(seconds) if seconds>=40][0]
+            seconds = [i for i in sorted(seconds) if i>=40][0]
 
         self.config[name]['time_next'] = time_now+datetime.timedelta(seconds=seconds)
         self.config[name]['time_record'] = time_now
