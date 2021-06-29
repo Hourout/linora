@@ -8,11 +8,14 @@ __all__ = ['Schedulers']
 
 class Schedulers():
     """Time job task manager."""
-    def __init__(self, logger=None, verbose=0):
+    def __init__(self, logger=None, verbose=0, config_file=None):
         """
         Args:
             logger: Logger object, linora.utils.Logger() class.
             verbose: Verbosity mode, 0 (silent), 1 (verbose).
+            config_file: job task config file, if .py file.
+                         example: .py file name is schedulers_config.py, contain a dict, 
+                         config = {'hhh':{'mode':'every_minute', 'time':50, 'function':function, 'args':[], 'kwargs':{}}}
         """
         self.config = dict()
         self.params = Config()
@@ -20,6 +23,7 @@ class Schedulers():
         if logger is None:
             self.params.verbose = 0
         self.params.logger = logger
+        self.params.config_file = config_file
         manager = multiprocessing.Manager()
         self.params.tracker_dict = manager.dict()
         self.params.runner_dict = defaultdict()
@@ -152,7 +156,7 @@ class Schedulers():
                 seconds = 86400+seconds
         elif self.config[name]['mode']=='every_week':
             split = self.config[name]['time'].split(':')
-            seconds = [int(i)-time_now.weekday() for i in split[0].split(',')]
+            seconds = [int(i)-time_now.weekday()-1 for i in split[0].split(',')]
             seconds = [(datetime.datetime(time_now.year, time_now.month, time_now.day, int(split[1]), 
                                       int(split[2]), int(split[3]), time_now.microsecond
                                      )+datetime.timedelta(days=7+i if i<0 else i)
@@ -181,13 +185,24 @@ class Schedulers():
 
         self.config[name]['time_next'] = time_now+datetime.timedelta(seconds=seconds)
         self.config[name]['time_record'] = time_now
-        
+    
     def run(self):
         time_now = datetime.datetime.now()
+        if self.params.config_file is not None:
+            config = Config(file_py=self.params.config_file)
+            for name in config.config:
+                self.config[name] = config.config[name]
+                self.config[name]['execute_num'] = 0
+                self.config[name]['runner'] = (self.config[name]['function'], self.config[name]['args'], 
+                                               self.config[name]['kwargs'], name)
+                self.config[name]['time_init'] = time_now
+                
         for name in self.config:
             self._reset_time(name, time_now)
+        
         while True:
             time_now = datetime.datetime.now()
+            
             for name in self.config:
                 if self.config[name]['time_next']>time_now:
                     self.config[name]['time_record'] = time_now
@@ -195,7 +210,22 @@ class Schedulers():
                     self._start(self.config[name]['runner'])                    
                     self._reset_time(name, time_now)
                     self.config[name]['execute_num'] += 1
-                    
+            
+            if self.params.config_file is not None:
+                config = Config(file_py=self.params.config_file)
+                for name in config.config:
+                    if name not in self.config:
+                        self.config[name] = config.config[name]
+                        self.config[name]['execute_num'] = 0
+                        self.config[name]['time_init'] = time_now
+                        self._reset_time(name, time_now)
+                        if self.params.verbose:
+                            self.params.logger.info(f'New task {name} has been added.', write_file=True)
+                    for i,j in config.config[name].items():
+                        self.config[name][i] = j
+                    self.config[name]['runner'] = (self.config[name]['function'], self.config[name]['args'], 
+                                                   self.config[name]['kwargs'], name)
+    
     def _run(self, runner):
         """Runs function runner """
         output, error, got_error = None, None, False
