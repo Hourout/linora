@@ -199,6 +199,8 @@ class Schedulers():
                 
         for name in self.config:
             self._reset_time(name, time_now)
+            if self.params.verbose:
+                self.params.logger.info(f'New task {name} has been added.', write_file=True)
         
         while True:
             time_now = datetime.datetime.now()

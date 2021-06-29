@@ -1,8 +1,8 @@
-from io import open
+import io
 from setuptools import setup, find_packages
 
 def readme():
-    with open('README.md', encoding='utf-8') as f:
+    with io.open('README.md', encoding='utf-8') as f:
         return f.read()
 
 setup(name='linora',
@@ -21,7 +21,7 @@ setup(name='linora',
       author_email='hourout@163.com',
       keywords=['hyperparameter-optimization', 'XGBoost', 'LightGBM', 'data-mining', 
                 'data-analysis', 'machine-learning', 'image', 'text', 'data-science', 
-                'logging', 'parallel', 'feature-engineering', 'metrics'],
+                'logging', 'parallel', 'feature-engineering', 'metrics', 'schedulers'],
       license='Apache License Version 2.0',
       classifiers=[
           'Intended Audience :: Developers',
