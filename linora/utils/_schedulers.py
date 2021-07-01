@@ -213,20 +213,24 @@ class Schedulers():
                     self._reset_time(name, time_now)
                     self.config[name]['execute_num'] += 1
             
-            if self.params.config_file is not None:
-                config = Config(file_py=self.params.config_file)
-                for name in config.config:
-                    if name not in self.config:
-                        self.config[name] = config.config[name]
-                        self.config[name]['execute_num'] = 0
-                        self.config[name]['time_init'] = time_now
-                        self._reset_time(name, time_now)
-                        if self.params.verbose:
-                            self.params.logger.info(f'New task {name} has been added.', write_file=True)
-                    for i,j in config.config[name].items():
-                        self.config[name][i] = j
-                    self.config[name]['runner'] = (self.config[name]['function'], self.config[name]['args'], 
-                                                   self.config[name]['kwargs'], name)
+            try:
+                if self.params.config_file is not None:
+                    config = Config(file_py=self.params.config_file)
+                    for name in config.config:
+                        if name not in self.config:
+                            self.config[name] = config.config[name]
+                            self.config[name]['execute_num'] = 0
+                            self.config[name]['time_init'] = time_now
+                            self._reset_time(name, time_now)
+                            if self.params.verbose:
+                                self.params.logger.info(f'New task {name} has been added.', write_file=True)
+                        for i,j in config.config[name].items():
+                            self.config[name][i] = j
+                        self.config[name]['runner'] = (self.config[name]['function'], self.config[name]['args'], 
+                                                       self.config[name]['kwargs'], name)
+            except Exception as msg:
+                if self.params.verbose:
+                    self.params.logger.info(str(msg), write_file=True)
     
     def _run(self, runner):
         """Runs function runner """

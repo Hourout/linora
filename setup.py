@@ -21,7 +21,7 @@ setup(name='linora',
       author_email='hourout@163.com',
       keywords=['hyperparameter-optimization', 'XGBoost', 'LightGBM', 'data-mining', 
                 'data-analysis', 'machine-learning', 'image', 'text', 'data-science', 
-                'logging', 'parallel', 'feature-engineering', 'metrics', 'schedulers'],
+                'logging', 'parallel', 'feature-engineering', 'metrics', 'schedulers', 'datasets'],
       license='Apache License Version 2.0',
       classifiers=[
           'Intended Audience :: Developers',

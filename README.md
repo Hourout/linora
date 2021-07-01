@@ -40,6 +40,8 @@ pip install git+git://github.com/Hourout/linora.git
 - parallel
 - logger
 - config
+- progbar
+- schedulers
 
 ## Example
 [more example](https://github.com/Hourout/linora/blob/master/example/readme.md)
