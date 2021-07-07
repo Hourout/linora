@@ -1,9 +1,13 @@
 # API document 文档
 
+- ## la.utils
+
 | API | description | 描述 |
 | --- | --- | --- |
-| la.Config | config function | 参数配置函数 |
-| la.Logger | logging function | 日志函数 |
+| la.utils.Config | config function | 参数配置函数 |
+| la.utils.Logger | logging function | 日志函数 |
+| la.utils.Progbar | progress bar function | 进度条函数 |
+| la.utils.Schedulers | schedulers function | 定时任务函数 |
 
 - ## la.chart
 
@@ -39,7 +43,7 @@
 | la.feature_column.numeric_binarizer |  | 数值特征二分类 |
 | la.feature_column.numeric_bucketized |  | 数值特征分桶 |
 | la.feature_column.numeric_padding |  | 数值特征缺失值填补 |
-| la.feature_column.numeric_outlier | feature outlier clip. | 数值特征异常值替换 |
+| la.feature_column.numeric_outlier | feature outlier clip | 数值特征异常值替换 |
 
 - ## la.feature_selection
 
@@ -114,10 +118,6 @@
 | la.param_search.XGBRegressor.GridSearch | XGBRegressor grid hyperparameter search | XGBRegressor网格超参数搜索 |
 | la.param_search.XGBClassifier.RandomSearch | XGBClassifier random hyperparameter search | XGBClassifier随机超参数搜索 |
 | la.param_search.XGBClassifier.GridSearch | XGBClassifier grid hyperparameter search | XGBClassifier网格超参数搜索 |
-| la.param_search.XGBRanker.RandomSearch | XGBRanker random hyperparameter search | XGBRanker随机超参数搜索 |
-| la.param_search.XGBRanker.GridSearch | XGBRanker grid hyperparameter search | XGBRanker网格超参数搜索 |
-| la.param_search.GERegressor.RandomSearch | general algorithm random hyperparameter search | 通用算法随机超参数搜索 |
-| la.param_search.GEClassifier.RandomSearch | general algorithm grid hyperparameter search | 通用算法网格超参数搜索 |
 
 - ## la.sample
 
