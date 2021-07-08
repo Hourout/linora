@@ -10,10 +10,14 @@ class Params:
     
 class ThreadLoom():
     """ThreadLoom class: executes runners using threading."""
-    def __init__(self, max_runner):
-        """max_runner: int, The total number of runners that are allowed to be running at any given time."""
+    def __init__(self, max_runner, mode=1):
+        """
+        max_runner: int, The total number of runners that are allowed to be running at any given time.
+        mode: 1 is setDaemon(True) and 0 is join().
+        """
         self.params = Params()
         self.params.max_runner = max_runner
+        self.params.mode = mode
         self.params.runners = list()
         self.params.started = list()
         self.params.time_pause = 0.1
@@ -121,6 +125,9 @@ class ThreadLoom():
     def _start(self, runner):
         """ Starts runner process """
         self.params.runner_dict[runner[3]] = threading.Thread(target=self._run, args=(runner,))
-        self.params.runner_dict[runner[3]].setDaemon(True)
+        if self.params.mode:
+            self.params.runner_dict[runner[3]].setDaemon(True)
         self.params.runner_dict[runner[3]].start()
+        if not self.params.mode:
+            self.params.runner_dict[runner[3]].join()
     
