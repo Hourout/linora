@@ -92,7 +92,7 @@ class ThreadLoom():
         """ Returns the total number of runners running at the present time """
         count = 0
         for runner in self.params.started:
-            if (self.params.runner_dict[runner[3]] and self.params.runner_dict[runner[3]].isAlive()
+            if (self.params.runner_dict[runner[3]] and self.params.runner_dict[runner[3]].is_alive()
                 or not self.params.tracker_dict[runner[3]]):
                     count += 1
         if count == 0:
