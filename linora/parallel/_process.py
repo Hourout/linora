@@ -10,10 +10,14 @@ class Params:
     
 class ProcessLoom():
     """ProcessLoom class: executes runners using multi-processing."""
-    def __init__(self, max_runner=None):
-        """max_runner: int, The total number of runners that are allowed to be running at any given time."""
+    def __init__(self, max_runner=None, mode=1):
+        """
+        max_runner: int, The total number of runners that are allowed to be running at any given time.
+        mode: 1 is daemon(True) and 0 is join().
+        """
         self.params = Params()
         self.params.max_runner = multiprocessing.cpu_count() if max_runner is None else max_runner
+        self.params.mode = mode
         self.params.runners = list()
         self.params.started = list()
         self.params.time_pause = 0.1
@@ -124,5 +128,8 @@ class ProcessLoom():
     def _start(self, runner):
         """ Starts runner process """
         self.params.runner_dict[runner[3]] = multiprocessing.Process(target=self._run, args=(runner,))
-        self.params.runner_dict[runner[3]].daemon = True
+        if self.params.mode:
+            self.params.runner_dict[runner[3]].daemon = True
         self.params.runner_dict[runner[3]].start()
+        if not self.params.mode:
+            self.params.runner_dict[runner[3]].join()
