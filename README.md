@@ -11,7 +11,7 @@
 Linora is a simple and efficient data mining and data analysis tool that allows you to do related data mining tasks without using sklearn to the maximum extent. It is perfectly compatible with pandas and runs faster and saves memory compared to sklearn.
 
 
-| [API Document](https://github.com/Hourout/linora/blob/master/document/api.md) | [中文介绍](https://github.com/Hourout/linora/blob/master/document/Chinese.md) |
+| [API Document](https://www.yuque.com/jinqing-ps0ax/ebuvha) | [中文介绍](https://github.com/Hourout/linora/blob/master/document/Chinese.md) |
 
 ## Installation
 
