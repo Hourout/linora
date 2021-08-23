@@ -6,7 +6,8 @@ from PIL import Image
 __all__ = ['read_image', 'save_image', 'encode_base64', 'decode_base64']
 
 def read_image(filename):
-    """
+    """Reads the contents of file to a PIL Image instance.
+    
     Args:
         filename: str, image absolute path.
     Returns:
@@ -18,6 +19,7 @@ def read_image(filename):
 
 def save_image(filename, image, file_format=None, **kwargs):
     """Saves an image stored as a Numpy array to a path or file object.
+    
     Args
         filename: Path or file object.
         image: A PIL Image instance.
@@ -31,20 +33,22 @@ def save_image(filename, image, file_format=None, **kwargs):
         image = image.convert('RGB')
     image.save(filename, format=file_format, **kwargs)
 
-def encode_base64(file):
+def encode_base64(filename):
     """encode image to string.
+    
     Args
-        file: image file path.
+        filename: image file path.
     """
-    with open(file, "rb")as f:
+    with open(filename, "rb")as f:
         bs64 = base64.b64encode(f.read()).decode()
     return bs64
 
-def decode_base64(file, image_str):
+def decode_base64(filename, image_str):
     """decode image to file.
+    
     Args
-        file: image file path.
+        filename: image file path.
         image_str: image bites string.
     """
-    with open(file, "wb") as f:
+    with open(filename, "wb") as f:
         f.write(base64.b64decode(image_str))
