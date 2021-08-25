@@ -4,7 +4,7 @@ from itertools import chain
 
 import pandas as pd
 
-__all__ = ['ImageDataset', 'ImageClassificationFolderDataset']
+__all__ = ['ImageDataset', 'ImageClassFolderDataset']
 
 
 class ImageDataset():
@@ -27,7 +27,7 @@ class ImageDataset():
             self.data['label'] = self.data.image.map(lambda x:label_func(x.name))
         self.data['image'] = self.data.astype(str).image.map(lambda x:eval(repr(x).replace("\\", '/').replace("//", '/')))
 
-class ImageClassificationFolderDataset():
+class ImageClassFolderDataset():
     def __init__(self, root, image_format=['png', 'jpg', 'jpeg'], label_encoder=False):
         """Construct an image dataset label index.
         
