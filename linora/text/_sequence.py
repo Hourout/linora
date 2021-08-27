@@ -8,6 +8,7 @@ def skipgrams(sequence, vocabulary_size,
               window_size=4, negative_samples=1., shuffle=True,
               categorical=False, sampling_table=None, seed=None):
     """Generates skipgram word pairs.
+    
     This function transforms a sequence of word indexes (list of integers)
     into tuples of words of the form:
     - (word, word in the same window), with label 1 (positive samples).
