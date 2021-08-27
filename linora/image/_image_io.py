@@ -38,6 +38,8 @@ def encode_base64(filename):
     
     Args
         filename: image file path.
+    Returns:
+        a bites string.
     """
     with open(filename, "rb")as f:
         bs64 = base64.b64encode(f.read()).decode()

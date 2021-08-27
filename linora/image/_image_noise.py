@@ -9,9 +9,9 @@ def noise_gaussian(image, scale=1, mean=0.0, std=1.0):
     new pixel = image + gaussian_noise * scale
     Args:
         image: Either a 3-D float Tensor of shape [height, width, depth].
-        scale: if int or float, value multiply with poisson_noise.
+        scale: if int or float, value multiply with gaussian noise.
                if tuple or list, randomly picked in the interval
-               `[scale[0], scale[1])`, value multiply with poisson_noise.
+               `[scale[0], scale[1])`, value multiply with gaussian noise.
         mean: if int or float, value is gaussian distribution mean.
               if tuple or list, randomly picked in the interval
               `[mean[0], mean[1])`, value is gaussian distribution mean.
@@ -37,9 +37,9 @@ def noise_poisson(image, scale=1, lam=1.0):
     new pixel = image + poisson_noise * scale
     Args:
         image: Either a 3-D float Tensor of shape [height, width, depth].
-        scale: if int or float, value multiply with poisson_noise.
+        scale: if int or float, value multiply with poisson noise.
                if tuple or list, randomly picked in the interval
-               `[scale[0], scale[1])`, value multiply with poisson_noise.
+               `[scale[0], scale[1])`, value multiply with poisson noise.
         lam: if int or float, value is poisson distribution lambda.
              if tuple or list, randomly picked in the interval
              `[lam[0], lam[1])`, value is poisson distribution lambda.
@@ -68,7 +68,7 @@ def noise_mask(image, noise_prob=0.2):
         noise_prob: should be in the interval (0, 1.].
                    if float, the probability that each element is drop.
                    if tuple or list, randomly picked in the interval
-                   `[keep_prob[0], keep_prob[1])`, the probability that each element is drop.
+                   `[noise_prob[0], noise_prob[1])`, the probability that each element is drop.
     Returns:
         3-D float Tensor, as per the input.
     Raises:
@@ -90,7 +90,7 @@ def noise_saltpepper(image, noise_prob=0.2):
         noise_prob: should be in the interval (0, 1].
                    if int or float, the probability that each element is kept.
                    if tuple or list, randomly picked in the interval
-                   `[keep_prob[0], keep_prob[1])`, the probability that each element is kept.
+                   `[noise_prob[0], noise_prob[1])`, the probability that each element is drop.
     Returns:
         3-D float Tensor, as per the input.
     Raises:

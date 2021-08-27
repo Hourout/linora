@@ -12,7 +12,7 @@ class Progbar():
         Args:
             target: Total number of steps expected, None if unknown.
             width: Progress bar width on screen.
-            verbose: Verbosity mode, 0 (silent), 1 (verbose), 2 (semi-verbose)
+            verbose: Verbosity mode, 0 (silent), 1 (verbose)
             unit_name: Display name for step counts (usually "step" or "sample").
         """
         self.param = Param
@@ -29,8 +29,6 @@ class Progbar():
         Args:
             current: add Index of current step, current += current.
             values: List of tuples: (name, value_for_last_step). 
-                    If name is in stateful_metrics, value_for_last_step will be displayed as-is. 
-                    Else, an average of the metric over time will be displayed.
         """
         self.param.n += 1
         self.param.current += current
@@ -64,8 +62,6 @@ class Progbar():
         Args:
             current: update Index of current step.
             values: List of tuples: (name, value_for_last_step). 
-                    If name is in stateful_metrics, value_for_last_step will be displayed as-is. 
-                    Else, an average of the metric over time will be displayed.
         """
         self.param.n += 1
         if self.param.target is not None:

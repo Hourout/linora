@@ -2,7 +2,7 @@ import random
 
 import numpy as np
 
-__all__ = ['skipgrams', 'pad_sequences', 'make_sampling_table']
+__all__ = ['skipgrams', 'sequence_pad', 'make_sampling_table']
 
 def skipgrams(sequence, vocabulary_size,
               window_size=4, negative_samples=1., shuffle=True,
@@ -71,7 +71,7 @@ def skipgrams(sequence, vocabulary_size,
         random.shuffle(labels)
     return couples, labels
 
-def pad_sequences(sequence, maxlen, dtype='int32', padding='pre', truncating='pre', value=0):
+def sequence_pad(sequence, maxlen, dtype='int32', padding='pre', truncating='pre', value=0):
     """Pads sequences to the same length.
     
     Args:

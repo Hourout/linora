@@ -40,7 +40,7 @@ def TfidfVectorizer(count_vectorizer, norm='l2'):
     """Transform a count matrix to a normalized tf or tf-idf representation.
     
     Args:
-        count_vectorizer:
+        count_vectorizer:la.text.CountVectorizer()[0]
         norm: 'l1', 'l2' or None, optional (default=’l2’).
               Each output row will have unit norm, either: * 'l2': Sum of squares of vector elements is 1. 
               The cosine similarity between two vectors is their dot product when l2 norm has been applied. 

@@ -42,6 +42,7 @@ class RandomSearch():
             label: pandas series, model's label.
             loss: XGBRegressor param 'objective'.
             metrics: model metrics function.
+            iter_num: random search count.
             scoring: metrics error opt base line value.
             cv: cross validation fold.
             cv_num: minimum cross validation fold.

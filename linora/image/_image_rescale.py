@@ -5,14 +5,14 @@ __all__ = ['normalize_global', 'normalize_channel', 'rescale']
 def normalize_global(image, mean=None, std=None):
     """Normalize scales `image` to have mean and variance.
     
-        This op computes `(x - mean) / std`.
-        Args:
-            image: An n-D Tensor where the last 3 dimensions are
-                   `[height, width, channels]`.
-            mean: if None, computes image mean.
-                  if int or float, customize image all channels mean.
-            std: if None, computes image std.
-                 if int or float, customize image all channels std.
+    This op computes `(x - mean) / std`.
+    Args:
+        image: An n-D Tensor where the last 3 dimensions are
+               `[height, width, channels]`.
+        mean: if None, computes image mean.
+              if int or float, customize image all channels mean.
+        std: if None, computes image std.
+             if int or float, customize image all channels std.
       Returns:
         The standardized image with same shape as `image`.
       Raises:

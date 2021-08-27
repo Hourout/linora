@@ -12,8 +12,8 @@ def flip_up_left(image, random=False):
     Args:
     image: a Image instance.
     random: bool, default False.
-            if True, random flip up or left image.
-            if False, flip up or left image.
+            if True, random flip up and left image.
+            if False, flip up and left image.
     Returns:
             A Image instance. of the same type and shape as `image`.
     """
@@ -30,8 +30,8 @@ def flip_up_right(image, random=False):
     Args:
     image: a Image instance.
     random: bool, default False.
-            if True, random flip up or right image.
-            if False, flip up or right image.
+            if True, random flip up and right image.
+            if False, flip up and right image.
     Returns:
             A Image instance. of the same type and shape as `image`.
     """
@@ -48,8 +48,8 @@ def flip_left_right(image, random=False):
     Args:
     image: a Image instance.
     random: bool, default False.
-            if True, random flip left or rignt image.
-            if False, flip left or right image.
+            if True, random flip left and rignt image.
+            if False, flip left and right image.
     Returns:
             A Image instance. of the same type and shape as `image`.
     """
@@ -66,8 +66,8 @@ def flip_up_down(image, random=False):
     Args:
     image: a Image instance.
     random: bool, default False.
-            if True, random flip up or down image.
-            if False, flip up or down image.
+            if True, random flip up and down image.
+            if False, flip up and down image.
     Returns:
             A Image instance. of the same type and shape as `image`.
     """

@@ -3,7 +3,7 @@ from collections import Counter
 
 import numpy as np
 
-__all__ = ['select_best_length', 'word_to_index', 'word_index_sequence', 'index_vector_matrix',
+__all__ = ['select_best_length', 'word_to_index', 'sequence_word_index', 'index_vector_matrix',
            'sequence_index_word']
 
 def select_best_length(sequence, sample_rate=0.8):
@@ -30,7 +30,7 @@ def word_to_index(sequence):
     t = sorted(t, key=t.get, reverse=True)
     return {'positive':{v: k + 1 for k, v in enumerate(t)}, 'negative':{k + 1:v for k, v in enumerate(t)}}
 
-def word_index_sequence(sequence, word_index_dict, pad_value=0):
+def sequence_word_index(sequence, word_index_dict, pad_value=0):
     """Sequence word transfer to sequence index.
     
     Args:

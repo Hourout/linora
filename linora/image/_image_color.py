@@ -68,7 +68,7 @@ def enhance_brightness(image, delta):
         a suitable interval is [-0.5, 0.5].
         0 means pixel value no change.
     Args:
-        image: Tensor or array. An image.
+        image: a Image instance.
         delta: if int, float, Amount to add to the pixel values.
                if list, tuple, randomly picked in the interval
                `[delta[0], delta[1])` to add to the pixel values.
@@ -106,7 +106,7 @@ def enhance_sharpness(image, delta):
 
 def rgb_to_hsv(image):
     """
-    Convert RGB img to HSV img.
+    Convert RGB image to HSV image.
 
     Args:
         image (numpy.ndarray): NumPy RGB image array of shape (H, W, C) to be converted.

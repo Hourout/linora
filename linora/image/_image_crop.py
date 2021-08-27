@@ -10,6 +10,7 @@ def crop(image, box):
     4-tuple defining the left, upper, right, and lower pixel coordinate.
 
     Args:
+        image: a Image instance.
         box: The crop rectangle, as a (left, upper, right, lower)-tuple.
     returns: 
         a Image instance.
@@ -28,9 +29,6 @@ def crop_central(image, central_rate):
       |  XXXX  |
       |        |   where "X" is the central 50% of the image.
        --------
-  
-    This function works on either a single image (`image` is a 3-D Tensor), or a
-    batch of images (`image` is a 4-D Tensor).
     
     Args:
         image: a Image instance.
@@ -56,12 +54,9 @@ def crop_central(image, central_rate):
     return image.crop((left, upper, right, lower))
 
 def crop_point(image, height_rate, width_rate):
-    """Crop the any region of the image(s) and resize specify shape.
+    """Crop the any region of the image.
     
     Crop region area = height_rate * width_rate *image_height * image_width
-    
-    This function works on either a single image (`image` is a 3-D Tensor), or a
-    batch of images (`image` is a 4-D Tensor).
     
     Args:
         image: a Image instance.
@@ -72,8 +67,6 @@ def crop_point(image, height_rate, width_rate):
     Raises:
         ValueError: if central_crop_fraction is not within (0, 1].
     """
-    assert isinstance(height_rate, (int, float)), 'height_rate should be one of int, float.'
-    assert isinstance(width_rate, (int, float)), 'width_rate should be one of int, float.'
     assert 0<height_rate<=1 and 0<width_rate<=1, 'height_rate and width_rate should be in the interval (0, 1].'
     left = image.size[0]*np.random.uniform(0, 1-width_rate)
     upper = image.size[1]*np.random.uniform(0, 1-height_rate)

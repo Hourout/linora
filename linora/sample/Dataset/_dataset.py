@@ -20,8 +20,7 @@ class DataSet():
         """Combines consecutive elements of this dataset into batches.
         Args:
             batch_size: representing the number of consecutive elements of this dataset to combine in a single batch.
-            drop_remainder: representing whether the last batch should be dropped in the case it has fewer than batch_size elements; 
-                            the default behavior is not to drop the smaller batch.
+            drop_remainder: representing whether the last batch should be dropped in the case it has fewer than batch_size elements; the default behavior is not to drop the smaller batch.
         Returns:
             A Dataset.
         """

@@ -11,6 +11,7 @@ __all__ = ['mean_std', 'lego']
 
 def mean_std(image_file, mode=True):
     """Statistical image mean and standard deviation.
+    
     Args:
         image_file: str, image path or image folder, image channel should be 3 or 4 channels.
         mode: int or bool, True is 3 channels and False is all channels.
@@ -45,6 +46,7 @@ def mean_std(image_file, mode=True):
 
 def lego(image, stride=15, overlay_ratio=0):
     """Generate a Lego picture.
+    
     Args:
         image: image path or PIL Image instance.
         stride: image stride numbers.

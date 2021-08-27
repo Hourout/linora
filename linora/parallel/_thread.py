@@ -30,7 +30,7 @@ class ThreadLoom():
             func (reference): reference to the function
             args (list): function args
             kwargs (dict): function kwargs
-            key (str): ket to store the function output in dictionary
+            key (str): key to store the function output in dictionary
         """
         if args is None:
             args = list()
