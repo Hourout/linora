@@ -1,11 +1,12 @@
 from PIL import ImageFilter
 
-__all__ = ['filter_BoxBlur', 'filter_GaussianBlur', 'filter_UnsharpMask', 'filter_Rank', 'filter_Median', 'filter_Min',
-           'filter_Max', 'filter_Mode', 'filter_BLUR', 'filter_CONTOUR', 'filter_DETAIL', 'filter_EDGE_ENHANCE', 
-           'filter_EDGE_ENHANCE_MORE', 'filter_EMBOSS', 'filter_FIND_EDGES', 'filter_SHARPEN', 'filter_SMOOTH', 
-           'filter_SMOOTH_MORE']
-
-def filter_BoxBlur(image, radius=2):
+__all__ = ['blur_box', 'blur_gaussian', 'blur_unsharpmask', 'blur_rank', 
+           'blur_median', 'blur_min', 'blur_max', 'blur_mode', 'blur_BLUR', 
+           'blur_CONTOUR', 'blur_DETAIL', 'blur_EDGE_ENHANCE', 'blur_EDGE_ENHANCE_MORE', 
+           'blur_EMBOSS', 'blur_FIND_EDGES', 'blur_SHARPEN', 'blur_SMOOTH', 
+           'blur_SMOOTH_MORE'
+]
+def blur_box(image, radius=2):
     """
     Blurs the image by setting each pixel to the average value of the pixels 
     in a square box extending radius pixels in each direction. 
@@ -21,7 +22,7 @@ def filter_BoxBlur(image, radius=2):
     """
     return image.filter(ImageFilter.BoxBlur(radius))
 
-def filter_GaussianBlur(image, radius=2):
+def blur_gaussian(image, radius=2):
     """Gaussian blur filter.
 
     Args:
@@ -32,7 +33,7 @@ def filter_GaussianBlur(image, radius=2):
     """
     return image.filter(ImageFilter.GaussianBlur(radius))
 
-def filter_UnsharpMask(image, radius=2, percent=150, threshold=3):
+def blur_unsharpmask(image, radius=2, percent=150, threshold=3):
     """Unsharp mask filter.
     See Wikipedia’s entry on digital unsharp masking for an explanation of the parameters.
 
@@ -46,7 +47,7 @@ def filter_UnsharpMask(image, radius=2, percent=150, threshold=3):
     """
     return image.filter(ImageFilter.UnsharpMask(radius=radius, percent=percent, threshold=threshold))
 
-def filter_Rank(image, size, rank):
+def blur_rank(image, size, rank):
     """Create a rank filter. 
     The rank filter sorts all pixels in a window of the given size, and returns the rank’th value.
     
@@ -60,7 +61,7 @@ def filter_Rank(image, size, rank):
     """
     return image.filter(ImageFilter.RankFilter(size, rank))
 
-def filter_Median(image, size=3):
+def blur_median(image, size=3):
     """Create a median filter. Picks the median pixel value in a window with the given size.
     
     Args:
@@ -71,7 +72,7 @@ def filter_Median(image, size=3):
     """
     return image.filter(ImageFilter.MedianFilter(size))
 
-def filter_Min(image, size=3):
+def blur_min(image, size=3):
     """Create a min filter. Picks the lowest pixel value in a window with the given size.
     
     Args:
@@ -82,7 +83,7 @@ def filter_Min(image, size=3):
     """
     return image.filter(ImageFilter.MinFilter(size))
 
-def filter_Max(image, size=3):
+def blur_max(image, size=3):
     """Create a max filter. Picks the largest pixel value in a window with the given size.
     
     Args:
@@ -93,7 +94,7 @@ def filter_Max(image, size=3):
     """
     return image.filter(ImageFilter.MaxFilter(size))
 
-def filter_Mode(image, size=3):
+def blur_mode(image, size=3):
     """Create a mode filter. Picks the most frequent pixel value in a box with the given size. 
     
     Pixel values that occur only once or twice are ignored; 
@@ -108,7 +109,7 @@ def filter_Mode(image, size=3):
     """
     return image.filter(ImageFilter.ModeFilter(size))
 
-def filter_BLUR(image):
+def blur_BLUR(image):
     """Normal blur.
           
     Returns:
@@ -116,7 +117,7 @@ def filter_BLUR(image):
     """
     return image.filter(ImageFilter.BLUR)
 
-def filter_CONTOUR(image):
+def blur_CONTOUR(image):
     """contour blur.
           
     Returns:
@@ -124,7 +125,7 @@ def filter_CONTOUR(image):
     """
     return image.filter(ImageFilter.CONTOUR)
 
-def filter_DETAIL(image):
+def blur_DETAIL(image):
     """detall blur.
           
     Returns:
@@ -132,7 +133,7 @@ def filter_DETAIL(image):
     """
     return image.filter(ImageFilter.DETAIL)
 
-def filter_EDGE_ENHANCE(image):
+def blur_EDGE_ENHANCE(image):
     """Edge enhancement blur.
           
     Returns:
@@ -140,7 +141,7 @@ def filter_EDGE_ENHANCE(image):
     """
     return image.filter(ImageFilter.EDGE_ENHANCE)
 
-def filter_EDGE_ENHANCE_MORE(image):
+def blur_EDGE_ENHANCE_MORE(image):
     """Edge enhancement threshold blur.
           
     Returns:
@@ -148,7 +149,7 @@ def filter_EDGE_ENHANCE_MORE(image):
     """
     return image.filter(ImageFilter.EDGE_ENHANCE_MORE)
 
-def filter_EMBOSS(image):
+def blur_EMBOSS(image):
     """emboss blur.
           
     Returns:
@@ -156,7 +157,7 @@ def filter_EMBOSS(image):
     """
     return image.filter(ImageFilter.EMBOSS)
 
-def filter_FIND_EDGES(image):
+def blur_FIND_EDGES(image):
     """Find the edge blur.
           
     Returns:
@@ -164,7 +165,7 @@ def filter_FIND_EDGES(image):
     """
     return image.filter(ImageFilter.FIND_EDGES)
 
-def filter_SHARPEN(image):
+def blur_SHARPEN(image):
     """Sharpen blur.
           
     Returns:
@@ -172,7 +173,7 @@ def filter_SHARPEN(image):
     """
     return image.filter(ImageFilter.SHARPEN)
 
-def filter_SMOOTH(image):
+def blur_SMOOTH(image):
     """Smooth blur.
           
     Returns:
@@ -180,7 +181,7 @@ def filter_SMOOTH(image):
     """
     return image.filter(ImageFilter.SMOOTH)
 
-def filter_SMOOTH_MORE(image):
+def blur_SMOOTH_MORE(image):
     """Smooth threshold blur.
           
     Returns:

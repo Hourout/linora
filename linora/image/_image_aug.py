@@ -5,7 +5,7 @@ from linora.image._image_resize_aug import ImageResizeAug
 from linora.image._image_rescale_aug import ImageRescaleAug
 from linora.image._image_position_aug import ImagePositionAug
 from linora.image._image_crop_aug import ImageCropAug
-from linora.image._image_filter_aug import ImageFilterAug
+# from linora.image._image_filter_aug import ImageFilterAug
 
 __all__ = ['ImageAug']
 

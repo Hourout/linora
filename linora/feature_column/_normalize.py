@@ -48,7 +48,7 @@ def normalize_max(feature, feature_scale=None):
     
     Args:
         feature: pd.Series, sample feature value.
-        feature_scale: int or float, feature.abs().max().
+        feature_scale: int or float, feature.max().
     Returns:
         normalize feature and feature_scale.
     """
