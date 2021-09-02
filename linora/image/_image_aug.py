@@ -9,6 +9,9 @@ from linora.image._image_crop_aug import ImageCropAug
 
 __all__ = ['ImageAug']
 
-class ImageAug(ImageIoAug, ImageColorAug, ImageNoiseAug, ImageResizeAug, ImageRescaleAug, ImagePositionAug, ImageCropAug, ImageFilterAug):
+class ImageAug(ImageIoAug, ImageColorAug, ImageNoiseAug, ImageResizeAug, 
+               ImageRescaleAug, ImagePositionAug, ImageCropAug, 
+#                ImageFilterAug
+              ):
     def __init__(self, image=None):
         super(ImageAug, self).__init__(image)
