@@ -20,6 +20,8 @@ def read_image(filename):
 def save_image(filename, image, file_format=None, **kwargs):
     """Saves an image stored as a Numpy array to a path or file object.
     
+    if save gif image, please use save_image(filename, image, file_format=None, save_all=True, append_images=[im1, im2, ...])
+    
     Args
         filename: Path or file object.
         image: A PIL Image instance.

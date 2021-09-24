@@ -6,6 +6,8 @@ __all__ = ['blur_box', 'blur_gaussian', 'blur_unsharpmask', 'blur_rank',
            'blur_EMBOSS', 'blur_FIND_EDGES', 'blur_SHARPEN', 'blur_SMOOTH', 
            'blur_SMOOTH_MORE'
 ]
+
+# def conv2D
 def blur_box(image, radius=2):
     """
     Blurs the image by setting each pixel to the average value of the pixels 
