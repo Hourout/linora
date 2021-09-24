@@ -10,3 +10,4 @@ from linora.image._image_util import *
 from linora.image._image_filter import *
 from linora.image._image_combination import *
 from linora.image._image_feature import *
+from linora.image._image_box import *
