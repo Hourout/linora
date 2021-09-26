@@ -40,8 +40,8 @@ def draw_point(image, points, size=0, color=None):
     draw = ImageDraw.Draw(image2)
     point = list(itertools.chain.from_iterable(points)) if isinstance(points[0], (list, tuple)) else points
     for i in range(int(len(point)/2)):
-        axis = list(itertools.product(range(int(point[i*2]-size), int(point[i*2]+size)), 
-                                      range(int(point[i*2+1]-size), int(point[i*2+1]+size))))
+        axis = list(itertools.product(range(int(point[i*2]-size), int(point[i*2]+size+1)), 
+                                      range(int(point[i*2+1]-size), int(point[i*2+1]+size+1))))
         color = (randint(0, 255), randint(0, 255), randint(0, 255)) if color is None else color
         draw.point(axis, color)
     return image2
