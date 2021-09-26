@@ -68,7 +68,7 @@ def draw_mask(image, size, max_num, random=False, color=None):
             draw.rectangle(axis, fill=color, width=0)
     else:
         width_num = min(int(image.width/size[1]*0.6), int(max_num**0.5))
-        height_num = min(max_num-width_num, int(image.height/size[0]*0.6))
+        height_num = min(int(max_num/width_num), int(image.height/size[0]*0.6))
         width_pix = int((image.width-width_num*size[1])/(width_num+1))
         height_pix = int((image.height-height_num*size[0])/(height_num+1))
         for i in range(width_num):
