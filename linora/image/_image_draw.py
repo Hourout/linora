@@ -42,8 +42,10 @@ def draw_point(image, points, size=0, color=None):
     for i in range(int(len(point)/2)):
         axis = list(itertools.product(range(int(point[i*2]-size), int(point[i*2]+size+1)), 
                                       range(int(point[i*2+1]-size), int(point[i*2+1]+size+1))))
-        color = (randint(0, 255), randint(0, 255), randint(0, 255)) if color is None else color
-        draw.point(axis, color)
+        if color is None:
+            draw.point(axis, (randint(0, 255), randint(0, 255), randint(0, 255)))
+        else:
+            draw.point(axis, color)
     return image2
 
 def draw_mask(image, size, max_num, random=False, color=None):

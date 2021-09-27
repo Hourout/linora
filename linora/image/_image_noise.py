@@ -1,7 +1,6 @@
 import numpy as np
 
-__all__ = ['noise_gaussian', 'noise_poisson', 'noise_mask',
-           'noise_saltpepper', 'noise_rainbow']
+__all__ = ['noise_gaussian', 'noise_poisson', 'noise_color']
 
 def noise_gaussian(image, scale=1, mean=0.0, std=1.0):
     """Gaussian noise apply to image.
@@ -53,6 +52,45 @@ def noise_poisson(image, scale=1, lam=1.0):
     if isinstance(lam, (tuple, list)):
         lam = np.random.uniform(std[0], std[1])
     return np.random.poisson(lam, size=image.size)*scale+image
+
+def noise_color(image, white_prob=0.05, black_prob=0.05, rainbow_prob=0):
+    """Mask noise apply to image with color.
+    
+    while: 
+        white_prob = black_prob and rainbow_prob=0, is salt-pepper noise
+        
+    The salt-pepper noise is based on the signal-to-noise ratio of the image,
+    randomly generating the pixel positions in some images all channel,
+    and randomly assigning these pixels to 0 or 255.
+    
+    while: 
+        white_prob = black_prob=0 and rainbow_prob>0, is rainbow noise
+        
+    The rainbow noise is based on the signal-to-noise ratio of the image,
+    randomly generating the pixel positions in some images,
+    and randomly assigning these pixels to 0 or 255.
+    
+    Args:
+        image: a Image instance.
+        white_prob: white pixel prob.
+        black_prob: black pixel prob.
+        rainbow_prob: rainbow color pixel prob.
+    Returns:
+        a Image instance.
+    """
+    img = image.copy()
+    axis = [(i,j) for i in range(image.width) for j in range(image.height)]
+    random.shuffle(axis)
+    if white_prob>0:
+        axis_white = axis[0:int(len(axis)*white_prob)]
+        img = la.image.draw_point(img, axis_white, size=0, color=(255,255,255))
+    if black_prob>0:
+        axis_black = axis[int(len(axis)*white_prob):int(len(axis)*(white_prob+black_prob))]
+        img = la.image.draw_point(img, axis_black, size=0, color=(0,0,0))
+    if rainbow_prob>0:
+        axis_rainbow = axis[-int(len(axis)*rainbow_prob):]
+        img = la.image.draw_point(img, axis_rainbow, size=0)
+    return img
 
 def noise_mask(image, noise_prob=0.2):
     """Mask noise apply to image.
