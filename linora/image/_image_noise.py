@@ -1,4 +1,8 @@
+import random
+
 import numpy as np
+
+from linora.image._image_draw import draw_point
 
 __all__ = ['noise_gaussian', 'noise_poisson', 'noise_color']
 
