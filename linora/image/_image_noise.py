@@ -87,13 +87,13 @@ def noise_color(image, white_prob=0.05, black_prob=0.05, rainbow_prob=0):
     random.shuffle(axis)
     if white_prob>0:
         axis_white = axis[0:int(len(axis)*white_prob)]
-        img = la.image.draw_point(img, axis_white, size=0, color=(255,255,255))
+        img = draw_point(img, axis_white, size=0, color=(255,255,255))
     if black_prob>0:
         axis_black = axis[int(len(axis)*white_prob):int(len(axis)*(white_prob+black_prob))]
-        img = la.image.draw_point(img, axis_black, size=0, color=(0,0,0))
+        img = draw_point(img, axis_black, size=0, color=(0,0,0))
     if rainbow_prob>0:
         axis_rainbow = axis[-int(len(axis)*rainbow_prob):]
-        img = la.image.draw_point(img, axis_rainbow, size=0)
+        img = draw_point(img, axis_rainbow, size=0)
     return img
 
 def noise_mask(image, noise_prob=0.2):
