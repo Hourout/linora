@@ -9,7 +9,7 @@ class ImageNoiseAug(object):
 
         new pixel = image + gaussian_noise * scale
         Args:
-            image: Either a 3-D float Tensor of shape [height, width, depth].
+            image: a Image instance.
             scale: if int or float, value multiply with poisson_noise.
                    if tuple or list, randomly picked in the interval
                    `[scale[0], scale[1])`, value multiply with poisson_noise.
@@ -20,7 +20,7 @@ class ImageNoiseAug(object):
                  if tuple or list, randomly picked in the interval
                  `[std[0], std[1])`, value is gaussian distribution std.
         Returns:
-            3-D float Tensor, as per the input.
+            a Image instance.
         """
         if type(self.image)!=np.ndarray:
             self.image_to_array(self.image)
@@ -32,7 +32,7 @@ class ImageNoiseAug(object):
 
         new pixel = image + poisson_noise * scale
         Args:
-            image: Either a 3-D float Tensor of shape [height, width, depth].
+            image: a Image instance.
             scale: if int or float, value multiply with poisson_noise.
                    if tuple or list, randomly picked in the interval
                    `[scale[0], scale[1])`, value multiply with poisson_noise.
@@ -40,7 +40,7 @@ class ImageNoiseAug(object):
                  if tuple or list, randomly picked in the interval
                  `[lam[0], lam[1])`, value is poisson distribution lambda.
         Returns:
-            3-D float Tensor, as per the input.
+            a Image instance.
         """
         if type(self.image)!=np.ndarray:
             self.image_to_array(self.image)
@@ -74,78 +74,3 @@ class ImageNoiseAug(object):
         """
         self.image = noise_color(self.image, white_prob, black_prob, rainbow_prob)
         return self
-    
-#     def noise_mask(self, noise_prob=0.2):
-#         """Mask noise apply to image.
-
-#         With probability `drop_prob`, outputs the input element scaled up by
-#         `1`, otherwise outputs `0`. 
-
-#         Tips:
-#             1 mean pixel have no change.
-#             a suitable interval is (0., 0.1].
-#         Args:
-#             image: Either a 3-D float Tensor of shape [height, width, depth].
-#             noise_prob: should be in the interval (0, 1.].
-#                        if float, the probability that each element is drop.
-#                        if tuple or list, randomly picked in the interval
-#                        `[keep_prob[0], keep_prob[1])`, the probability that each element is drop.
-#         Returns:
-#             3-D float Tensor, as per the input.
-#         Raises:
-#             ValueError: If `keep_prob` is not in `(0, 1.]`.
-#         """
-#         if type(self.image)!=np.ndarray:
-#             self.image_to_array(self.image)
-#         self.image = noise_mask(self.image, noise_prob)
-#         return self
-    
-#     def noise_saltpepper(self, noise_prob=0.2):
-#         """Salt-Pepper noise apply to image.
-
-#         The salt-pepper noise is based on the signal-to-noise ratio of the image,
-#         randomly generating the pixel positions in some images all channel,
-#         and randomly assigning these pixels to 0 or 255.
-
-#         Args:
-#             image: Either a 3-D float Tensor of shape [height, width, depth].
-#             noise_prob: should be in the interval (0, 1].
-#                        if int or float, the probability that each element is kept.
-#                        if tuple or list, randomly picked in the interval
-#                        `[keep_prob[0], keep_prob[1])`, the probability that each element is kept.
-#         Returns:
-#             3-D float Tensor, as per the input.
-#         Raises:
-#             ValueError: If `keep_prob` is not in `(0, 1]`.
-#         """
-#         if type(self.image)!=np.ndarray:
-#             self.image_to_array(self.image)
-#         self.image = noise_saltpepper(self.image, noise_prob)
-#         return self
-    
-#     def noise_rainbow(image, noise_prob=0.2):
-#         """Rainbowr noise apply to image.
-
-#         The rainbow noise is based on the signal-to-noise ratio of the image,
-#         randomly generating the pixel positions in some images,
-#         and randomly assigning these pixels to 0 or 255.
-
-#         Args:
-#             image: Either a 3-D float Tensor of shape [height, width, depth].
-#             noise_prob: should be in the interval (0, 1].
-#                        if int or float, the probability that each element is kept.
-#                        if tuple or list, randomly picked in the interval
-#                        `[keep_prob[0], keep_prob[1])`, the probability that each element is kept.
-#         Returns:
-#             3-D float Tensor, as per the input.
-#         Raises:
-#             ValueError: If `keep_prob` is not in `(0, 1]`.
-#         """
-#         if type(self.image)!=np.ndarray:
-#             self.image_to_array(self.image)
-#         self.image = noise_rainbow(self.image, noise_prob)
-#         return self
-    
-    
-    
-    

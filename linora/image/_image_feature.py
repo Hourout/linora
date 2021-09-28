@@ -7,7 +7,7 @@ from linora.parallel import ProcessLoom
 from linora.image._image_util import *
 from linora.image._image_io import read_image
 
-__all__ = ['mean_std', 'lego']
+__all__ = ['mean_std', 'lego', 'pencil_sketch']
 
 def mean_std(image_file, mode=True):
     """Statistical image mean and standard deviation.
@@ -120,3 +120,38 @@ def lego(image, stride=15, overlay_ratio=0):
     if overlay_ratio:
         image[height - int(height * overlay_ratio):, width - int(width * overlay_ratio):, :] = overlay
     return image
+
+def pencil_sketch(image, delta=0.1, seed=None):
+    """Adjust the pencil sketch of RGB.
+    
+    Args:
+        image:  An image array.
+        delta: if int, float, Amount to add to the pixel values.
+               if list, tuple, randomly picked in the interval
+               `[delta[0], delta[1])` to add to the pixel values.
+               a suitable interval is [0.1, 0.5].
+        seed: A Python integer. Used to create a random seed. 
+    Returns:
+        A pencil_sketch-adjusted tensor of the same shape as `image`.
+    """
+    if isinstance(delta, (list, tuple)):
+        random_delta = np.random.uniform([], delta[0], delta[1], seed=seed)
+    else:
+        random_delta = delta
+        
+    t = image[:, 1:]-image[:, :-1]
+    grad_y = np.concatenate([t[:,0:1], (t[:, 1:]+t[:, :-1])/2, t[:, -1:]], 1)*random_delta
+    t = image[1:, :]-image[:-1, :]
+    grad_x = np.concatenate([t[0:1,:], (t[1:, :]+t[:-1, :])/2, t[-1:, :]], 0)*random_delta
+
+    A = np.sqrt(np.square(grad_x)+np.square(grad_y)+1.)
+    uni_x = grad_x/A
+    uni_y = grad_y/A
+    uni_z = 1./A
+
+    dx = np.cos(3.141592653589793/2.2)*np.cos(3.141592653589793/4)
+    dy = np.cos(3.141592653589793/2.2)*np.sin(3.141592653589793/4)
+    dz = np.sin(3.141592653589793/2.2)
+
+    b = np.clip(255.*(dx*uni_x + dy*uni_y + dz*uni_z), 0., 255.)
+    return b

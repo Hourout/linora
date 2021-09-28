@@ -61,12 +61,12 @@ def rescale(image, scale):
     
     new pixel = image * scale
     Args:
-        image: Either a 3-D float Tensor of shape [height, width, channels].
+        image: a Image instance.
         scale: if int float, value multiply with image.
                if tuple list, randomly picked in the interval
                `[central_rate[0], central_rate[1])`, value multiply with image.
     Returns:
-        The image with same shape as `image`.
+        a Image instance.
     Raises:
         scale type error.
     """
@@ -74,4 +74,4 @@ def rescale(image, scale):
         scale = np.random.uniform(scale[0], scale[1])
     elif not isinstance(scale, (int, float)):
         raise ValueError('scale type should be one of int, float, tuple, list.')
-    return image*scale
+    return image.point(lambda i: i*scale)
