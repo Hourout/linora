@@ -9,7 +9,6 @@ from linora import sample_splits
 from linora import text
 from linora import image
 from linora import utils
-# from linora import database
 
 __version__ = '1.1.0'
 __author__ = 'JinQing Lee'
