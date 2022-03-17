@@ -9,8 +9,9 @@ from linora import sample_splits
 from linora import text
 from linora import image
 from linora import utils
+from linora import gfile
 
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 __author__ = 'JinQing Lee'
 
 def _hello():
