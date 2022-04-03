@@ -34,7 +34,7 @@ def isfile(path):
     """
     return os.path.isfile(path)
 
-def listdir(path):
+def listdir(path, full_path=False):
     """Returns a list of entries contained within a directory.
     
     Args:
@@ -44,7 +44,7 @@ def listdir(path):
     Raises:
         errors. NotFoundError if directory doesn't exist.
     """
-    return os.listdir(path)
+    return [path_join(path, i) for i in os.listdir(path)] if full_path else os.listdir(path)
 
 def copy(src, dst, overwrite=False):
     """Copies data from src to dst.

@@ -19,7 +19,7 @@ def iou_detection(box1, box2):
  
     w = max(0, min(xmax1, xmax2) - max(xmin1, xmin2))
     h = max(0, min(ymax1, ymax2) - max(ymin1, ymin2))
-    return w * h / (s1 + s2 - a1)
+    return w * h / (s1 + s2 - w*h)
 
 def iou_segmentation(y_true, y_pre):
     """Calculate object segmentation iou.
