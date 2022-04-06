@@ -117,5 +117,5 @@ class RandomSearch():
                         with open(os.path.join(save_model_dir, "xgb_params.json"),'w') as f:
                             json.dump(best_params, f)
             logger.info(f"random search progress: {round(i/iter_num*100,1)}%, best score: {scoring:.4}", enter=False if i<iter_num else True)
-        logger.info(f"XGBClassifier random search best score: {scoring:.4}", close=True)
+        logger.info(f"XGBClassifier random search best score: {scoring:.4}", close=True, time_mode=1)
         return best_params

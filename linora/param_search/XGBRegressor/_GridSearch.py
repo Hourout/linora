@@ -110,5 +110,5 @@ class GridSearch():
                             with open(os.path.join(save_model_dir, "xgb_params.json"),'w') as f:
                                 json.dump(best_params, f)
                 logger.info(f"grid search progress: {round((i+1)/len(rank)*100,1)}%, best score: {scoring:.4}", enter=False if (i+1)<len(rank) else True)
-        logger.info(f"XGBRegressor grid search best score: {scoring:.4}", close=True)
+        logger.info(f"XGBRegressor grid search best score: {scoring:.4}", close=True, time_mode=1)
         return best_params
