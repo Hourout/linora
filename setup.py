@@ -6,7 +6,7 @@ def readme():
         return f.read()
 
 setup(name='linora',
-      version='1.2.0',
+      version='1.2.1',
       install_requires=[
           'pandas>=1.0.0', 
           'pyecharts>=1.9.0',

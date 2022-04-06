@@ -49,9 +49,9 @@ def listdir(path, full_path=False):
 def copy(src, dst, overwrite=False):
     """Copies data from src to dst.
     
-    1.copy file to file.  eg:'/data/A/a.txt' to '/data/B/b.txt' --> exist '/data/B/b.txt'
-    2.copy file to directory.  eg:'/data/A/a.txt' to '/data/B'  --> exist '/data/B/a.txt'
-    3.copy directory to directory. eg:'/data/A' to '/data/B'    --> exist '/data/B/A'
+    1.copy file to file.
+    2.copy file to directory.
+    3.copy directory to directory.
 
     Args:
         src: string, name of the file whose contents need to be copied
@@ -61,17 +61,13 @@ def copy(src, dst, overwrite=False):
     assert exists(src), "src not exists."
     if isfile(src):
         if overwrite or not exists(dst):
-            return shutil.copy(src, dst)
-        else:
-            if isdir(dst):
-                if not exists(path_join(dst, path_join(src).split('/')[-1])):
-                    return shutil.copy(src, dst)
+            shutil.copy(src, dst)
     else: 
         makedirs(dst)
-        path = path_join(dst, path_join(src).rstrip('/').split('/')[-1])
+        path = path_join(dst, path_join(src).split('/')[-1])
         if overwrite or not exists(path):
             remove(path)
-            return shutil.copytree(src, path)
+            shutil.copytree(src, path)
 
 def makedirs(path):
     """Creates a directory and all parent/intermediate directories.
