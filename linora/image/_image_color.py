@@ -146,7 +146,7 @@ def rgb_to_hls(image):
     """
     r, g, b = image[:, :, 0], image[:, :, 1], image[:, :, 2]
     to_hls = np.vectorize(colorsys.rgb_to_hls)
-    h, l, s = to_hls(r, g, b)
+    h, l, s = to_hls(r/255., g/255., b/255.)
     return np.stack((h, l, s), axis=2)
 
 def hls_to_rgb(image):
