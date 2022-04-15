@@ -2,6 +2,7 @@ from PIL import Image
 
 __all__ = ['blend']
 
+
 def blend(image1, image2, alpha):
     """Creates a new image by interpolating between two input images.
     
@@ -14,10 +15,10 @@ def blend(image1, image2, alpha):
     If necessary, the result is clipped to fit into the allowed output range.
     
     Args:
-      image1: a Image instance. The first image.
-      image2: a Image instance. The second image.  Must have the same mode and size as the first image.
+      image1: a PIL instance. The first image.
+      image2: a PIL instance. The second image.  Must have the same mode and size as the first image.
       alpha: The interpolation alpha factor.
     Return:
-      a Image instance.
+      a PIL instance.
    """
     return Image.blend(image1, image2, alpha)

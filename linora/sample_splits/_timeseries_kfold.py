@@ -2,24 +2,20 @@ import numpy as np
 
 __all__ = ['timeseries_train_test_split', 'timeseries_walk_forward_fold', 'timeseries_kfold']
 
+
 def timeseries_train_test_split(df, test_size=0.2, gap=0, ascending=True):
     """Split DataFrame or matrices into random train and test subsets for timeseries
     
-    Parameters
-    ----------
-    df       : pd.DataFrame, shape (n_samples, n_features)
-        Training data, where n_samples is the number of samples and n_features is the number of features.
-    test_size: float, optional (default=0.2)
-        Should be between 0.0 and 1.0 and represent the proportion of the dataset to include in the test split.
-    gap      : int, default=0
-        Represents the absolute number of the dropped samples between training set and test set.
-    ascending  : boolean, default=True, optional
-        Whether timeseries is ascending.
-    
-    Returns
-    -------
-    t : list, length=2
-        List each list containing train-test split of inputs.
+    Args:
+        df: pd.DataFrame, shape (n_samples, n_features)
+            Training data, where n_samples is the number of samples and n_features is the number of features.
+        test_size: float, optional (default=0.2)
+            Should be between 0.0 and 1.0 and represent the proportion of the dataset to include in the test split.
+        gap: int, default=0
+            Represents the absolute number of the dropped samples between training set and test set.
+        ascending  : boolean, default=True, optional, Whether timeseries is ascending.
+    Returns:
+        list, length=2, List each list containing train-test split of inputs.
     """
     assert gap>=0, "`gap` should be great than or equal to 0."
     t = df.index.tolist()
@@ -28,6 +24,7 @@ def timeseries_train_test_split(df, test_size=0.2, gap=0, ascending=True):
     train_len = round(len(t)*(1-test_size))-gap
     return [t[0:train_len], t[train_len+gap:]]
 
+
 def timeseries_walk_forward_fold(df, n_splits=3, gap=0, ascending=True):
     """Walk Forward Folds cross-validator for timeseries
     
@@ -35,21 +32,16 @@ def timeseries_walk_forward_fold(df, n_splits=3, gap=0, ascending=True):
     Split dataset into k consecutive folds.
     Each fold train set length is not equal.
     
-    Parameters
-    ----------
-    df       : pd.DataFrame, shape (n_samples, n_features)
-        Training data, where n_samples is the number of samples and n_features is the number of features.
-    n_splits : int, default=3
-        Number of folds. Must be at least 2.
-    gap      : int, default=0
-        Represents the absolute number of the dropped samples between training set and test set.
-    ascending  : boolean, default=True, optional
-        Whether timeseries is ascending.
-    
-    Returns
-    -------
-    t : list, length=n_splits
-        List each list containing train-test split of inputs.
+    Args:
+        df: pd.DataFrame, shape (n_samples, n_features)
+            Training data, where n_samples is the number of samples and n_features is the number of features.
+        n_splits : int, default=3
+            Number of folds. Must be at least 2.
+        gap: int, default=0
+            Represents the absolute number of the dropped samples between training set and test set.
+        ascending  : boolean, default=True, optional, Whether timeseries is ascending.
+    Returns:
+        list, length=n_splits, List each list containing train-test split of inputs.
     """
     assert gap>=0, "`gap` should be great than or equal to 0."
     t = df.index.tolist()
@@ -59,6 +51,7 @@ def timeseries_walk_forward_fold(df, n_splits=3, gap=0, ascending=True):
     m = int(np.floor(t_len/(n_splits+1)))
     return [[t[:t_len-m*(i+1)-gap], t[t_len-m*(i+1):t_len-m*i]] for i in range(n_splits)]
 
+
 def timeseries_kfold(df, train_size=0.3, test_size=0.1, gap=0, ascending=True):
     """K-Folds cross-validator for timeseries
     
@@ -66,22 +59,19 @@ def timeseries_kfold(df, train_size=0.3, test_size=0.1, gap=0, ascending=True):
     Split dataset into k consecutive folds.
     Each fold train set length is equal.
     
-    Parameters
-    ----------
-    df       : pd.DataFrame, shape (n_samples, n_features)
-        Training data, where n_samples is the number of samples and n_features is the number of features.
-    train_size: float, optional (default=0.3)
-        Should be between 0.0 and 1.0 and represent the proportion of the dataset to include in the train split.
-    test_size: float, optional (default=0.1)
-        Should be between 0.0 and 1.0 and represent the proportion of the dataset to include in the test split.
-    gap      : int, default=0
-        Represents the absolute number of the dropped samples between training set and test set.
-    ascending  : boolean, default=True, optional
-        Whether timeseries is ascending.
+    Args:
+        df: pd.DataFrame, shape (n_samples, n_features)
+            Training data, where n_samples is the number of samples and n_features is the number of features.
+        train_size: float, optional (default=0.3)
+            Should be between 0.0 and 1.0 and represent the proportion of the dataset to include in the train split.
+        test_size: float, optional (default=0.1)
+            Should be between 0.0 and 1.0 and represent the proportion of the dataset to include in the test split.
+        gap: int, default=0
+            Represents the absolute number of the dropped samples between training set and test set.
+        ascending  : boolean, default=True, optional, Whether timeseries is ascending.
     
-    Returns
-    -------
-    t : list, length=`int(np.floor((len(df)-len(trainset)-gap)/len(testset)))`
+    Returns:
+        list, length=`int(np.floor((len(df)-len(trainset)-gap)/len(testset)))`
         List each list containing train-test split of inputs.
     """
     assert gap>=0, "`gap` should be great than or equal to 0."

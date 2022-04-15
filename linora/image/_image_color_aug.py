@@ -12,15 +12,12 @@ class ImageColorAug(object):
         A factor of 1.0 gives the original image.
 
         Args:
-        image: a Image instance.
         delta: A floating point value controlling the enhancement. 
                delta 1.0 always returns a copy of the original image, 
                lower factors mean less color, 
                and higher values more. There are no restrictions on this value.
                if list, tuple, randomly picked in the interval
                    `[delta[0], delta[1])` , value is float multiplier for adjusting color.
-        Returns:
-            a Image instance.
         """
         self.image = enhance_color(self.image, delta)
         return self
@@ -39,12 +36,9 @@ class ImageColorAug(object):
             0 means all pixel equal. 
             a suitable interval is (0, 4].
         Args:
-            images: a Image instance.
             delta: if int, float, a float multiplier for adjusting contrast.
                    if list, tuple, randomly picked in the interval
                    `[delta[0], delta[1])` , value is float multiplier for adjusting contrast.
-        Returns:
-            a Image instance.
         """
         self.image = enhance_contrast(self.image, delta)
         return self
@@ -57,12 +51,9 @@ class ImageColorAug(object):
             a suitable interval is [-0.5, 0.5].
             0 means pixel value no change.
         Args:
-            image: Tensor or array. An image.
             delta: if int, float, Amount to add to the pixel values.
                    if list, tuple, randomly picked in the interval
                    `[delta[0], delta[1])` to add to the pixel values.
-        Returns:
-            a Image instance.
         """
         self.image = enhance_brightness(self.image, delta)
         return self
@@ -75,30 +66,18 @@ class ImageColorAug(object):
         and a factor of 2.0 gives a sharpened image.
 
         Args:
-        image: a Image instance.
         delta: A floating point value controlling the enhancement. 
                delta 1.0 always returns a copy of the original image, 
                lower factors mean less sharpness, 
                and higher values more. There are no restrictions on this value.
                if list, tuple, randomly picked in the interval
                    `[delta[0], delta[1])` , value is float multiplier for adjusting color.
-        Returns:
-            a Image instance.
         """
         self.image = enhance_sharpness(self.image, delta)
         return self
     
     def color_invert(self):
-        """
-        Invert colors of input PIL image.
-
-        Args:
-            image (PIL image): Image to be color inverted.
-
-        Returns:
-            image (PIL image), Color inverted image.
-
-        """
+        """Invert colors of input PIL image."""
         self.image = color_invert(self.image)
         return self
 
@@ -107,13 +86,6 @@ class ImageColorAug(object):
         Equalize the image histogram. This function applies a non-linear
         mapping to the input image, in order to create a uniform
         distribution of grayscale values in the output image.
-
-        Args:
-            img (PIL image): Image to be equalized
-
-        Returns:
-            img (PIL image), Equalized image.
-
         """
         self.image = equalize(self.image)
         return self

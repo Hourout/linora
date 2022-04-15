@@ -1,11 +1,13 @@
-__all__ = ['numeric_binarizer', 'numeric_bucketized', 'numeric_padding', 'numeric_outlier']
+__all__ = ['numerical_binarizer', 'numerical_bucketized', 
+           'numerical_padding', 'numerical_outlier']
 
-def numeric_binarizer(feature, feature_scale=None):
+
+def numerical_binarizer(feature, feature_scale=None):
     """Encode labels with value between 0 and 1.
     
     Args:
         feature: pd.Series, sample feature.
-        feature_scale: float, feature.mean().
+        feature_scale: float, default feature.mean().
     Returns:
         normalize feature and feature_scale.
     """
@@ -13,7 +15,8 @@ def numeric_binarizer(feature, feature_scale=None):
     t = feature.clip(upper=scale).replace({scale:scale+0.1}).clip(scale).replace({scale:0, scale+0.1:1}).astype('int')
     return t, scale
 
-def numeric_bucketized(feature, boundaries, miss_pad=-1, score=None, miss_score=None, dtype='int64', mode=1):
+
+def numerical_bucketized(feature, boundaries, miss_pad=-1, score=None, miss_score=None, dtype='int64', mode=1):
     """feature bucket.
     
     if mode is True:
@@ -25,11 +28,11 @@ def numeric_bucketized(feature, boundaries, miss_pad=-1, score=None, miss_score=
         
     Args:
         feature: pd.Series, sample feature.
-        boundaries: A sorted list or tuple of floats specifying the boundaries.
-        miss_pad: default -1, feature fillna value.
+        boundaries: list, A sorted list or tuple of floats specifying the boundaries.
+        miss_pad: int, default -1, feature fillna value.
         dtype: default 'int64', return transfrom dtypes.
         score: None, A score list or tuple of floats specifying the boundaries.
-        miss_score: None, score fillna value.
+        miss_score: int or float, None, score fillna value.
         mode: True.
     Returns:
         normalize feature.
@@ -54,7 +57,8 @@ def numeric_bucketized(feature, boundaries, miss_pad=-1, score=None, miss_score=
             t = t.replace({miss_pad:miss_score}) 
     return t
 
-def numeric_padding(feature, method='mean', feature_scale=None):
+
+def numerical_padding(feature, method='mean', feature_scale=None):
     """feature fillna method.
     
     Args:
@@ -70,25 +74,26 @@ def numeric_padding(feature, method='mean', feature_scale=None):
     t = feature.fillna(scale)
     return t, scale
 
-def numeric_outlier(feature, keep_rate=0.9545, mode='right', feature_scale=None):
+
+def numerical_outlier(feature, keep_rate=0.9545, mode='right', feature_scale=None):
     """feature clip outlier.
     
     Args:
         feature: pd.Series, sample feature.
-        keep_rate: default 0.9545, 
-        method: default 'right', one of ['left', 'right', 'both'], statistical distribution boundary.
+        keep_rate: float, default 0.9545, 
+        method: str, default 'right', one of ['left', 'right', 'both'], statistical distribution boundary.
         feature_scale: list or tuple, [feature.mean(), feature.std()].
     Returns:
         normalize feature and feature_scale.
     """
     from scipy.stats import norm
     assert mode in ['left', 'right', 'both'], "`mode` should be one of ['left', 'right', 'both']."
-    scale = feature_scale if feature_scale is not None else (feature.mean(), feature.std())
+    scale = feature_scale if feature_scale is not None else [feature.mean(), feature.std()]
     if mode=='both':
-        clip_dict = (feature.mean()+norm.ppf((1-keep_rate)/2)*feature.std(), feature.mean()+norm.ppf(keep_rate+(1-keep_rate)/2)*feature.std())
+        clip_dict = (scale[0]+norm.ppf((1-keep_rate)/2)*scale[1], scale[0]+norm.ppf(keep_rate+(1-keep_rate)/2)*scale[1])
     elif mode=='right':
-        clip_dict = (feature.min(), feature.mean()+norm.ppf(keep_rate)*feature.std())
+        clip_dict = (feature.min(), scale[0]+norm.ppf(keep_rate)*scale[1])
     else:
-        clip_dict = (feature.mean()+norm.ppf(1-keep_rate)*feature.std(), feature.max())
+        clip_dict = (scale[0]+norm.ppf(1-keep_rate)*scale[1], feature.max())
     t = feature.clip(clip_dict[0], clip_dict[1])
     return t, scale

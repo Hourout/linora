@@ -9,7 +9,7 @@ class ImageNoiseAug(object):
 
         new pixel = image + gaussian_noise * scale
         Args:
-            image: a Image instance.
+            image: a PIL instance.
             scale: if int or float, value multiply with poisson_noise.
                    if tuple or list, randomly picked in the interval
                    `[scale[0], scale[1])`, value multiply with poisson_noise.
@@ -20,7 +20,7 @@ class ImageNoiseAug(object):
                  if tuple or list, randomly picked in the interval
                  `[std[0], std[1])`, value is gaussian distribution std.
         Returns:
-            a Image instance.
+            a PIL instance.
         """
         if type(self.image)!=np.ndarray:
             self.image_to_array(self.image)
@@ -32,7 +32,7 @@ class ImageNoiseAug(object):
 
         new pixel = image + poisson_noise * scale
         Args:
-            image: a Image instance.
+            image: a PIL instance.
             scale: if int or float, value multiply with poisson_noise.
                    if tuple or list, randomly picked in the interval
                    `[scale[0], scale[1])`, value multiply with poisson_noise.
@@ -40,7 +40,7 @@ class ImageNoiseAug(object):
                  if tuple or list, randomly picked in the interval
                  `[lam[0], lam[1])`, value is poisson distribution lambda.
         Returns:
-            a Image instance.
+            a PIL instance.
         """
         if type(self.image)!=np.ndarray:
             self.image_to_array(self.image)
@@ -65,12 +65,12 @@ class ImageNoiseAug(object):
         and randomly assigning these pixels to 0 or 255.
 
         Args:
-            image: a Image instance.
+            image: a PIL instance.
             white_prob: white pixel prob.
             black_prob: black pixel prob.
             rainbow_prob: rainbow color pixel prob.
         Returns:
-            a Image instance.
+            a PIL instance.
         """
         self.image = noise_color(self.image, white_prob, black_prob, rainbow_prob)
         return self

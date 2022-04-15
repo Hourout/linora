@@ -3,21 +3,17 @@ import pandas as pd
 
 __all__ = ['woe', 'iv']
 
-def woe(y_true, feature, pos_label=1):
+
+def woe(feature, y_true, pos_label=1):
     """Calculate series woe value
     
-    Parameters
-    ----------
-    y_true   : pd.Series, shape (n_samples,)
-        The target variable for supervised learning problems.
-    feature  : pd.Series, shape (n_samples,)
-        x variable, model feature.
-    pos_label : int, default=1
-        positive label value.
+    Args:
+        feature: pd.Series, shape (n_samples,) x variable, model feature.
+        y_true: pd.Series, shape (n_samples,) The target variable for supervised learning problems.
+        pos_label: int, default=1, positive label value.
     
-    Returns
-    -------
-    t : series woe value
+    Return:
+        series woe value
     """
     t = pd.DataFrame({'label':y_true, 'feature':feature})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
@@ -27,21 +23,17 @@ def woe(y_true, feature, pos_label=1):
     t = t.groupby(['feature']).label.apply(lambda x:np.log(x.sum()/(x.count()-x.sum())/corr))
     return t
 
-def iv(y_true, feature, pos_label=1):
+
+def iv(feature, y_true, pos_label=1):
     """Calculate series iv value
     
-    Parameters
-    ----------
-    y_true   : pd.Series, shape (n_samples,)
-        The target variable for supervised learning problems.
-    feature  : pd.Series, shape (n_samples,)
-        x variable, model feature.
-    pos_label : int, default=1
-        positive label value.
+    Args:
+        feature: pd.Series, shape (n_samples,), x variable, model feature.
+        y_true: pd.Series, shape (n_samples,), The target variable for supervised learning problems.
+        pos_label: int, default=1, positive label value.
     
-    Returns
-    -------
-    t : series iv value
+    Return:
+        series iv value
     """
     t = pd.DataFrame({'label':y_true, 'feature':feature})
     assert t.label.nunique()==2, "`y_true` should be binary classification."

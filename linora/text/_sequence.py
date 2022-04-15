@@ -4,6 +4,7 @@ import numpy as np
 
 __all__ = ['skipgrams', 'sequence_pad', 'make_sampling_table']
 
+
 def skipgrams(sequence, vocabulary_size,
               window_size=4, negative_samples=1., shuffle=True,
               categorical=False, sampling_table=None, seed=None):
@@ -16,7 +17,8 @@ def skipgrams(sequence, vocabulary_size,
     Read more about Skipgram in this gnomic paper by Mikolov et al.:
     [Efficient Estimation of Word Representations in
     Vector Space](http://arxiv.org/pdf/1301.3781v3.pdf)
-    # Arguments
+    
+    Args:
         sequence: A word sequence (sentence), encoded as a list
             of word indices (integers). If using a `sampling_table`,
             word indices are expected to match the rank
@@ -37,10 +39,10 @@ def skipgrams(sequence, vocabulary_size,
         sampling_table: 1D array of size `vocabulary_size` where the entry i
             encodes the probability to sample a word of rank i.
         seed: Random seed.
-    # Returns
+    Returns:
         couples, labels: where `couples` are int pairs and
             `labels` are either 0 or 1.
-    # Note
+    Note
         By convention, index 0 in the vocabulary is
         a non-word and will be skipped.
     """
@@ -71,6 +73,7 @@ def skipgrams(sequence, vocabulary_size,
         random.seed(seed)
         random.shuffle(labels)
     return couples, labels
+
 
 def sequence_pad(sequence, maxlen, dtype='int32', padding='pre', truncating='pre', value=0):
     """Pads sequences to the same length.
@@ -103,8 +106,10 @@ def sequence_pad(sequence, maxlen, dtype='int32', padding='pre', truncating='pre
         raise ValueError('Padding type "%s" not understood or Truncating type "%s" not understood' % (padding, truncating))
     return t
 
+
 def make_sampling_table(size, sampling_factor=1e-5):
     """Generates a word rank-based probabilistic sampling table.
+    
     Used for generating the `sampling_table` argument for `skipgrams`.
     `sampling_table[i]` is the probability of sampling
     the word i-th most common word in a dataset
@@ -119,10 +124,11 @@ def make_sampling_table(size, sampling_factor=1e-5):
     a numerical approximation of frequency(rank):
     `frequency(rank) ~ 1/(rank * (log(rank) + gamma) + 1/2 - 1/(12*rank))`
     where `gamma` is the Euler-Mascheroni constant.
-    # Arguments
+    
+    Args:
         size: Int, number of possible words to sample.
         sampling_factor: The sampling factor in the word2vec formula.
-    # Returns
+    Returns:
         A 1D Numpy array of length `size` where the ith entry
         is the probability that a word of rank i should be sampled.
     """

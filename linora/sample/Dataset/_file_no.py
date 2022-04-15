@@ -1,7 +1,9 @@
 import random
 import itertools
 
+import numpy as np
 import pandas as pd
+
 from linora.sample.Dataset._dataset import DataSet
 
 __all__ = ['from_Dataframe', 'from_Array', 'from_Image']
@@ -87,24 +89,39 @@ class file_no(DataSet):
         self.params.batch += 1
         return self.batch_func(loc)
 
+    
 class from_Dataframe(file_no):
-    """Represents a potentially large set of elements from dataframe."""
+    """Represents a potentially large set of elements from dataframe.
+    
+    Args:
+        data: Dataframe or tuple of Dataframe
+    """
     def __init__(self, data):
         super(from_Dataframe, self).__init__()
         self.params.data_mode = 'Dataframe_list' if isinstance(data, tuple) else 'Dataframe'
         self.params.data_index = data[0].index if isinstance(data, tuple) else data.index
         self.params.data = [i.values for i in data] if isinstance(data, tuple) else data.values
 
+        
 class from_Array(file_no):
-    """Represents a potentially large set of elements from array."""
+    """Represents a potentially large set of elements from array.
+    
+    Args:
+        data: numpy array or tuple of numpy array
+    """
     def __init__(self, data):
         super(from_Array, self).__init__()
         self.params.data_mode = 'array_list' if isinstance(data, tuple) else 'array'
         self.params.data_index = pd.Series(range(data[0].shape[0] if isinstance(data, tuple) else data.shape[0])).index
         self.params.data = data
     
+    
 class from_Image(file_no):
-    """Represents a potentially large set of elements from image file list."""
+    """Represents a potentially large set of elements from image file list.
+    
+    Args:
+        data: image path or tuple of image path
+    """
     def __init__(self, data):
         super(from_Image, self).__init__()
         self.params.data_mode = 'image_list' if isinstance(data, tuple) else 'image'

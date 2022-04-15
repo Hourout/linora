@@ -2,8 +2,8 @@ import os
 import imp
 import json
 
-
 __all__ = ['Config']
+
 
 def Config(file_py=None, file_dict=None, file_json=None, **kwargs):
     """params management.

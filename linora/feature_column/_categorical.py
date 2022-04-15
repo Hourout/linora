@@ -7,7 +7,8 @@ import numpy as np
 
 __all__ = ['categorical_encoder', 'categorical_hash', 'categorical_crossed',
            'categorical_onehot_binarizer', 'categorical_onehot_multiple',
-           'categorical_count', 'categorical_regress', 'categorical_hist']
+           'categorical_count', 'categorical_regress', 'categorical_hist'
+          ]
 
 
 def categorical_encoder(feature, feature_scale=None, abnormal_value=-1):
@@ -26,8 +27,9 @@ def categorical_encoder(feature, feature_scale=None, abnormal_value=-1):
     t = pd.Series([scale.get(i, abnormal_value) for i in feature], index=feature.index)
     return t, scale
 
+
 def categorical_hash(feature, hash_bucket_size):
-    """Hash labels with value between 0 and n_classes-1.
+    """Hash labels with value between 0 and hash_bucket_size-1.
     
     Args:
         feature: pd.Series, sample feature.
@@ -37,8 +39,9 @@ def categorical_hash(feature, hash_bucket_size):
     """
     return feature.fillna('').astype(str).map(lambda x:hash(x))%hash_bucket_size
 
+
 def categorical_crossed(feature_list, hash_bucket_size):
-    """Crossed categories and hash labels with value between 0 and n_classes-1.
+    """Crossed categories and hash labels with value between 0 and hash_bucket_size-1.
     
     Args:
         feature_list: pd.Series list, sample feature list.
@@ -48,16 +51,17 @@ def categorical_crossed(feature_list, hash_bucket_size):
     """
     return reduce(lambda x,y:x+y, [i.fillna('').astype(str) for i in feature_list]).map(lambda x:hash(x))%hash_bucket_size
 
+
 def categorical_onehot_binarizer(feature, feature_scale=None, prefix='columns', dtype='int8'):
     """Transform between iterable of iterables and a multilabel format, sample is simple categories.
     
     Args:
         feature: pd.Series, sample feature.
         feature_scale: list, feature categories list.
-        prefix: String to append DataFrame column names.
-        dtype: default np.uint8. Data type for new columns. Only a single dtype is allowed.
+        prefix: str, String to append DataFrame column names.
+        dtype: str, default int8. Data type for new columns.
     Returns:
-        Dataframe for onehot binarizer.
+        Dataframe for onehot binarizer and feature parameters list.
     """
     assert not any(feature.isnull()), "`feature' should be not contains NaN"
     scale = feature.drop_duplicates().tolist()
@@ -75,16 +79,17 @@ def categorical_onehot_binarizer(feature, feature_scale=None, prefix='columns', 
         t = t[[prefix+'_'+str(i) for i in scale]]
     return t, scale
 
+
 def categorical_onehot_multiple(feature, feature_scale=None, prefix='columns', dtype='int8'):
     """Transform between iterable of iterables and a multilabel format, sample is multiple categories.
     
     Args:
         feature: pd.Series, sample feature.
         feature_scale: list, feature categories list.
-        prefix: String to append DataFrame column names.
-        dtype: default np.uint8. Data type for new columns. Only a single dtype is allowed.
+        prefix: str, String to append DataFrame column names.
+        dtype: str, default int8. Data type for new columns.
     Returns:
-        Dataframe for onehot binarizer.
+        Dataframe for onehot binarizer and feature parameters list.
     """
     assert not any(feature.isnull()), "`feature' should be not contains NaN."
     scale = feature_scale if feature_scale is not None else list(set(itertools.chain.from_iterable(feature)))
@@ -100,21 +105,24 @@ def categorical_onehot_multiple(feature, feature_scale=None, prefix='columns', d
     t = pd.DataFrame(t, columns=[prefix+'_'+str(i) for i in scale])
     return t, scale
 
-def categorical_count(feature, feature_scale=None, abnormal_value=-1):
+
+def categorical_count(feature, feature_scale=None, abnormal_value=0, normalize=True):
     """Count labels with value counts.
-       
-       if feature values not in feature_scale dict, return `abnormal_value`.
+    
+    if feature values not in feature_scale dict, return `abnormal_value`.
     
     Args:
         feature: pd.Series, sample feature.
         feature_scale: dict, label parameters dict for this estimator.
-        abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
+        abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
+        normalize: bool, If True then the object returned will contain the relative frequencies of the unique values.
     Returns:
         return count labels and label parameters dict.
     """
-    scale = feature_scale if feature_scale is not None else feature.value_counts().to_dict()
+    scale = feature_scale if feature_scale is not None else feature.value_counts(normalize).to_dict()
     t = pd.Series([scale.get(i, abnormal_value) for i in feature], index=feature.index)
     return t, scale
+
 
 def categorical_regress(feature, label, feature_scale=None, mode='mean'):
     """Regress labels with value counts prob.
@@ -122,18 +130,19 @@ def categorical_regress(feature, label, feature_scale=None, mode='mean'):
     Args:
         feature: pd.Series, sample feature.
         label: pd.Series, sample regress label.
-        feature_scale: pd.DataFrame, label parameters DataFrame for this estimator.
+        feature_scale: dict, label parameters dict for this estimator.
         mode: 'mean' or 'median'
     Returns:
-        return Regress labels and label parameters DataFrame.
+        return Regress labels and label parameters dict.
     """
     if feature_scale is not None:
         scale = feature_scale
     else:
         scale = pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].agg(mode).to_dict()
-    abnormal_value = label.mean()
+    abnormal_value = label.mean() if mode=='mean' else label.median()
     t = pd.Series([scale.get(i, abnormal_value) for i in feature], index=feature.index)
     return t, scale
+
 
 def categorical_hist(feature, label, feature_scale=None):
     """Hist labels with value counts prob.

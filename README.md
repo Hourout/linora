@@ -11,14 +11,14 @@
 Linora is a simple and efficient data mining and data analysis tool that allows you to do related data mining tasks without using sklearn to the maximum extent. It is perfectly compatible with pandas and runs faster and saves memory compared to sklearn.
 
 
-| [API Document](https://www.yuque.com/jinqing-ps0ax/ebuvha) | [中文介绍](https://github.com/Hourout/linora/blob/master/document/Chinese.md) |
+| [API Document](https://www.yuque.com/jinqing-ps0ax/linora) | [中文介绍](https://github.com/Hourout/linora/blob/master/document/Chinese.md) |
 
 ## Installation
 
 To install [this verson from PyPI](https://pypi.org/project/linora/), type:
 
 ```
-pip install linora
+pip install linora -U
 ```
 
 To get the newest one from this repo (note that we are in the alpha stage, so there may be frequent updates), type:
@@ -44,7 +44,6 @@ pip install git+https://github.com/Hourout/linora.git
 - schedulers
 
 ## Example
-[more example](https://github.com/Hourout/linora/blob/master/example/readme.md)
 
 ```python
 import linora as la

@@ -5,8 +5,10 @@ from collections import defaultdict
 
 __all__ = ['ProcessLoom']
 
+
 class Params:
     pass
+    
     
 class ProcessLoom():
     """ProcessLoom class: executes runners using multi-processing."""

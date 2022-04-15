@@ -7,15 +7,12 @@ class ImagePositionAug(object):
     def flip_up_left(self, random=True):
         """Randomly flip an image (up to left).
     
-        With a 1 in 2 chance, outputs the contents of `image` flipped along the
-        second dimension, which is `width`.  Otherwise output the image as-is.
-
         Args:
         random: bool, default True.
-                if True, random flip up or left image.
-                if False, flip up or left image.
+            if True, random flip up or left image.
+            if False, flip up or left image.
         Returns:
-                A Image instance. of the same type and shape as `image`.
+            A PIL instance. of the same type and shape as `image`.
         """
         self.image = flip_up_left(self.image, random)
         return self
@@ -23,15 +20,12 @@ class ImagePositionAug(object):
     def flip_up_right(self, random=True):
         """Randomly flip an image (up to right).
     
-        With a 1 in 2 chance, outputs the contents of `image` flipped along the
-        second dimension, which is `width`.  Otherwise output the image as-is.
-
         Args:
         random: bool, default True.
                 if True, random flip up or right image.
                 if False, flip up or right image.
         Returns:
-                A Image instance. of the same type and shape as `image`.
+                A PIL instance. of the same type and shape as `image`.
         """
         self.image = flip_up_right(self.image, random)
         return self
@@ -39,15 +33,12 @@ class ImagePositionAug(object):
     def flip_left_right(self, random=True):
         """Randomly flip an image (left to right).
     
-        With a 1 in 2 chance, outputs the contents of `image` flipped along the
-        second dimension, which is `width`.  Otherwise output the image as-is.
-
         Args:
         random: bool, default True.
                 if True, random flip left or rignt image.
                 if False, flip left or right image.
         Returns:
-                A Image instance. of the same type and shape as `image`.
+                A PIL instance. of the same type and shape as `image`.
         """
         self.image = flip_left_right(self.image, random)
         return self
@@ -55,15 +46,12 @@ class ImagePositionAug(object):
     def flip_up_down(self, random=True):
         """Randomly flip an image (up to down).
     
-        With a 1 in 2 chance, outputs the contents of `image` flipped along the
-        second dimension, which is `width`.  Otherwise output the image as-is.
-
         Args:
         random: bool, default True.
                 if True, random flip up or down image.
                 if False, flip up or down image.
         Returns:
-                A Image instance. of the same type and shape as `image`.
+                A PIL instance. of the same type and shape as `image`.
         """
         self.image = flip_up_down(self.image, random)
         return self
@@ -91,7 +79,7 @@ class ImagePositionAug(object):
                 you can also pass in a list of colors.
 
         Returns:
-                A Image instance. of the same type and shape as `image`.
+                A PIL instance. of the same type and shape as `image`.
         """
         self.image = rotate(self.image, angle, expand, center, translate, fillcolor)
         return self
@@ -107,7 +95,7 @@ class ImagePositionAug(object):
                 you can also pass in a list of colors.
 
         Returns:
-                A Image instance. of the same type and shape as `image`.
+                A PIL instance. of the same type and shape as `image`.
         """
         self.image = translate(self.image, translate, fillcolor)
         return self

@@ -2,19 +2,20 @@ import numpy as np
 
 __all__ = ['normalize_global', 'normalize_channel', 'rescale']
 
+
 def normalize_global(image, mean=None, std=None):
     """Normalize scales `image` to have mean and variance.
     
     This op computes `(x - mean) / std`.
     Args:
-        image: An n-D Tensor where the last 3 dimensions are
-               `[height, width, channels]`.
+        image: a numpy array.
+            shape is `[height, width, channels]` or `[height, width]`.
         mean: if None, computes image mean.
               if int or float, customize image all channels mean.
         std: if None, computes image std.
              if int or float, customize image all channels std.
       Returns:
-        The standardized image with same shape as `image`.
+        a numpy array. The standardized image with same shape as `image`.
       Raises:
         ValueError: if the shape of 'image' is incompatible with this function.
       """
@@ -28,13 +29,14 @@ def normalize_global(image, mean=None, std=None):
         raise ValueError('`std` must be int or float.')
     return (image-mean)/std
 
+
 def normalize_channel(image, mean=None, std=None):
     """Normalize scales `image` to have mean and variance.
     
         This op computes `(x - mean) / std`.
         Args:
-            image: An n-D Tensor where the last 3 dimensions are
-                   `[height, width, channels]`.
+            image: a numpy array.
+                shape is `[height, width, channels]` or `[height, width]`.
             mean: if None, computes image mean.
                   if tuple or list, customize image each channels mean,
                   shape should 3 dims.
@@ -42,7 +44,7 @@ def normalize_channel(image, mean=None, std=None):
                  if tuple or list, customize image each channels std,
                  shape should 3 dims.
       Returns:
-        The standardized image with same shape as `image`.
+        a numpy array. The standardized image with same shape as `image`.
       Raises:
         ValueError: if the shape of 'image' is incompatible with this function.
       """
@@ -56,17 +58,18 @@ def normalize_channel(image, mean=None, std=None):
         raise ValueError('`std` must be list or tuple.')
     return (image-mean)/std
 
+
 def rescale(image, scale):
     """Rescale apply to image.
     
     new pixel = image * scale
     Args:
-        image: a Image instance.
-        scale: if int float, value multiply with image.
-               if tuple list, randomly picked in the interval
+        image: a PIL instance.
+        scale: if int or float, value multiply with image.
+               if tuple or list, randomly picked in the interval
                `[central_rate[0], central_rate[1])`, value multiply with image.
     Returns:
-        a Image instance.
+        a PIL instance.
     Raises:
         scale type error.
     """

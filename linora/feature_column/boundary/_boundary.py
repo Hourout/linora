@@ -2,8 +2,12 @@ import pandas as pd
 
 __all__ = ['uniform', 'quantile', 'probability_categorical']
 
+
 def uniform(feature, bins):
     """Equal width bin, take a uniform distribution for the sample value range.
+    
+    Buckets include the right boundary, and exclude the left boundary. 
+    Namely, boundaries=[0., 1., 2.] generates buckets (-inf, 0.], (0., 1.], (1., 2.], and (2., +inf)
     
     Args:
         feature: pd.Series, model feature values.
@@ -12,12 +16,15 @@ def uniform(feature, bins):
         the list of split threshold of feature.
     """
     t = (feature.max()-feature.min())/bins
-    m = feature.min()
-    return [t*i+m for i in range(bins)]+[feature.max()]
+    return [t*i for i in range(1, bins)]
+
 
 def quantile(feature, bins):
     """Equal frequency bin, take a uniform distribution of the sample size.
     
+    Buckets include the right boundary, and exclude the left boundary. 
+    Namely, boundaries=[0., 1., 2.] generates buckets (-inf, 0.], (0., 1.], (1., 2.], and (2., +inf).
+        
     Args:
         feature: pd.Series, model feature values.
         bins: int, split bins of feature.
@@ -26,7 +33,8 @@ def quantile(feature, bins):
     """
     t = feature.sort_values().values
     w = round(len(t)/bins)
-    return [t[w*i] for i in range(bins)]+[feature.max()]
+    return [t[w*i-1] for i in range(1, bins)]
+
 
 def probability_categorical(feature, label):
     """Probability grouping of category variables
@@ -48,7 +56,7 @@ def probability_categorical(feature, label):
     prob = t.groupby([ 'feature']).label.value_counts(1).to_dict()
     slope_dict = {i:{'category_rate':slope_dict[i], 'slope':[prob.get((i,j[0]), 0)-prob.get((i,j[1]), 0) for j in cat]} for i in slope_dict}
     for i in slope_dict:
-        slope_dict[i]['slope_diff'] = sum([abs(slope[0]-slope_dict[i]['slope'][0]), abs(slope[1]-slope_dict[i]['slope'][1])])
+        slope_dict[i]['slope_diff'] = sum([abs(slope[j]-slope_dict[i]['slope'][j]) for j in range(len(slope))])
     value1 = sorted([[[i], slope_dict[i]['slope_diff'], slope_dict[i]['category_rate']] for i in slope_dict], key=lambda x:x[1], reverse=1)
     distance = sorted([value1[i][1]-value1[i+1][1] for i in range(len(value1)-1)])
     std = pd.Series([i[1] for i in value1]).std()

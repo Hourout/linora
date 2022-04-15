@@ -5,107 +5,122 @@ __all__ = ['euclidean', 'manhattan', 'chebyshev', 'minkowski', 'hamming',
            'jaccard', 'pearson', 'cosine', 'levenshtein'
           ]
 
+
 def euclidean(x, y, normalize=False):
     """euclidean distance.
     
     Args:
-        x: pd.Series, sample feature value.
-        y: pd.Series, sample feature value.
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
         normalize: default False, std=pd.concat([x, y]).std() if normalize else 1.
     Returns:
         euclidean distance value.
     """
-    std = pd.concat([x, y]).std() if normalize else 1
+    x = pd.Series(x)
+    y = pd.Series(y)
+    std = pd.concat([x, y], axis=1).std(axis=1) if normalize else 1
     return np.sqrt(np.sum(np.square((x-y)/std)))
+
 
 def manhattan(x, y):
     """manhattan distance.
     
     Args:
-        x: pd.Series, sample feature value.
-        y: pd.Series, sample feature value.
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
     Returns:
         manhattan distance value.
     """
-    return np.sum(np.abs(x-y))
+    return np.sum(np.abs(np.array(x)-np.array(y)))
+
 
 def chebyshev(x, y):
     """chebyshev distance.
     
     Args:
-        x: pd.Series, sample feature value.
-        y: pd.Series, sample feature value.
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
     Returns:
         chebyshev distance value.
     """
-    return np.max(x-y)
+    return np.max(np.array(x)-np.array(y))
+
 
 def minkowski(x, y, p):
     """minkowski distance.
     
     Args:
-        x: pd.Series, sample feature value.
-        y: pd.Series, sample feature value.
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
         p: int, norm dimension.
     Returns:
         minkowski distance value.
     """
-    return np.sqrt(np.sum(np.power(np.abs(x-y), p)))
+    return np.power(np.sum(np.power(np.abs(np.array(x)-np.array(y)), p)), 1/p)
+
 
 def hamming(x, y):
     """hamming distance.
     
     Args:
-        x: pd.Series, sample feature value.
-        y: pd.Series, sample feature value.
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
     Returns:
         hamming distance value.
     """
-    return len(x)-np.sum(np.equal(x, y))
+    return len(x)-np.sum(np.equal(np.array(x)-np.array(y)))
+
 
 def jaccard(x, y):
     """jaccard distance.
     
     Args:
-        x: pd.Series, sample feature value.
-        y: pd.Series, sample feature value.
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
     Returns:
         jaccard distance value.
     """
     return 1 - len(set(x).intersection(set(y)))/len(set(x).union(set(y)))
 
+
 def pearson(x, y):
     """pearson distance.
     
     Args:
-        x: pd.Series, sample feature value.
-        y: pd.Series, sample feature value.
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
     Returns:
         pearson distance value.
     """
+    x = np.array(x)
+    y = np.array(y)
     x_mean, y_mean = np.mean(x), np.mean(y)
     d = np.sum((x-x_mean)*(y-y_mean))
     d2 = np.sqrt(np.sum(np.square(x-x_mean)))*np.sqrt(np.sum(np.square(y-y_mean)))
     return 1-d/d2
 
+
 def cosine(x, y):
     """cosine distance.
     
     Args:
-        x: pd.Series, sample feature value.
-        y: pd.Series, sample feature value.
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
     Returns:
         cosine distance value.
     """
+    x = np.array(x)
+    y = np.array(y)
     return (x*y).sum()/np.sqrt(np.square(x).sum())/np.sqrt(np.square(y).sum())
+
 
 def levenshtein(x, y, normalize=False):
     """levenshtein distance.
     
     Args:
-        x: pd.Series, sample feature value.
-        y: pd.Series, sample feature value.
-        normalize: default False, if normalize is True, levenshtein distance should be distance/max(len(x), len(y)).
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+        normalize: bool, default False, if normalize is True, levenshtein distance should be distance/max(len(x), len(y)).
     Returns:
         levenshtein distance value.
     """

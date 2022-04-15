@@ -10,12 +10,15 @@ def crop(image, box):
     4-tuple defining the left, upper, right, and lower pixel coordinate.
 
     Args:
-        image: a Image instance.
+        image: a PIL instance.
         box: The crop rectangle, as a (left, upper, right, lower)-tuple.
     returns: 
-        a Image instance.
+        a PIL instance.
     """
+    if len(box)==2:
+        box = [box[0][0], box[0][1], box[1][0], box[1][1]]
     return image.crop(box)
+
 
 def crop_central(image, central_rate):
     """Crop the central region of the image.
@@ -31,12 +34,12 @@ def crop_central(image, central_rate):
        --------
     
     Args:
-        image: a Image instance.
+        image: a PIL instance.
         central_rate: if int float, should be in the interval (0, 1], fraction of size to crop.
                       if tuple list, randomly picked in the interval
                       `[central_rate[0], central_rate[1])`, value is fraction of size to crop.
     Returns:
-        a Image instance.
+        a PIL instance.
     Raises:
         ValueError: if central_crop_fraction is not within (0, 1].
     """
@@ -53,17 +56,18 @@ def crop_central(image, central_rate):
     lower = int(im.size[1]*(0.5+central_rate/2))
     return image.crop((left, upper, right, lower))
 
+
 def crop_point(image, height_rate, width_rate):
     """Crop the any region of the image.
     
     Crop region area = height_rate * width_rate *image_height * image_width
     
     Args:
-        image: a Image instance.
-        height_rate: flaot, in the interval (0, 1].
-        width_rate: flaot, in the interval (0, 1].
+        image: a PIL instance.
+        height_rate: float, in the interval (0, 1].
+        width_rate: float, in the interval (0, 1].
     Returns:
-        a Image instance.
+        a PIL instance.
     Raises:
         ValueError: if central_crop_fraction is not within (0, 1].
     """

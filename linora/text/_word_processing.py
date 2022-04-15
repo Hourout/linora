@@ -4,6 +4,7 @@ from collections import Counter
 __all__ = ['sequence_preprocess', 'word_count', 'word_low_freq', 'word_high_freq', 'filter_word',
            'filter_punctuation']
 
+
 def sequence_preprocess(sequence):
     """Sequence preprocess, keep only Chinese.
     
@@ -14,7 +15,8 @@ def sequence_preprocess(sequence):
     """
     if isinstance(sequence, str):
         return ''.join([i for i in sequence.replace(' ', '') if i>= u'\u4e00' and i<= u'\u9fa5'])
-    return [''.join([i for i in s.replace(' ', '') if i>= u'\u4e00' and i<= u'\u9fa5']) for s in sequence] 
+    return [''.join([i for i in s.replace(' ', '') if i>= u'\u4e00' and i<= u'\u9fa5']) for s in sequence]
+
 
 def word_count(sequence):
     """Sequence word count.
@@ -25,6 +27,7 @@ def word_count(sequence):
         a dict with word count.
     """
     return Counter(chain.from_iterable(sequence))
+
 
 def word_low_freq(word_count_dict, threshold=3):
     """Filter low frequency words.
@@ -37,6 +40,7 @@ def word_low_freq(word_count_dict, threshold=3):
     """
     return [i for i,j in word_count_dict.items() if j<=threshold]
 
+
 def word_high_freq(word_count_dict, threshold):
     """Filter high frequency words.
     
@@ -47,6 +51,7 @@ def word_high_freq(word_count_dict, threshold):
         a list filter high frequency words.
     """
     return [i for i,j in word_count_dict.items() if j>=threshold]
+
 
 def filter_word(sequence, filter_word_list):
     """Sequence filter words with a filter word list.
@@ -60,6 +65,7 @@ def filter_word(sequence, filter_word_list):
     if isinstance(sequence[0], str):
         return [x for x in sequence if x not in filter_word_list]
     return [[x for x in i if x not in filter_word_list] for i in sequence]
+
 
 def filter_punctuation(sequence, punctuation=None):
     """Sequence preprocess, filter punctuation.

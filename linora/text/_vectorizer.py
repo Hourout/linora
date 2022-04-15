@@ -6,6 +6,7 @@ import pandas as pd
 
 __all__ = ['CountVectorizer', 'TfidfVectorizer']
 
+
 def CountVectorizer(feature, feature_scale=None, prefix='columns', dtype='int8'):
     """Convert a collection of text documents to a matrix of token counts.
     
@@ -35,6 +36,7 @@ def CountVectorizer(feature, feature_scale=None, prefix='columns', dtype='int8')
         t = t[:, :len(feature_scale)]
     t = pd.DataFrame(t, columns=[prefix+'_'+str(i) for i in scale])
     return t, scale
+
 
 def TfidfVectorizer(count_vectorizer, norm='l2'):
     """Transform a count matrix to a normalized tf or tf-idf representation.

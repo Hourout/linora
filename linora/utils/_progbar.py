@@ -2,8 +2,10 @@ import time
 
 __all__ = ['Progbar']
 
+
 class Param:
     pass
+
 
 class Progbar():
     """Displays a progress bar."""

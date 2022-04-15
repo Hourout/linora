@@ -11,7 +11,7 @@ class ImageCropAug(object):
         Args:
             box: The crop rectangle, as a (left, upper, right, lower)-tuple.
         returns: 
-            a Image instance.
+            a PIL instance.
         """
         self.image = crop(self.image, box)
         return self
@@ -33,12 +33,12 @@ class ImageCropAug(object):
         batch of images (`image` is a 4-D Tensor).
 
         Args:
-            image: a Image instance.
+            image: a PIL instance.
             central_rate: if int float, should be in the interval (0, 1], fraction of size to crop.
                           if tuple list, randomly picked in the interval
                           `[central_rate[0], central_rate[1])`, value is fraction of size to crop.
         Returns:
-            a Image instance.
+            a PIL instance.
         Raises:
             ValueError: if central_crop_fraction is not within (0, 1].
         """
@@ -54,11 +54,11 @@ class ImageCropAug(object):
         batch of images (`image` is a 4-D Tensor).
 
         Args:
-            image: a Image instance.
-            height_rate: flaot, in the interval (0, 1].
-            width_rate: flaot, in the interval (0, 1].
+            image: a PIL instance.
+            height_rate: float, in the interval (0, 1].
+            width_rate: float, in the interval (0, 1].
         Returns:
-            a Image instance.
+            a PIL instance.
         Raises:
             ValueError: if central_crop_fraction is not within (0, 1].
         """

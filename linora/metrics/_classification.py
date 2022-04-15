@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
 
-__all__ = ['binary_accuracy', 'categorical_accuracy', 'recall', 'precision', 'confusion_matrix',
-           'fbeta_score', 'f1_score', 'auc_roc', 'auc_pr', 'binary_crossentropy', 
-           'categorical_crossentropy', 'ks', 'gini', 'psi', 'fmi', 'binary_report',
-           'top_k_categorical_accuracy']
+__all__ = ['accuracy_binary', 'accuracy_categorical', 'recall', 'precision', 'confusion_matrix',
+           'fbeta_score', 'f1_score', 'auc_roc', 'auc_pr', 'crossentropy_binary', 
+           'crossentropy_categorical', 'ks', 'gini', 'psi', 'fmi', 'report_binary',
+           'accuracy_categorical_top_k'
+          ]
+
 
 def classified_func(y_true, y_pred, prob=0.5, pos_label=1):
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
@@ -16,8 +18,10 @@ def classified_func(y_true, y_pred, prob=0.5, pos_label=1):
         t.loc[t.prob<prob, 'prob'] = 0
     return t
 
-def binary_accuracy(y_true, y_pred, prob=0.5, pos_label=1):
-    """
+
+def accuracy_binary(y_true, y_pred, prob=0.5, pos_label=1):
+    """Calculates how often predictions match binary labels.
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
@@ -29,8 +33,10 @@ def binary_accuracy(y_true, y_pred, prob=0.5, pos_label=1):
     t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
     return (t.label==t.prob).mean()
 
-def categorical_accuracy(y_true, y_pred):
-    """
+
+def accuracy_categorical(y_true, y_pred):
+    """Calculates how often predictions match categorical labels.
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
@@ -43,8 +49,10 @@ def categorical_accuracy(y_true, y_pred):
         y_pred = np.argmax(y_pred, axis=1)
     return (pd.Series(y_true)==pd.Series(y_pred)).mean()
 
+
 def recall(y_true, y_pred, prob=0.5, pos_label=1):
-    """
+    """Computes the recall of the predictions with respect to the labels.
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
@@ -56,8 +64,10 @@ def recall(y_true, y_pred, prob=0.5, pos_label=1):
     t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
     return t.prob[t.label==pos_label].mean()
 
+
 def precision(y_true, y_pred, prob=0.5, pos_label=1):
-    """
+    """Computes the precision of the predictions with respect to the labels.
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
@@ -68,6 +78,7 @@ def precision(y_true, y_pred, prob=0.5, pos_label=1):
     """
     t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
     return t.label[t.prob==pos_label].mean()
+
 
 def confusion_matrix(y_true, y_pred):
     """
@@ -81,12 +92,13 @@ def confusion_matrix(y_true, y_pred):
     t = pd.crosstab(t.predict, t.actual)
     return t
 
+
 def fbeta_score(y_true, y_pred, beta, prob=0.5, pos_label=1):
     """
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
-        beta : weight of precision in harmonic mean.
+        beta : int or float, weight of precision in harmonic mean.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
@@ -95,6 +107,7 @@ def fbeta_score(y_true, y_pred, beta, prob=0.5, pos_label=1):
     r = recall(y_true, y_pred, prob, pos_label)
     p = precision(y_true, y_pred, prob, pos_label)
     return r*p*(1+np.power(beta, 2))/(np.power(beta, 2)*p+r)
+
 
 def f1_score(y_true, y_pred, prob=0.5, pos_label=1):
     """
@@ -108,8 +121,10 @@ def f1_score(y_true, y_pred, prob=0.5, pos_label=1):
     """
     return fbeta_score(y_true, y_pred, beta=1, prob=prob, pos_label=pos_label)
 
+
 def auc_roc(y_true, y_pred, pos_label=1):
-    """
+    """Area Under the Receiver Operating Characteristic Curve (ROC AUC)
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
@@ -127,8 +142,10 @@ def auc_roc(y_true, y_pred, pos_label=1):
     auc = (t.prob_y>t.prob_x).mean()+(t.prob_y==t.prob_x).mean()/2
     return auc
 
+
 def auc_pr(y_true, y_pred, pos_label=1):
-    """
+    """Area Under the Receiver Operating Characteristic Curve (PR AUC)
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
@@ -148,7 +165,8 @@ def auc_pr(y_true, y_pred, pos_label=1):
     auc = t.sort_values(['recall', 'precision']).drop_duplicates(['recall'], 'last').precision.mean()
     return auc
 
-def binary_crossentropy(y_true, y_pred):
+
+def crossentropy_binary(y_true, y_pred):
     """Computes the crossentropy metric between the labels and predictions.
     
     This is the crossentropy metric class to be used when there are only two label classes (0 and 1).
@@ -165,7 +183,8 @@ def binary_crossentropy(y_true, y_pred):
     t = -(np.log(t/t.sum())*y_true).mean()
     return t
 
-def categorical_crossentropy(y_true, y_pred, one_hot=False):
+
+def crossentropy_categorical(y_true, y_pred, one_hot=False):
     """Computes the crossentropy metric between the labels and predictions.
     
     This is the crossentropy metric class to be used when there are multiple label classes (2 or more). 
@@ -181,7 +200,7 @@ def categorical_crossentropy(y_true, y_pred, one_hot=False):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    assert y_pred.shape[1]==y_true.nunique(), "`y_pred` and `y_true` dim not same."
+    assert y_pred.shape[1]==np.unique(np.array(y_true)).size, "`y_pred` and `y_true` dim not same."
     t = np.exp(y_pred.T-np.max(y_pred, axis=1))
     if one_hot:
         t = -(np.log(t/np.sum(t, axis=0)).T*pd.get_dummies(y_true)).sum(axis=1).mean()
@@ -189,14 +208,16 @@ def categorical_crossentropy(y_true, y_pred, one_hot=False):
         t = -(np.log(t/np.sum(t, axis=0)).T*y_true).sum(axis=1).mean()
     return t
 
+
 def ks(y_true, y_pred, pos_label=1):
-    """
+    """Kolmogorov-Smirnov
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
         pos_label: positive label.
     Returns:
-        Ks score of the positive class in binary classification.
+        KS score of the positive class in binary classification.
     """
     t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
@@ -210,8 +231,10 @@ def ks(y_true, y_pred, pos_label=1):
     ks = (t.tpr-t.fpr).abs().max()
     return ks
 
+
 def gini(y_true, y_pred, pos_label=1):
-    """
+    """Gini Coefficient
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
@@ -227,8 +250,10 @@ def gini(y_true, y_pred, pos_label=1):
     gini = (t.label.cumsum().sum()/t.label.sum()-(t.label.count()+1)/2)/t.label.count()
     return gini
 
+
 def psi(y_true, y_pred, threshold):
-    """
+    """population stability index
+    
     Args:
         y_true: pd.Series or array or list, a feature variable.
         y_pred: pd.Series or array or list, a feature variable.
@@ -248,8 +273,10 @@ def psi(y_true, y_pred, threshold):
     psi = ((predict.prob1-predict.prob2)*np.log((predict.prob1/(predict.prob2+0.00000001)))).sum()
     return psi
 
+
 def fmi(y_true, y_pred, prob=0.5, pos_label=1):
     """
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
@@ -262,13 +289,16 @@ def fmi(y_true, y_pred, prob=0.5, pos_label=1):
     t = pd.crosstab(t.label, t.prob)
     return t.iat[1, 1]/np.sqrt((t.iat[1, 1]+t.iat[1, 0])*(t.iat[1, 1]+t.iat[0, 1]))
 
-def binary_report(y_true, y_pred, prob=0.5, pos_label=1, printable=False, printinfo='Binary Classification Report'):
-    """
+
+def report_binary(y_true, y_pred, prob=0.5, pos_label=1, printable=False):
+    """binary metrics report
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         prob: probability threshold.
         pos_label: positive label.
+        printable: bool, print report.
     Returns:
         binary report of the positive class in binary classification.
     """
@@ -291,7 +321,7 @@ def binary_report(y_true, y_pred, prob=0.5, pos_label=1, printable=False, printi
               'RMSE_prob':round(np.sqrt(np.mean(np.square((t.label-y_pred)))), 4)
              }
     if printable:
-        print("\n{}".format(printinfo))
+        print("\nBinary Classification Report")
         print("Accuracy: %.4f" % result['accuracy'])
         print("Precision: %.4f" % result['precision'])
         print("Recall: %.4f" % result['recall'])
@@ -305,13 +335,16 @@ def binary_report(y_true, y_pred, prob=0.5, pos_label=1, printable=False, printi
         print("RMSE_prob: %.4f" % result['RMSE_prob'])
     return result
 
-def top_k_categorical_accuracy(y_true, y_pred, k):
-    """
+
+def accuracy_categorical_top_k(y_true, y_pred, k):
+    """top k categorical accuracy
+    
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted probs, as returned by a classifier.
+        k: Number of top elements to look at for computing accuracy.
     Returns:
-        the fraction of correctly classified samples (float).
+        Top K categorical accuracy value.
     """
     if not isinstance(y_true[0], int):
         y_true = np.argmax(y_true, axis=1)

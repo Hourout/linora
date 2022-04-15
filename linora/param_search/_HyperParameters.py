@@ -5,7 +5,8 @@ from collections import defaultdict
 import numpy as np
 
 __all__ = ['HyperParametersRandom', 'HyperParametersGrid']
-        
+
+
 class HyperParametersRandom():
     def __init__(self):
         """Container for both a hyperparameter space, and current values."""

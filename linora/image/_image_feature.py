@@ -3,11 +3,13 @@ from math import ceil
 from itertools import product
 
 import numpy as np
+
 from linora.parallel import ProcessLoom
 from linora.image._image_util import *
 from linora.image._image_io import read_image
 
 __all__ = ['mean_std', 'lego', 'pencil_sketch']
+
 
 def mean_std(image_file, mode=True):
     """Statistical image mean and standard deviation.
@@ -44,11 +46,12 @@ def mean_std(image_file, mode=True):
             result = {'mean':round(result[0],3), 'std':round(result[1],3)}
     return result
 
+
 def lego(image, stride=15, overlay_ratio=0):
     """Generate a Lego picture.
     
     Args:
-        image: image path or PIL Image instance.
+        image: image path or PIL instance.
         stride: image stride numbers.
         overlay_ratio: display the ratio of the original image in the newly generated image.
     Returns:
@@ -106,8 +109,7 @@ def lego(image, stride=15, overlay_ratio=0):
 
     if isinstance(image, str):
         image = read_image(image)
-        if image.mode!='RGB':
-            image = color_convert(image, ColorMode.RGB)
+        image = color_convert(image, ColorMode.RGB)
     image = image.resize([ceil(image.size[0]/stride)*stride, ceil(image.size[1]/stride)*stride])
     if overlay_ratio:
         overlay = image.resize([int(image.size[0] * overlay_ratio), int(image.size[1] * overlay_ratio)])
@@ -121,18 +123,19 @@ def lego(image, stride=15, overlay_ratio=0):
         image[height - int(height * overlay_ratio):, width - int(width * overlay_ratio):, :] = overlay
     return image
 
+
 def pencil_sketch(image, delta=0.1, seed=None):
     """Adjust the pencil sketch of RGB.
     
     Args:
-        image:  An image array.
+        image:  a numpy array
         delta: if int, float, Amount to add to the pixel values.
                if list, tuple, randomly picked in the interval
                `[delta[0], delta[1])` to add to the pixel values.
                a suitable interval is [0.1, 0.5].
         seed: A Python integer. Used to create a random seed. 
     Returns:
-        A pencil_sketch-adjusted tensor of the same shape as `image`.
+        a numpy array.
     """
     if isinstance(delta, (list, tuple)):
         random_delta = np.random.uniform([], delta[0], delta[1], seed=seed)

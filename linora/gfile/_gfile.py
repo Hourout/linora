@@ -1,8 +1,9 @@
 import os
 import shutil
 
-__all__ = ['copy', 'exists', 'isdir', 'isfile', 'listdir', 'makedirs', 'remove', 'stat', 'walk',
-           'path_join', 'rename']
+__all__ = ['copy', 'exists', 'isdir', 'isfile', 'listdir', 'makedirs', 'path_join', 'remove', 'rename', 'stat', 'walk',
+           ]
+
 
 def exists(path):
     """Determines whether a path exists or not.
@@ -14,6 +15,7 @@ def exists(path):
     """
     return os.path.exists(path)
 
+
 def isdir(path):
     """Returns whether the path is a directory or not.
     
@@ -24,6 +26,7 @@ def isdir(path):
     """
     return os.path.isdir(path)
 
+
 def isfile(path):
     """Returns whether the path is a regular file or not.
     
@@ -33,6 +36,7 @@ def isfile(path):
         True, if the path is a regular file; False otherwise.
     """
     return os.path.isfile(path)
+
 
 def listdir(path, full_path=False):
     """Returns a list of entries contained within a directory.
@@ -46,6 +50,7 @@ def listdir(path, full_path=False):
     """
     return [path_join(path, i) for i in os.listdir(path)] if full_path else os.listdir(path)
 
+
 def copy(src, dst, overwrite=False):
     """Copies data from src to dst.
     
@@ -54,8 +59,8 @@ def copy(src, dst, overwrite=False):
     3.copy directory to directory. eg:'/data/A' to '/data/B'    --> exist '/data/B/A'
 
     Args:
-        src: string, name of the file whose contents need to be copied
-        dst: string, name of the file to which to copy to
+        src: string, name of the file or directory whose contents need to be copied
+        dst: string, name of the file or directory to which to copy to
         overwrite: boolean, Whether to overwrite the file if existing file.
     """
     assert exists(src), "src not exists."
@@ -73,6 +78,7 @@ def copy(src, dst, overwrite=False):
             remove(path)
             return shutil.copytree(src, path)
 
+
 def makedirs(path):
     """Creates a directory and all parent/intermediate directories.
     
@@ -81,6 +87,7 @@ def makedirs(path):
     """
     if not exists(path):
         os.makedirs(path)
+
 
 def remove(path):
     """Deletes a directory or file.
@@ -96,11 +103,12 @@ def remove(path):
         else:
             shutil.rmtree(path)
 
+
 def rename(src, dst, overwrite=False):
     """Rename or move a file / directory.
     
     Args:
-        src: string, pathname for a file.
+        src: string, pathname for a file or dir.
         dst: string, pathname to which the file needs to be moved.
         overwrite: boolean, Whether to overwrite the file if existing file.
     """
@@ -114,6 +122,7 @@ def rename(src, dst, overwrite=False):
     else:
         os.rename(src, dst)
     
+
 def stat(path):
     """Returns file or directory statistics for a given path.
     
@@ -124,11 +133,12 @@ def stat(path):
     """
     return os.stat(path)
 
-def walk(top, topdown=True, onerror=None):
+
+def walk(path, topdown=True, onerror=None):
     """Recursive directory tree generator for directories.
     
     Args:
-        top: string, a Directory name
+        path: string, a Directory name
         topdown: bool, Traverse pre order if True, post order if False.
         onerror: optional handler for errors. Should be a function, 
                  it will be called with the error as argument. 
@@ -141,7 +151,20 @@ def walk(top, topdown=True, onerror=None):
         That is, each yield looks like: (dirname, [subdirname, subdirname, ...], [filename, filename, ...]). 
         Each item is a string.
     """
-    return os.walk(top, topdown, onerror)
+    return list(os.walk(top, topdown, onerror))
+
 
 def path_join(path, *paths):
+    """
+    Join two or more pathname components, inserting '/' as needed.
+    If any component is an absolute path, all previous path components 
+    will be discarded.  An empty last part will result in a path that 
+    ends with a separator.
+    
+    Args:
+        path: file or directory
+        *paths: file or directory
+    Return:
+        a new path
+    """
     return eval(repr(os.path.join(path, *paths)).replace("\\", '/').replace("//", '/'))

@@ -9,6 +9,7 @@ import linora.gfile as gfile
 
 __all__ = ['decompress', 'compress_folder', 'compress_files']
 
+
 def decompress(file, folder=None):
     """Decompression file.
     
@@ -16,7 +17,7 @@ def decompress(file, folder=None):
         file: str, file should be file path;
         folder: str, decompression folder.
     Return:
-        folder: str, decompression folder.
+        decompression folder.
     """
     mat = file.split('.')[-1]
     if folder is None:
@@ -48,6 +49,7 @@ def decompress(file, folder=None):
         raise ValueError("`file` should be type of ['.gz', '.tar', '.tgz', '.zip', '.rar', '.bz2'].")
     return folder
 
+
 def compress_folder(folder, file):
     """Compress all files in the folder to file.
     
@@ -55,7 +57,7 @@ def compress_folder(folder, file):
         folder: str, folder should be folder path.
         file: str, compression files name.
     Return:
-        file: str, compression files name.
+        compression files name.
     """
     assert gfile.isdir(folder), '`folder` should be folder path.'
     mat = file.split('.')[-1]
@@ -77,8 +79,9 @@ def compress_folder(folder, file):
         raise ValueError("`file` should be type of ['.tar', '.zip'].")
     return file
 
+
 def compress_files(files, file):
-    """Compression files to file.
+    """Compression files or list of files to file.
     
     Args:
         files: str or list
@@ -86,7 +89,7 @@ def compress_files(files, file):
                if list, files should be file path list.
         file: str, compression files name.
     Return:
-        file: str, compression files name.
+        compression files name.
     """
     if isinstance(files, str):
         files = [files]

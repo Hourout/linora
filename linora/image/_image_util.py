@@ -5,6 +5,7 @@ from PIL import Image
 
 __all__ = ['list_images', 'ColorMode', 'color_convert', 'image_to_array', 'array_to_image']
 
+
 def list_images(directory, file_format=('jpg', 'jpeg', 'bmp', 'png', 'ppm', 'tif', 'tiff')):
     """Lists all pictures in a directory, including all subdirectories.
     
@@ -16,6 +17,7 @@ def list_images(directory, file_format=('jpg', 'jpeg', 'bmp', 'png', 'ppm', 'tif
     """
     file_format = tuple('.%s' % e for e in ((file_format,) if isinstance(file_format, str) else file_format))
     return [os.path.join(root, f) for root, _, files in os.walk(directory) for f in files if f.lower().endswith(file_format)]
+
 
 class color_mode:
     """image color type."""
@@ -43,8 +45,10 @@ class color_mode:
     BGR16 = {'mode':'BGR;16', 'description':'16-bit reversed true colour'}
     BGR24 = {'mode':'BGR;24', 'description':'24-bit reversed true colour'}
     BGR32 = {'mode':'BGR;32', 'description':'32-bit reversed true colour'}
+    grayscale = {'mode':'grayscale',  'description':'8-bit pixels, black and white'}
 
 ColorMode = color_mode()
+
 
 def color_convert(image, color_mode=ColorMode.RGB):
     """Transform image color mode.
@@ -53,30 +57,30 @@ def color_convert(image, color_mode=ColorMode.RGB):
         image: PIL Image instance.
         color_mode: Image color mode, more see api "la.image.ColorMode".
     Returns:
-        PIL Image instance.
+        PIL instance.
     Raises:
         ValueError: color_mode error.
     """
-    if color_mode == 'grayscale':
-        if image.mode not in ('L', 'I;16', 'I'):
-            image = image.convert('L')
-    elif isinstance(color_mode, dict):
-        image = image.convert(color_mode['mode'])
-    elif isinstance(color_mode, str):
-        image = image.convert(color_mode)
+    if isinstance(color_mode, dict):
+        if color_mode['mode'] == 'grayscale':
+            if image.mode not in ('L', 'I;16', 'I'):
+                image = image.convert('L')
+        else image.mode != color_mode['mode']:
+            image = image.convert(color_mode['mode'])
     else:
         raise ValueError('color_mode error.')
     return image
+
 
 def image_to_array(image, data_format='channels_last', dtype='float32'):
     """Converts a PIL Image instance to a Numpy array.
     
     Args:
-        image: PIL Image instance.
+        image: PIL instance.
         data_format: Image data format, either "channels_first" or "channels_last".
         dtype: Dtype to use for the returned array.
     Returns:
-        A 3D Numpy array.
+        A Numpy array.
     Raises:
         ValueError: if invalid `img` or `data_format` is passed.
     """
@@ -95,6 +99,7 @@ def image_to_array(image, data_format='channels_last', dtype='float32'):
         raise ValueError('Unsupported image shape: %s' % (x.shape,))
     return x
 
+
 def array_to_image(x, data_format='channels_last'):
     """Converts a 3D Numpy array to a PIL Image instance.
     
@@ -102,7 +107,7 @@ def array_to_image(x, data_format='channels_last'):
         x: Input Numpy array.
         data_format: Image data format, either "channels_first" or "channels_last".
     Returns:
-        A PIL Image instance.
+        A PIL instance.
     Raises:
         ValueError: if invalid `x` or `data_format` is passed.
     """

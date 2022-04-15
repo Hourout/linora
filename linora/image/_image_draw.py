@@ -5,36 +5,17 @@ from PIL import ImageDraw
 
 __all__ = ['draw_box', 'draw_point', 'draw_mask']
 
-def draw_box(image, boxs):
-    """Draws a polygon.
-    
-    The polygon outline consists of straight lines between the given coordinates, 
-    plus a straight line between the last and the first coordinate.
-    
-    Args:
-        image: a Image instance.
-        boxs: Sequence of either 2-tuples like [(x, y), (x, y), ...] or numeric values like [x, y, x, y, ...].
-    returns: 
-        a Image instance.
-    """
-    image2 = image.copy()
-    draw = ImageDraw.Draw(image2)
-    for i in boxs:
-        box = list(itertools.chain.from_iterable(i)) if isinstance(i[0], (list, tuple)) else i
-        color = (randint(0, 255), randint(0, 255), randint(0, 255))
-        draw.polygon(box, outline=color)
-    return image2
 
 def draw_point(image, points, size=0, color=None):
     """Draws a point.
     
     Args:
-        image: a Image instance.
+        image: a PIL instance.
         points: Sequence of either 2-tuples like [(x, y), (x, y), ...] or numeric values like [x, y, x, y, ...].
         size: point size.
         color: point color.
     returns: 
-        a Image instance.
+        a PIL instance.
     """
     image2 = image.copy()
     draw = ImageDraw.Draw(image2)
@@ -48,17 +29,18 @@ def draw_point(image, points, size=0, color=None):
             draw.point(axis, color)
     return image2
 
+
 def draw_mask(image, size, max_num, random=False, color=None):
     """Draws a mask.
     
     Args:
-        image: a Image instance.
-        size: mask size.
-        max_num: max mask number.
-        random: Whether the mask position is random.
+        image: a PIL instance.
+        size: list or tuple, mask size, [height, width].
+        max_num: int, max mask number.
+        random: bool, whether the mask position is random.
         color: mask color.
     returns: 
-        a Image instance.
+        a PIL instance.
     """
     image2 = image.copy()
     draw = ImageDraw.Draw(image2)
@@ -78,4 +60,25 @@ def draw_mask(image, size, max_num, random=False, color=None):
                 axis = [width_pix*(i+1)+size[1]*i, height_pix*(j+1)+size[0]*j, 
                         width_pix*(i+1)+size[1]*(i+1), height_pix*(j+1)+size[0]*(j+1)]
                 draw.rectangle(axis, fill=color, width=0)
+    return image2
+
+
+def draw_box(image, boxs):
+    """Draws a polygon.
+    
+    The polygon outline consists of straight lines between the given coordinates, 
+    plus a straight line between the last and the first coordinate.
+    
+    Args:
+        image: a PIL instance.
+        boxs: Sequence of either 2-tuples like [(x, y), (x, y), ...] or numeric values like [x, y, x, y, ...].
+    returns: 
+        a PIL instance.
+    """
+    image2 = image.copy()
+    draw = ImageDraw.Draw(image2)
+    for i in boxs:
+        box = list(itertools.chain.from_iterable(i)) if isinstance(i[0], (list, tuple)) else i
+        color = (randint(0, 255), randint(0, 255), randint(0, 255))
+        draw.polygon(box, outline=color)
     return image2

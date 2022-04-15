@@ -3,6 +3,7 @@ import numpy as np
 __all__ = ['normalize_meanminmax', 'normalize_minmax', 'normalize_maxabs', 'normalize_max',
            'normalize_l1', 'normalize_l2', 'normalize_norm', 'normalize_robust']
 
+
 def normalize_meanminmax(feature, feature_scale=None):
     """normalize feature with meanminmax method.
     
@@ -12,9 +13,10 @@ def normalize_meanminmax(feature, feature_scale=None):
     Returns:
         normalize feature and feature_scale.
     """
-    scale = feature_scale if feature_scale is not None else (feature.mean(), feature.min(), feature.max())
+    scale = feature_scale if feature_scale is not None else [feature.mean(), feature.min(), feature.max()]
     t = (feature-scale[0])/(scale[2]-scale[1])
     return t, scale
+
 
 def normalize_minmax(feature, feature_range=(0, 1), feature_scale=None):
     """normalize feature with minmax method.
@@ -26,9 +28,10 @@ def normalize_minmax(feature, feature_range=(0, 1), feature_scale=None):
     Returns:
         normalize feature and feature_scale.
     """
-    scale = feature_scale if feature_scale is not None else (feature.min(), feature.max())
+    scale = feature_scale if feature_scale is not None else [feature.min(), feature.max()]
     t = (feature-scale[0])/(scale[1]-scale[0])*(feature_range[1]-feature_range[0])+feature_range[0]
     return t, scale
+
 
 def normalize_maxabs(feature, feature_scale=None):
     """normalize feature with maxabs method.
@@ -43,6 +46,7 @@ def normalize_maxabs(feature, feature_scale=None):
     t = feature/scale
     return t, scale
 
+
 def normalize_max(feature, feature_scale=None):
     """normalize feature with max method.
     
@@ -55,6 +59,7 @@ def normalize_max(feature, feature_scale=None):
     scale = feature_scale if feature_scale is not None else feature.max()
     t = feature/scale
     return t, scale
+
 
 def normalize_l1(feature, feature_scale=None):
     """normalize feature with l1 method.
@@ -69,6 +74,7 @@ def normalize_l1(feature, feature_scale=None):
     t = feature/scale
     return t, scale
 
+
 def normalize_l2(feature, feature_scale=None):
     """normalize feature with l2 method.
     
@@ -82,6 +88,7 @@ def normalize_l2(feature, feature_scale=None):
     t = feature/scale
     return t, scale
 
+
 def normalize_norm(feature, feature_scale=None):
     """normalize feature with norm method.
     
@@ -91,9 +98,10 @@ def normalize_norm(feature, feature_scale=None):
     Returns:
         normalize feature and feature_scale.
     """
-    scale = feature_scale if feature_scale is not None else (feature.mean(), feature.std())
+    scale = feature_scale if feature_scale is not None else [feature.mean(), feature.std()]
     t = (feature-scale[0])/scale[1]
     return t, scale
+
 
 def normalize_robust(feature, feature_scale=(None, 0.5)):
     """normalize feature with robust method.
@@ -107,8 +115,8 @@ def normalize_robust(feature, feature_scale=(None, 0.5)):
         normalize feature and feature_scale.
     """
     if feature_scale[0] is not None:
-        scale = (feature_scale[0], feature.quantile(0.5+feature_scale[1]/2)-feature.quantile(0.5-feature_scale[1]/2))
+        scale = [feature_scale[0], feature.quantile(0.5+feature_scale[1]/2)-feature.quantile(0.5-feature_scale[1]/2)]
     else:
-        scale = (feature.median(), feature.quantile(0.75)-feature.quantile(0.25))
+        scale = [feature.median(), feature.quantile(0.75)-feature.quantile(0.25)]
     t = (feature-scale[0])/scale[1]
     return t, scale

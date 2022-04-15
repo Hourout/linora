@@ -9,9 +9,9 @@ class ImageIoAug(object):
     def read_image(self, filename):
         """
         Args:
-            filename: str, image absolute path.
+            filename: str, image absolute path, or io.BytesIO stream to image file.
         Returns:
-            a Image instance.
+            a PIL instance.
         """
         self.image = read_image(filename)
         return self
@@ -20,7 +20,7 @@ class ImageIoAug(object):
         """Saves an image stored as a Numpy array to a path or file object.
         Args
             filename: Path or file object.
-            image: A PIL Image instance.
+            image: A PIL instance.
             file_format: Optional file format override. If omitted, the
                 format to use is determined from the filename extension.
                 If a file object was used instead of a filename, this
@@ -33,10 +33,10 @@ class ImageIoAug(object):
         """Transform image color mode
 
         Args
-            img: PIL Image instance.
+            img: PIL instance.
             color_mode: Image color mode, more see la.image.ColorMode
         Returns
-            PIL Image instance.
+            PIL instance.
         Raises
             ValueError: color_mode error.
         """
@@ -47,12 +47,12 @@ class ImageIoAug(object):
         """Converts a PIL Image instance to a Numpy array.
         
         Args
-            img: PIL Image instance.
+            img: PIL instance.
             data_format: Image data format,
                 either "channels_first" or "channels_last".
             dtype: Dtype to use for the returned array.
         Returns
-            A 3D Numpy array.
+            A Numpy array.
         Raises
             ValueError: if invalid `img` or `data_format` is passed.
         """
@@ -66,7 +66,7 @@ class ImageIoAug(object):
             data_format: Image data format, either "channels_first" or "channels_last".
                 Default: "channels_last".
         Returns
-            A PIL Image instance.
+            A PIL instance.
         Raises
             ValueError: if invalid `x` or `data_format` is passed.
         """

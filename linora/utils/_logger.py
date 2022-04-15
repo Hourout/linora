@@ -5,6 +5,7 @@ import time
 
 __all__ = ['Logger']
 
+
 class Params:
     log_colors = {
         'bebug': 'purple',
@@ -40,6 +41,7 @@ class Params:
     write_file_mode = 0
     overwrite=False
     last_msg = ''
+    
     
 class Logger():
     def __init__(self, name="", level="INFO", log_file='', write_file_mode=0, overwrite=False, stream='stderr'):

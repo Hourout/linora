@@ -118,6 +118,6 @@ class DataSet():
         if 'map' not in self.params.rank:
             self.params.rank['map'] = len(self.params.rank)+1
         self.params.map_func = map_func
-        self.params.num_parallel_calls = num_parallel_calls
-        self.params.deterministic = deterministic
+#         self.params.num_parallel_calls = num_parallel_calls
+#         self.params.deterministic = deterministic
         return self
