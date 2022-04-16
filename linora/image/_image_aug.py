@@ -9,9 +9,15 @@ from linora.image._image_filter_aug import ImageFilterAug
 
 __all__ = ['ImageAug']
 
+
 class ImageAug(ImageIoAug, ImageColorAug, ImageNoiseAug, ImageResizeAug, 
                ImageRescaleAug, ImagePositionAug, ImageCropAug, 
                ImageFilterAug
               ):
+    """General class of image enhancement, which is used for pipeline image processing
+    
+    Args:
+        image: a PIL instance.
+    """
     def __init__(self, image=None):
         super(ImageAug, self).__init__(image)

@@ -63,7 +63,7 @@ def draw_mask(image, size, max_num, random=False, color=None):
     return image2
 
 
-def draw_box(image, boxs):
+def draw_box(image, boxs, fill_color=None, line_color=None):
     """Draws a polygon.
     
     The polygon outline consists of straight lines between the given coordinates, 
@@ -71,14 +71,49 @@ def draw_box(image, boxs):
     
     Args:
         image: a PIL instance.
-        boxs: Sequence of either 2-tuples like [(x, y), (x, y), ...] or numeric values like [x, y, x, y, ...].
+        boxs: If it is a single sample, like [(x1, y1), (x2, y2), ...] or like [x1, y1, x2, y2, ...].
+              If there are multiple samples, like [[(x1, y1), (x2, y2), ...]] or like [[x1, y1, x2, y2, ...]].
+              special, like [(x1, y1), (x2, y2)] or like [x1, y1, x2, y2], draw a rectangle from the top left to the bottom right.
+              special, like [x,y], or like [[x,y]], Translate into [x, x, y, y], draw a rectangle from the top left to the bottom right.
+        fill_color: str or tuple or la.image.RGBMode, rgb color, box fill color.
+        line_color: str or tuple or la.image.RGBMode, rgb color, box line color.
     returns: 
         a PIL instance.
     """
     image2 = image.copy()
     draw = ImageDraw.Draw(image2)
+    if isinstance(boxs[0], (int, float)):
+        if len(boxs)==2:
+            boxs = [[min(boxs), min(boxs), min(boxs), max(boxs), max(boxs), max(boxs), max(boxs), min(boxs)]]
+        elif len(boxs)==4:
+            boxs = [[min(boxs[0], boxs[2]), min(boxs[1], boxs[3]), max(boxs[0], boxs[2]), min(boxs[1], boxs[3]),
+                     max(boxs[0], boxs[2]), max(boxs[1], boxs[3]), min(boxs[0], boxs[2]), max(boxs[1], boxs[3])]]
+        elif len(boxs)%2 == 0:
+            boxs = [boxs]
+        else:
+            raise ValueError('boxs axis error')
+    elif isinstance(boxs[0], (list, tuple)):
+        if len(boxs)==1 and len(boxs[0])==2 and isinstance(boxs[0][0], (int, float)):
+            boxs = [[min(boxs[0]), min(boxs[0]), min(boxs[0]), max(boxs[0]), max(boxs[0]), max(boxs[0]), max(boxs[0]), min(boxs[0])]]
+        elif len(boxs)==2 and len(boxs[0])==2:
+            boxs = [boxs[0][0], boxs[0][1], boxs[1][0], boxs[1][1]]
+            boxs = [[min(boxs[0], boxs[2]), min(boxs[1], boxs[3]), max(boxs[0], boxs[2]), min(boxs[1], boxs[3]),
+                     max(boxs[0], boxs[2]), max(boxs[1], boxs[3]), min(boxs[0], boxs[2]), max(boxs[1], boxs[3])]]
+        elif len(boxs)>2 and len(boxs[0])==2:
+            boxs = [[j for i in boxs for j in i]]
+        else:
+            boxs = [list(itertools.chain.from_iterable(i)) if isinstance(i[0], (list, tuple)) else i for i in boxs]
+            for i in boxs:
+                if len(i)%2 != 0 or len(i)<6:
+                    raise ValueError('boxs axis error')
+    else:
+            raise ValueError('boxs axis error')
     for i in boxs:
-        box = list(itertools.chain.from_iterable(i)) if isinstance(i[0], (list, tuple)) else i
-        color = (randint(0, 255), randint(0, 255), randint(0, 255))
-        draw.polygon(box, outline=color)
+        if line_color is None:
+            line_color = (randint(0, 255), randint(0, 255), randint(0, 255))
+        elif isinstance(line_color, dict):
+            line_color = line_color['mode']
+        if isinstance(fill_color, dict):
+            fill_color = fill_color['mode']
+        draw.polygon(i, fill=fill_color, outline=line_color)
     return image2

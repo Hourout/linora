@@ -1,6 +1,6 @@
 from PIL import Image
 
-__all__ = ['ResizeMethod', 'resize']
+__all__ = ['ResizeMode', 'resize']
 
 
 class resize_method:
@@ -29,20 +29,20 @@ class resize_method:
     BICUBIC = Image.BICUBIC
     LANCZOS = Image.LANCZOS
     
-ResizeMethod = resize_method()
+ResizeMode = resize_method()
 
 
-def resize(image, size, method=ResizeMethod.BILINEAR):
+def resize(image, size, method=ResizeMode.BILINEAR):
     """Returns a resized copy of this image.
     
     Args:
         image: a PIL instance.
         size: The requested size in pixels, as a 2-tuple: (width, height).
-        method: An optional resampling filter. see la.image.ResizeMethod.
+        method: An optional resampling filter. see la.image.ResizeMode.
     
     Returns:
         a PIL instance.
     """
-    if image.mode in ['1', 'P'] and method!=ResizeMethod.NEAREST:
-        method = ResizeMethod.NEAREST
+    if image.mode in ['1', 'P'] and method!=ResizeMode.NEAREST:
+        method = ResizeMode.NEAREST
     return image.resize(size, resample=method)
