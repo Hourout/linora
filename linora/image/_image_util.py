@@ -65,7 +65,7 @@ def color_convert(image, color_mode=ColorMode.RGB):
         if color_mode['mode'] == 'grayscale':
             if image.mode not in ('L', 'I;16', 'I'):
                 image = image.convert('L')
-        else image.mode != color_mode['mode']:
+        elif image.mode != color_mode['mode']:
             image = image.convert(color_mode['mode'])
     else:
         raise ValueError('color_mode error.')
