@@ -1,8 +1,11 @@
+import math
+
 import numpy as np
 import pandas as pd
 
 __all__ = ['euclidean', 'manhattan', 'chebyshev', 'minkowski', 'hamming',
-           'jaccard', 'pearson', 'cosine', 'levenshtein'
+           'jaccard', 'pearson', 'cosine', 'levenshtein',
+           'dice', 'ochiia', 'braycurtis', 'geodesic', 'canberra', 'hausdorff', 'chisquare', 'hellinger', 'bhattacharyya'
           ]
 
 
@@ -141,3 +144,135 @@ def levenshtein(x, y, normalize=False):
             return (b[-1] / len(s1))
         return b[-1]
     return pd.DataFrame({'label1':x, 'label2':y}).apply(lambda x:levenshtein1(x[0], x[1], normalize=normalize), axis=1).sum()
+
+
+def canberra(x, y):
+    """canberra distance.
+    
+    Args:
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+    Returns:
+        canberra distance value.
+    """
+    assert len(x)==len(y), 'x shape should be same with y.'
+    x = pd.Series(x)
+    y = pd.Series(y)
+    return ((x-y)/(x.abs()+y.abs())).sum()
+
+
+def geodesic(x, y):
+    """Calculation of latitude and longitude distance by haversine formula.
+    
+    Args:
+        x: list or tuple, Longitude and latitude coordinates, [latitude, longitude]
+        y: list or tuple, Longitude and latitude coordinates, [latitude, longitude]
+    Return:
+        Longitude and latitude distance, unit is 'km'.
+    """
+    lat0 = math.radians(x[0])
+    lat1 = math.radians(y[0])
+    lng0 = math.radians(x[1])
+    lng1 = math.radians(y[1])
+    h = math.sin(math.fabs(lat0 - lat1)/2)**2 + math.cos(lat0) * math.cos(lat1) * math.sin(math.fabs(lng0 - lng1)/2)**2
+    return 2 * 6371.393 * math.asin(math.sqrt(h))
+
+
+def braycurtis(x, y):
+    """braycurtis distance.
+    
+    Args:
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+    Returns:
+        braycurtis distance value.
+    """
+    x = np.array(x)
+    y = np.array(y)
+    return np.sum(np.abs(x-y))/(np.sum(x)+np.sum(y))
+
+
+def ochiia(x, y):
+    """ochiia distance.
+    
+    Args:
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+    Returns:
+        ochiia distance value.
+    """
+    return 1 - len(set(x).intersection(set(y)))/np.sqrt(len(set(x))*len(set(y)))
+
+
+def dice(x, y):
+    """dice distance.
+    
+    Args:
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+    Returns:
+        dice distance value.
+    """
+    return 1 - 2*len(set(x).intersection(set(y)))/(len(set(x))+len(set(y)))
+
+
+def hausdorff(x, y, method=None):
+    """canberra distance.
+    
+    Args:
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+        method: distance method, default la.metrics.distance.euclidean, 
+            see la.metrics.distance, Some methods are effective.
+    Returns:
+        canberra distance value.
+    """
+    x = np.array(x)
+    y = np.array(y)
+    if method is None:
+        method = euclidean
+    fhd = max([min([method(i, j) for j in y]) for i in x])
+    rhd = max([min([method(i, j) for j in x]) for i in y])
+    return max(fhd,rhd)
+
+
+def chisquare(x, y):
+    """chi square distance.
+    
+    Args:
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+    Returns:
+        chi square distance value.
+    """
+    x = np.asarray(x, np.int32)
+    y = np.asarray(y, np.int32)
+    value = np.square(x-y)
+    y[np.where(y==0)] = 1
+    return np.sum(value/y)
+
+
+def hellinger(x, y):
+    """hellinger distance.
+    
+    Args:
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+    Returns:
+        hellinger distance value.
+    """
+    return 1/np.sqrt(2)*np.linalg.norm(np.sqrt(x)-np.sqrt(y))
+
+
+def bhattacharyya(x, y):
+    """bhattacharyya distance.
+    
+    Args:
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+    Returns:
+        bhattacharyya distance value.
+    """
+    x = np.array(x)
+    y = np.array(y)
+    return np.log(np.sum(np.sqrt(x * y)))

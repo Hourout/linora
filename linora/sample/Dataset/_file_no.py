@@ -27,7 +27,7 @@ class file_no(DataSet):
             self.params.data_index = self.params.data_index.to_series().sample(frac=1, random_state=self.params.shuffle_seed).tolist()
             
     def _skip(self):
-        self.params.data_index = self.params.data_index[self.params.skip:] if self.params.skip != -1 else []
+        self.params.data_index = self.params.data_index[self.params.skip:]
         
     def _take(self):
         self.params.data_index = self.params.data_index[:self.params.take] if self.params.take != -1 else self.params.data_index

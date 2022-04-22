@@ -22,12 +22,12 @@ class resize_method:
     LANCZOS: Calculate the output pixel value using a high-quality Lanczos filter (a truncated sinc) 
              on all pixels that may contribute to the output value.
     """
-    NEAREST = Image.NEAREST
-    BOX = Image.BOX
-    BILINEAR = Image.BILINEAR
-    HAMMING = Image.HAMMING
-    BICUBIC = Image.BICUBIC
-    LANCZOS = Image.LANCZOS
+    NEAREST = Image.Resampling.NEAREST
+    BOX = Image.Resampling.BOX
+    BILINEAR = Image.Resampling.BILINEAR
+    HAMMING = Image.Resampling.HAMMING
+    BICUBIC = Image.Resampling.BICUBIC
+    LANCZOS = Image.Resampling.LANCZOS
     
 ResizeMode = resize_method()
 

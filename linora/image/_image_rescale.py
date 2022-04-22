@@ -1,6 +1,29 @@
+from PIL import ImageOps
+
 import numpy as np
 
-__all__ = ['normalize_global', 'normalize_channel', 'rescale']
+__all__ = ['rescale', 'normalize_global', 'normalize_channel', 'normalize_posterize']
+
+
+def rescale(image, scale):
+    """Rescale apply to image.
+    
+    new pixel = image * scale
+    Args:
+        image: a PIL instance.
+        scale: if int or float, value multiply with image.
+               if tuple or list, randomly picked in the interval
+               `[central_rate[0], central_rate[1])`, value multiply with image.
+    Returns:
+        a PIL instance.
+    Raises:
+        scale type error.
+    """
+    if isinstance(scale, (tuple, list)):
+        scale = np.random.uniform(scale[0], scale[1])
+    elif not isinstance(scale, (int, float)):
+        raise ValueError('scale type should be one of int, float, tuple, list.')
+    return image.point(lambda i: i*scale)
 
 
 def normalize_global(image, mean=None, std=None):
@@ -59,22 +82,17 @@ def normalize_channel(image, mean=None, std=None):
     return (image-mean)/std
 
 
-def rescale(image, scale):
-    """Rescale apply to image.
+def normalize_posterize(image, bits):
+    """Reduce the number of bits for each color channel.
     
-    new pixel = image * scale
+    There are up to 2**bits types of pixel values per channel.
     Args:
         image: a PIL instance.
-        scale: if int or float, value multiply with image.
-               if tuple or list, randomly picked in the interval
-               `[central_rate[0], central_rate[1])`, value multiply with image.
+        bits: int or tuple or list, The number of bits to keep for each channel (1-8).
+              if list or tuple, randomly picked in the interval `[bits[0], bits[1])` value.
     Returns:
-        a PIL instance.
-    Raises:
-        scale type error.
+        A PIL instance.
     """
-    if isinstance(scale, (tuple, list)):
-        scale = np.random.uniform(scale[0], scale[1])
-    elif not isinstance(scale, (int, float)):
-        raise ValueError('scale type should be one of int, float, tuple, list.')
-    return image.point(lambda i: i*scale)
+    if isinstance(bits, (list, tuple)):
+        bits = np.random.randint(bits[0], bits[1])
+    return ImageOps.posterize(image, bits)

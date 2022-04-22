@@ -8,7 +8,7 @@ from linora.parallel import ProcessLoom
 from linora.image._image_util import *
 from linora.image._image_io import read_image
 
-__all__ = ['mean_std', 'lego', 'pencil_sketch']
+__all__ = ['mean_std', 'lego', 'pencil_sketch', 'histogram']
 
 
 def mean_std(image_file, mode=True):
@@ -158,3 +158,33 @@ def pencil_sketch(image, delta=0.1, seed=None):
 
     b = np.clip(255.*(dx*uni_x + dy*uni_y + dz*uni_z), 0., 255.)
     return b
+
+
+def histogram(image, if_global=False, if_prob=False):
+    """Returns a histogram for the image. 
+    
+    The histogram is returned as a list of pixel counts, one for each pixel value in the source image. 
+    Counts are grouped into 256 bins for each band, even if the image has more than 8 bits per band. 
+    If the image has more than one band, the histograms for all bands are concatenated.
+    For example, the histogram for an “RGB” image contains 768 values.
+    
+    Args:
+        image: a PIL instance.
+        if_global: bool, Whether to merge all channels into statistics.
+        if_prob: bool, Whether to convert frequency histogram to probability histogram.
+    Returns:
+        a list of histograms.
+    """
+    t = image.histogram()
+    if len(t)>256:
+        t = [t[i*256:(i+1)*256] for i in range(len(t)//256)]
+        if if_global:
+            t = [sum([j[i] for j in t]) for i in range(256)]
+    if if_prob:
+        if len(t)==256:
+            s = sum(t)
+            t = [i/s for i in t]
+        else:
+            s = [sum(i) for i in t]
+            t = [[k/j for k in i] for i,j in zip(t, s)]
+    return t

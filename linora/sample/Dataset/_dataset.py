@@ -47,6 +47,7 @@ class DataSet():
         Returns:
             A Dataset.
         """
+        assert isinstance(count, int) and count>0, '`count` type should be int and greater than 0'
         if 'repeat' not in self.params.rank:
             self.params.rank['repeat'] = len(self.params.rank)+1
         self.params.repeat_size = count
@@ -75,6 +76,7 @@ class DataSet():
         Returns:
             A Dataset.
         """
+        assert isinstance(count, int) and count>0, '`count` type should be int and greater than 0'
         if 'skip' not in self.params.rank:
             self.params.rank['skip'] = len(self.params.rank)+1
         self.params.skip = count

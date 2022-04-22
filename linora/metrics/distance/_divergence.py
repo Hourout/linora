@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 
-__all__ = ['divergence_kl', 'divergence_js', 
-           'mutual_information_rate', 'pointwise_mutual_information_rate'
+__all__ = ['divergence_kl', 'divergence_js', 'divergence_F',
+           'mutual_information', 'mutual_information_rate', 
+           'pointwise_mutual_information', 'pointwise_mutual_information_rate'
           ]
 
 
@@ -54,6 +55,23 @@ def divergence_js(x, y, continuous=False, bucket_num=1000):
     t1 = np.sum(np.log((t.prob_x+0.00001)/(t.prob_m+0.00001))*t.prob_x)
     t2 = np.sum(np.log((t.prob_y+0.00001)/(t.prob_m+0.00001))*t.prob_y)
     return 0.5*(t1+t2)
+
+
+def divergence_F(x, y):
+    """F divergence.
+    
+    Args:
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+    Returns:
+        F divergence value.
+    """
+    x = np.array(x)
+    y = np.array(y)
+    value = y*x
+    x[np.where(x==0)] = 1
+    y[np.where(y==0)] = 1
+    return np.sum(value/y*np.log(x/y))
 
 
 def mutual_information(feature1, feature2):

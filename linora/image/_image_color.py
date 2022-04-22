@@ -5,7 +5,7 @@ from PIL import ImageEnhance, ImageOps
 
 __all__ = ['enhance_color', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
            'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
-           'color_invert', 'equalize'
+           'color_invert', 'equalize', 'rgb_hex
           ]
 
 
@@ -107,15 +107,21 @@ def enhance_sharpness(image, delta):
     return ImageEnhance.Sharpness(image).enhance(delta)
 
 
-def color_invert(image):
+def color_invert(image, threshold=0):
     """Invert colors of input PIL image.
+    
+    Pixels with values less than threshold are not inverted.
 
     Args:
         image: a PIL instance.
+        threshold: int or list or tuple, [0, 255], All pixels above this greyscale level are inverted.
+                if list or tuple, randomly picked in the interval `[threshold[0], threshold[1])`
     Returns:
         a PIL instance.
     """
-    return ImageOps.invert(image)
+    if isinstance(threshold, (list, tuple)):
+        threshold = np.random.randint(threshold[0], threshold[1])
+    return ImageOps.solarize(image, threshold=threshold)
 
 
 def equalize(image):
@@ -230,3 +236,18 @@ def yiq_to_rgb(image, normalize=False, dtype='float32'):
     r, g, b = to_rgb(y, i, q)
     return (np.stack((r, g, b), axis=2)*norm).astype(dtype)
 
+
+def rgb_hex(color):
+    """rgb to hexadecimal or hexadecimal to rgb.
+    
+    Args:
+        color: str or list or tuple, if str, is hexadecimal; if list or tuple, is rgb value.
+    return:
+        if str, return rgb value; if list or tuple, return hexadecimal.
+    """
+    if isinstance(color, str):
+        if len(color)==7 and color[0]=='#':
+            return (int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16))
+    if isinstance(color, (list, tuple)):
+        return '#'+''.join([str(hex(i))[-2:].replace('x', '0').upper() for i in color])
+    raise ValueError('`color` value error, should be str or list or tuple.')

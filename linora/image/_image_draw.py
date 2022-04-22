@@ -3,7 +3,7 @@ from random import randint
 
 from PIL import ImageDraw
 
-__all__ = ['draw_box', 'draw_point', 'draw_mask']
+__all__ = ['draw_box', 'draw_point', 'draw_mask', 'draw_line']
 
 
 def draw_point(image, points, size=0, color=None):
@@ -13,7 +13,7 @@ def draw_point(image, points, size=0, color=None):
         image: a PIL instance.
         points: Sequence of either 2-tuples like [(x, y), (x, y), ...] or numeric values like [x, y, x, y, ...].
         size: point size.
-        color: point color.
+        color: str or tuple or la.image.RGBMode, rgb color, point color.
     returns: 
         a PIL instance.
     """
@@ -24,9 +24,12 @@ def draw_point(image, points, size=0, color=None):
         axis = list(itertools.product(range(int(point[i*2]-size), int(point[i*2]+size+1)), 
                                       range(int(point[i*2+1]-size), int(point[i*2+1]+size+1))))
         if color is None:
-            draw.point(axis, (randint(0, 255), randint(0, 255), randint(0, 255)))
+            color1 = (randint(0, 255), randint(0, 255), randint(0, 255))
+        elif isinstance(color, dict):
+            color1 = color['mode']
         else:
-            draw.point(axis, color)
+            color1 = color
+        draw.point(axis, color1)
     return image2
 
 
@@ -38,18 +41,23 @@ def draw_mask(image, size, max_num, random=False, color=None):
         size: list or tuple, mask size, [height, width].
         max_num: int, max mask number.
         random: bool, whether the mask position is random.
-        color: mask color.
+        color: str or tuple or la.image.RGBMode, rgb color, mask fill color.
     returns: 
         a PIL instance.
     """
     image2 = image.copy()
     draw = ImageDraw.Draw(image2)
-    color = (randint(0, 255), randint(0, 255), randint(0, 255)) if color is None else color
     if random:
         for i in range(max_num):
             axis = (randint(0, image.width-size[1]), randint(0, image.height-size[0]))
             axis = [axis, (axis[0]+size[1], axis[1]+size[0])]
-            draw.rectangle(axis, fill=color, width=0)
+            if color is None:
+                color1 = (randint(0, 255), randint(0, 255), randint(0, 255))
+            elif isinstance(color, dict):
+                color1 = color['mode']
+            else:
+                color1 = color
+            draw.rectangle(axis, fill=color1, width=0)
     else:
         width_num = min(int(image.width/size[1]*0.6), int(max_num**0.5))
         height_num = min(int(max_num/width_num), int(image.height/size[0]*0.6))
@@ -59,11 +67,17 @@ def draw_mask(image, size, max_num, random=False, color=None):
             for j in range(height_num):
                 axis = [width_pix*(i+1)+size[1]*i, height_pix*(j+1)+size[0]*j, 
                         width_pix*(i+1)+size[1]*(i+1), height_pix*(j+1)+size[0]*(j+1)]
-                draw.rectangle(axis, fill=color, width=0)
+                if color is None:
+                    color1 = (randint(0, 255), randint(0, 255), randint(0, 255))
+                elif isinstance(color, dict):
+                    color1 = color['mode']
+                else:
+                    color1 = color
+                draw.rectangle(axis, fill=color1, width=0)
     return image2
 
 
-def draw_box(image, boxs, fill_color=None, line_color=None):
+def draw_box(image, boxs, fill_color=None, line_color=None, width=1):
     """Draws a polygon.
     
     The polygon outline consists of straight lines between the given coordinates, 
@@ -77,6 +91,7 @@ def draw_box(image, boxs, fill_color=None, line_color=None):
               special, like [x,y], or like [[x,y]], Translate into [x, x, y, y], draw a rectangle from the top left to the bottom right.
         fill_color: str or tuple or la.image.RGBMode, rgb color, box fill color.
         line_color: str or tuple or la.image.RGBMode, rgb color, box line color.
+        width: box line width.
     returns: 
         a PIL instance.
     """
@@ -110,10 +125,38 @@ def draw_box(image, boxs, fill_color=None, line_color=None):
             raise ValueError('boxs axis error')
     for i in boxs:
         if line_color is None:
-            line_color = (randint(0, 255), randint(0, 255), randint(0, 255))
+            line_color1 = (randint(0, 255), randint(0, 255), randint(0, 255))
         elif isinstance(line_color, dict):
-            line_color = line_color['mode']
+            line_color1 = line_color['mode']
+        else:
+            line_color1 = line_color
         if isinstance(fill_color, dict):
             fill_color = fill_color['mode']
-        draw.polygon(i, fill=fill_color, outline=line_color)
+        draw.polygon(i, fill=fill_color, outline=line_color1, width=width)
+    return image2
+
+
+def draw_line(image, axis, width=1, color=None):
+    """Draws a line.
+    
+    Args:
+        image: a PIL instance.
+        axis: Sequence of either 2-tuples like [(x, y), (x, y), ...] or numeric values like [x, y, x, y, ...].
+        width: int, the line width, in pixels.
+        color: str or tuple or la.image.RGBMode, rgb color, line color.
+    returns: 
+        a PIL instance.
+    """
+    image2 = image.copy()
+    draw = ImageDraw.Draw(image2)
+    axis = list(itertools.chain.from_iterable(axis)) if isinstance(axis[0], (list, tuple)) else axis
+    for i in range(int(len(axis)/2-1)):
+        line = [axis[i*2], axis[i*2+1], axis[i*2+2], axis[i*2+3]]
+        if color is None:
+            color1 = (randint(0, 255), randint(0, 255), randint(0, 255))
+        elif isinstance(color, dict):
+            color1 = color['mode']
+        else:
+            color1 = color
+        draw.line(line, fill=color1, width=width)
     return image2
