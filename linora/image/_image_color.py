@@ -5,7 +5,7 @@ from PIL import ImageEnhance, ImageOps
 
 __all__ = ['enhance_color', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
            'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
-           'color_invert', 'equalize', 'rgb_hex
+           'color_invert', 'equalize', 'rgb_hex'
           ]
 
 
