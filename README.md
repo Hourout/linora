@@ -21,7 +21,7 @@ To install [this verson from PyPI](https://pypi.org/project/linora/), type:
 pip install linora -U
 ```
 
-To get the newest one from this repo (note that we are in the alpha stage, so there may be frequent updates), type:
+To get the newest one from this repo (note there may be frequent updates), type:
 
 ```
 pip install git+https://github.com/Hourout/linora.git

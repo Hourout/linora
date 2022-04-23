@@ -65,8 +65,9 @@ class Logger():
         self.params.write_file_mode = write_file_mode
         self.params.overwrite = overwrite
         self.params.stream = stream
-        self.params.time = time.time()
-        self.params.time_start = self.params.time
+        self.params.time_last = time.time()
+        self.params.time_start = self.params.time_last
+        self.params.time_stage = self.params.time_last
         self.update_log_file(log_file)
             
     def log(self, level, msg, write_file, enter, time_mode, close):
@@ -84,12 +85,20 @@ class Logger():
             return 
         
         time_now = time.time()
-        end = time_now-self.params.time_start if time_mode else time_now-self.params.time
-        self.params.time = time_now
-        if end < 60:
+        if time_mode:
+            end = time_now-self.params.time_start
+        elif enter:
+            end = time_now-self.params.time_stage
+            self.params.time_stage = time_now
+        else:
+            end = time_now-self.params.time_last
+        self.params.time_last = time_now
+        if end < 1:
+            msg = f'[{end*1000:.0f} ms]: ' + msg
+        elif end < 60:
             msg = f'[{end:.2f} sec]: ' + msg
         elif end < 3600:
-            msg = "[%d min %.2f s]: " % divmod(end, 60) + msg
+            msg = "[%d min %.0f s]: " % divmod(end, 60) + msg
         else:
             msg = f"[{end // 3600:.0f} hour %d min %.0f s]: " % divmod(end % 3600, 60) + msg
         msg = (f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time_now))}]" +
