@@ -14,7 +14,7 @@ class file_no(DataSet):
         super(file_no, self).__init__()
         
     def _repeat(self):
-        self.params.data_index = self.params.data_index.append([self.params.data_index for i in range(self.params.repeat_size)])
+        self.params.data_index = self.params.data_index*(self.params.repeat_size+1)
         
     def _shuffle(self):
         if isinstance(self.params.data_index, list):
@@ -23,14 +23,15 @@ class file_no(DataSet):
             t = [self.params.data_index[self.params.shuffle_size*i:self.params.shuffle_size*(i+1)].to_list() for i in range(len(self.params.data_index)//self.params.shuffle_size+1)]
             [random.shuffle(i, random=lambda :(self.params.shuffle_seed+self.params.batch)%100/100) for i in t]
             self.params.data_index = list(itertools.chain.from_iterable(t))
-        elif self.params.shuffle_size == -1:
+        else:
             self.params.data_index = self.params.data_index.to_series().sample(frac=1, random_state=self.params.shuffle_seed).tolist()
             
     def _skip(self):
         self.params.data_index = self.params.data_index[self.params.skip:]
         
     def _take(self):
-        self.params.data_index = self.params.data_index[:self.params.take] if self.params.take != -1 else self.params.data_index
+        if self.params.take != -1:
+            self.params.data_index = self.params.data_index[:self.params.take]
     
     def _shard(self):
         self.params.data_index = [self.params.data_index[i] for i in range(self.params.shard_index, len(self.params.data_index), self.params.shard_step)]
@@ -54,15 +55,15 @@ class file_no(DataSet):
             if self.params.rank_list.index('shuffle')<self.params.rank_list.index('repeat'):
                 self.params.rank_list.remove('shuffle')
                 self.params.rank_list.append('shuffle')
-        if  'list' in self.params.data_mode:
+        if 'list' in self.params.data_mode:
             if 'map' in self.params.rank_list:
-                self.batch_func = self._batch_list_map
+                self._batch_func = self._batch_list_map
             else:
-                self.batch_func = self._batch_list
+                self._batch_func = self._batch_list
         elif 'map' in self.params.rank_list:
-            self.batch_func = self._batch_map
+            self._batch_func = self._batch_map
         else:
-            self.batch_func = self._batch
+            self._batch_func = self._batch
         for i in self.params.rank_list:
             if i == 'shuffle':
                 self._shuffle()
@@ -83,11 +84,8 @@ class file_no(DataSet):
         elif len(loc)<self.params.batch_size:
             if self.params.drop_remainder:
                 raise StopIteration
-            else:
-                self.params.batch += 1
-                return self.batch_func(loc)
         self.params.batch += 1
-        return self.batch_func(loc)
+        return self._batch_func(loc)
 
     
 class from_Dataframe(file_no):

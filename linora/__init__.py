@@ -10,6 +10,7 @@ from linora import text
 from linora import image
 from linora import utils
 from linora import gfile
+from linora import data
 
 __version__ = '1.3.0'
 __author__ = 'JinQing Lee'
