@@ -170,9 +170,9 @@ def pairs(image1, image2, mode, **kwargs):
     Return:
         a PIL instance.
     """
-    if 'scale' not in kwarg:
+    if 'scale' not in kwargs:
         kwargs['scale'] = 1.
-    if 'offset' not in kwarg:
+    if 'offset' not in kwargs:
         kwargs['offset'] = 0
     if mode=='add':
         return ImageChops.add(image1, image2, scale=kwargs['scale'], offset=kwargs['offset'])

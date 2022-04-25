@@ -2,7 +2,7 @@ import numpy as np
 
 from linora.data._dataset import DataSet
 
-__all__ = ['ArrayDataset']
+__all__ = ['Dataset']
 
 
 class file_no(DataSet):
@@ -23,17 +23,12 @@ class file_no(DataSet):
         return self.params.data[loc]
     
     def __iter__(self):
-        self.params.rank_list = [i[0] for i in sorted(self.params.rank.items(), key=lambda x:x[1])]
-        if 'shuffle' in self.params.rank_list and 'repeat' in self.params.rank_list:
-            if self.params.rank_list.index('shuffle')<self.params.rank_list.index('repeat'):
-                self.params.rank_list.remove('shuffle')
-                self.params.rank_list.append('shuffle')
         if 'list' in self.params.data_mode:
-            if 'map' in self.params.rank_list:
+            if 'map' in self.params.options:
                 self._batch_func = self._batch_list_map
             else:
                 self._batch_func = self._batch_list
-        elif 'map' in self.params.rank_list:
+        elif 'map' in self.params.options:
             self._batch_func = self._batch_map
         else:
             self._batch_func = self._batch
@@ -47,19 +42,25 @@ class file_no(DataSet):
             if self.params.drop_remainder:
                 raise StopIteration
         self.params.batch += 1
+        if 'enumerate' in self.params.options:
+            self.params.enumerate += 1
+            return (self.params.enumerate-1, self._batch_func(loc))
         return self._batch_func(loc)
 
     
-class ArrayDataset(file_no):
+class Dataset(file_no):
     """Represents a potentially large set of elements from dataframe.
     
     Args:
         data: numpy array or tuple of numpy array
     """
     def __init__(self):
-        super(ArrayDataset, self).__init__()
+        super(Dataset, self).__init__()
         
     def from_tensor(self, data):
+        if isinstance(data, tuple):
+            for i in data:
+                assert len(data[0])==len(i), 'Length needs to be consistent between data.'
         self._params_init()
         self.params.data_mode = 'list' if isinstance(data, tuple) else 'array'
         self.params.data_index = list(range(len(data[0] if isinstance(data, tuple) else data)))
