@@ -3,9 +3,9 @@ import math
 import numpy as np
 import pandas as pd
 
-__all__ = ['euclidean', 'manhattan', 'chebyshev', 'minkowski', 'hamming',
-           'jaccard', 'pearson', 'cosine', 'levenshtein',
-           'dice', 'ochiia', 'braycurtis', 'geodesic', 'canberra', 'hausdorff', 'chisquare', 'hellinger', 'bhattacharyya'
+__all__ = ['euclidean', 'manhattan', 'chebyshev', 'minkowski', 'hamming', 'jaccard', 'pearson', 'cosine', 
+           'levenshtein', 'dice', 'ochiia', 'braycurtis', 'geodesic', 'canberra', 'hausdorff', 'chisquare', 
+           'hellinger', 'bhattacharyya', 'wasserstein'
           ]
 
 
@@ -276,3 +276,25 @@ def bhattacharyya(x, y):
     x = np.array(x)
     y = np.array(y)
     return np.log(np.sum(np.sqrt(x * y)))
+
+
+def wasserstein(x, y):
+    """wasserstein distance.
+    
+    Args:
+        x: pd.Series or array or list, sample n dim feature value.
+        y: pd.Series or array or list, sample n dim feature value.
+    Returns:
+        wasserstein distance value.
+    """
+    x = np.array(x)
+    y = np.array(y)
+    x_sort = np.argsort(x)
+    y_sort = np.argsort(y)
+
+    z = np.concatenate([x, y])
+    z.sort(kind='mergesort')
+
+    x_cdf = x[x_sort].searchsorted(z[:-1], 'right')/x.size
+    y_cdf = y[y_sort].searchsorted(z[:-1], 'right')/y.size
+    return np.sum(np.multiply(np.abs(x_cdf - y_cdf), np.diff(z)))
