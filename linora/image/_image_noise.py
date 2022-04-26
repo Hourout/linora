@@ -52,7 +52,7 @@ def noise_poisson(image, scale=1, lam=1.0):
     if isinstance(scale, (tuple, list)):
         scale = np.random.uniform(scale[0], scale[1])
     if isinstance(lam, (tuple, list)):
-        lam = np.random.uniform(std[0], std[1])
+        lam = np.random.uniform(lam[0], lam[1])
     return image.point(lambda x:int((np.random.poisson(lam, size=1)*scale+x).round()))
 
 
