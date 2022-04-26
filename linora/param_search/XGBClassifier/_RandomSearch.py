@@ -19,7 +19,7 @@ class RandomSearch():
         hp.Int('n_estimators', 100, 850)
         hp.Choice('max_depth', [3, 4, 5, 6, 7])
         hp.Choice('min_child_weight', [1, 2, 3, 4, 5, 6, 7])
-        hp.Choice('max_delta_step', [0])
+        hp.Choice('max_delta_step', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         hp.Choice('reg_alpha', np.concatenate([np.linspace(0, 1, 101), np.linspace(2, 100, 99)]).round(2))
         hp.Choice('reg_lambda', np.concatenate([np.linspace(0, 1, 101), np.linspace(2, 100, 99)]).round(2))
         hp.Choice('subsample', [0.5, 0.6, 0.7, 0.8, 0.9, 1. ])
