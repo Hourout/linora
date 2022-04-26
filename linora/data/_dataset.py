@@ -18,7 +18,7 @@ class DataSet():
         self.params.batch = 0
         self.params.batch_size = 1
         self.params.step = 1
-        self.params.options = defaultdict(list)
+        self.params.options = defaultdict(dict)
         
     def batch(self, batch_size, drop_remainder=False):
         """Combines consecutive elements of this dataset into batches.
@@ -31,7 +31,7 @@ class DataSet():
         assert isinstance(batch_size, int) and batch_size>0, '`batch_size` type should be int and greater than 0.'
         self.params.batch_size = batch_size
         self.params.drop_remainder = drop_remainder
-        self.params.options['batch'].append((self.params.step, batch_size, drop_remainder))
+        self.params.options['batch'].update({self.params.step: {'batch_size':batch_size, 'drop_remainder':drop_remainder}})
         self.params.step += 1
         return self
     
@@ -54,7 +54,7 @@ class DataSet():
         else:
             self.params.data = np.concatenate([self.params.data, dataset.params.data])
         self.params.data_index = self.params.data_index+[i+t for i in dataset.params.data_index]
-        self.params.options['concatenate'].append((self.params.step))
+        self.params.options['concatenate'].update({self.params.step: None})
         self.params.step += 1
         return self
         
@@ -65,7 +65,7 @@ class DataSet():
             start: int, representing the start value for enumeration.
         """
         self.params.enumerate = start
-        self.params.options['enumerate'].append((self.params.step, start))
+        self.params.options['enumerate'].update({self.params.step: {'start':start}})
         self.params.step += 1
         return self
     
@@ -81,7 +81,7 @@ class DataSet():
             filter_list = [r for r, i in enumerate(self.params.data) if filter_func(i)]
         if filter_list:
             self.params.data_index = [i for i in self.params.data_index if i not in filter_list]
-        self.params.options['filter'].append((self.params.step, filter_func))
+        self.params.options['filter'].update({self.params.step: {'filter_func':filter_func}})
         self.params.step += 1
         return self
     
@@ -96,7 +96,7 @@ class DataSet():
         assert isinstance(map_size, int) and map_size>0, '`map_size` type should be int and greater than 0.'
         self.params.map_func = map_func
         self.params.map_size = map_size
-        self.params.options['map'].append((self.params.step, map_func, map_size))
+        self.params.options['map'].update({self.params.step: {'map_func':map_func, 'map_size':map_size}})
         self.params.step += 1
         return self
     
@@ -112,7 +112,7 @@ class DataSet():
         """
         assert 'take_while' not in self.params.options, '`prefetch` must be placed in `take_while` front.'
         assert isinstance(prefetch_size, int) and prefetch_size>0, '`prefetch_size` type should be int and greater than 0.'
-        self.params.options['prefetch'].append((self.params.step, prefetch_size))
+        self.params.options['prefetch'].update({self.params.step: {'prefetch_size':prefetch_size}})
         self.params.step += 1
         return self
         
@@ -121,9 +121,9 @@ class DataSet():
         assert 'take_while' not in self.params.options, '`range` must be placed in `take_while` front.'
         self._params_init()
         self.params.data_mode = 'array'
-        self.params.data_index = list(range(*args, **kwargs))
         self.params.data = np.array(range(*args, **kwargs))
-        self.params.options['range'].append((self.params.step, *args))
+        self.params.data_index = list(range(len(self.params.data)))
+        self.params.options['range'].update({self.params.step: {'args':args, 'kwargs':kwargs}})
         self.params.step += 1
         return self
     
@@ -149,7 +149,7 @@ class DataSet():
         self.params.data_mode = 'array'
         self.params.data = np.array(t).reshape(size)
         self.params.data_index = list(range(len(self.params.data)))
-        self.params.options['random'].append((self.params.step, size, lower, upper, seed))
+        self.params.options['random'].update({self.params.step: {'size':size, 'lower':lower, 'upper':upper, 'seed':seed}})
         self.params.step += 1
         return self
     
@@ -172,7 +172,7 @@ class DataSet():
         assert 'take_while' not in self.params.options, '`repeat` must be placed in `take_while` front.'
         assert isinstance(repeat_size, int) and repeat_size>0, '`repeat_size` type should be int and greater than 0.'
         self.params.data_index = self.params.data_index*(repeat_size+1)
-        self.params.options['repeat'].append((self.params.step, repeat_size))
+        self.params.options['repeat'].update({self.params.step: {'repeat_size':repeat_size}})
         self.params.step += 1
         return self
         
@@ -187,7 +187,7 @@ class DataSet():
         assert isinstance(shard_size, int) and shard_size>0, '`shard_size` type should be int and greater than 0.'
         assert isinstance(shard_index, int) and shard_index>=0, '`shard_index` type should be int and greater than or equal to 0.'
         self.params.data_index = [self.params.data_index[i] for i in range(shard_index, len(self.params.data_index), shard_size)]
-        self.params.options['shard'].append((self.params.step, shard_size, shard_index))
+        self.params.options['shard'].update({self.params.step: {'shard_size':shard_size, 'shard_index':shard_index}})
         self.params.step += 1
         return self
     
@@ -208,7 +208,7 @@ class DataSet():
             self.params.data_index = list(itertools.chain.from_iterable(t))
         else:
             self.params.data_index = self.params.data_index.to_series().sample(frac=1, random_state=seed).tolist()
-        self.params.options['shuffle'].append((self.params.step, shuffle_size, seed))
+        self.params.options['shuffle'].update({self.params.step: {'shuffle_size':shuffle_size, 'seed':seed}})
         self.params.step += 1
         return self
     
@@ -222,7 +222,7 @@ class DataSet():
         assert 'take_while' not in self.params.options, '`skip` must be placed in `take_while` front.'
         assert isinstance(skip_size, int) and skip_size>0, '`skip_size` type should be int and greater than 0.'
         self.params.data_index = self.params.data_index[skip_size:]
-        self.params.options['skip'].append((self.params.step, skip_size))
+        self.params.options['skip'].update({self.params.step: {'skip_size':skip_size}})
         self.params.step += 1
         return self
         
@@ -238,7 +238,7 @@ class DataSet():
         assert isinstance(take_size, int) and take_size>-2 and take_size!=0, '`take_size` type should be int and greater than 0 or equal to -1.'
         if self.params.take != -1:
             self.params.data_index = self.params.data_index[:take_size]
-        self.params.options['take'].append((self.params.step, take_size))
+        self.params.options['take'].update({self.params.step: {'take_size':take_size}})
         self.params.step += 1
         return self
     
@@ -262,7 +262,7 @@ class DataSet():
                 if take_func(self.params.data[i]):
                     self.params.data_index = self.params.data_index[:r]
                     break
-        self.params.options['take_while'].append((self.params.step, take_func))
+        self.params.options['take_while'].update({self.params.step: {'take_func':take_func}})
         self.params.step += 1
         return self
     

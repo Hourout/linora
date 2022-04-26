@@ -52,10 +52,10 @@ def crop_central(image, central_rate):
         central_rate = np.random.uniform(central_rate[0], central_rate[1])
     else:
         raise ValueError('central_rate should be one of int, float, tuple, list.')
-    left = int(im.size[0]*(0.5-central_rate/2))
-    upper = int(im.size[1]*(0.5-central_rate/2))
-    right = int(im.size[0]*(0.5+central_rate/2))
-    lower = int(im.size[1]*(0.5+central_rate/2))
+    left = int(image.size[0]*(0.5-central_rate/2))
+    upper = int(image.size[1]*(0.5-central_rate/2))
+    right = int(image.size[0]*(0.5+central_rate/2))
+    lower = int(image.size[1]*(0.5+central_rate/2))
     return image.crop((left, upper, right, lower))
 
 
