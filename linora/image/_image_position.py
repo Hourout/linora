@@ -112,7 +112,7 @@ def rotate(image, angle, expand=True, center=None, translate=None, fillcolor=Non
         fillcolor = fillcolor['rgb']
     elif isinstance(fillcolor, list):
         fillcolor = np.random.choice(fillcolor)
-    return image.rotate(angle, resample=Image.Resampling.NEAREST, expand=expand, center=center, translate=translate, fillcolor=fillcolor
+    return image.rotate(angle, resample=Image.Resampling.NEAREST, expand=expand, center=center, translate=translate, fillcolor=fillcolor)
 
 
 def translate(image, translate=None, fillcolor=None):
