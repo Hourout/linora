@@ -88,12 +88,12 @@ class RandomSearch():
             score = []
             if speedy:
                 for _ in range(cv_num):
-                    index_list = train_test_split(feature, test_size=test_size, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
+                    index_list = train_test_split(feature, label, test_size=test_size, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
                     model.fit(feature.loc[index_list[0]], label[index_list[0]])
                     cv_pred = pd.Series(model.predict(feature.loc[index_list[1]]), index=label[index_list[1]].index)
                     score.append(metrics(label[index_list[1]], cv_pred))
             else:
-                index_list = kfold(feature, n_splits=cv, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
+                index_list = kfold(feature, label, n_splits=cv, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
                 for n, index in enumerate(index_list):
                     if n == cv_num:
                         break
