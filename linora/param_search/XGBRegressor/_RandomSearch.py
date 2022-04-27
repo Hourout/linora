@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from linora.utils._logger import Logger
-from linora.sample_splits import kfold, train_test_split
+from linora.sample._fold import kfold, train_test_split
 from linora.param_search._HyperParameters import HyperParametersRandom
 from linora.param_search._config import __xgboost_version__
 
