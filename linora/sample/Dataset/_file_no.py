@@ -96,6 +96,7 @@ class from_Dataframe(file_no):
     """
     def __init__(self, data):
         super(from_Dataframe, self).__init__()
+        raise ValueError('please use api `la.data.Dataset`')
         self.params.data_mode = 'Dataframe_list' if isinstance(data, tuple) else 'Dataframe'
         self.params.data_index = data[0].index if isinstance(data, tuple) else data.index
         self.params.data = [i.values for i in data] if isinstance(data, tuple) else data.values
@@ -109,6 +110,7 @@ class from_Array(file_no):
     """
     def __init__(self, data):
         super(from_Array, self).__init__()
+        raise ValueError('please use api `la.data.Dataset`')
         self.params.data_mode = 'array_list' if isinstance(data, tuple) else 'array'
         self.params.data_index = pd.Series(range(data[0].shape[0] if isinstance(data, tuple) else data.shape[0])).index
         self.params.data = data
@@ -122,6 +124,7 @@ class from_Image(file_no):
     """
     def __init__(self, data):
         super(from_Image, self).__init__()
+        raise ValueError('please use api `la.data.ImageDataset`')
         self.params.data_mode = 'image_list' if isinstance(data, tuple) else 'image'
         self.params.data_index = pd.Series(range(len(data[0] if isinstance(data, tuple) else data))).index
         self.params.data = [pd.Series(i).values for i in data] if isinstance(data, tuple) else pd.Series(data).values

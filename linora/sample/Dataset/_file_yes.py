@@ -63,6 +63,7 @@ class from_Csv(file_yes):
     """Represents a potentially large set of elements from csv file."""
     def __init__(self, file, sep=',', header=None):
         super(from_Csv, self).__init__()
+        raise ValueError('please use api `la.data.TextLineDataset`')
         self.params.sep = sep
         self.params.header = header
         self.params.data = file if isinstance(file, (tuple, list)) else [file]

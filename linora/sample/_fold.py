@@ -30,7 +30,6 @@ def kfold(df, stratify=None, n_splits=3, shuffle=False, random_state=None):
     Returns:
         list, length=n_splits, List each list containing train-test split of inputs.
     """
-    raise ValueError('please use api `la.sample.kfold`')
     t = df.sample(frac=1, random_state=random_state).index if shuffle else df.index
     if stratify is None:
         m = int(np.floor(len(t)/n_splits))
@@ -76,7 +75,6 @@ def train_test_split(df, stratify=None, test_size=0.2, shuffle=False, random_sta
     Returns:
         list, length=2, List containing train-test split of inputs.
     """
-    raise ValueError('please use api `la.sample.train_test_split`')
     t = df.sample(frac=1, random_state=random_state).index if shuffle else df.index
     if stratify is None:
         t = [t[0:round(len(t)*(1-test_size))].tolist(), t[round(len(t)*(1-test_size)):].tolist()]

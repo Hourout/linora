@@ -17,7 +17,6 @@ def timeseries_train_test_split(df, test_size=0.2, gap=0, ascending=True):
     Returns:
         list, length=2, List each list containing train-test split of inputs.
     """
-    raise ValueError('please use api `la.sample.timeseries_train_test_split`')
     assert gap>=0, "`gap` should be great than or equal to 0."
     t = df.index.tolist()
     if not ascending:
@@ -44,7 +43,6 @@ def timeseries_walk_forward_fold(df, n_splits=3, gap=0, ascending=True):
     Returns:
         list, length=n_splits, List each list containing train-test split of inputs.
     """
-    raise ValueError('please use api `la.sample.timeseries_walk_forward_fold`')
     assert gap>=0, "`gap` should be great than or equal to 0."
     t = df.index.tolist()
     if not ascending:
@@ -76,7 +74,6 @@ def timeseries_kfold(df, train_size=0.3, test_size=0.1, gap=0, ascending=True):
         list, length=`int(np.floor((len(df)-len(trainset)-gap)/len(testset)))`
         List each list containing train-test split of inputs.
     """
-    raise ValueError('please use api `la.sample.timeseries_kfold`')
     assert gap>=0, "`gap` should be great than or equal to 0."
     assert train_size+test_size<1, "`train_size`+`test_size` should be less than 1."
     t = df.index.tolist()
