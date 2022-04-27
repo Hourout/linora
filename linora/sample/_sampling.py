@@ -60,13 +60,13 @@ def sampling_systematic(feature, n=None, frac=None, seed=None):
     print(index)
     while len(index)>n:
         if (len(index)-n)%2:
-            index.pop(int(len(index)*0.75))
+            index.pop(int(len(index)*(seed%100/100)))
         else:
-            index.pop(int(len(index)*0.25))
+            index.pop(int(len(index)*(seed%10/10)))
     while len(index)<n:
         s = list(set(range(0, len(feature))).difference(set(index)))
         if (n-len(index))%2:
-            index.append(s.pop(int(len(s)*0.75)))
+            index.append(s.pop(int(len(s)*(seed%100/100))))
         else:
-            index.append(s.pop(int(len(s)*0.25)))
+            index.append(s.pop(int(len(s)*(seed%10/10))))
     return t[sorted(index)]

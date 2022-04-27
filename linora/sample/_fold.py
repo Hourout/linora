@@ -22,11 +22,7 @@ def kfold(df, stratify=None, n_splits=3, shuffle=False, random_state=None):
             Number of folds. Must be at least 2.
         shuffle  : boolean, default=False, optional
             Whether to shuffle the data before splitting into batches.
-        random_state : int or None, optional, default=None
-            If int, random_state is the seed used by the random number generator;
-            If None, the random number generator is the RandomState instance used
-            Used when ``shuffle`` == True.
-    
+        seed: int, random seed. Used when `shuffle` == True.
     Returns:
         list, length=n_splits, List each list containing train-test split of inputs.
     """
