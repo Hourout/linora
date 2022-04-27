@@ -92,7 +92,7 @@ def rotate(image, angle, expand=True, center=None, translate=None, fillcolor=Non
                 if value is 'random', then the function is random.
         fillcolor: An optional color for area outside the rotated image.
                 if value is 'random', fillcolor is one of ['green', 'red', 'white', 'black'].
-                you can also pass in a list of colors.
+                you can also pass in a list of colors or la.image.RGBMode.
     
     Returns:
         A PIL instance. of the same type and shape as `image`.
@@ -115,7 +115,7 @@ def rotate(image, angle, expand=True, center=None, translate=None, fillcolor=Non
     return image.rotate(angle, resample=Image.Resampling.NEAREST, expand=expand, center=center, translate=translate, fillcolor=fillcolor)
 
 
-def translate(image, translate=None, fillcolor=None):
+def translate(image, translate='random', fillcolor=None):
     """Returns a translate copy of this image. 
     
     Args:
@@ -124,7 +124,7 @@ def translate(image, translate=None, fillcolor=None):
                 if value is 'random', then the function is random.
         fillcolor: An optional color for area outside the rotated image.
                 if value is 'random', fillcolor is one of ['green', 'red', 'white', 'black'].
-                you can also pass in a list of colors.
+                you can also pass in a list of colors or la.image.RGBMode.
     
     Returns:
         A PIL instance. of the same type and shape as `image`.
@@ -133,7 +133,9 @@ def translate(image, translate=None, fillcolor=None):
         translate = (np.random.randint(0, image.size[0]*0.8), np.random.randint(0, image.size[1]*0.8))
     if fillcolor=='random':
         fillcolor = np.random.choice(['green', 'red', 'white', 'black'])
-    elif isinstance(fillcolor, (list, tuple)):
+    elif isinstance(fillcolor, dict):
+        fillcolor = fillcolor['rgb']
+    elif isinstance(fillcolor, list):
         fillcolor = np.random.choice(fillcolor)
     return rotate(image, angle=0, expand=1, center=None, translate=translate, fillcolor=fillcolor)
 
