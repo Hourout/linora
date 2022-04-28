@@ -12,7 +12,7 @@ from linora import utils
 from linora import gfile
 from linora import data
 
-__version__ = '1.3.0'
+__version__ = '1.3.0rc0'
 __author__ = 'JinQing Lee'
 
 def _hello():
