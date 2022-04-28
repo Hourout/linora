@@ -6,7 +6,7 @@ import numpy as np
 __all__ = ['kfold', 'train_test_split']
 
 
-def kfold(df, stratify=None, n_splits=3, shuffle=False, random_state=None):
+def kfold(df, stratify=None, n_splits=3, shuffle=True, seed=None):
     """K-Folds cross-validator
     
     Provides train/test indices to split data in train/test sets. 
@@ -20,13 +20,13 @@ def kfold(df, stratify=None, n_splits=3, shuffle=False, random_state=None):
             The target variable for supervised learning problems.
         n_splits : int, default=3
             Number of folds. Must be at least 2.
-        shuffle  : boolean, default=False, optional
+        shuffle: boolean, default=True, optional
             Whether to shuffle the data before splitting into batches.
         seed: int, random seed. Used when `shuffle` == True.
     Returns:
         list, length=n_splits, List each list containing train-test split of inputs.
     """
-    t = df.sample(frac=1, random_state=random_state).index if shuffle else df.index
+    t = df.sample(frac=1, random_state=seed).index if shuffle else df.index
     if stratify is None:
         m = int(np.floor(len(t)/n_splits))
         fold = [t[i*m:(i+1)*m].tolist() for i in range(n_splits-1)]+[t[(n_splits-1)*m:].tolist()]
@@ -51,7 +51,7 @@ def kfold(df, stratify=None, n_splits=3, shuffle=False, random_state=None):
     return t
 
 
-def train_test_split(df, stratify=None, test_size=0.2, shuffle=False, random_state=None):
+def train_test_split(df, stratify=None, test_size=0.2, shuffle=True, seed=None):
     """Split DataFrame or matrices into random train and test subsets
     
     Args:
@@ -61,17 +61,14 @@ def train_test_split(df, stratify=None, test_size=0.2, shuffle=False, random_sta
             The target variable for supervised learning problems.
         test_size: float, optional (default=0.2)
             Should be between 0.0 and 1.0 and represent the proportion of the dataset to include in the test split.
-        shuffle  : boolean, default=False, optional
+        shuffle  : boolean, default=True, optional
             Whether to shuffle the data before splitting into batches.
-        random_state : int or None, optional, default=None
-            If int, random_state is the seed used by the random number generator;
-            If None, the random number generator is the RandomState instance used
-            Used when ``shuffle`` == True.
+        seed: int, random seed. Used when `shuffle` == True.
     
     Returns:
         list, length=2, List containing train-test split of inputs.
     """
-    t = df.sample(frac=1, random_state=random_state).index if shuffle else df.index
+    t = df.sample(frac=1, random_state=seed).index if shuffle else df.index
     if stratify is None:
         t = [t[0:round(len(t)*(1-test_size))].tolist(), t[round(len(t)*(1-test_size)):].tolist()]
     else:

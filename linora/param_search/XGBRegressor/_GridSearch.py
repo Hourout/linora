@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from linora.utils._logger import Logger
+from linora.metrics._regression import mean_squared_error
 from linora.sample._fold import kfold, train_test_split
 from linora.param_search._HyperParameters import HyperParametersGrid
 from linora.param_search._config import __xgboost_version__
@@ -35,7 +36,7 @@ class GridSearch():
         self.best_params = dict()
         self.best_params_history = dict()
         
-    def search(self, feature, label, metrics, loss='reg:squarederror', 
+    def search(self, feature, label, sample_weight=None, metrics=mean_squared_error, loss='reg:squarederror', 
                scoring=0.5, cv=5, cv_num=3, metrics_min=True, 
                speedy=True, speedy_param=(20000, 0.3), gpu_id=-1, 
                save_model_dir=None, save_model_name='xgb'):
@@ -44,7 +45,8 @@ class GridSearch():
         Args:
             feature: pandas dataframe, model's feature.
             label: pandas series, model's label.
-            metrics: model metrics function.
+            sample_weight: pd.Series or np.array, sample weight, shape is (n,).
+            metrics: model metrics function, default is `la.metircs.mean_squared_error`.
             loss: XGBRegressor param 'objective'.
             scoring: metrics error opt base line value.
             cv: cross validation fold.
@@ -85,14 +87,16 @@ class GridSearch():
                 score = []
                 if speedy:
                     for _ in range(cv_num):
-                        index_list = train_test_split(feature, test_size=test_size, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
-                        model.fit(feature.loc[index_list[0]], label[index_list[0]])
+                        index_list = train_test_split(feature, test_size=test_size, shuffle=True, seed=np.random.choice(range(100), 1)[0])
+                        weight = None if sample_weight is None else sample_weight[index_list[0]]
+                        model.fit(feature.loc[index_list[0]], label[index_list[0]], sample_weight=weight)
                         cv_pred = pd.Series(model.predict(feature.loc[index_list[1]]), index=label[index_list[1]].index)
                         score.append(metrics(label[index_list[1]], cv_pred))
                 else:
-                    index_list = kfold(feature, n_splits=cv, shuffle=True, random_state=np.random.choice(range(100), 1)[0])
+                    index_list = kfold(feature, n_splits=cv, shuffle=True, seed=np.random.choice(range(100), 1)[0])
                     for n, index in enumerate(index_list):
-                        model.fit(feature.loc[index[0]], label[index[0]])
+                        weight = None if sample_weight is None else sample_weight[index[0]]
+                        model.fit(feature.loc[index[0]], label[index[0]], sample_weight=weight)
                         cv_pred = pd.Series(model.predict(feature.loc[index[1]]), index=label[index[1]].index)
                         score.append(metrics(label[index[1]], cv_pred))
                 cv_score = np.mean(score)
