@@ -1,1 +1,1 @@
-__xgboost_version__ = '1.6.0'
+__xgboost_version__ = '1.4.0'

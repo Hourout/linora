@@ -14,7 +14,7 @@ def kfold(df, stratify=None, n_splits=3, shuffle=False, random_state=None):
     Each fold is then used once as a validation while the k - 1 remaining folds form the training set.
     
     Args:
-        df: pd.DataFrame, shape (n_samples, n_features)
+        df: pd.DataFrame with shape (n_samples, n_features) or pd.Series or np.array or list,
             Training data, where n_samples is the number of samples and n_features is the number of features.
         stratify : pd.Series, shape (n_samples,)
             The target variable for supervised learning problems.
