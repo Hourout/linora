@@ -35,16 +35,17 @@ class RandomSearch():
         self.best_params = dict()
         self.best_params_history = dict()
 
-    def search(self, feature, label, loss, metrics, iter_num=100, scoring=0.5, cv=5, cv_num=3,
-               metrics_min=True, speedy=True, speedy_param=(20000, 0.3), gpu_id=-1, 
+    def search(self, feature, label, metrics, loss='binary:logistic', 
+               iter_num=100, scoring=0.5, cv=5, cv_num=3, metrics_min=True, 
+               speedy=True, speedy_param=(20000, 0.3), gpu_id=-1, 
                save_model_dir=None, save_model_name='xgb'):
         """XGBClassifier model params search use RandomSearch method.
 
         Args:
             feature: pandas dataframe, model's feature.
             label: pandas series, model's label.
-            loss: XGBClassifier param 'objective'.
             metrics: model metrics function.
+            loss: XGBClassifier param 'objective'.
             scoring: metrics error opt base line value.
             cv: cross validation fold.
             cv_num: if use speedy method, minimum cross validation fold.
