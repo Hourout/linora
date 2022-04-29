@@ -25,7 +25,7 @@ class HyperParametersRandom():
         """
         if name not in self.space:
             self.space[name] = {'mode':'Boolean', 'default':default}
-        self.params[name] = random.choice([True, False]) if default is None else default
+            self.params[name] = np.random.choice([True, False]) if default is None else default
         
     def Float(self, name, min_value, max_value, rounds=2, default=None):
         """Floating point range, can be evenly divided.
@@ -39,7 +39,7 @@ class HyperParametersRandom():
         """
         if name not in self.space:
             self.space[name] = {'mode':'Float', 'min_value':min_value, 'max_value':max_value, 'round':rounds, 'default':default}
-        self.params[name] = round(random.uniform(min_value, max_value), rounds) if default is None else default
+            self.params[name] = round(random.uniform(min_value, max_value), rounds) if default is None else default
     
     def Int(self, name, min_value, max_value, default=None):
         """Integer range.
@@ -52,20 +52,21 @@ class HyperParametersRandom():
             default: Default value to return for the parameter. If unspecified, the default value will be None.
         """
         if name not in self.space:
-            self.space[name] = {'mode':'Int', 'min_value':min_value, 'max_value':max_value, 'default':default}
-        self.params[name] = round(random.uniform(min_value, max_value)) if default is None else default
+            self.space[name] = {'mode':'Int', 'min_value':min_value, 'max_value':max_value+1, 'default':default}
+            self.params[name] = np.random.randint(min_value, max_value+1) if default is None else default
         
-    def Choice(self, name, values, default=None):
+    def Choice(self, name, values, weight=None, default=None):
         """Choice of one value among a predefined set of possible values.
 
         Args:
             name: Str. Name of parameter. Must be unique.
             values: List of possible values. Values must be int, float, str, or bool. All values must be of the same type.
+            weight: List of possible values, The probabilities associated with each entry in value.
             default: Default value to return for the parameter. If unspecified, the default value will be None.
         """
         if name not in self.space:
-            self.space[name] = {'mode':'Choice', 'values':list(values), 'default':default}
-        self.params[name] = random.choice(self.space[name]['values']) if default is None else default
+            self.space[name] = {'mode':'Choice', 'values':list(values), 'weight':weight, 'default':default}
+            self.params[name] = np.random.choice(self.space[name]['values'], p=weight) if default is None else default
     
     def Dependence(self, name, dependent_name, function, default=None):
         """Values generated depending on other parameters.
@@ -79,34 +80,40 @@ class HyperParametersRandom():
         assert dependent_name in self.space, '`dependent_name` must already exist.'
         if name not in self.space:
             self.space[name] = {'mode':'Dependence', 'dependent_name':dependent_name, 'function':function, 'default':default}
-        self.params[name] = function(self.params[dependent_name]) if default is None else default
+            self.params[name] = function(self.params[dependent_name]) if default is None else default
     
     def update(self):
         """params update"""
         if self._update_init:
             self._update_init = False
         else:
-            for param_name, param_config in self.space.items():
-                if param_config['mode']=='Boolean':
-                    self.Boolean(param_name)
-                if param_config['mode']=='Float':
-                    self.Float(param_name, param_config['min_value'], param_config['max_value'], param_config['round'])
-                if param_config['mode']=='Int':
-                    self.Int(param_name, param_config['min_value'], param_config['max_value'])
-                if param_config['mode']=='Choice':
-                    self.Choice(param_name, param_config['values'])
-                if param_config['mode']=='Dependence':
-                    self.Dependence(param_name, param_config['dependent_name'], param_config['function'])
-        self._update_nums += 1
+            for name, config in self.space.items():
+                if config['mode']=='Boolean':
+                    self.params[name] = np.random.choice([True, False])
+                if config['mode']=='Float':
+                    self.params[name] = round(np.random.uniform(config['min_value'], config['max_value']), config['round'])
+                if config['mode']=='Int':
+                    self.params[name] = np.random.randint(config['min_value'], config['max_value'])
+                if config['mode']=='Choice':
+                    self.params[name] = np.random.choice(config['values'], p=config['weight'])
+                if config['mode']=='Dependence':
+                    self.params[name] = config['function'](self.params[config['dependent_name']])
         self.params_history[self._update_nums] = self.params.copy()
+        self._update_nums += 1
 
 
 class HyperParametersGrid():
     def __init__(self):
         """Container for both a hyperparameter space, and current values."""
-        self.params = {}
         self.space = {}
-        self._rank = defaultdict(lambda:[])
+        self.params = {}
+        self.params_history = {}
+        self._update_init = True
+        self._update_nums = 0
+        self._rank_list = []
+        self._rank = defaultdict(list)
+        self._dependent = defaultdict(list)
+        
         
     def Boolean(self, name, default=None, rank=0):
         """Choice between True and False.
@@ -114,12 +121,12 @@ class HyperParametersGrid():
         Args:
             name: Str. Name of parameter. Must be unique.
             default: Default value to return for the parameter. If unspecified, the default value will be None.
-            rank: Int, default 0, Importance ordering of parameters.
+            rank: Int, default 0, Importance ordering of parameters, smaller is more important.
         """
         if name not in self.space:
-            self.space[name] = {'mode':'Boolean', 'default':default, 'values':[True, False]}
+            self.space[name] = {'mode':'Boolean', 'default':default, 'rank':rank, 'values':[True, False]}
             self._rank[rank].append(name)
-        self.params[name] = random.choice([True, False]) if default is None else default
+            self.params[name] = np.random.choice([True, False]) if default is None else default
         
     def Float(self, name, min_value, max_value, rounds=1, default=None, rank=0):
         """Floating point range, can be evenly divided.
@@ -130,12 +137,13 @@ class HyperParametersGrid():
             max_value: Float. Upper bound of the range.
             rounds: Optional. Int, e.g. 2 mean round(x, 2). smallest meaningful distance between two values. 
             default: Default value to return for the parameter. If unspecified, the default value will be None.
-            rank: Int, default 0, Importance ordering of parameters.
+            rank: Int, default 0, Importance ordering of parameters, smaller is more important.
         """
         if name not in self.space:
-            self.space[name] = {'mode':'Float', 'default':default, 'values':np.linspace(min_value, max_value, round((max_value-min_value)*10**rounds)+1).round(rounds).tolist()}
+            self.space[name] = {'mode':'Float', 'default':default, 'rank':rank, 
+                                'values':np.linspace(min_value, max_value, round((max_value-min_value)*10**rounds)+1).round(rounds).tolist()}
             self._rank[rank].append(name)
-        self.params[name] = round(random.uniform(min_value, max_value), rounds) if default is None else default
+            self.params[name] = round(random.uniform(min_value, max_value), rounds) if default is None else default
         
     def Int(self, name, min_value, max_value, default=None, rank=0):
         """Integer range.
@@ -146,12 +154,12 @@ class HyperParametersGrid():
             min_value: Int. Lower limit of range (included).
             max_value: Int. Upper limit of range (included).
             default: Default value to return for the parameter. If unspecified, the default value will be None.
-            rank: Int, default 0, Importance ordering of parameters.
+            rank: Int, default 0, Importance ordering of parameters, smaller is more important.
         """
         if name not in self.space:
-            self.space[name] = {'mode':'Int', 'default':default, 'values':np.linspace(min_value, max_value, max_value-min_value+1, dtype='int').tolist()}
+            self.space[name] = {'mode':'Int', 'default':default, 'rank':rank, 'values':list(range(min_value, max_value+1))}
             self._rank[rank].append(name)
-        self.params[name] = round(random.uniform(min_value, max_value)) if default is None else default
+            self.params[name] = round(random.uniform(min_value, max_value)) if default is None else default
         
     def Choice(self, name, values, default=None, rank=0):
         """
@@ -161,22 +169,59 @@ class HyperParametersGrid():
             name: Str. Name of parameter. Must be unique.
             values: List of possible values. Values must be int, float, str, or bool. All values must be of the same type.
             default: Default value to return for the parameter. If unspecified, the default value will be None.
-            rank: Int, default 0, Importance ordering of parameters.
+            rank: Int, default 0, Importance ordering of parameters, smaller is more important.
         """
         if name not in self.space:
-            self.space[name] = {'mode':'Choice', 'default':default, 'values':list(values)}
+            self.space[name] = {'mode':'Choice', 'default':default, 'rank':rank, 'values':list(values)}
             self._rank[rank].append(name)
-        self.params[name] = random.choice(self.space[name]['values']) if default is None else default
+            self.params[name] = random.choice(self.space[name]['values']) if default is None else default
         
-    def update(self, rank):
-        """params update, 
+    def Dependence(self, name, dependent_name, function, default=None):
+        """Values generated depending on other parameters.
+
+        Args:
+            name: Str. Name of parameter. Must be unique.
+            dependent_name: str, dependent params name, must already exist.
+            function: A function to transform the value of `dependent_name`.
+            default: Default value to return for the parameter. If unspecified, the default value will be None.
+        """
+        assert dependent_name in self.space, '`dependent_name` must already exist.'
+        if name not in self.space:
+            self.space[name] = {'mode':'Dependence', 'default':default,
+                                'dependent_name':dependent_name, 'function':function}
+            self._dependent[dependent_name].append(name)
+            self.params[name] = function(self.params[dependent_name]) if default is None else default
+        
+    def _rank_list_func(self):
+        rank = sorted(self._rank)
+        for i in rank:
+            for v in itertools.product(*[self.space[j]['values'] for j in self._rank[i]]):
+                grid = {name:name_value for name, name_value in zip(self._rank[i], v)}
+                for n in list(grid):
+                    if n in self._dependent:
+                        for m in self._dependent[n]:
+                            grid.update({m:self.space[m]['function'](grid[n])})
+                self._rank_list.append(grid.copy())
+        self._cardinality = len(self._rank_list)
+    
+    def update(self, best_params):
+        """params update
         
         Args:
-            rank: Int, Importance ordering of parameters.
-        return:
-            a yield.
+            best_params: a best params dict.
         """
-        param_list = [self.space[param_name]['values'] for param_name in self._rank[rank]]
-        for value in itertools.product(*param_list):
-            self.params.update({name:name_value for name, name_value in zip(self._rank[rank], value)})
-            yield self.params
+        if self._update_init:
+            if not self._rank_list:
+                self._rank_list_func()
+            self._update_init = False
+        else:
+            if best_params is not None:
+                self.params = best_params.copy()
+            self.params.update(self._rank_list[self._update_nums-1])
+        self.params_history[self._update_nums] = self.params.copy()
+        self._update_nums += 1
+        
+    def cardinality(self):
+        if not self._rank_list:
+            self._rank_list_func()
+        return self._cardinality

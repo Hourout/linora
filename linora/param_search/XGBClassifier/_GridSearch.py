@@ -86,46 +86,44 @@ class GridSearch():
         self.HyperParameter.Choice('scale_pos_weight', [1, weight], weight, rank=6)
 
         logger.info(f"Start XGBClassifier hyperparameter grid search.")
-        rank = sorted(self.HyperParameter._rank)
-        n = 1
-        for i in rank:
-            for params in self.HyperParameter.update(i):
-                model = xgb.XGBClassifier(**params)
-                score = []
-                if speedy:
-                    for _ in range(cv_num):
-                        index_list = train_test_split(feature, label, test_size=test_size, shuffle=True, seed=np.random.choice(range(100), 1)[0])
-                        weight = None if sample_weight is None else sample_weight[index_list[0]]
-                        model.fit(feature.loc[index_list[0]], label[index_list[0]], sample_weight=weight)
-                        cv_pred = pd.Series(model.predict(feature.loc[index_list[1]]), index=label[index_list[1]].index)
-                        score.append(metrics(label[index_list[1]], cv_pred))
-                else:
-                    index_list = kfold(feature, label, n_splits=cv, shuffle=True, seed=np.random.choice(range(100), 1)[0])
-                    for n, index in enumerate(index_list):
-                        weight = None if sample_weight is None else sample_weight[index[0]]
-                        model.fit(feature.loc[index[0]], label[index[0]], sample_weight=weight)
-                        cv_pred = pd.Series(model.predict(feature.loc[index[1]]), index=label[index[1]].index)
-                        score.append(metrics(label[index[1]], cv_pred))
-                cv_score = np.mean(score)
-                if metrics_min:
-                    if cv_score<scoring:
-                        scoring = cv_score
-                        self.best_params = params.copy()
-                        self.best_params_history[n] = {'score':scoring, 'best_params':self.best_params.copy()}
-                        if save_model_dir is not None:
-                            model.save_model(os.path.join(save_model_dir, f"{save_model_name}_model.json"))
-                            with open(os.path.join(save_model_dir, f"{save_model_name}_params.json"),'w') as f:
-                                json.dump(best_params, f)
-                else:
-                    if cv_score>scoring:
-                        scoring = cv_score
-                        self.best_params = params.copy()
-                        self.best_params_history[n] = {'score':scoring, 'best_params':self.best_params.copy()}
-                        if save_model_dir is not None:
-                            model.save_model(os.path.join(save_model_dir, f"{save_model_name}_model.json"))
-                            with open(os.path.join(save_model_dir, f"{save_model_name}_params.json"),'w') as f:
-                                json.dump(best_params, f)
-                n += 1
-                logger.info(f"Grid search progress: {i/len(rank)*100:.1f}%, best score: {scoring:.4f}", enter=False if i<len(rank) else True)
+        nums = self.HyperParameter.cardinality()
+        for i in range(1, nums+1):
+            self.HyperParameter.update(self.best_params)
+            model = xgb.XGBClassifier(**self.HyperParameter.params)
+            score = []
+            if speedy:
+                for _ in range(cv_num):
+                    index_list = train_test_split(feature, label, test_size=test_size, shuffle=True, seed=np.random.choice(range(100), 1)[0])
+                    weight = None if sample_weight is None else sample_weight[index_list[0]]
+                    model.fit(feature.loc[index_list[0]], label[index_list[0]], sample_weight=weight)
+                    cv_pred = pd.Series(model.predict(feature.loc[index_list[1]]), index=label[index_list[1]].index)
+                    score.append(metrics(label[index_list[1]], cv_pred))
+            else:
+                index_list = kfold(feature, label, n_splits=cv, shuffle=True, seed=np.random.choice(range(100), 1)[0])
+                for n, index in enumerate(index_list):
+                    weight = None if sample_weight is None else sample_weight[index[0]]
+                    model.fit(feature.loc[index[0]], label[index[0]], sample_weight=weight)
+                    cv_pred = pd.Series(model.predict(feature.loc[index[1]]), index=label[index[1]].index)
+                    score.append(metrics(label[index[1]], cv_pred))
+            cv_score = np.mean(score)
+            if metrics_min:
+                if cv_score<scoring:
+                    scoring = cv_score
+                    self.best_params = params.copy()
+                    self.best_params_history[i] = {'score':scoring, 'best_params':self.best_params.copy()}
+                    if save_model_dir is not None:
+                        model.save_model(os.path.join(save_model_dir, f"{save_model_name}_model.json"))
+                        with open(os.path.join(save_model_dir, f"{save_model_name}_params.json"),'w') as f:
+                            json.dump(best_params, f)
+            else:
+                if cv_score>scoring:
+                    scoring = cv_score
+                    self.best_params = params.copy()
+                    self.best_params_history[i] = {'score':scoring, 'best_params':self.best_params.copy()}
+                    if save_model_dir is not None:
+                        model.save_model(os.path.join(save_model_dir, f"{save_model_name}_model.json"))
+                        with open(os.path.join(save_model_dir, f"{save_model_name}_params.json"),'w') as f:
+                            json.dump(best_params, f)
+            logger.info(f"Grid search progress: {i/nums*100:.1f}%, best score: {scoring:.4f}", enter=False if i<nums else True)
         logger.info(f"XGBClassifier grid search best score: {scoring:.4f}", close=True, time_mode=1)
         return self.best_params
