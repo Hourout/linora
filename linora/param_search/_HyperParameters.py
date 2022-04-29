@@ -10,8 +10,11 @@ __all__ = ['HyperParametersRandom', 'HyperParametersGrid']
 class HyperParametersRandom():
     def __init__(self):
         """Container for both a hyperparameter space, and current values."""
-        self.params = {}
         self.space = {}
+        self.params = {}
+        self.params_history = {}
+        self._update_init = True
+        self._update_nums = 0
         
     def Boolean(self, name, default=None):
         """Choice between True and False.
@@ -64,17 +67,38 @@ class HyperParametersRandom():
             self.space[name] = {'mode':'Choice', 'values':list(values), 'default':default}
         self.params[name] = random.choice(self.space[name]['values']) if default is None else default
     
+    def Dependence(self, name, dependent_name, function, default=None):
+        """Values generated depending on other parameters.
+
+        Args:
+            name: Str. Name of parameter. Must be unique.
+            dependent_name: str, dependent params name, must already exist.
+            function: A function to transform the value of `dependent_name`.
+            default: Default value to return for the parameter. If unspecified, the default value will be None.
+        """
+        assert dependent_name in self.space, '`dependent_name` must already exist.'
+        if name not in self.space:
+            self.space[name] = {'mode':'Dependence', 'dependent_name':dependent_name, 'function':function, 'default':default}
+        self.params[name] = function(self.params[dependent_name]) if default is None else default
+    
     def update(self):
         """params update"""
-        for param_name, param_config in self.space.items():
-            if param_config['mode']=='Boolean':
-                self.Boolean(param_name)
-            if param_config['mode']=='Float':
-                self.Float(param_name, param_config['min_value'], param_config['max_value'], param_config['round'])
-            if param_config['mode']=='Int':
-                self.Int(param_name, param_config['min_value'], param_config['max_value'])
-            if param_config['mode']=='Choice':
-                self.Choice(param_name, param_config['values'])
+        if self._update_init:
+            self._update_init = False
+        else:
+            for param_name, param_config in self.space.items():
+                if param_config['mode']=='Boolean':
+                    self.Boolean(param_name)
+                if param_config['mode']=='Float':
+                    self.Float(param_name, param_config['min_value'], param_config['max_value'], param_config['round'])
+                if param_config['mode']=='Int':
+                    self.Int(param_name, param_config['min_value'], param_config['max_value'])
+                if param_config['mode']=='Choice':
+                    self.Choice(param_name, param_config['values'])
+                if param_config['mode']=='Dependence':
+                    self.Dependence(param_name, param_config['dependent_name'], param_config['function'])
+        self._update_nums += 1
+        self.params_history[self._update_nums] = self.params.copy()
 
 
 class HyperParametersGrid():

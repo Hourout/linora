@@ -104,7 +104,7 @@ class GridSearch():
                     if cv_score<scoring:
                         scoring = cv_score
                         self.best_params = params.copy()
-                        self.best_params_history[n] = {'score':scoring, 'best_params':self.best_params}
+                        self.best_params_history[n] = {'score':scoring, 'best_params':self.best_params.copy()}
                         if save_model_dir is not None:
                             model.save_model(os.path.join(save_model_dir, f"{save_model_name}_model.json"))
                             with open(os.path.join(save_model_dir, f"{save_model_name}_params.json"),'w') as f:
@@ -113,7 +113,7 @@ class GridSearch():
                     if cv_score>scoring:
                         scoring = cv_score
                         self.best_params = params.copy()
-                        self.best_params_history[n] = {'score':scoring, 'best_params':self.best_params}
+                        self.best_params_history[n] = {'score':scoring, 'best_params':self.best_params.copy()}
                         if save_model_dir is not None:
                             model.save_model(os.path.join(save_model_dir, f"{save_model_name}_model.json"))
                             with open(os.path.join(save_model_dir, f"{save_model_name}_params.json"),'w') as f:
