@@ -7,7 +7,7 @@
 ![PyPI format](https://img.shields.io/pypi/format/linora.svg)
 ![contributors](https://img.shields.io/github/contributors/Hourout/linora)
 ![downloads](https://img.shields.io/pypi/dm/linora.svg)
-[![Documentation](https://img.shields.io/badge/docs-on%20linora.org-blue.svg)](https://www.yuque.com/jinqing-ps0ax/linora/htibub) 
+[![Documentation](https://img.shields.io/badge/docs-linora-blue.svg)](https://www.yuque.com/jinqing-ps0ax/linora/htibub) 
 
 Linora is a simple and efficient data mining and data analysis tool that allows you to do related data mining tasks without using sklearn to the maximum extent. It is perfectly compatible with pandas and runs faster and saves memory compared to sklearn.
 
@@ -16,7 +16,7 @@ Linora is a simple and efficient data mining and data analysis tool that allows 
 
 ## Installation
 
-To install [this verson from PyPI](https://pypi.org/project/linora/), type:
+To install this verson from [PyPI](https://pypi.org/project/linora/), type:
 
 ```
 pip install linora -U
