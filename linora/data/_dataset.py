@@ -118,7 +118,6 @@ class DataSet():
         
     def range(self, *args, **kwargs):
         """Creates a Dataset of a step-separated range of values."""
-        assert 'take_while' not in self.params.options, '`range` must be placed in `take_while` front.'
         self._params_init()
         self.params.data_mode = 'array'
         self.params.data = np.array(range(*args, **kwargs))
@@ -136,7 +135,6 @@ class DataSet():
             upper: max random values.
             seed: random seed.
         """
-        assert 'take_while' not in self.params.options, '`random` must be placed in `take_while` front.'
         if isinstance(size, int):
             t = (list(range(lower, upper))*(size//10+1))[:size]
         else:

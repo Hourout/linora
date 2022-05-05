@@ -12,10 +12,10 @@ from linora import utils
 from linora import gfile
 from linora import data
 
-__version__ = '1.3.0rc1'
+__version__ = '1.3.0rc2'
 __author__ = 'JinQing Lee'
 
-def _hello():
+def _version():
     print(f"""
 ------------------------------------------------------------------------------------
       Linora
