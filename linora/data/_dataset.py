@@ -8,7 +8,7 @@ import pandas as pd
 
 from linora.utils._config import Config
 
-    
+
 class DataSet():
     def __init__(self):
         self._params_init()
@@ -73,14 +73,14 @@ class DataSet():
         """A transformation that filter dataset based on a filter_func.
         
         Args:
-            filter_func: A function that return True or False
+            filter_func: A function that return True or False.
         """
         if self.params.data_mode=='list':
             filter_list = [i for i in range(len(self.params.data[0])) if filter_func([j[i] for j in self.params.data])]
         else:
             filter_list = [r for r, i in enumerate(self.params.data) if filter_func(i)]
         if filter_list:
-            self.params.data_index = [i for i in self.params.data_index if i not in filter_list]
+            self.params.data_index = [i for i in self.params.data_index if i in filter_list]
         self.params.options['filter'].update({self.params.step: {'filter_func':filter_func}})
         self.params.step += 1
         return self
