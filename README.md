@@ -36,7 +36,6 @@ pip install git+https://github.com/Hourout/linora.git
 - image augmentation
 - text processing
 - model param search
-- sample splits
 - sample
 - parallel
 - logger
@@ -60,4 +59,4 @@ la.chart.ks_curve(label, label_prob)
 ## Contact
 Please contact me if you have any related questions or improvements.
 
-[WeChat](https://github.com/Hourout/linora/blob/master/image/hourout_wechat.jpg)
+[WeChat](https://github.com/Hourout/linora/blob/master/image/hourout_wechat.jpeg)
