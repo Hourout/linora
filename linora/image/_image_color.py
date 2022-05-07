@@ -3,13 +3,13 @@ import colorsys
 import numpy as np
 from PIL import ImageEnhance, ImageOps
 
-__all__ = ['enhance_color', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
+__all__ = ['enhance_saturation', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
            'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
            'color_invert', 'equalize', 'rgb_hex'
           ]
 
 
-def enhance_color(image, delta):
+def enhance_saturation(image, delta):
     """Adjust image color balance.
 
     This class can be used to adjust the colour balance of an image, 
