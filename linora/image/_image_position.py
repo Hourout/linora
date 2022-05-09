@@ -1,5 +1,4 @@
 import math
-from random import randint
 
 import numpy as np
 from PIL import Image, ImageChops
@@ -10,73 +9,66 @@ __all__ = ['flip_up_left', 'flip_up_right', 'flip_left_right', 'flip_up_down',
           ]
 
 
-def flip_up_left(image, random=False):
+def flip_up_left(image, p=1):
     """Randomly flip an image (up to left).
     
     Args:
         image: a PIL instance.
-        random: bool, default False.
-                if True, random flip up and left image.
-                if False, flip up and left image.
+        p: probability that the image does this. Default value is 1.
     Returns:
-        A PIL instance. of the same type and shape as `image`.
+        A PIL instance.
     """
-    if random:
-        random = np.random.choice([True, False])
-    return image.transpose(Image.Transpose.TRANSPOSE) if not random else image
+    if np.random.uniform()>p:
+        return image
+    return image.transpose(Image.Transpose.TRANSPOSE)
 
 
-def flip_up_right(image, random=False):
+def flip_up_right(image, p=1):
     """Randomly flip an image (up to right).
 
     Args:
         image: a PIL instance.
-        random: bool, default False.
-                if True, random flip up and right image.
-                if False, flip up and right image.
+        p: probability that the image does this. Default value is 1.
     Returns:
-        A PIL instance. of the same type and shape as `image`.
+        A PIL instance.
     """
-    if random:
-        random = np.random.choice([True, False])
-    return image.transpose(Image.Transpose.TRANSVERSE) if not random else image
+    if np.random.uniform()>p:
+        return image
+    return image.transpose(Image.Transpose.TRANSVERSE)
 
 
-def flip_left_right(image, random=False):
+def flip_left_right(image, p=1):
     """Randomly flip an image (left to right).
 
     Args:
-    image: a PIL instance.
-    random: bool, default False.
-            if True, random flip left and rignt image.
-            if False, flip left and right image.
+        image: a PIL instance.
+        p: probability that the image does this. Default value is 1.
     Returns:
-            A PIL instance. of the same type and shape as `image`.
+        A PIL instance.
     """
-    if random:
-        random = np.random.choice([True, False])
-    return image.transpose(Image.Transpose.FLIP_LEFT_RIGHT) if not random else image
+    if np.random.uniform()>p:
+        return image
+    return image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
 
 
-def flip_up_down(image, random=False):
+def flip_up_down(image, p=1):
     """Randomly flip an image (up to down).
 
     Args:
-    image: a PIL instance.
-    random: bool, default False.
-            if True, random flip up and down image.
-            if False, flip up and down image.
+        image: a PIL instance.
+        p: probability that the image does this. Default value is 1.
     Returns:
-            A PIL instance. of the same type and shape as `image`.
+        A PIL instance.
     """
-    if random:
-        random = np.random.choice([True, False])
-    return image.transpose(Image.Transpose.FLIP_TOP_BOTTOM) if not random else image
+    if np.random.uniform()>p:
+        return image
+    return image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
 
-def rotate(image, angle, expand=True, center=None, translate=None, fillcolor=None):
-    """Returns a rotated copy of this image. This method returns a copy of this image, 
-    rotated the given number of degrees counter clockwise around its centre.
+def rotate(image, angle, expand=True, center=None, translate=None, fillcolor=None, p=1):
+    """Returns a rotated copy of this image. 
+    
+    This method returns a copy of this image, rotated the given number of degrees counter clockwise around its centre.
     
     Args:
         image: a PIL instance.
@@ -92,14 +84,16 @@ def rotate(image, angle, expand=True, center=None, translate=None, fillcolor=Non
                 Default is the center of the image.
                 if value is 'random', then the function is random.
         translate: An optional post-rotate translation (a 2-tuple).
-                if value is 'random', then the function is random.
+                   if value is 'random', then the function is random.
         fillcolor: An optional color for area outside the rotated image.
-                if value is 'random', fillcolor is one of ['green', 'red', 'white', 'black'].
-                you can also pass in a list of colors or la.image.RGBMode.
-    
+                   if value is 'random', fillcolor is one of ['green', 'red', 'white', 'black'].
+                   you can also pass in a list of colors or la.image.RGBMode.
+        p: probability that the image does this. Default value is 1.
     Returns:
-        A PIL instance. of the same type and shape as `image`.
+        A PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if isinstance(angle, (list, tuple)):
         assert angle[0]<angle[1], '`angle` must be angle[0]<angle[1].'
         angle = np.random.uniform(angle[0], angle[1])
@@ -115,23 +109,26 @@ def rotate(image, angle, expand=True, center=None, translate=None, fillcolor=Non
         fillcolor = fillcolor['rgb']
     elif isinstance(fillcolor, list):
         fillcolor = np.random.choice(fillcolor)
-    return image.rotate(angle, resample=Image.Resampling.NEAREST, expand=expand, center=center, translate=translate, fillcolor=fillcolor)
+    return image.rotate(angle, resample=Image.Resampling.NEAREST, expand=expand, 
+                        center=center, translate=translate, fillcolor=fillcolor)
 
 
-def translate(image, translate='random', fillcolor=None):
+def translate(image, translate='random', fillcolor=None, p=1):
     """Returns a translate copy of this image. 
     
     Args:
         image: a PIL instance.
         translate: An optional post-rotate translation (a 2-tuple).
-                if value is 'random', then the function is random.
+                   if value is 'random', then the function is random.
         fillcolor: An optional color for area outside the rotated image.
-                if value is 'random', fillcolor is one of ['green', 'red', 'white', 'black'].
-                you can also pass in a list of colors or la.image.RGBMode.
-    
+                   if value is 'random', fillcolor is one of ['green', 'red', 'white', 'black'].
+                   you can also pass in a list of colors or la.image.RGBMode.
+        p: probability that the image does this. Default value is 1.
     Returns:
-        A PIL instance. of the same type and shape as `image`.
+        A PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if translate=='random':
         translate = (np.random.randint(0, image.size[0]*0.8), np.random.randint(0, image.size[1]*0.8))
     if fillcolor=='random':
@@ -143,10 +140,10 @@ def translate(image, translate='random', fillcolor=None):
     return rotate(image, angle=0, expand=1, center=None, translate=translate, fillcolor=fillcolor)
 
 
-def offset(image, xoffset, yoffset=None):
-    """Returns a copy of the image where data has been offset by the given
-    distances. Data wraps around the edges. If ``yoffset`` is omitted, it
-    is assumed to be equal to ``xoffset``.
+def offset(image, xoffset, yoffset=None, p=1):
+    """Returns a copy of the image where data has been offset by the given distances.
+    
+    Data wraps around the edges. If ``yoffset`` is omitted, it is assumed to be equal to ``xoffset``.
 
     Args:
         image: a PIL instance.
@@ -155,9 +152,12 @@ def offset(image, xoffset, yoffset=None):
         yoffset: int or list ot tuple, The vertical distance. 
                  If omitted, both distances are set to the same value.
                  if tuple or list, randomly picked in the interval `[yoffset[0], yoffset[1])`
+        p: probability that the image does this. Default value is 1.
     Return:
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if isinstance(xoffset, (list, tuple)):
         xoffset = np.random.randint(xoffset[0], xoffset[1])
     if yoffset is None:
@@ -167,7 +167,7 @@ def offset(image, xoffset, yoffset=None):
     return ImageChops.offset(image, xoffset, yoffset)
 
 
-def pad(image, pad_value, pad_color=None):
+def pad(image, pad_value, pad_color=None, p=1):
     """Add border to the image
     
     Args:
@@ -180,9 +180,12 @@ def pad(image, pad_value, pad_color=None):
                    if len(pad_color) == 2, left_color, top_color = right_color, bottom_color = pad_color
                    if len(pad_color) == 3, left_color = top_color = right_color = bottom_color = pad_color
                    if len(pad_color) == 4, left_color, top_color, right_color, bottom_color = pad_color
+        p: probability that the image does this. Default value is 1.
     Returns:
         A PIL instance. 
     """
+    if np.random.uniform()>p:
+        return image
     if isinstance(pad_value, (tuple, list)):
         if len(pad_value) == 2:
             left, top = right, bottom = pad_value
@@ -194,10 +197,10 @@ def pad(image, pad_value, pad_color=None):
         left = top = right = bottom = pad_value
     
     if pad_color is None:
-        left_color = (randint(0, 255), randint(0, 255), randint(0, 255))
-        top_color = (randint(0, 255), randint(0, 255), randint(0, 255))
-        right_color = (randint(0, 255), randint(0, 255), randint(0, 255))
-        bottom_color = (randint(0, 255), randint(0, 255), randint(0, 255))
+        left_color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
+        top_color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
+        right_color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
+        bottom_color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
     elif isinstance(pad_color, dict):
         left_color = top_color = right_color = bottom_color = pad_color['rgb']
     elif isinstance(pad_color, (tuple, list)):
@@ -224,14 +227,17 @@ def pad(image, pad_value, pad_color=None):
     return out
 
 
-def shuffle_channel(image):
+def shuffle_channel(image, p=1):
     """Random shuffle image channel.
     
     Args:
         image: a PIL instance.
+        p: probability that the image does this. Default value is 1.
     returns: 
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     assert image.mode=='RGB', 'image mode should be RGB.'
     t = image.split()
     return Image.merge("RGB", tuple(t[i] for i in np.random.choice([0,1,2], 3, replace=False)))
@@ -300,7 +306,7 @@ def transform_affine(image, angle=(-180, 180), translate=(0, 0), scale=1., shear
         center: Optional center of rotation. Origin is the upper left corner. Default is the center of the image.
         p: probability that the image does this. Default value is 1.
     Returns:
-        PIL Image or Tensor: Transformed image.
+        a PIL instance.
     """
     if np.random.uniform()>p:
         return image

@@ -39,7 +39,6 @@ def resize(image, size, method=ResizeMode.BILINEAR):
         image: a PIL instance.
         size: The requested size in pixels, as a 2-tuple: (width, height).
         method: An optional resampling filter. see la.image.ResizeMode.
-    
     Returns:
         a PIL instance.
     """

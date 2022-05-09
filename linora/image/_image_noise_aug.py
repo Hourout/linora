@@ -1,15 +1,15 @@
 from linora.image._image_noise import *
 
 class ImageNoiseAug(object):
-    def __init__(self, image=None):
+    def __init__(self, image=None, p=1):
         self.image = image
+        self._p = p
     
-    def noise_gaussian(self, scale=1, mean=0.0, std=1.0):
+    def noise_gaussian(self, scale=1, mean=0.0, std=1.0, p=None):
         """Gaussian noise apply to image.
 
         new pixel = image + gaussian_noise * scale
         Args:
-            image: a PIL instance.
             scale: if int or float, value multiply with poisson_noise.
                    if tuple or list, randomly picked in the interval
                    `[scale[0], scale[1])`, value multiply with poisson_noise.
@@ -19,35 +19,32 @@ class ImageNoiseAug(object):
             std: if int or float, value is gaussian distribution std.
                  if tuple or list, randomly picked in the interval
                  `[std[0], std[1])`, value is gaussian distribution std.
-        Returns:
-            a PIL instance.
+            p: probability that the image does this. Default value is 1.
         """
-        if type(self.image)!=np.ndarray:
-            self.image_to_array(self.image)
-        self.image = noise_gaussian(self.image, scale, mean, std)
+        if p is None:
+            p = self._p
+        self.image = noise_gaussian(self.image, scale, mean, std, p)
         return self
     
-    def noise_poisson(self, scale=1, lam=1.0):
+    def noise_poisson(self, scale=1, lam=1.0, p=None):
         """Poisson noise apply to image.
 
         new pixel = image + poisson_noise * scale
         Args:
-            image: a PIL instance.
             scale: if int or float, value multiply with poisson_noise.
                    if tuple or list, randomly picked in the interval
                    `[scale[0], scale[1])`, value multiply with poisson_noise.
             lam: if int or float, value is poisson distribution lambda.
                  if tuple or list, randomly picked in the interval
                  `[lam[0], lam[1])`, value is poisson distribution lambda.
-        Returns:
-            a PIL instance.
+            p: probability that the image does this. Default value is 1.
         """
-        if type(self.image)!=np.ndarray:
-            self.image_to_array(self.image)
-        self.image = noise_poisson(self.image, scale, lam)
+        if p is None:
+            p = self._p
+        self.image = noise_poisson(self.image, scale, lam, p)
         return self
     
-    def noise_color(self, white_prob=0.05, black_prob=0.05, rainbow_prob=0):
+    def noise_color(self, white_prob=0.05, black_prob=0.05, rainbow_prob=0, p=None):
         """Mask noise apply to image with color.
 
         while: 
@@ -65,12 +62,12 @@ class ImageNoiseAug(object):
         and randomly assigning these pixels to 0 or 255.
 
         Args:
-            image: a PIL instance.
             white_prob: white pixel prob.
             black_prob: black pixel prob.
             rainbow_prob: rainbow color pixel prob.
-        Returns:
-            a PIL instance.
+            p: probability that the image does this. Default value is 1.
         """
-        self.image = noise_color(self.image, white_prob, black_prob, rainbow_prob)
+        if p is None:
+            p = self._p
+        self.image = noise_color(self.image, white_prob, black_prob, rainbow_prob, p)
         return self

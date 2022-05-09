@@ -10,9 +10,6 @@ class ImageResizeAug(object):
         Args:
             size: The requested size in pixels, as a 2-tuple: (width, height).
             method: An optional resampling filter. see la.image.ResizeMode.
-
-        Returns:
-            a PIL instance.
         """
         self.image = resize(self.image, size, method)
         return self
