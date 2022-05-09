@@ -1,3 +1,4 @@
+import numpy as np
 from PIL import ImageFilter
 
 __all__ = ['FilterMode', 'filters']
@@ -13,7 +14,7 @@ class filter_mode:
     Min               = 'min'
     Max               = 'max'
     Mode              = 'mode'
-    BLUR              = 'BLUR'
+    Mean              = 'BLUR'
     CONTOUR           = 'CONTOUR'
     DETAIL            = 'DETAIL'
     EDGE_ENHANCE      = 'EDGE_ENHANCE'
@@ -27,7 +28,7 @@ class filter_mode:
 FilterMode = filter_mode()
 
 
-def filters(image, mode=FilterMode.BLUR, **kwarg):
+def filters(image, mode=FilterMode.Mean, p=1, **kwarg):
     """
     la.image.FilterMode.Box:
         Blurs the image by setting each pixel to the average value of the pixels 
@@ -105,10 +106,10 @@ def filters(image, mode=FilterMode.BLUR, **kwarg):
         eg.
         la.image.filters(image, mode=la.image.FilterMode.Mode, size=3)
         
-    la.image.FilterMode.BLUR:
+    la.image.FilterMode.Mean:
         Normal blur.
         eg.
-        la.image.filters(image, mode=la.image.FilterMode.BLUR)
+        la.image.filters(image, mode=la.image.FilterMode.Mean)
         
     la.image.FilterMode.CONTOUR:
         contour blur.
@@ -157,10 +158,13 @@ def filters(image, mode=FilterMode.BLUR, **kwarg):
 
     Args:
         image: a PIL instance.
-        mode:la.image.BlurMode
+        mode:la.image.FilterMode.
+        p: probability that the image does this. Default value is 1.
     Returns:
-            A PIL instance.
+        A PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if 'radius' not in kwarg:
         kwarg['radius'] = 2
     if 'size' not in kwarg:

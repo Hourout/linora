@@ -6,7 +6,7 @@ from PIL import Image, ImageChops
 
 __all__ = ['flip_up_left', 'flip_up_right', 'flip_left_right', 'flip_up_down', 
            'rotate', 'translate', 'offset', 'pad', 'shuffle_channel',
-          'transform_perspective', 'transform_affine'
+           'transform_perspective', 'transform_affine'
           ]
 
 

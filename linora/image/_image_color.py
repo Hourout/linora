@@ -9,7 +9,7 @@ __all__ = ['enhance_saturation', 'enhance_contrast', 'enhance_brightness', 'enha
           ]
 
 
-def enhance_saturation(image, delta):
+def enhance_saturation(image, delta, p=1):
     """Adjust image color balance.
 
     This class can be used to adjust the colour balance of an image, 
@@ -21,20 +21,22 @@ def enhance_saturation(image, delta):
         image: a PIL instance.
         delta: A floating point value controlling the enhancement. 
                delta 1.0 always returns a copy of the original image, 
-               lower factors mean less color, 
-               and higher values more. There are no restrictions on this value.
-               if list, tuple, randomly picked in the interval
-                   `[delta[0], delta[1])` , value is float multiplier for adjusting color.
+               lower factors mean less color, and higher values more. 
+               There are no restrictions on this value.
+               if list, tuple, randomly picked in the interval `[delta[0], delta[1])` , 
+               value is float multiplier for adjusting color.
+        p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if isinstance(delta, (list, tuple)):
-        assert delta[0]<delta[1], 'delta should be delta[1] > delta[0].'
         delta = np.random.uniform(delta[0], delta[1])
     return ImageEnhance.Color(image).enhance(delta)
 
 
-def enhance_contrast(image, delta):
+def enhance_contrast(image, delta, p=1):
     """Adjust contrast of RGB or grayscale images.
   
     Contrast is adjusted independently for each channel of each image.
@@ -52,16 +54,18 @@ def enhance_contrast(image, delta):
         delta: if int, float, a float multiplier for adjusting contrast.
                if list, tuple, randomly picked in the interval
                `[delta[0], delta[1])` , value is float multiplier for adjusting contrast.
+        p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if isinstance(delta, (list, tuple)):
-        assert delta[0]<delta[1], 'delta should be delta[1] > delta[0].'
         delta = np.random.uniform(delta[0], delta[1])
     return ImageEnhance.Contrast(image).enhance(delta)
 
 
-def enhance_brightness(image, delta):
+def enhance_brightness(image, delta, p=1):
     """Adjust the brightness of RGB or Grayscale images.
     
     Tips:
@@ -73,16 +77,18 @@ def enhance_brightness(image, delta):
         delta: if int, float, Amount to add to the pixel values.
                if list, tuple, randomly picked in the interval
                `[delta[0], delta[1])` to add to the pixel values.
+        p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if isinstance(delta, (list, tuple)):
-        assert delta[0]<delta[1], 'delta should be delta[1] > delta[0]'
         delta = np.random.uniform(delta[0], delta[1])
     return ImageEnhance.Brightness(image).enhance(delta)
 
 
-def enhance_sharpness(image, delta):
+def enhance_sharpness(image, delta, p=1):
     """Adjust image sharpness.
 
     This class can be used to adjust the sharpness of an image. 
@@ -94,20 +100,23 @@ def enhance_sharpness(image, delta):
         image: a PIL instance.
         delta: A floating point value controlling the enhancement. 
                delta 1.0 always returns a copy of the original image, 
-               lower factors mean less sharpness, 
-               and higher values more. There are no restrictions on this value.
+               lower factors mean less sharpness, and higher values more. 
+               There are no restrictions on this value.
                if list, tuple, randomly picked in the interval
-                   `[delta[0], delta[1])` , value is float multiplier for adjusting color.
+               `[delta[0], delta[1])` , value is float multiplier for adjusting color.
+        p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if isinstance(delta, (list, tuple)):
         assert delta[0]<delta[1], 'delta should be delta[1] > delta[0]'
         delta = np.random.uniform(delta[0], delta[1])
     return ImageEnhance.Sharpness(image).enhance(delta)
 
 
-def enhance_hue(image, delta):
+def enhance_hue(image, delta, p=1):
     """Adjust hue of an image.
     
     The image hue is adjusted by converting the image to HSV and
@@ -124,9 +133,12 @@ def enhance_hue(image, delta):
                0 means no shift. Therefore, both -1 and 1 will give an image
                with complementary colors while 0 gives the original image.
                if list or tuple, randomly picked in the interval `[delta[0], delta[1])`.
+        p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if isinstance(delta, (list, tuple)):
         delta = np.random.randint(delta[0], delta[1])
     assert -1. <= delta <= 1., "`delta` is not in [-1, 1]."
@@ -138,7 +150,7 @@ def enhance_hue(image, delta):
     return Image.merge("HSV", (h, s, v)).convert(input_mode)
 
 
-def gamma(image, gamma=1, gain=1.0):
+def gamma(image, gamma=1, gain=1.0, p=1):
     """Perform gamma correction on an image.
     
     For gamma greater than 1, the histogram will shift towards left and the output image will be darker than the input image. 
@@ -150,9 +162,12 @@ def gamma(image, gamma=1, gain=1.0):
                if list or tuple, randomly picked in the interval `[gamma[0], gamma[1])`.
         gain: float, The constant multiplier.
               if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
+        p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if isinstance(gamma, (list, tuple)):
         gamma = np.random.randint(gamma[0], gamma[1])
     if isinstance(gain, (list, tuple)):
@@ -224,7 +239,7 @@ def color_clip(image, lower=None, upper=None, p=1):
     return image
 
 
-def equalize(image):
+def equalize(image, p=1):
     """
     Equalize the image histogram. This function applies a non-linear
     mapping to the input image, in order to create a uniform
@@ -232,9 +247,12 @@ def equalize(image):
 
     Args:
         image: a PIL instance.
+        p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     return ImageOps.equalize(image)
 
 

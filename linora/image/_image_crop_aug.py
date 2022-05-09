@@ -1,22 +1,24 @@
 from linora.image._image_crop import *
 
 class ImageCropAug(object):
-    def __init__(self, image=None):
+    def __init__(self, image=None, p=1):
         self.image = image
+        self._p = p
         
-    def crop(self, box):
-        """
-        Returns a rectangular region from this image. The box is a
-        4-tuple defining the left, upper, right, and lower pixel coordinate.
+    def crop(self, box, p=None):
+        """Returns a rectangular region from this image. 
+        
+        The box is a 4-tuple defining the left, upper, right, and lower pixel coordinate.
         Args:
             box: The crop rectangle, as a (left, upper, right, lower)-tuple.
-        returns: 
-            a PIL instance.
+            p: probability that the image does this. Default value is 1.
         """
-        self.image = crop(self.image, box)
+        if p is None:
+            p = self._p
+        self.image = crop(self.image, box, p)
         return self
 
-    def crop_central(self, central_rate):
+    def crop_central(self, central_rate, p=None):
         """Crop the central region of the image.
     
         Remove the outer parts of an image but retain the central region of the image
@@ -33,19 +35,17 @@ class ImageCropAug(object):
         batch of images (`image` is a 4-D Tensor).
 
         Args:
-            image: a PIL instance.
             central_rate: if int float, should be in the interval (0, 1], fraction of size to crop.
                           if tuple list, randomly picked in the interval
                           `[central_rate[0], central_rate[1])`, value is fraction of size to crop.
-        Returns:
-            a PIL instance.
-        Raises:
-            ValueError: if central_crop_fraction is not within (0, 1].
+            p: probability that the image does this. Default value is 1.
         """
-        self.image = crop_central(self.image, central_rate)
+        if p is None:
+            p = self._p
+        self.image = crop_central(self.image, central_rate, p)
         return self
     
-    def crop_point(self, height_rate, width_rate):
+    def crop_point(self, height_rate, width_rate, p=None):
         """Crop the any region of the image(s) and resize specify shape.
     
         Crop region area = height_rate * width_rate *image_height * image_width
@@ -54,17 +54,13 @@ class ImageCropAug(object):
         batch of images (`image` is a 4-D Tensor).
 
         Args:
-            image: a PIL instance.
             height_rate: float, in the interval (0, 1].
             width_rate: float, in the interval (0, 1].
-        Returns:
-            a PIL instance.
+            p: probability that the image does this. Default value is 1.
         Raises:
             ValueError: if central_crop_fraction is not within (0, 1].
         """
-        self.image = crop_point(self.image, height_rate, width_rate)
+        if p is None:
+            p = self._p
+        self.image = crop_point(self.image, height_rate, width_rate, p)
         return self
-    
-    
-    
-    

@@ -1,10 +1,11 @@
 from linora.image._image_filter import *
 
 class ImageFilterAug(object):
-    def __init__(self, image=None):
+    def __init__(self, image=None, p=1):
         self.image = image
+        self._p = p
     
-    def filters(self, mode=FilterMode.BLUR, **kwarg):
+    def filters(self, mode=FilterMode.Mean, p=None, **kwarg):
         """
         la.image.FilterMode.Box:
             Blurs the image by setting each pixel to the average value of the pixels 
@@ -82,10 +83,10 @@ class ImageFilterAug(object):
             eg.
             la.image.filters(image, mode=la.image.FilterMode.Mode, size=3)
 
-        la.image.FilterMode.BLUR:
+        la.image.FilterMode.Mean:
             Normal blur.
             eg.
-            la.image.filters(image, mode=la.image.FilterMode.BLUR)
+            la.image.filters(image, mode=la.image.FilterMode.Mean)
 
         la.image.FilterMode.CONTOUR:
             contour blur.
@@ -133,10 +134,10 @@ class ImageFilterAug(object):
             la.image.filters(image, mode=la.image.FilterMode.SMOOTH_MORE)
 
         Args:
-            image: a PIL instance.
-            mode:la.image.BlurMode
-        Returns:
-                A PIL instance.
-    """
-        self.image = filters(self.image, mode, **kwarg)
+            mode: la.image.FilterMode.
+            p: probability that the image does this. Default value is 1.
+        """
+        if p is None:
+            p = self._p
+        self.image = filters(self.image, mode, p, **kwarg)
         return self

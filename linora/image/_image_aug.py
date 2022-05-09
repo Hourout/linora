@@ -18,6 +18,7 @@ class ImageAug(ImageIoAug, ImageColorAug, ImageNoiseAug, ImageResizeAug,
     
     Args:
         image: a PIL instance.
+        p: probability that the image does this. Default value is 1.
     """
-    def __init__(self, image=None):
-        super(ImageAug, self).__init__(image)
+    def __init__(self, image=None, p=1):
+        super(ImageAug, self).__init__(image, p)

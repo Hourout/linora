@@ -6,23 +6,29 @@ from PIL import Image
 __all__ = ['crop', 'crop_central', 'crop_point', 'concat', 'split', 'paste']
 
 
-def crop(image, box):
-    """
-    Returns a rectangular region from this image. The box is a
-    4-tuple defining the left, upper, right, and lower pixel coordinate.
-
+def crop(image, box, p=1):
+    """Returns a rectangular region from this image. 
+    
+    The box is a 4-tuple defining the left, upper, right, and lower pixel coordinate.
     Args:
         image: a PIL instance.
         box: The crop rectangle, as a (left, upper, right, lower)-tuple.
+             if [x,y], transform [x,x,y,y] 4-tuple.
+        p: probability that the image does this. Default value is 1.
     returns: 
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
     if len(box)==2:
-        box = [box[0][0], box[0][1], box[1][0], box[1][1]]
+        if isinstance(box[0], (list, tuple)):
+            box = [box[0][0], box[0][1], box[1][0], box[1][1]]
+        else:
+            box = [box[0], box[0], box[1], box[1]]
     return image.crop(box)
 
 
-def crop_central(image, central_rate):
+def crop_central(image, central_rate, p=1):
     """Crop the central region of the image.
     
     Remove the outer parts of an image but retain the central region of the image
@@ -40,11 +46,14 @@ def crop_central(image, central_rate):
         central_rate: if int float, should be in the interval (0, 1], fraction of size to crop.
                       if tuple list, randomly picked in the interval
                       `[central_rate[0], central_rate[1])`, value is fraction of size to crop.
+        p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
     Raises:
         ValueError: if central_crop_fraction is not within (0, 1].
     """
+    if np.random.uniform()>p:
+        return image
     if isinstance(central_rate, (int, float)):
         assert 0<central_rate<=1, 'if central_rate type one of int or float, must be in the interval (0, 1].'
     elif isinstance(central_rate, (tuple, list)):
@@ -59,7 +68,7 @@ def crop_central(image, central_rate):
     return image.crop((left, upper, right, lower))
 
 
-def crop_point(image, height_rate, width_rate):
+def crop_point(image, height_rate, width_rate, p=1):
     """Crop the any region of the image.
     
     Crop region area = height_rate * width_rate *image_height * image_width
@@ -68,11 +77,14 @@ def crop_point(image, height_rate, width_rate):
         image: a PIL instance.
         height_rate: float, in the interval (0, 1].
         width_rate: float, in the interval (0, 1].
+        p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
     Raises:
         ValueError: if central_crop_fraction is not within (0, 1].
     """
+    if np.random.uniform()>p:
+        return image
     assert 0<height_rate<=1 and 0<width_rate<=1, 'height_rate and width_rate should be in the interval (0, 1].'
     left = image.size[0]*np.random.uniform(0, 1-width_rate)
     upper = image.size[1]*np.random.uniform(0, 1-height_rate)
