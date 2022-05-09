@@ -4,8 +4,8 @@ import numpy as np
 from PIL import ImageEnhance, ImageOps
 
 __all__ = ['enhance_saturation', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
+           'enhance_hue', 'gamma', 'color_invert', 'color_clip', 'equalize', 'rgb_hex',
            'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
-           'color_invert', 'equalize', 'rgb_hex'
           ]
 
 
@@ -107,21 +107,121 @@ def enhance_sharpness(image, delta):
     return ImageEnhance.Sharpness(image).enhance(delta)
 
 
-def color_invert(image, threshold=0):
-    """Invert colors of input PIL image.
+def enhance_hue(image, delta):
+    """Adjust hue of an image.
     
-    Pixels with values less than threshold are not inverted.
+    The image hue is adjusted by converting the image to HSV and
+    cyclically shifting the intensities in the hue channel (H).
+    The image is then converted back to original image mode.
+    
+    `delta` is the amount of shift in H channel and must be in the interval `[-1, 1]`.
 
     Args:
         image: a PIL instance.
-        threshold: int or list or tuple, [0, 255], All pixels above this greyscale level are inverted.
-                if list or tuple, randomly picked in the interval `[threshold[0], threshold[1])`
+        delta: How much to shift the hue channel. Should be in [-1, 1]. 
+               1 and -1 give complete reversal of hue channel in
+               HSV space in positive and negative direction respectively.
+               0 means no shift. Therefore, both -1 and 1 will give an image
+               with complementary colors while 0 gives the original image.
+               if list or tuple, randomly picked in the interval `[delta[0], delta[1])`.
     Returns:
         a PIL instance.
     """
-    if isinstance(threshold, (list, tuple)):
-        threshold = np.random.randint(threshold[0], threshold[1])
-    return ImageOps.solarize(image, threshold=threshold)
+    if isinstance(delta, (list, tuple)):
+        delta = np.random.randint(delta[0], delta[1])
+    assert -1. <= delta <= 1., "`delta` is not in [-1, 1]."
+    input_mode = image.mode
+    if input_mode in {"L", "1", "I", "F"}:
+        return image
+    h, s, v = image.convert("HSV").split()
+    h = h.point(lambda x:x+delta * 127.5)
+    return Image.merge("HSV", (h, s, v)).convert(input_mode)
+
+
+def gamma(image, gamma=1, gain=1.0):
+    """Perform gamma correction on an image.
+    
+    For gamma greater than 1, the histogram will shift towards left and the output image will be darker than the input image. 
+    For gamma less than 1, the histogram will shift towards right and the output image will be brighter than the input image.
+    Args:
+        image: a PIL instance.
+        gamma: float, Non negative real number, gamma larger than 1 make the shadows darker, 
+               while gamma smaller than 1 make dark regions lighter.
+               if list or tuple, randomly picked in the interval `[gamma[0], gamma[1])`.
+        gain: float, The constant multiplier.
+              if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
+    Returns:
+        a PIL instance.
+    """
+    if isinstance(gamma, (list, tuple)):
+        gamma = np.random.randint(gamma[0], gamma[1])
+    if isinstance(gain, (list, tuple)):
+        gain = np.random.randint(gain[0], gain[1])
+    assert gamma >= 0, "Gamma should be a non-negative real number."
+    input_mode = image.mode
+    if input_mode!="RGB":
+        image = image.convert("RGB")
+    gamma_map = [int((255 + 1 - 1e-3) * gain * pow(ele / 255.0, gamma)) for ele in range(256)] * 3
+    image = image.point(gamma_map)
+    if input_mode!="RGB":
+        image = image.convert(input_mode)
+    return image
+
+
+def color_invert(image, lower=None, upper=None, p=1):
+    """Invert colors of input PIL image.
+
+    Args:
+        image: a PIL instance.
+        lower: int or list or tuple, [0, 255], All pixels below this greyscale level are inverted.
+               if list or tuple, randomly picked in the interval `[lower[0], lower[1])`.
+        upper: int or list or tuple, [0, 255], All pixels above this greyscale level are inverted.
+               if list or tuple, randomly picked in the interval `[upper[0], upper[1])`.
+        p: probability that the image does this. Default value is 1.
+    Returns:
+        a PIL instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(lower, (list, tuple)):
+        lower = np.random.randint(lower[0], lower[1])
+    if isinstance(upper, (list, tuple)):
+        upper = np.random.randint(upper[0], upper[1])
+    if lower is None and upper is None:
+        lower = upper = 128
+    elif lower is None:
+        lower = 0
+    elif upper is None:
+        upper = 255
+    return image.point(lambda x: 255-x if x<=lower or x>=upper else x)
+
+
+def color_clip(image, lower=None, upper=None, p=1):
+    """Clip colors of input PIL image.
+    
+    Args:
+        image: a PIL instance.
+        lower: int or list or tuple, [0, 255], All pixels below this greyscale level are clipped.
+               if list or tuple, randomly picked in the interval `[lower[0], lower[1])`.
+        upper: int or list or tuple, [0, 255], All pixels above this greyscale level are clipped.
+               if list or tuple, randomly picked in the interval `[upper[0], upper[1])`.
+        p: probability that the image does this. Default value is 1.
+    Returns:
+        a PIL instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(lower, (list, tuple)):
+        lower = np.random.randint(lower[0], lower[1])
+    if isinstance(upper, (list, tuple)):
+        upper = np.random.randint(upper[0], upper[1])
+    if lower is None and upper is None:
+        raise ValueError('`lower` and `upper` at least one value.')
+    if lower is not None:
+        image = image.point(lambda x: lower if x<=lower else x)
+    if upper is not None:
+        image = image.point(lambda x: upper if x>=upper else x)
+    return image
 
 
 def equalize(image):

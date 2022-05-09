@@ -1,10 +1,13 @@
+import math
 from random import randint
 
 import numpy as np
 from PIL import Image, ImageChops
 
 __all__ = ['flip_up_left', 'flip_up_right', 'flip_left_right', 'flip_up_down', 
-           'rotate', 'translate', 'offset', 'pad', 'shuffle_channel']
+           'rotate', 'translate', 'offset', 'pad', 'shuffle_channel',
+          'transform_perspective', 'transform_affine'
+          ]
 
 
 def flip_up_left(image, random=False):
@@ -232,3 +235,121 @@ def shuffle_channel(image):
     assert image.mode=='RGB', 'image mode should be RGB.'
     t = image.split()
     return Image.merge("RGB", tuple(t[i] for i in np.random.choice([0,1,2], 3, replace=False)))
+
+
+def transform_perspective(image, distortion_scale, fill_color=None, p=1):
+    """Performs a random perspective transformation of the given image with a given probability. 
+
+    Args:
+        image: a PIL instance.
+        distortion_scale: float, argument to control the degree of distortion and ranges from 0 to 1.
+        fill_color: int or str or tuple or la.image.RGBMode, rgb color.
+        p: probability that the image does this. Default value is 1.
+    Returns:
+        a PIL instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    (width, height) = image.size
+    half_height = height // 2
+    half_width = width // 2
+    topleft = [np.random.randint(0, distortion_scale*half_width+1), 
+               np.random.randint(0, distortion_scale*half_height+1)]
+    topright = [np.random.randint(width - distortion_scale * half_width- 1, width),
+                np.random.randint(0, distortion_scale * half_height + 1)]
+    botright = [np.random.randint(width - distortion_scale * half_width - 1, width),
+                np.random.randint(height - distortion_scale * half_height - 1, height)]
+    botleft = [np.random.randint(0, distortion_scale * half_width + 1),
+               np.random.randint(height - distortion_scale * half_height - 1, height)]
+    
+    startpoints = [[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]]
+    endpoints = [topleft, topright, botright, botleft]
+    
+    a_matrix = np.zeros([2 * len(startpoints), 8])
+    for i, (p1, p2) in enumerate(zip(endpoints, startpoints)):
+        a_matrix[2 * i, :] = np.array([p1[0], p1[1], 1, 0, 0, 0, -p2[0] * p1[0], -p2[0] * p1[1]])
+        a_matrix[2 * i + 1, :] = np.array([0, 0, 0, p1[0], p1[1], 1, -p2[1] * p1[0], -p2[1] * p1[1]])
+
+    b_matrix = np.array(startpoints, dtype=np.float32).flatten()
+    coeffs = np.linalg.lstsq(a_matrix, b_matrix, rcond=None)[0].tolist()
+    if fill_color is None:
+        fill_color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
+    elif isinstance(fill_color, dict):
+        fill_color = fill_color['mode']
+    return image.transform(image.size, Image.Transform.PERSPECTIVE, coeffs, 
+                           Image.Resampling.BILINEAR, fillcolor=fill_color)
+
+
+def transform_affine(image, angle=(-180, 180), translate=(0, 0), scale=1., shear=(0,0), center=None, fill_color=None, p=1):
+    """Apply affine transformation on the image keeping image center invariant.
+    
+    Args:
+        image: a PIL instance.
+        angle: int or float, rotation angle in degrees between -180 and 180. Set to 0 to deactivate rotations.
+               if list or tuple, randomly picked in the interval `[angle[0], angle[1])`.
+        translate: list or tuple, tuple of maximum absolute fraction for horizontal and vertical translations. 
+                   For example translate=(a, b), then horizontal shift is randomly sampled 
+                   in the range -img_width * a < dx < img_width * a 
+                   and vertical shift is randomly sampled in the range -img_height * b < dy < img_height * b. 
+                   Will not translate by default.
+        scale: float, scaling factor interval, if list or tuple, randomly picked in the interval `[scale[0], scale[1])`.
+        shear: Range of degrees to select from. 
+               Else if shear is a sequence of 2 values a shear parallel to the x axis in the range (shear[0], shear[1]) will be applied. 
+               Else if shear is a sequence of 4 values, a x-axis shear in (shear[0], shear[1]) and y-axis shear in (shear[2], shear[3]) will be applied. 
+        fill_color: int or str or tuple or la.image.RGBMode, rgb color. Pixel fill value for the area outside the transformed image.
+        center: Optional center of rotation. Origin is the upper left corner. Default is the center of the image.
+        p: probability that the image does this. Default value is 1.
+    Returns:
+        PIL Image or Tensor: Transformed image.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(angle, (list, tuple)):
+        angle = np.random.uniform(angle[0], angle[1])
+
+    width, height = image.size
+    max_dx = translate[0] * width
+    max_dy = translate[1] * height
+    tx = np.random.randint(-max_dx, max_dx+1)
+    ty = np.random.randint(-max_dy, max_dy+1)
+        
+    if isinstance(scale, (list, tuple)):
+        scale = np.random.uniform(scale[0], scale[1])
+    if scale <= 0.0:
+        raise ValueError("Argument scale should be positive")
+
+    shear_x = shear_y = 0.0
+    if isinstance(shear, (int, float)):
+        shear_x = shear_y = shear
+    elif isinstance(shear, (list, tuple)):
+        shear_x = np.random.uniform(shear[0], shear[1])
+        if len(shear) == 4:
+            shear_y = np.random.uniform(shear[2], shear[3])
+    shear = (shear_x, shear_y)
+
+    if center is None:
+        cx, cy = [width * 0.5, height * 0.5]
+    elif isinstance(center, (int, float)):
+        cx, cy = center
+    
+    rot = math.radians(angle)
+    sx = math.radians(shear[0])
+    sy = math.radians(shear[1])
+
+    a = math.cos(rot - sy) / math.cos(sy)
+    b = -math.cos(rot - sy) * math.tan(sx) / math.cos(sy) - math.sin(rot)
+    c = math.sin(rot - sy) / math.cos(sy)
+    d = -math.sin(rot - sy) * math.tan(sx) / math.cos(sy) + math.cos(rot)
+
+    matrix = [d, -b, 0.0, -c, a, 0.0]
+    matrix = [x / scale for x in matrix]
+    matrix[2] += matrix[0] * (-cx - tx) + matrix[1] * (-cy - ty)
+    matrix[5] += matrix[3] * (-cx - tx) + matrix[4] * (-cy - ty)
+    matrix[2] += cx
+    matrix[5] += cy
+    if fill_color is None:
+        fill_color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
+    elif isinstance(fill_color, dict):
+        fill_color = fill_color['mode']
+    return image.transform(image.size, Image.Transform.AFFINE, matrix, 
+                           Image.Resampling.BILINEAR, fillcolor=fill_color)

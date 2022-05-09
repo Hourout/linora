@@ -12,3 +12,4 @@ from linora.image._image_pairs import *
 from linora.image._image_feature import *
 from linora.image._image_draw import *
 from linora.image._image_rgb import *
+from linora.image._image_box import *
