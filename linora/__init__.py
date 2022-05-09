@@ -5,14 +5,13 @@ from linora import param_search
 from linora import feature_column
 from linora import feature_selection
 from linora import sample
-from linora import sample_splits
 from linora import text
 from linora import image
 from linora import utils
 from linora import gfile
 from linora import data
 
-__version__ = '1.3.0'
+__version__ = '1.4.0'
 __author__ = 'JinQing Lee'
 
 def _version():
