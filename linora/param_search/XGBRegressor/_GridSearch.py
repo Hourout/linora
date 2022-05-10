@@ -72,7 +72,7 @@ class GridSearch():
         logger = Logger(name='xgb')
         if speedy:
             test_size = 1-round(min(speedy_param[0], feature.shape[0]*speedy_param[1])/feature.shape[0], 2)
-        tree_method = ['gpu_hist'] if gpu>-1 else ['auto', 'exact', 'approx', 'hist']
+        tree_method = ['gpu_hist'] if gpu_id>-1 else ['auto', 'exact', 'approx', 'hist']
         n_job = int(np.ceil(cpu_count()*0.8))
 
         self.HyperParameter.Choice('n_jobs', [n_job])

@@ -8,7 +8,7 @@ from linora.parallel import ProcessLoom
 from linora.image._image_util import *
 from linora.image._image_io import read_image
 
-__all__ = ['mean_std', 'lego', 'pencil_sketch', 'histogram']
+__all__ = ['mean_std', 'lego', 'pencil_sketch', 'histogram', 'flow_to_image']
 
 
 def mean_std(image_file, mode=True):
@@ -188,3 +188,86 @@ def histogram(image, if_global=False, if_prob=False):
             s = [sum(i) for i in t]
             t = [[k/j for k in i] for i,j in zip(t, s)]
     return t
+
+
+def flow_to_image(flow):
+    """Converts a flow to an RGB image.
+
+    Args:
+        flow: a numpy array with shape (2, H, W) or (H, W, 2).
+    Returns:
+        a numpy array with shape (H, W, 3).
+    """
+    if flow.shape[0]==2:
+        flow = np.transpose(flow, (1,2,0))
+
+    max_norm = np.sqrt(np.sum(flow ** 2, axis=2)).max()
+    epsilon = np.finfo((flow).dtype).eps
+    normalized_flow = flow / (max_norm + epsilon)
+    
+    H, W, _ = normalized_flow.shape
+    flow_image = np.zeros((H, W, 3), dtype=np.uint8)
+    colorwheel = _make_colorwheel()
+    num_cols = colorwheel.shape[0]
+    norm = np.sqrt(np.sum(normalized_flow ** 2, axis=2))
+    a = np.arctan2(-normalized_flow[:, :, 1], -normalized_flow[:, :, 0]) / np.pi
+    fk = (a + 1) / 2 * (num_cols - 1)
+    k0 = np.floor(fk).astype(np.int32)
+    k1 = k0 + 1
+    k1[k1 == num_cols] = 0
+    f = fk - k0
+
+    for c in range(colorwheel.shape[1]):
+        tmp = colorwheel[:, c]
+        col0 = tmp[k0] / 255.0
+        col1 = tmp[k1] / 255.0
+        col = (1 - f) * col0 + f * col1
+        col = 1 - norm * (1 - col)
+        flow_image[:, :, c] = np.floor(255 * col)
+    return flow_image
+
+
+def _make_colorwheel():
+    """
+    Generates a color wheel for optical flow visualization as presented in:
+    Baker et al. "A Database and Evaluation Methodology for Optical Flow" (ICCV, 2007)
+    URL: http://vision.middlebury.edu/flow/flowEval-iccv07.pdf.
+
+    Returns:
+        colorwheel (Tensor[55, 3]): Colorwheel Tensor.
+    """
+    RY = 15
+    YG = 6
+    GC = 4
+    CB = 11
+    BM = 13
+    MR = 6
+
+    ncols = RY + YG + GC + CB + BM + MR
+    colorwheel = np.zeros((ncols, 3))
+    col = 0
+
+    # RY
+    colorwheel[0:RY, 0] = 255
+    colorwheel[0:RY, 1] = np.floor(255 * np.arange(0, RY) / RY)
+    col = col + RY
+    # YG
+    colorwheel[col : col + YG, 0] = 255 - np.floor(255 * np.arange(0, YG) / YG)
+    colorwheel[col : col + YG, 1] = 255
+    col = col + YG
+    # GC
+    colorwheel[col : col + GC, 1] = 255
+    colorwheel[col : col + GC, 2] = np.floor(255 * np.arange(0, GC) / GC)
+    col = col + GC
+    # CB
+    colorwheel[col : col + CB, 1] = 255 - np.floor(255 * np.arange(CB) / CB)
+    colorwheel[col : col + CB, 2] = 255
+    col = col + CB
+    # BM
+    colorwheel[col : col + BM, 2] = 255
+    colorwheel[col : col + BM, 0] = np.floor(255 * np.arange(0, BM) / BM)
+    col = col + BM
+    # MR
+    colorwheel[col : col + MR, 2] = 255 - np.floor(255 * np.arange(MR) / MR)
+    colorwheel[col : col + MR, 0] = 255
+    return colorwheel
