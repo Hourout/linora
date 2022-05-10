@@ -113,7 +113,7 @@ class GridSearch():
             if metrics_min:
                 if cv_score<scoring:
                     scoring = cv_score
-                    self.best_params = params.copy()
+                    self.best_params = self.HyperParameter.params.copy()
                     self.best_params_history[i] = {'score':scoring, 'best_params':self.best_params.copy()}
                     if save_model_dir is not None:
                         model.save_model(os.path.join(save_model_dir, f"{save_model_name}_model.json"))
@@ -122,7 +122,7 @@ class GridSearch():
             else:
                 if cv_score>scoring:
                     scoring = cv_score
-                    self.best_params = params.copy()
+                    self.best_params = self.HyperParameter.params.copy()
                     self.best_params_history[i] = {'score':scoring, 'best_params':self.best_params.copy()}
                     if save_model_dir is not None:
                         model.save_model(os.path.join(save_model_dir, f"{save_model_name}_model.json"))
