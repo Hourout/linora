@@ -31,7 +31,8 @@ class RandomSearch():
         self.best_params = dict()
         self.best_params_history = dict()
 
-    def search(self, feature, label, sample_weight=None, metrics=auc_roc, loss='regression', 
+    def search(self, feature, label, vaild_data=None, sample_weight=None, 
+               metrics=auc_roc, loss='regression', 
                iter_num=100, scoring=0.5, cv=5, cv_num=3, metrics_min=True, 
                speedy=True, speedy_param=(20000, 0.3), 
                save_model_dir=None, save_model_name='lgb'):
@@ -40,6 +41,7 @@ class RandomSearch():
         Args:
             feature: pandas dataframe, model's feature.
             label: pandas series, model's label.
+            vaild_data: A list of (X, y) tuple pairs to use as validation sets, for which metrics will be computed. 
             sample_weight: pd.Series or np.array, sample weight, shape is (n,).
             metrics: model metrics function, default is `la.metircs.auc_roc`.
             loss: LGBMRegressor param 'objective'.
@@ -66,6 +68,9 @@ class RandomSearch():
             test_size = 1-round(min(speedy_param[0], feature.shape[0]*speedy_param[1])/feature.shape[0], 2)
         self.HyperParameter.Choice('objective', [loss])
 
+        if vaild_data is not None:
+            cv_score_list = []
+            
         logger.info(f"Start LGBMRegressor hyperparameter random search.")
         for i in range(1, iter_num+1):
             self.HyperParameter.update()
@@ -86,6 +91,24 @@ class RandomSearch():
                     cv_pred = pd.Series(model.predict(feature.loc[index[1]]), index=label[index[1]].index)
                     score.append(metrics(label[index[1]], cv_pred))
             cv_score = np.mean(score)
+            if vaild_data is not None:
+                cv_score_list.append(cv_score)
+                if metrics_min:
+                    cv_score_list.sort()
+                    if cv_score_list[int(len(cv_score_list)*0.2)]>=cv_score:
+                        cv_pred = pd.Series(model.predict(vaild_data[0]), index=vaild_data[1].index)
+                        cv_score = metrics(vaild_data[1], cv_pred)
+                    else:
+                        logger.info(f"Random search progress: {i/iter_num*100:.1f}%, best score: {scoring:.4f}", enter=False if i<iter_num else True)
+                        continue
+                else:
+                    cv_score_list.sort(reverse=1)
+                    if cv_score_list[int(len(cv_score_list)*0.2)]<=cv_score:
+                        cv_pred = pd.Series(model.predict(vaild_data[0]), index=vaild_data[1].index)
+                        cv_score = metrics(vaild_data[1], cv_pred)
+                    else:
+                        logger.info(f"Random search progress: {i/iter_num*100:.1f}%, best score: {scoring:.4f}", enter=False if i<iter_num else True)
+                        continue
             if metrics_min:
                 if cv_score<scoring:
                     scoring = cv_score
