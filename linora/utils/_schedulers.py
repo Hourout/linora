@@ -3,6 +3,7 @@ import multiprocessing
 from collections import defaultdict
 
 from linora.utils._config import Config
+from linora.utils._logger import Logger
 
 __all__ = ['Schedulers']
 
@@ -22,7 +23,7 @@ class Schedulers():
         self.params = Config()
         self.params.verbose = verbose
         if logger is None:
-            self.params.verbose = 0
+            logger = Logger()
         self.params.logger = logger
         self.params.config_file = config_file
         manager = multiprocessing.Manager()
@@ -200,8 +201,10 @@ class Schedulers():
                 
         for name in self.config:
             self._reset_time(name, time_now)
+            if self.params.logger.params.log_file!='':
+                self.params.logger.write(f'New task {name} has been added.')
             if self.params.verbose:
-                self.params.logger.info(f'New task {name} has been added.', write_file=True)
+                self.params.logger.info(f'New task {name} has been added.')
         
         while True:
             time_now = datetime.datetime.now()
@@ -223,15 +226,19 @@ class Schedulers():
                             self.config[name]['execute_num'] = 0
                             self.config[name]['time_init'] = time_now
                             self._reset_time(name, time_now)
+                            if self.params.logger.params.log_file!='':
+                                self.params.logger.write(f'New task {name} has been added.')
                             if self.params.verbose:
-                                self.params.logger.info(f'New task {name} has been added.', write_file=True)
+                                self.params.logger.info(f'New task {name} has been added.')
                         for i,j in config.config[name].items():
                             self.config[name][i] = j
                         self.config[name]['runner'] = (self.config[name]['function'], self.config[name]['args'], 
                                                        self.config[name]['kwargs'], name)
             except Exception as msg:
+                if self.params.logger.params.log_file!='':
+                    self.params.logger.write(str(msg))
                 if self.params.verbose:
-                    self.params.logger.info(str(msg), write_file=True)
+                    self.params.logger.info(str(msg))
     
     def _run(self, runner):
         """Runs function runner """
@@ -253,10 +260,10 @@ class Schedulers():
                 "error": error}
         msg = (f'task {runner[3]} started_time: {str(started)[:19]}, finished_time: {str(finished)[:19]}, '+
                f'execution_time: {round((finished - started).total_seconds(),4)}s, got_error: {got_error}, error: {error}.')
-        if self.params.verbose:
-            self.params.logger.info(msg, write_file=True)
-        elif self.params.logger is not None:
+        if self.params.logger.params.log_file!='':
             self.params.logger.write(msg)
+        if self.params.verbose:
+            self.params.logger.info(msg)
             
     def _start(self, runner):
         """Starts runner process """
