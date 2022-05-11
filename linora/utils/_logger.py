@@ -118,12 +118,15 @@ class Logger():
         if close:
             self.close()
         
-    def write(self, msg):
+    def write(self, msg, only_msg=False):
         """Logs write to the log file.
         
         Args:
             msg: log message.
+            only_msg: only write msg, otherwise record time.
         """
+        if not only_msg:
+            msg = (f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}] [{self.params.log_name}]" + msg)
         try:
             self.params.file.write(msg + '\n')
         except:
