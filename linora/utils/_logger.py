@@ -126,7 +126,7 @@ class Logger():
             only_msg: only write msg, otherwise record time.
         """
         if not only_msg:
-            msg = (f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}] [{self.params.log_name}]" + msg)
+            msg = (f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}] [{self.params.log_name}]: " + msg)
         try:
             self.params.file.write(msg + '\n')
         except:

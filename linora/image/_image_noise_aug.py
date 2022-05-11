@@ -5,6 +5,23 @@ class ImageNoiseAug(object):
         self.image = image
         self._p = p
     
+    def noise(self, mode=NoiseMode.Gaussian, wise='pixel', scale=1, prob=0.6, p=None, **kwargs):
+        """noise apply to image.
+
+        new pixel = image + gaussian_noise * scale
+        Args:
+            mode: la.image.NoiseMode
+            wise: 'pixel' or 'channel', method of applying noise.
+            scale: if int or float, value multiply with noise.
+                   if tuple or list, randomly picked in the interval `[scale[0], scale[1])`.
+            prob: probability of every pixel or channel being changed.
+            p: probability that the image does this. Default value is 1.
+        """
+        if p is None:
+            p = self._p
+        self.image = noise(self.image, mode, wise, scale, prob, p, **kwargs)
+        return self
+    
     def noise_gaussian(self, scale=1, mean=0.0, std=1.0, p=None):
         """Gaussian noise apply to image.
 
