@@ -1,10 +1,11 @@
 import random
 
 import numpy as np
+from PIL import Image
 
 from linora.image._image_draw import draw_point
 
-__all__ = ['noise_gaussian', 'noise_poisson', 'noise_color', 'NoiseMode', 'noise']
+__all__ = ['noise_color', 'NoiseMode', 'noise']
 
 
 class noise_mode:
@@ -146,61 +147,6 @@ def noise(image, mode=NoiseMode.Gaussian, wise='pixel', scale=1, prob=0.6, p=1, 
             return Image.merge(image.mode, split)
     else:
         raise ValueError("mode must be la.image.NoiseMode param.")
-
-
-def noise_gaussian(image, scale=1, mean=0.0, std=1.0, p=1):
-    """Gaussian noise apply to image.
-    
-    new pixel = image + gaussian_noise * scale
-    Args:
-        image: a PIL instance.
-        scale: if int or float, value multiply with gaussian noise.
-               if tuple or list, randomly picked in the interval
-               `[scale[0], scale[1])`, value multiply with gaussian noise.
-        mean: if int or float, value is gaussian distribution mean.
-              if tuple or list, randomly picked in the interval
-              `[mean[0], mean[1])`, value is gaussian distribution mean.
-        std: if int or float, value is gaussian distribution std.
-             if tuple or list, randomly picked in the interval
-             `[std[0], std[1])`, value is gaussian distribution std.
-        p: probability that the image does this. Default value is 1.
-    Returns:
-        a PIL instance.
-    """
-    if np.random.uniform()>p:
-        return image
-    if isinstance(scale, (tuple, list)):
-        scale = np.random.uniform(scale[0], scale[1])
-    if isinstance(std, (tuple, list)):
-        std = np.random.uniform(std[0], std[1])
-    if isinstance(mean, (tuple, list)):
-        mean = np.random.uniform(mean[0], mean[1])
-    return image.point(lambda x:int((np.random.normal(mean, std, size=1)*scale+x).round()))
-
-
-def noise_poisson(image, scale=1, lam=1.0, p=1):
-    """Poisson noise apply to image.
-    
-    new pixel = image + poisson_noise * scale
-    Args:
-        image: a PIL instance.
-        scale: if int or float, value multiply with poisson noise.
-               if tuple or list, randomly picked in the interval
-               `[scale[0], scale[1])`, value multiply with poisson noise.
-        lam: if int or float, value is poisson distribution lambda.
-             if tuple or list, randomly picked in the interval
-             `[lam[0], lam[1])`, value is poisson distribution lambda.
-        p: probability that the image does this. Default value is 1.
-    Returns:
-        a PIL instance.
-    """
-    if np.random.uniform()>p:
-        return image
-    if isinstance(scale, (tuple, list)):
-        scale = np.random.uniform(scale[0], scale[1])
-    if isinstance(lam, (tuple, list)):
-        lam = np.random.uniform(lam[0], lam[1])
-    return image.point(lambda x:int((np.random.poisson(lam, size=1)*scale+x).round()))
 
 
 def noise_color(image, white_prob=0.05, black_prob=0.05, rainbow_prob=0, p=1):

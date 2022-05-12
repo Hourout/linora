@@ -1,9 +1,10 @@
 import itertools
 from random import randint
 
+import numpy as np
 from PIL import ImageDraw
 
-__all__ = ['draw_box', 'draw_point', 'draw_mask', 'draw_line']
+__all__ = ['draw_box', 'draw_point', 'mask', 'draw_line']
 
 
 def draw_point(image, points, size=0, color=None):
@@ -33,26 +34,34 @@ def draw_point(image, points, size=0, color=None):
     return image2
 
 
-def draw_mask(image, size, max_num, random=False, color=None):
+def mask(image, size, max_num, random=True, color=None, p=1):
     """Draws a mask.
     
     Args:
         image: a PIL instance.
-        size: list or tuple, mask size, [height, width].
+        size: list or tuple, mask size, [height, width]. if int, transform [size, size].
         max_num: int, max mask number.
+                 if tuple or list, randomly picked in the interval `[max_num[0], max_num[1])`.
         random: bool, whether the mask position is random.
         color: str or tuple or la.image.RGBMode, rgb color, mask fill color.
+        p: probability that the image does this. Default value is 1.
     returns: 
         a PIL instance.
     """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(max_num, (list, tuple)):
+        max_num = int(np.random.uniform(max_num[0], max_num[1]))
+    if isinstance(size, (int, float)):
+        size = [int(size), int(size)]
     image2 = image.copy()
     draw = ImageDraw.Draw(image2)
     if random:
         for i in range(max_num):
-            axis = (randint(0, image.width-size[1]), randint(0, image.height-size[0]))
+            axis = (np.random.randint(0, image.width-size[1]), np.random.randint(0, image.height-size[0]))
             axis = [axis, (axis[0]+size[1], axis[1]+size[0])]
             if color is None:
-                color1 = (randint(0, 255), randint(0, 255), randint(0, 255))
+                color1 = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
             elif isinstance(color, dict):
                 color1 = color['mode']
             else:
@@ -68,7 +77,7 @@ def draw_mask(image, size, max_num, random=False, color=None):
                 axis = [width_pix*(i+1)+size[1]*i, height_pix*(j+1)+size[0]*j, 
                         width_pix*(i+1)+size[1]*(i+1), height_pix*(j+1)+size[0]*(j+1)]
                 if color is None:
-                    color1 = (randint(0, 255), randint(0, 255), randint(0, 255))
+                    color1 = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
                 elif isinstance(color, dict):
                     color1 = color['mode']
                 else:

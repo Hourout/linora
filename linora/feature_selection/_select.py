@@ -46,8 +46,8 @@ def correlation_columns(df, corr_rate=0.9):
         All features with corr greater than `corr_rate`.
     """
     t = df.corr()
-    t = t.where(np.triu(np.ones(t.shape), k=1).astype(bool))
-    return [[i,j,t[i][j]] for i in t for j in t[i] if abs(t[i][j])>corr_rate]
+    t = t.where(np.triu(np.ones(t.shape), k=1).astype(bool)).fillna(0)
+    return [[i,j,t.loc[i, j]] for i in t for j in t[i].index if abs(t.loc[i, j])>corr_rate]
 
 
 def cv_columns(df, cv_rate=0.):

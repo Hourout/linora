@@ -5,19 +5,36 @@ class ImageRescaleAug(object):
         self.image = image
         self._p = p
     
-    def rescale(self, scale, p=None):
+    def add(self, scale, wise='pixel', prob=1, p=None):
+        """add apply to image.
+
+        new pixel = int(image + scale)
+        Args:
+            scale: if int or float, value add with image.
+                   if tuple or list, randomly picked in the interval `[scale[0], scale[1])`.
+            wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+            prob: probability of every pixel or channel being changed.
+            p: probability that the image does this. Default value is 1.
+        """
+        if p is None:
+            p = self._p
+        self.image = add(self.image, scale, wise, prob, p)
+        return self
+    
+    def multiply(self, scale, wise='pixel', prob=1, p=None):
         """Rescale apply to image.
 
         new pixel = int(image * scale)
         Args:
             scale: if int or float, value multiply with image.
-                   if tuple or list, randomly picked in the interval
-                   `[central_rate[0], central_rate[1])`, value multiply with image.
+                   if tuple or list, randomly picked in the interval `[scale[0], scale[1])`.
+            wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+            prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
         if p is None:
             p = self._p
-        self.image = rescale(self.image, scale, p)
+        self.image = multiply(self.image, scale, wise, prob, p)
         return self
         
     def normalize_global(self, mean=None, std=None, p=None):

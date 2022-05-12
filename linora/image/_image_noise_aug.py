@@ -22,45 +22,6 @@ class ImageNoiseAug(object):
         self.image = noise(self.image, mode, wise, scale, prob, p, **kwargs)
         return self
     
-    def noise_gaussian(self, scale=1, mean=0.0, std=1.0, p=None):
-        """Gaussian noise apply to image.
-
-        new pixel = image + gaussian_noise * scale
-        Args:
-            scale: if int or float, value multiply with poisson_noise.
-                   if tuple or list, randomly picked in the interval
-                   `[scale[0], scale[1])`, value multiply with poisson_noise.
-            mean: if int or float, value is gaussian distribution mean.
-                  if tuple or list, randomly picked in the interval
-                  `[mean[0], mean[1])`, value is gaussian distribution mean.
-            std: if int or float, value is gaussian distribution std.
-                 if tuple or list, randomly picked in the interval
-                 `[std[0], std[1])`, value is gaussian distribution std.
-            p: probability that the image does this. Default value is 1.
-        """
-        if p is None:
-            p = self._p
-        self.image = noise_gaussian(self.image, scale, mean, std, p)
-        return self
-    
-    def noise_poisson(self, scale=1, lam=1.0, p=None):
-        """Poisson noise apply to image.
-
-        new pixel = image + poisson_noise * scale
-        Args:
-            scale: if int or float, value multiply with poisson_noise.
-                   if tuple or list, randomly picked in the interval
-                   `[scale[0], scale[1])`, value multiply with poisson_noise.
-            lam: if int or float, value is poisson distribution lambda.
-                 if tuple or list, randomly picked in the interval
-                 `[lam[0], lam[1])`, value is poisson distribution lambda.
-            p: probability that the image does this. Default value is 1.
-        """
-        if p is None:
-            p = self._p
-        self.image = noise_poisson(self.image, scale, lam, p)
-        return self
-    
     def noise_color(self, white_prob=0.05, black_prob=0.05, rainbow_prob=0, p=None):
         """Mask noise apply to image with color.
 

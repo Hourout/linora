@@ -1,18 +1,19 @@
 import numpy as np
-from PIL import ImageOps
+from PIL import Image, ImageOps
 
-__all__ = ['rescale', 'normalize_global', 'normalize_channel', 'normalize_posterize']
+__all__ = ['add', 'multiply', 'normalize_global', 'normalize_channel', 'normalize_posterize']
 
 
-def rescale(image, scale, p=1):
-    """Rescale apply to image.
+def add(image, scale, wise='pixel', prob=1, p=1):
+    """add apply to image.
     
-    new pixel = int(image * scale)
+    new pixel = int(image + scale)
     Args:
         image: a PIL instance.
-        scale: if int or float, value multiply with image.
-               if tuple or list, randomly picked in the interval
-               `[central_rate[0], central_rate[1])`, value multiply with image.
+        scale: if int or float, value add with image.
+               if tuple or list, randomly picked in the interval `[scale[0], scale[1])`.
+        wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+        prob: probability of every pixel or channel being changed.
         p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
@@ -21,7 +22,58 @@ def rescale(image, scale, p=1):
         return image
     if isinstance(scale, (tuple, list)):
         scale = np.random.uniform(scale[0], scale[1])
-    return image.point(lambda i: i*scale)
+    if wise=='pixel':
+        return image.point(lambda x:x+scale if np.random.uniform()<prob else x)
+    elif wise=='channel':
+        split = list(image.split())
+        for i in range(len(split)):
+            if np.random.uniform()<prob:
+                split[i] = split[i].point(lambda x:x+scale)
+        return Image.merge(image.mode, split)
+    elif isinstance(wise, (list, tuple)):
+        split = list(image.split())
+        for i in wise:
+            if np.random.uniform()<prob:
+                split[i] = split[i].point(lambda x:x+scale)
+        return Image.merge(image.mode, split)
+    else:
+        raise ValueError("`wise` should be 'pixel' or 'channel' or list of channel.")
+
+
+def multiply(image, scale, wise='pixel', prob=1, p=1):
+    """Rescale apply to image.
+    
+    new pixel = int(image * scale)
+    Args:
+        image: a PIL instance.
+        scale: if int or float, value multiply with image.
+               if tuple or list, randomly picked in the interval `[scale[0], scale[1])`.
+        wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+        prob: probability of every pixel or channel being changed.
+        p: probability that the image does this. Default value is 1.
+    Returns:
+        a PIL instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(scale, (tuple, list)):
+        scale = np.random.uniform(scale[0], scale[1])
+    if wise=='pixel':
+        return image.point(lambda x:x*scale if np.random.uniform()<prob else x)
+    elif wise=='channel':
+        split = list(image.split())
+        for i in range(len(split)):
+            if np.random.uniform()<prob:
+                split[i] = split[i].point(lambda x:x*scale)
+        return Image.merge(image.mode, split)
+    elif isinstance(wise, (list, tuple)):
+        split = list(image.split())
+        for i in wise:
+            if np.random.uniform()<prob:
+                split[i] = split[i].point(lambda x:x*scale)
+        return Image.merge(image.mode, split)
+    else:
+        raise ValueError("`wise` should be 'pixel' or 'channel' or list of channel.")
 
 
 def normalize_global(image, mean=None, std=None, p=1):
