@@ -6,6 +6,7 @@ from PIL import ImageEnhance, ImageOps
 __all__ = ['enhance_saturation', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
            'enhance_hue', 'gamma', 'color_invert', 'color_clip', 'equalize', 'rgb_hex',
            'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
+           'dropout'
           ]
 
 
@@ -183,7 +184,7 @@ def gamma(image, gamma=1, gain=1.0, p=1):
     return image
 
 
-def color_invert(image, lower=None, upper=None, p=1):
+def color_invert(image, lower=None, upper=None, wise='pixel', prob=1, p=1):
     """Invert colors of input PIL image.
 
     Args:
@@ -192,6 +193,8 @@ def color_invert(image, lower=None, upper=None, p=1):
                if list or tuple, randomly picked in the interval `[lower[0], lower[1])`.
         upper: int or list or tuple, [0, 255], All pixels above this greyscale level are inverted.
                if list or tuple, randomly picked in the interval `[upper[0], upper[1])`.
+        wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+        prob: probability of every pixel or channel being changed.
         p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
@@ -208,10 +211,25 @@ def color_invert(image, lower=None, upper=None, p=1):
         lower = 0
     elif upper is None:
         upper = 255
-    return image.point(lambda x: 255-x if x<=lower or x>=upper else x)
+    if wise=='pixel':
+        return image.point(lambda x: 255-x if (x<=lower or x>=upper) and np.random.uniform()<prob else x)
+    elif wise=='channel':
+        split = list(image.split())
+        for i in range(len(split)):
+            if np.random.uniform()<prob:
+                split[i] = split[i].point(lambda x: 255-x if x<=lower or x>=upper else x)
+        return Image.merge(image.mode, split)
+    elif isinstance(wise, (list, tuple)):
+        split = list(image.split())
+        for i in wise:
+            if np.random.uniform()<prob:
+                split[i] = split[i].point(lambda x: 255-x if x<=lower or x>=upper else x)
+        return Image.merge(image.mode, split)
+    else:
+        raise ValueError("`wise` should be 'pixel' or 'channel' or list of channel.")
 
 
-def color_clip(image, lower=None, upper=None, p=1):
+def color_clip(image, lower=None, upper=None, wise='pixel', prob=1, p=1):
     """Clip colors of input PIL image.
     
     Args:
@@ -220,6 +238,8 @@ def color_clip(image, lower=None, upper=None, p=1):
                if list or tuple, randomly picked in the interval `[lower[0], lower[1])`.
         upper: int or list or tuple, [0, 255], All pixels above this greyscale level are clipped.
                if list or tuple, randomly picked in the interval `[upper[0], upper[1])`.
+        wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+        prob: probability of every pixel or channel being changed.
         p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
@@ -232,11 +252,32 @@ def color_clip(image, lower=None, upper=None, p=1):
         upper = np.random.randint(upper[0], upper[1])
     if lower is None and upper is None:
         raise ValueError('`lower` and `upper` at least one value.')
-    if lower is not None:
-        image = image.point(lambda x: lower if x<=lower else x)
-    if upper is not None:
-        image = image.point(lambda x: upper if x>=upper else x)
-    return image
+    if wise=='pixel':
+        if lower is not None:
+            image = image.point(lambda x: lower if x<=lower and np.random.uniform()<prob else x)
+        if upper is not None:
+            image = image.point(lambda x: upper if x>=upper and np.random.uniform()<prob else x)
+        return image
+    elif wise=='channel':
+        split = list(image.split())
+        for i in range(len(split)):
+            if np.random.uniform()<prob:
+                if lower is not None:
+                    split[i] = split[i].point(lambda x: lower if x<=lower else x)
+                if upper is not None:
+                    split[i] = split[i].point(lambda x: upper if x>=upper else x)
+        return Image.merge(image.mode, split)
+    elif isinstance(wise, (list, tuple)):
+        split = list(image.split())
+        for i in wise:
+            if np.random.uniform()<prob:
+                if lower is not None:
+                    split[i] = split[i].point(lambda x: lower if x<=lower else x)
+                if upper is not None:
+                    split[i] = split[i].point(lambda x: upper if x>=upper else x)
+        return Image.merge(image.mode, split)
+    else:
+        raise ValueError("`wise` should be 'pixel' or 'channel' or list of channel.")
 
 
 def equalize(image, p=1):
@@ -369,3 +410,46 @@ def rgb_hex(color):
     if isinstance(color, (list, tuple)):
         return '#'+''.join([str(hex(i))[-2:].replace('x', '0').upper() for i in color])
     raise ValueError('`color` value error, should be str or list or tuple.')
+    
+
+def dropout(image, value=0, wise='pixel', prob=0.1, p=1):
+    """Drop random channels from images.
+
+    For image data, dropped channels will be filled with value.
+    
+    Args:
+        image: a PIL instance.
+        value: int or list, dropped channels will be filled with value.
+        wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+        prob: probability of every pixel or channel being changed.
+        p: probability that the image does this. Default value is 1.
+    returns: 
+        a PIL instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(value, (int, float)):
+        value = [int(value)]
+    if wise=='pixel':
+        return image.point(lambda x:np.random.choice(value) if np.random.uniform()<prob else x)
+    elif wise=='channel':
+        split = list(image.split())
+        index = np.random.randint(0, len(split))
+        for i in range(len(split)):
+            if np.random.uniform()<prob and i!=index:
+                split[i] = split[i].point(lambda x:np.random.choice(value))
+        return Image.merge(image.mode, split)
+    elif isinstance(wise, (list, tuple)):
+        split = list(image.split())
+        index = np.random.randint(0, len(split))
+        if index in wise:
+            if len(split)==len(wise):
+                index = 0
+            else:
+                index = -1
+        for i in wise:
+            if np.random.uniform()<prob and i!=index:
+                split[i] = split[i].point(lambda x:np.random.choice(value))
+        return Image.merge(image.mode, split)
+    else:
+        raise ValueError("`wise` should be list of channel.")

@@ -130,7 +130,7 @@ class ImageColorAug(object):
         self.image = gamma(self.image, gamma, gain, p)
         return self
     
-    def color_invert(self, lower=None, upper=None, p=None):
+    def color_invert(self, lower=None, upper=None, wise='pixel', prob=1, p=None):
         """Invert colors of input PIL image.
 
         Args:
@@ -138,14 +138,16 @@ class ImageColorAug(object):
                    if list or tuple, randomly picked in the interval `[lower[0], lower[1])`.
             upper: int or list or tuple, [0, 255], All pixels above this greyscale level are inverted.
                    if list or tuple, randomly picked in the interval `[upper[0], upper[1])`.
+            wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+            prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
         if p is None:
             p = self._p
-        self.image = color_invert(self.image, lower, upper, p)
+        self.image = color_invert(self.image, lower, upper, wise, prob, p)
         return self
     
-    def color_clip(self, lower=None, upper=None, p=None):
+    def color_clip(self, lower=None, upper=None, wise='pixel', prob=1, p=None):
         """Clipped colors of input PIL image.
 
         Args:
@@ -153,11 +155,13 @@ class ImageColorAug(object):
                    if list or tuple, randomly picked in the interval `[lower[0], lower[1])`.
             upper: int or list or tuple, [0, 255], All pixels above this greyscale level are clipped.
                    if list or tuple, randomly picked in the interval `[upper[0], upper[1])`.
+            wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+            prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
         if p is None:
             p = self._p
-        self.image = color_clip(self.image, lower, upper, p)
+        self.image = color_clip(self.image, lower, upper, wise, prob, p)
         return self
 
     def equalize(self, p=None):
@@ -169,5 +173,23 @@ class ImageColorAug(object):
         Args:
             p: probability that the image does this. Default value is 1.
         """
+        if p is None:
+            p = self._p
         self.image = equalize(self.image, p)
+        return self
+
+    def dropout(self, value=0, wise='pixel', prob=0.1, p=None):
+        """Drop random channels from images.
+
+        For image data, dropped channels will be filled with value.
+
+        Args:
+            value: int or list, dropped channels will be filled with value.
+            wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+            prob: probability of every pixel or channel being changed.
+            p: probability that the image does this. Default value is 1.
+        """
+        if p is None:
+            p = self._p
+        self.image = dropout(self.image, value, wise, prob, p)
         return self

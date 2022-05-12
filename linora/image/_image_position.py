@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image, ImageChops
 
 __all__ = ['flip_up_left', 'flip_up_right', 'flip_left_right', 'flip_up_down', 
-           'rotate', 'translate', 'offset', 'pad', 'shuffle_channel',
+           'rotate', 'translate', 'offset', 'pad', 'channel_shuffle',
            'transform_perspective', 'transform_affine'
           ]
 
@@ -65,7 +65,7 @@ def flip_up_down(image, p=1):
     return image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
 
-def rotate(image, angle, expand=True, center=None, translate=None, fillcolor=None, p=1):
+def rotate(image, angle, expand=False, center=None, translate=None, fillcolor=None, p=1):
     """Returns a rotated copy of this image. 
     
     This method returns a copy of this image, rotated the given number of degrees counter clockwise around its centre.
@@ -227,7 +227,7 @@ def pad(image, pad_value, pad_color=None, p=1):
     return out
 
 
-def shuffle_channel(image, p=1):
+def channel_shuffle(image, p=1):
     """Random shuffle image channel.
     
     Args:
@@ -238,10 +238,9 @@ def shuffle_channel(image, p=1):
     """
     if np.random.uniform()>p:
         return image
-    assert image.mode=='RGB', 'image mode should be RGB.'
     t = image.split()
-    return Image.merge("RGB", tuple(t[i] for i in np.random.choice([0,1,2], 3, replace=False)))
-
+    return Image.merge(image.mode, [t[i] for i in np.random.choice(list(range(len(t))), len(t), replace=False)])
+        
 
 def transform_perspective(image, distortion_scale, fill_color=None, p=1):
     """Performs a random perspective transformation of the given image with a given probability. 

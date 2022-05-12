@@ -49,7 +49,7 @@ class ImagePositionAug(object):
         self.image = flip_up_down(self.image, p)
         return self
     
-    def rotate(self, angle, expand=True, center=None, translate=None, fillcolor=None, p=None):
+    def rotate(self, angle, expand=False, center=None, translate=None, fillcolor=None, p=None):
         """Returns a rotated copy of this image. 
         
         This method returns a copy of this image, rotated the given number of degrees counter clockwise around its centre.
@@ -131,7 +131,7 @@ class ImagePositionAug(object):
         self.image = pad(self.image, pad_value, pad_color, p)
         return self
     
-    def shuffle_channel(self, p=None):
+    def channel_shuffle(self, p=None):
         """Random shuffle image channel.
 
         Args:
