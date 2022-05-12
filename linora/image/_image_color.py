@@ -38,7 +38,7 @@ def enhance_saturation(image, delta, p=1):
 
 
 def enhance_contrast(image, delta, p=1):
-    """Adjust contrast of RGB or grayscale images.
+    """Adjust image contrast.
   
     Contrast is adjusted independently for each channel of each image.
     
@@ -48,13 +48,11 @@ def enhance_contrast(image, delta, p=1):
     
     Tips:
         1 means pixel value no change.
-        0 means all pixel equal. 
-        a suitable interval is (0, 4].
+        0 means all pixel equal, pixel is image mean.
     Args:
         images: a PIL instance.
         delta: if int, float, a float multiplier for adjusting contrast.
-               if list, tuple, randomly picked in the interval
-               `[delta[0], delta[1])` , value is float multiplier for adjusting contrast.
+               if list, tuple, randomly picked in the interval `[delta[0], delta[1])`.
         p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
@@ -67,17 +65,17 @@ def enhance_contrast(image, delta, p=1):
 
 
 def enhance_brightness(image, delta, p=1):
-    """Adjust the brightness of RGB or Grayscale images.
+    """Adjust image brightness.
     
     Tips:
-        delta extreme value in the interval [-1, 1], >1 to white, <-1 to black.
-        a suitable interval is [-0.5, 0.5].
-        0 means pixel value no change.
+        delta >1 to white, <1 to black.
+        a suitable interval is [0.5, 1.5].
+        0 means black.
+        1 means pixel value no change.
     Args:
         image: a PIL instance.
         delta: if int, float, Amount to add to the pixel values.
-               if list, tuple, randomly picked in the interval
-               `[delta[0], delta[1])` to add to the pixel values.
+               if list, tuple, randomly picked in the interval `[delta[0], delta[1])`.
         p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
@@ -118,7 +116,7 @@ def enhance_sharpness(image, delta, p=1):
 
 
 def enhance_hue(image, delta, p=1):
-    """Adjust hue of an image.
+    """Adjust image hue.
     
     The image hue is adjusted by converting the image to HSV and
     cyclically shifting the intensities in the hue channel (H).
