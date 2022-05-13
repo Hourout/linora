@@ -1,7 +1,31 @@
 import numpy as np
 from PIL import ImageFilter
 
-__all__ = ['FilterMode', 'filters']
+__all__ = ['FilterMode', 'filters', 'convolution']
+
+
+def convolution(image, kernel, scale=None, offset=0):
+    """Create a convolution kernel.  
+    
+    The current version only supports 3x3 and 5x5 integer and floating point kernels.
+    In the current version, kernels can only be applied to "L" and "RGB" images.
+
+    Args:
+        image: a PIL instance.
+        kernel: a sequence containing kernel weights.
+        scale: each pixel is divided by this value, the default is the sum of the kernel weights.
+        offset: this value is added to the result, after it has been divided by the scale factor.
+    Return:
+        a PIL instance.
+    """
+    kernel = np.array(kernel).flatten().tolist()
+    if len(kernel)==9:
+        size = (3,3)
+    elif len(kernel)==25:
+        size = (5,5)
+    else:
+        raise ValueError('Kernel size must be (3,3) or (5,5).')
+    return image.filter(ImageFilter.Kernel(size, kernel, scale, offset))
 
 
 class filter_mode:

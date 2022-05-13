@@ -5,7 +5,7 @@ from PIL import Image, ImageChops
 
 __all__ = ['flip_up_left', 'flip_up_right', 'flip_left_right', 'flip_up_down', 
            'rotate', 'translate', 'offset', 'pad', 'channel_shuffle',
-           'transform_perspective', 'transform_affine'
+           'perspective', 'affine', 'shear', 'rescale', 'jigsaw'
           ]
 
 
@@ -65,29 +65,39 @@ def flip_up_down(image, p=1):
     return image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
 
-def rotate(image, angle, expand=False, center=None, translate=None, fillcolor=None, p=1):
+def _fill_color(image, fill_color):
+    if fill_color is None:
+        return tuple([np.random.randint(0, 255) for i in image.getbands()])
+    elif isinstance(fill_color, dict):
+        return fill_color['mode']
+    elif isinstance(fill_color, list):
+        return np.random.choice(fill_color)
+    return fill_color
+
+
+def rotate(image, angle, expand=False, center=(0.5,0.5), translate=(0,0), fill_color=None, p=1):
     """Returns a rotated copy of this image. 
     
     This method returns a copy of this image, rotated the given number of degrees counter clockwise around its centre.
     
     Args:
         image: a PIL instance.
-        angle: In degrees counter clockwise.
+        angle: In degrees counter clockwise, angle in [-180, 180].
                if int or float, rotation angle.
                if list or tuple, randomly picked in the interval `[angle[0], angle[1])` value.
-        expand: Optional expansion flag. If true, expands the output image to make it large 
-                enough to hold the entire rotated image. If false or omitted, 
-                make the output image the same size as the input image. 
+        expand: if true, expands the output image to make it large enough to hold the entire rotated image. 
+                if false, make the output image the same size as the input image. 
                 Note that the expand flag assumes rotation around the center and no translation.
-                if value is 'random', then the function is random.
-        center: Optional center of rotation (a 2-tuple). Origin is the upper left corner. 
-                Default is the center of the image.
-                if value is 'random', then the function is random.
-        translate: An optional post-rotate translation (a 2-tuple).
-                   if value is 'random', then the function is random.
-        fillcolor: An optional color for area outside the rotated image.
-                   if value is 'random', fillcolor is one of ['green', 'red', 'white', 'black'].
-                   you can also pass in a list of colors or la.image.RGBMode.
+                if value is None, then the function is random.
+        center: center of rotation, xaxis and yaxis in [0,1], default is the center of the image.
+                if int or float, xaxis=yaxis,
+                if 2-tuple, (xaxis, yaxis), 
+                if 4-tuple, xaxis in (center[0], center[1]) and yaxis in (center[2], center[3]).
+        translate: post-rotate translation, xoffset and yoffset in [-1,1], see la.image.translate method.
+                   if int or float, xoffset=yoffset,
+                   if 2-tuple, (xoffset, yoffset), 
+                   if 4-tuple, xoffset in (translate[0], translate[1]) and  yoffset in (translate[2], translate[3]).
+        fill_color: color for area outside, int or str or tuple or la.image.RGBMode, rgb color.
         p: probability that the image does this. Default value is 1.
     Returns:
         A PIL instance.
@@ -95,49 +105,67 @@ def rotate(image, angle, expand=False, center=None, translate=None, fillcolor=No
     if np.random.uniform()>p:
         return image
     if isinstance(angle, (list, tuple)):
-        assert angle[0]<angle[1], '`angle` must be angle[0]<angle[1].'
         angle = np.random.uniform(angle[0], angle[1])
-    if expand=='random':
+    if expand is None:
         expand = np.random.choice([True, False])
-    if center=='random':
-        center = (np.random.randint(0, image.size[0]), np.random.randint(0, image.size[1]))
-    if translate=='random':
-        translate = (np.random.randint(0, image.size[0]*0.8), np.random.randint(0, image.size[1]*0.8))
-    if fillcolor=='random':
-        fillcolor = np.random.choice(['green', 'red', 'white', 'black'])
-    elif isinstance(fillcolor, dict):
-        fillcolor = fillcolor['rgb']
-    elif isinstance(fillcolor, list):
-        fillcolor = np.random.choice(fillcolor)
+        
+    if isinstance(center, (int, float)):
+        center = (int(center*image.size[0]), int(center*image.size[1]))
+    elif isinstance(center, (list, tuple)):
+        if len(center)==2:
+            center = (int(center[0]*image.size[0]), int(center[1]*image.size[1]))
+        elif len(center)==4:
+            center = (int(np.random.uniform(center[0], center[1])*image.size[0]), 
+                      int(np.random.uniform(center[2], center[3])*image.size[1]))
+        else:
+            raise ValueError('`center` value format error.')
+    else:
+        raise ValueError('`center` value format error.')
+    
+    if isinstance(translate, (int, float)):
+        translate = (int(translate*image.size[0]), int(translate*image.size[1]))
+    elif isinstance(translate, (list, tuple)):
+        if len(translate)==2:
+            translate = (int(translate[0]*image.size[0]), int(translate[1]*image.size[1]))
+        elif len(translate)==4:
+            translate = (int(np.random.uniform(translate[0], translate[1])*image.size[0]), 
+                         int(np.random.uniform(translate[2], translate[3])*image.size[1]))
+        else:
+            raise ValueError('`translate` value format error.')
+    else:
+        raise ValueError('`translate` value format error.')
+    
+    fill_color = _fill_color(image, fill_color)
     return image.rotate(angle, resample=Image.Resampling.NEAREST, expand=expand, 
-                        center=center, translate=translate, fillcolor=fillcolor)
+                        center=center, translate=translate, fillcolor=fill_color)
 
 
-def translate(image, translate='random', fillcolor=None, p=1):
+def translate(image, xoffset=(-0.5,0.5), yoffset=None, fill_color=None, p=1):
     """Returns a translate copy of this image. 
     
     Args:
         image: a PIL instance.
-        translate: An optional post-rotate translation (a 2-tuple).
-                   if value is 'random', then the function is random.
-        fillcolor: An optional color for area outside the rotated image.
-                   if value is 'random', fillcolor is one of ['green', 'red', 'white', 'black'].
-                   you can also pass in a list of colors or la.image.RGBMode.
+        xoffset: [-1, 1], int or float, width offset.
+                 if list or tuple, randomly picked in the interval `[xoffset[0], xoffset[1])`.
+        yoffset: [-1, 1], int or float, height offset.
+                 if list or tuple, randomly picked in the interval `[yoffset[0], yoffset[1])`.
+        fill_color: int or str or tuple or la.image.RGBMode, rgb color.
         p: probability that the image does this. Default value is 1.
     Returns:
         A PIL instance.
     """
     if np.random.uniform()>p:
         return image
-    if translate=='random':
-        translate = (np.random.randint(0, image.size[0]*0.8), np.random.randint(0, image.size[1]*0.8))
-    if fillcolor=='random':
-        fillcolor = np.random.choice(['green', 'red', 'white', 'black'])
-    elif isinstance(fillcolor, dict):
-        fillcolor = fillcolor['rgb']
-    elif isinstance(fillcolor, list):
-        fillcolor = np.random.choice(fillcolor)
-    return rotate(image, angle=0, expand=1, center=None, translate=translate, fillcolor=fillcolor)
+    if isinstance(xoffset, (list, tuple)):
+        xoffset = np.random.uniform(xoffset[0], xoffset[1])
+    if yoffset is None:
+        yoffset = xoffset
+    elif isinstance(yoffset, (list, tuple)):
+        yoffset = np.random.uniform(yoffset[0], yoffset[1])
+    xoffset = int(image.size[0]*xoffset)
+    yoffset = int(image.size[1]*yoffset)
+    fill_color = _fill_color(image, fill_color)
+    return rotate(image, angle=0, expand=0, center=None, translate=(xoffset, yoffset), fillcolor=fill_color)
 
 
 def offset(image, xoffset, yoffset=None, p=1):
@@ -148,10 +176,10 @@ def offset(image, xoffset, yoffset=None, p=1):
     Args:
         image: a PIL instance.
         xoffset: int or list ot tuple, The horizontal distance.
-                 if tuple or list, randomly picked in the interval `[xoffset[0], xoffset[1])`
+                 if tuple or list, randomly picked in the interval `[xoffset[0], xoffset[1])`.
         yoffset: int or list ot tuple, The vertical distance. 
                  If omitted, both distances are set to the same value.
-                 if tuple or list, randomly picked in the interval `[yoffset[0], yoffset[1])`
+                 if tuple or list, randomly picked in the interval `[yoffset[0], yoffset[1])`.
         p: probability that the image does this. Default value is 1.
     Return:
         a PIL instance.
@@ -242,7 +270,7 @@ def channel_shuffle(image, p=1):
     return Image.merge(image.mode, [t[i] for i in np.random.choice(list(range(len(t))), len(t), replace=False)])
         
 
-def transform_perspective(image, distortion_scale, fill_color=None, p=1):
+def perspective(image, distortion_scale, fill_color=None, p=1):
     """Performs a random perspective transformation of the given image with a given probability. 
 
     Args:
@@ -277,32 +305,33 @@ def transform_perspective(image, distortion_scale, fill_color=None, p=1):
 
     b_matrix = np.array(startpoints, dtype=np.float32).flatten()
     coeffs = np.linalg.lstsq(a_matrix, b_matrix, rcond=None)[0].tolist()
-    if fill_color is None:
-        fill_color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
-    elif isinstance(fill_color, dict):
-        fill_color = fill_color['mode']
+    fill_color = _fill_color(image, fill_color)
     return image.transform(image.size, Image.Transform.PERSPECTIVE, coeffs, 
-                           Image.Resampling.BILINEAR, fillcolor=fill_color)
+                           Image.Resampling.NEAREST, fillcolor=fill_color)
 
 
-def transform_affine(image, angle=(-180, 180), translate=(0, 0), scale=1., shear=(0,0), center=None, fill_color=None, p=1):
+def affine(image, angle=(-180, 180), center=(0.5,0.5), translate=(0, 0), scale=1., shear=(0,0), fill_color=None, p=1):
     """Apply affine transformation on the image keeping image center invariant.
     
     Args:
         image: a PIL instance.
         angle: int or float, rotation angle in degrees between -180 and 180. Set to 0 to deactivate rotations.
                if list or tuple, randomly picked in the interval `[angle[0], angle[1])`.
-        translate: list or tuple, tuple of maximum absolute fraction for horizontal and vertical translations. 
-                   For example translate=(a, b), then horizontal shift is randomly sampled 
-                   in the range -img_width * a < dx < img_width * a 
-                   and vertical shift is randomly sampled in the range -img_height * b < dy < img_height * b. 
-                   Will not translate by default.
-        scale: float, scaling factor interval, if list or tuple, randomly picked in the interval `[scale[0], scale[1])`.
-        shear: Range of degrees to select from. 
-               Else if shear is a sequence of 2 values a shear parallel to the x axis in the range (shear[0], shear[1]) will be applied. 
-               Else if shear is a sequence of 4 values, a x-axis shear in (shear[0], shear[1]) and y-axis shear in (shear[2], shear[3]) will be applied. 
-        fill_color: int or str or tuple or la.image.RGBMode, rgb color. Pixel fill value for the area outside the transformed image.
-        center: Optional center of rotation. Origin is the upper left corner. Default is the center of the image.
+        center: center of rotation, xaxis and yaxis in [0,1], default is the center of the image.
+                if int or float, xaxis=yaxis,
+                if 2-tuple, (xaxis, yaxis), 
+                if 4-tuple, xaxis in (center[0], center[1]) and yaxis in (center[2], center[3]).
+        translate: post-rotate translation, xoffset and yoffset in [-1,1], see la.image.translate method.
+                   if int or float, xoffset=yoffset,
+                   if 2-tuple, (xoffset, yoffset), 
+                   if 4-tuple, xoffset in (translate[0], translate[1]) and  yoffset in (translate[2], translate[3]).
+        scale: float, scaling factor interval, should be positive.
+               if list or tuple, randomly picked in the interval `[scale[0], scale[1])`.
+        shear: Range of degrees to select from, xoffset and yoffset in [-360,360]. 
+               if int or float, xoffset=yoffset,
+               if 2-tuple, (xoffset, yoffset), 
+               if 4-tuple, xoffset in (shear[0], shear[1]) and  yoffset in (shear[2], shear[3]).
+        fill_color: int or str or tuple or la.image.RGBMode, rgb color. 
         p: probability that the image does this. Default value is 1.
     Returns:
         a PIL instance.
@@ -311,31 +340,47 @@ def transform_affine(image, angle=(-180, 180), translate=(0, 0), scale=1., shear
         return image
     if isinstance(angle, (list, tuple)):
         angle = np.random.uniform(angle[0], angle[1])
-
-    width, height = image.size
-    max_dx = translate[0] * width
-    max_dy = translate[1] * height
-    tx = np.random.randint(-max_dx, max_dx+1)
-    ty = np.random.randint(-max_dy, max_dy+1)
+        
+    if isinstance(center, (int, float)):
+        cx, cy = (int(center*image.size[0]), int(center*image.size[1]))
+    elif isinstance(center, (list, tuple)):
+        if len(center)==2:
+            cx, cy = (int(center[0]*image.size[0]), int(center[1]*image.size[1]))
+        elif len(center)==4:
+            cx = int(np.random.uniform(center[0], center[1])*image.size[0])
+            cy = int(np.random.uniform(center[2], center[3])*image.size[1])
+        else:
+            raise ValueError('`center` value format error.')
+    else:
+        raise ValueError('`center` value format error.')
+    
+    if isinstance(translate, (int, float)):
+        tx, ty = int(translate*image.size[0]), int(translate*image.size[1])
+    elif isinstance(translate, (list, tuple)):
+        if len(translate)==2:
+            tx, ty = int(translate[0]*image.size[0]), int(translate[1]*image.size[1])
+        elif len(translate)==4:
+            tx = int(np.random.uniform(translate[0], translate[1])*image.size[0])
+            ty = int(np.random.uniform(translate[2], translate[3])*image.size[1])
+        else:
+            raise ValueError('`translate` value format error.')
+    else:
+        raise ValueError('`translate` value format error.')
         
     if isinstance(scale, (list, tuple)):
         scale = np.random.uniform(scale[0], scale[1])
     if scale <= 0.0:
         raise ValueError("Argument scale should be positive")
 
-    shear_x = shear_y = 0.0
     if isinstance(shear, (int, float)):
-        shear_x = shear_y = shear
+        shear = (shear, shear)
     elif isinstance(shear, (list, tuple)):
-        shear_x = np.random.uniform(shear[0], shear[1])
-        if len(shear) == 4:
-            shear_y = np.random.uniform(shear[2], shear[3])
-    shear = (shear_x, shear_y)
-
-    if center is None:
-        cx, cy = [width * 0.5, height * 0.5]
-    elif isinstance(center, (int, float)):
-        cx, cy = center
+        if len(shear)==4:
+            shear = (np.random.uniform(shear[0], shear[1]), np.random.uniform(shear[2], shear[3]))
+        elif len(shear)!=2::
+            raise ValueError('`translate` value format error.')
+    else:
+        raise ValueError('`translate` value format error.')
     
     rot = math.radians(angle)
     sx = math.radians(shear[0])
@@ -352,9 +397,101 @@ def transform_affine(image, angle=(-180, 180), translate=(0, 0), scale=1., shear
     matrix[5] += matrix[3] * (-cx - tx) + matrix[4] * (-cy - ty)
     matrix[2] += cx
     matrix[5] += cy
-    if fill_color is None:
-        fill_color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
-    elif isinstance(fill_color, dict):
-        fill_color = fill_color['mode']
+    fill_color = _fill_color(image, fill_color)
     return image.transform(image.size, Image.Transform.AFFINE, matrix, 
-                           Image.Resampling.BILINEAR, fillcolor=fill_color)
+                           Image.Resampling.NEAREST, fillcolor=fill_color)
+
+
+def shear(image, xoffset=, yoffset=None, fill_color=None, p=1):
+    """Apply affine shear on the image.
+    
+    Args:
+        image: a PIL instance.
+        xoffset: int or list ot tuple, The horizontal degrees, xoffset in [-360,360].
+                 if tuple or list, randomly picked in the interval `[xoffset[0], xoffset[1])`
+        yoffset: int or list ot tuple, The vertical degrees, yoffset in [-360,360]. 
+                 If omitted, both distances are set to the same value.
+                 if tuple or list, randomly picked in the interval `[yoffset[0], yoffset[1])`
+        fill_color: int or str or tuple or la.image.RGBMode, rgb color. 
+        p: probability that the image does this. Default value is 1.
+    Returns:
+        a PIL instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(xoffset, (list, tuple)):
+        xoffset = np.random.uniform(xoffset[0], xoffset[1])
+    if yoffset is None:
+        yoffset = xoffset
+    elif isinstance(yoffset, (list, tuple)):
+        yoffset = np.random.uniform(yoffset[0], yoffset[1])
+    fill_color = _fill_color(image, fill_color)
+    return affine(image, angle=(0,0), center=(0.5,0.5), translate=(0, 0), scale=1., 
+                  shear=(xoffset, yoffset), fill_color=fill_color, p=1)
+
+
+def rescale(image, xscale=(0.5,1.5), yscale=(0.5,1.5), fill_color=None, p=1):
+    """Apply scaling on the y-axis to input data.
+    
+    Args:
+        image: a PIL instance.
+        xscale: if int or float, width expansion and contraction, xscale should be positive.
+                if tuple or list, randomly picked in the interval `[xscale[0], xscale[1])`.
+        yscale: if int or float, height expansion and contraction, yscale should be positive.
+                if tuple or list, randomly picked in the interval `[yscale[0], yscale[1])`.
+        fill_color: int or str or tuple or la.image.RGBMode, rgb color.
+        p: probability that the image does this. Default value is 1.
+    Return:
+        a PIL instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(xscale, (list, tuple)):
+        xscale = np.random.uniform(xscale[0], xscale[1])
+    if isinstance(yscale, (list, tuple)):
+        yscale = np.random.uniform(yscale[0], yscale[1])
+    fill_color = _fill_color(image, fill_color)
+    size = [int(image.size[0]*xscale), int(image.size[1]*yscale)]
+    size1 = [min(image.size[0], size[0]), min(image.size[1], size[1])]
+    box1 = [int(size[0]/2-size1[0]/2), int(size[1]/2-size1[1]/2)]
+    box1 = box1 + [box1[0]+size1[0], box1[1]+size1[1]]
+    box2 = [int(image.size[0]/2-size1[0]/2), int(image.size[1]/2-size1[1]/2)]
+    box2 = box2 + [box2[0]+size1[0], box2[1]+size1[1]]
+    image2 = Image.new(image.mode, image.size, fill_color)
+    image2.paste(image.resize(size).crop(box1), box2)
+    return image2
+
+
+def jigsaw(image, size=(10,10), prob=0.1, p=1):
+    """Move cells within images similar to jigsaw patterns.
+    
+    Args:
+        image: a PIL instance.
+        size: if int or float, xsize=ysize, numbers of jigsaw.
+              if 2-tuple, (xsize, ysize), 
+              if 4-tuple, xsize in (size[0], size[1]) and  ysize in (size[2], size[3]).
+        prob: probability of every jigsaw being changed.
+        p: probability that the image does this. Default value is 1.
+    Return:
+        a PIL instance.
+    """
+    if isinstance(size, (int, float)):
+        size = (size, size)
+    elif isinstance(size, (list, tuple)):
+        if len(size)==4:
+            size = (np.random.uniform(size[0], size[1]), np.random.uniform(size[2], size[3]))
+        elif len(shear)!=2:
+            raise ValueError('`size` value format error.')
+    else:
+        raise ValueError('`size` value format error.')
+    size = (max(2, int(size[0])), max(2, int(size[1])))
+    
+    w = image.size[0]//size[0]
+    h = image.size[1]//size[1]
+    axis = [[i*w, j*h, i*w+w, j*h+h] for i in range(size[0]) for j in range(size[1])]
+    image2 = image.copy()
+    s = np.random.choice(range(size[0]*size[1]), max(int(size[0]*size[1]*prob), 2), replace=False)
+    s_index = np.random.choice(s, len(s), replace=False)
+    for i,j in zip(s, s_index):
+        image2.paste(image.crop(axis[i]), axis[j])
+    return image2
