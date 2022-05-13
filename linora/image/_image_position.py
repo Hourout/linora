@@ -402,7 +402,7 @@ def affine(image, angle=(-180, 180), center=(0.5,0.5), translate=(0, 0), scale=1
                            Image.Resampling.NEAREST, fillcolor=fill_color)
 
 
-def shear(image, xoffset=, yoffset=None, fill_color=None, p=1):
+def shear(image, xoffset=(-90, 90), yoffset=None, fill_color=None, p=1):
     """Apply affine shear on the image.
     
     Args:
@@ -480,7 +480,7 @@ def jigsaw(image, size=(10,10), prob=0.1, p=1):
     elif isinstance(size, (list, tuple)):
         if len(size)==4:
             size = (np.random.uniform(size[0], size[1]), np.random.uniform(size[2], size[3]))
-        elif len(shear)!=2:
+        elif len(size)!=2:
             raise ValueError('`size` value format error.')
     else:
         raise ValueError('`size` value format error.')
