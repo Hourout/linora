@@ -3,8 +3,9 @@ import colorsys
 import numpy as np
 from PIL import ImageEnhance, ImageOps
 
-__all__ = ['enhance_saturation', 'enhance_contrast', 'enhance_brightness', 'enhance_sharpness',
-           'enhance_hue', 'gamma', 'color_invert', 'color_clip', 'equalize', 'rgb_hex',
+__all__ = ['enhance_saturation', 'enhance_brightness', 'enhance_sharpness', 'enhance_contrast_sigmoid',
+           'enhance_contrast_log', 'enhance_contrast_linear', 'enhance_contrast_gamma',
+           'enhance_hue', 'color_invert', 'color_clip', 'equalize', 'rgb_hex',
            'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
            'dropout'
           ]
@@ -37,14 +38,13 @@ def enhance_saturation(image, delta, p=1):
     return ImageEnhance.Color(image).enhance(delta)
 
 
-def enhance_contrast(image, delta, p=1):
+def enhance_contrast_linear(image, delta, p=1):
     """Adjust image contrast.
   
     Contrast is adjusted independently for each channel of each image.
     
-    For each channel, this Ops computes the mean of the image pixels in the
-    channel and then adjusts each component `x` of each pixel to
-    `(x - mean) * delta + mean`.
+    pixel = (x - mean) * delta + mean
+    Values in the range gamma=(0.6, 1.4) seem to be sensible.
     
     Tips:
         1 means pixel value no change.
@@ -62,6 +62,85 @@ def enhance_contrast(image, delta, p=1):
     if isinstance(delta, (list, tuple)):
         delta = np.random.uniform(delta[0], delta[1])
     return ImageEnhance.Contrast(image).enhance(delta)
+
+
+def enhance_contrast_gamma(image, gamma=1, gain=1.0, p=1):
+    """Perform gamma correction on an image.
+    
+    For gamma greater than 1, the histogram will shift towards left and the output image will be darker than the input image. 
+    For gamma less than 1, the histogram will shift towards right and the output image will be brighter than the input image.
+    
+    pixel = 255*gain *((v/255)**gamma)
+    Values in the range gamma=(0.5, 2.0) seem to be sensible.
+    
+    Args:
+        image: a PIL instance.
+        gamma: float, Non negative real number, gamma larger than 1 make the shadows darker, 
+               while gamma smaller than 1 make dark regions lighter.
+               if list or tuple, randomly picked in the interval `[gamma[0], gamma[1])`.
+        gain: float, The constant multiplier.
+              if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
+        p: probability that the image does this. Default value is 1.
+    Returns:
+        a PIL instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(gamma, (list, tuple)):
+        gamma = np.random.randint(gamma[0], gamma[1])
+    if isinstance(gain, (list, tuple)):
+        gain = np.random.uniform(gain[0], gain[1])
+    return image.point(lambda x:int((255 + 1 - 1e-3) * gain * pow(x / 255.0, gamma)))
+
+
+def enhance_contrast_sigmoid(image, cutoff=0.5, gain=10, p=1):
+    """Perform sigmoid correction on an image.
+    
+    pixel = 255*1/(1+exp(gain*(cutoff-v/255)))
+    Values in the range gain=(5, 20) and cutoff=(0.25, 0.75) seem to be sensible.
+    
+    Args:
+        image: a PIL instance.
+        cutoff: float, Cutoff that shifts the sigmoid function in horizontal direction. 
+                Higher values mean that the switch from dark to light pixels happens later. 
+                if list or tuple, randomly picked in the interval `[cutoff[0], cutoff[1])`.
+        gain: float, The constant multiplier.
+              if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
+        p: probability that the image does this. Default value is 1.
+    Returns:
+        a PIL instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(cutoff, (list, tuple)):
+        cutoff = np.random.uniform(cutoff[0], cutoff[1])
+    if isinstance(gain, (list, tuple)):
+        gain = np.random.randint(gain[0], gain[1])
+    return image.point(lambda x:int(255*1/(1+np.exp(gain*(cutoff-x / 255.0)))))
+
+
+def enhance_contrast_log(image, gain=1, p=1):
+    """Perform sigmoid correction on an image.
+    
+    pixel = 255*gain*log_2(1+v/255)
+    Values in the range gain=[0.6, 1.4] seem to be sensible.
+    
+    Args:
+        image: a PIL instance.
+        cutoff: float, Cutoff that shifts the sigmoid function in horizontal direction. 
+                Higher values mean that the switch from dark to light pixels happens later. 
+                if list or tuple, randomly picked in the interval `[cutoff[0], cutoff[1])`.
+        gain: float, The constant multiplier.
+              if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
+        p: probability that the image does this. Default value is 1.
+    Returns:
+        a PIL instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(gain, (list, tuple)):
+        gain = np.random.randint(gain[0], gain[1])
+    return image.point(lambda x:int(255*gain*np.log2(1+x / 255.0)))
 
 
 def enhance_brightness(image, delta, p=1):
@@ -147,39 +226,6 @@ def enhance_hue(image, delta, p=1):
     h, s, v = image.convert("HSV").split()
     h = h.point(lambda x:x+delta * 127.5)
     return Image.merge("HSV", (h, s, v)).convert(input_mode)
-
-
-def gamma(image, gamma=1, gain=1.0, p=1):
-    """Perform gamma correction on an image.
-    
-    For gamma greater than 1, the histogram will shift towards left and the output image will be darker than the input image. 
-    For gamma less than 1, the histogram will shift towards right and the output image will be brighter than the input image.
-    Args:
-        image: a PIL instance.
-        gamma: float, Non negative real number, gamma larger than 1 make the shadows darker, 
-               while gamma smaller than 1 make dark regions lighter.
-               if list or tuple, randomly picked in the interval `[gamma[0], gamma[1])`.
-        gain: float, The constant multiplier.
-              if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
-        p: probability that the image does this. Default value is 1.
-    Returns:
-        a PIL instance.
-    """
-    if np.random.uniform()>p:
-        return image
-    if isinstance(gamma, (list, tuple)):
-        gamma = np.random.randint(gamma[0], gamma[1])
-    if isinstance(gain, (list, tuple)):
-        gain = np.random.randint(gain[0], gain[1])
-    assert gamma >= 0, "Gamma should be a non-negative real number."
-    input_mode = image.mode
-    if input_mode!="RGB":
-        image = image.convert("RGB")
-    gamma_map = [int((255 + 1 - 1e-3) * gain * pow(ele / 255.0, gamma)) for ele in range(256)] * 3
-    image = image.point(gamma_map)
-    if input_mode!="RGB":
-        image = image.convert(input_mode)
-    return image
 
 
 def color_invert(image, lower=None, upper=None, wise='pixel', prob=1, p=1):
