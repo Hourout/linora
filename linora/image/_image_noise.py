@@ -5,7 +5,81 @@ from PIL import Image
 
 from linora.image._image_draw import draw_point
 
-__all__ = ['noise_color', 'NoiseMode', 'noise']
+__all__ = ['mosaic', 'noise_color', 'NoiseMode', 'noise']
+
+
+def mosaic(image, size=(80,80), block=0, axis=None, prob=0.3, p=1):
+    """mosaic noise apply to image.
+    
+    Args:
+        image: a PIL instance.
+        size: if int or float, xsize=ysize, how many mosaic blocks the image is divided into.
+              if 2-tuple, (xsize, ysize), 
+              if 4-tuple, xsize in (size[0], size[1]) and  ysize in (size[2], size[3]).
+        block: mosaic area block
+        axis: list or tuple, one or more mosaic center axis point.
+        prob: probability of numbers of mosaci.
+        p: probability that the image does this. Default value is 1.
+    Return:
+        a PIL instance.
+    """
+    if isinstance(size, (int, float)):
+        size = (size, size)
+    elif isinstance(size, (list, tuple)):
+        if len(size)==4:
+            size = (np.random.uniform(size[0], size[1]), np.random.uniform(size[2], size[3]))
+        elif len(size)!=2:
+            raise ValueError('`size` value format error.')
+    else:
+        raise ValueError('`size` value format error.')
+    size = (max(2, int(size[0])), max(2, int(size[1])))
+    
+    if axis is not None:
+        if isinstance(axis[0], (list, tuple)):
+            block = max(block, len(axis))
+            axis_num = len(axis)
+        else:
+            block = max(block, 1)
+            axis_num = 1
+            axis = [axis]
+
+    w = image.size[0]//size[0]
+    h = image.size[1]//size[1]
+    image2 = image.copy()
+    if block==0:
+        axis_list = [[i*w, j*h, i*w+w, j*h+h] for i in range(size[0]) for j in range(size[1])]
+        s = np.random.choice(range(size[0]*size[1]), max(int(size[0]*size[1]*prob), 2), replace=False)
+        for i in s:
+            image2.paste(Image.new(image.mode, (w,h), tuple([int(j) for j in ImageStat.Stat(image.crop(axis_list[i])).mean])), axis_list[i])
+    else:
+        num = max(int(size[0]*size[1]*prob/block), 2)
+        edge = np.sqrt(num)
+        
+        for b in range(int(block)):
+            if axis is not None:
+                if b<=axis_num-1:
+                    axis_list = [axis[b][0]/w, axis[b][1]/h]
+                else:
+                    axis_list = [np.random.uniform(edge/2/size[0], 1-edge/2/size[0])*size[0], 
+                                 np.random.uniform(edge/2/size[1], 1-edge/2/size[0])*size[1]]
+            else:
+                axis_list = [np.random.uniform(edge/2/size[0], 1-edge/2/size[0])*size[0], 
+                             np.random.uniform(edge/2/size[1], 1-edge/2/size[0])*size[1]]
+            print(axis_list)
+            axis_prob = []
+            axis_must = []
+            for i in range(int(axis_list[0]-edge/2), int(axis_list[0]+edge/2)+1):
+                for j in range(int(axis_list[1]-edge/2), int(axis_list[1]+edge/2)+1):
+                    if i<int(axis_list[0]-edge/3) or i>int(axis_list[0]+edge/3) or j<int(axis_list[1]-edge/3) or j>int(axis_list[1]+edge/3):
+                        axis_prob.append([i*w, j*h, i*w+w, j*h+h])
+                    else:
+                        axis_must.append([i*w, j*h, i*w+w, j*h+h])
+            s = np.random.choice(range(len(axis_prob)), int(len(axis_prob)*0.8), replace=False)
+            for i in s:
+                image2.paste(Image.new(image.mode, (w,h), tuple([int(j) for j in ImageStat.Stat(image.crop(axis_prob[i])).mean])), axis_prob[i])
+            for i in axis_must:
+                image2.paste(Image.new(image.mode, (w,h), tuple([int(j) for j in ImageStat.Stat(image.crop(i)).mean])), i)
+    return image2
 
 
 class noise_mode:
@@ -111,39 +185,39 @@ def noise(image, mode=NoiseMode.Gaussian, wise='pixel', scale=1, prob=0.6, p=1, 
         upper = kwargs['upper']
     if mode=='gaussian':
         if wise=='pixel':
-            return image.point(lambda x:np.random.normal(mean, std)*scale+x if np.random.uniform()<prob else x)
+            return image.point(lambda x:np.random.normal(mean, std)*scale if np.random.uniform()<prob else x)
         else:
             split = list(image.split())
             for i in range(len(split)):
                 if np.random.uniform()<prob:
-                    split[i] = split[i].point(lambda x:np.random.normal(mean, std)*scale+x)
+                    split[i] = split[i].point(lambda x:np.random.normal(mean, std)*scale)
             return Image.merge(image.mode, split)
     elif mode=='laplace':
         if wise=='pixel':
-            return image.point(lambda x:np.random.laplace(mean, lam)*scale+x if np.random.uniform()<prob else x)
+            return image.point(lambda x:np.random.laplace(mean, lam)*scale if np.random.uniform()<prob else x)
         else:
             split = list(image.split())
             for i in range(len(split)):
                 if np.random.uniform()<prob:
-                    split[i] = split[i].point(lambda x:np.random.laplace(mean, lam)*scale+x)
+                    split[i] = split[i].point(lambda x:np.random.laplace(mean, lam)*scale)
             return Image.merge(image.mode, split)
     elif mode=='poisson':
         if wise=='pixel':
-            return image.point(lambda x:np.random.poisson(lam)*scale+x if np.random.uniform()<prob else x)
+            return image.point(lambda x:np.random.poisson(lam)*scale if np.random.uniform()<prob else x)
         else:
             split = list(image.split())
             for i in range(len(split)):
                 if np.random.uniform()<prob:
-                    split[i] = split[i].point(lambda x:np.random.poisson(lam)*scale+x)
+                    split[i] = split[i].point(lambda x:np.random.poisson(lam)*scale)
             return Image.merge(image.mode, split)
     elif mode=='uniform':
         if wise=='pixel':
-            return image.point(lambda x:np.random.uniform(lower, upper)*scale+x if np.random.uniform()<prob else x)
+            return image.point(lambda x:np.random.uniform(lower, upper)*scale if np.random.uniform()<prob else x)
         else:
             split = list(image.split())
             for i in range(len(split)):
                 if np.random.uniform()<prob:
-                    split[i] = split[i].point(lambda x:np.random.uniform(lower, upper)*scale+x)
+                    split[i] = split[i].point(lambda x:np.random.uniform(lower, upper)*scale)
             return Image.merge(image.mode, split)
     else:
         raise ValueError("mode must be la.image.NoiseMode param.")
