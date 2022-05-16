@@ -12,7 +12,7 @@ def add(image, scale, wise='pixel', prob=1, p=1):
         image: a PIL instance.
         scale: if int or float, value add with image.
                if tuple or list, randomly picked in the interval `[scale[0], scale[1])`.
-        wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+        wise: 'pixel' or 'channel' or 'pixelchannel' or list of channel, method of applying operate.
         prob: probability of every pixel or channel being changed.
         p: probability that the image does this. Default value is 1.
     Returns:
@@ -30,6 +30,20 @@ def add(image, scale, wise='pixel', prob=1, p=1):
             if np.random.uniform()<prob:
                 split[i] = split[i].point(lambda x:x+scale)
         return Image.merge(image.mode, split)
+    elif wise=='pixelchannel':
+        img = image.point(lambda x:x+scale)
+        axis = [(i,j) for i in range(image.width) for j in range(image.height)]
+        np.random.shuffle(axis)
+        if prob>0.5:
+            axis = axis[:int(len(axis)*(1-prob))]
+            for i in axis:
+                img.putpixel(i, image.getpixel(i))
+            return img
+        else:
+            axis = axis[:int(len(axis)*prob)]
+            for i in axis:
+                image.putpixel(i, img.getpixel(i))
+            return image
     elif isinstance(wise, (list, tuple)):
         split = list(image.split())
         for i in wise:
@@ -37,7 +51,7 @@ def add(image, scale, wise='pixel', prob=1, p=1):
                 split[i] = split[i].point(lambda x:x+scale)
         return Image.merge(image.mode, split)
     else:
-        raise ValueError("`wise` should be 'pixel' or 'channel' or list of channel.")
+        raise ValueError("`wise` should be 'pixel' or 'channel' or 'pixelchannel' or list of channel.")
 
 
 def multiply(image, scale, wise='pixel', prob=1, p=1):
@@ -48,7 +62,7 @@ def multiply(image, scale, wise='pixel', prob=1, p=1):
         image: a PIL instance.
         scale: if int or float, value multiply with image.
                if tuple or list, randomly picked in the interval `[scale[0], scale[1])`.
-        wise: 'pixel' or 'channel' or list of channel, method of applying operate.
+        wise: 'pixel' or 'channel' or 'pixelchannel' or list of channel, method of applying operate.
         prob: probability of every pixel or channel being changed.
         p: probability that the image does this. Default value is 1.
     Returns:
@@ -66,6 +80,20 @@ def multiply(image, scale, wise='pixel', prob=1, p=1):
             if np.random.uniform()<prob:
                 split[i] = split[i].point(lambda x:x*scale)
         return Image.merge(image.mode, split)
+    elif wise=='pixelchannel':
+        img = image.point(lambda x:x*scale)
+        axis = [(i,j) for i in range(image.width) for j in range(image.height)]
+        np.random.shuffle(axis)
+        if prob>0.5:
+            axis = axis[:int(len(axis)*(1-prob))]
+            for i in axis:
+                img.putpixel(i, image.getpixel(i))
+            return img
+        else:
+            axis = axis[:int(len(axis)*prob)]
+            for i in axis:
+                image.putpixel(i, img.getpixel(i))
+            return image
     elif isinstance(wise, (list, tuple)):
         split = list(image.split())
         for i in wise:
@@ -73,7 +101,7 @@ def multiply(image, scale, wise='pixel', prob=1, p=1):
                 split[i] = split[i].point(lambda x:x*scale)
         return Image.merge(image.mode, split)
     else:
-        raise ValueError("`wise` should be 'pixel' or 'channel' or list of channel.")
+        raise ValueError("`wise` should be 'pixel' or 'channel' or 'pixelchannel' or list of channel.")
 
 
 def normalize_global(image, mean=None, std=None, p=1):
