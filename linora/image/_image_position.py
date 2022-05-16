@@ -377,7 +377,7 @@ def affine(image, angle=(-180, 180), center=(0.5,0.5), translate=(0, 0), scale=1
     elif isinstance(shear, (list, tuple)):
         if len(shear)==4:
             shear = (np.random.uniform(shear[0], shear[1]), np.random.uniform(shear[2], shear[3]))
-        elif len(shear)!=2::
+        elif len(shear)!=2:
             raise ValueError('`translate` value format error.')
     else:
         raise ValueError('`translate` value format error.')
