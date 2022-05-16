@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 from PIL import Image
 
@@ -142,15 +140,16 @@ def concat(image, col_nums=None):
                 img.paste(image['image_list'][r].crop(i[1]), i[0])
             return img
     if isinstance(image, (list, tuple)):
+        image = list(image)
         if len(image)==1:
             return image[0]
         size = image[0].size
-        for i in image:
+        for r, i in enumerate(image):
             if size!=i.size:
-                raise ValueError('`image` size should be equal.')
+                image[r] = i.resize(size)
         if col_nums is None or col_nums<1:
-            col_nums = math.ceil(math.sqrt(len(image)))
-        shape = [math.ceil(len(image)/col_nums), col_nums]
+            col_nums = np.ceil(np.sqrt(len(image)))
+        shape = [int(np.ceil(len(image)/col_nums)), int(col_nums)]
         img = Image.new(image[0].mode, [size[0]*shape[1], size[1]*shape[0]], (0,0,0))
         for r, i in enumerate(image):
             img.paste(i, (r%shape[1]*size[0], r//shape[1]*size[1]))
