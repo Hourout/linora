@@ -5,7 +5,7 @@ from PIL import Image
 from linora.image._image_draw import draw_box
 from linora.image._image_feature import histogram
 
-__all__ = ['box_area', 'box_convert', 'masks_to_boxes']
+__all__ = ['box_area', 'box_convert', 'mask_to_box']
 
 
 def box_area(box):
@@ -23,7 +23,7 @@ def box_area(box):
     return histogram(image, if_global=True)[-1]
 
 
-def masks_to_boxes(mask):
+def mask_to_box(mask):
     """Compute the bounding boxes around the provided masks.
     
     Args:
