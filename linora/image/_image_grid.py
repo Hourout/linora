@@ -4,11 +4,24 @@ from PIL import Image
 __all__ = ['grid']
 
 
-def grid(image, mode, **kwargs):
+def grid(image, mode, size=None, **kwargs):
+    """grid image.
+    
+    Args:
+        image: a list or tuple of PIL instance.
+        mode: grid type.
+        size: frist image size.
+    Returns:
+        a PIL instance.
+    """
     if isinstance(image, tuple):
         image = list(image)
     elif not isinstance(image, list):
         image = [image]
+    size = image[0].size if size is None else tuple(size)
+    for r, i in enumerate(image):
+        if size!=i.size:
+            image[r] = i.resize(size)
     if mode==0:
         rate = kwargs['rate'] if 'rate' in kwargs else 0.25
         img = image[0].copy()
@@ -42,8 +55,85 @@ def grid(image, mode, **kwargs):
         xspace = kwargs['xspace'] if 'xspace' in kwargs else 5
         yspace = kwargs['yspace'] if 'yspace' in kwargs else 5
         
-        shape = [int(np.ceil(len(image)/xnums)), int(xnums)]
-        img = Image.new(image[0].mode, [size[0]*shape[1]+(shape[1]-1)*xspace, size[1]*shape[0]+(shape[0]-1)*yspace], (255,255,255))
+        shape = [int(xnums), int(np.ceil(len(image)/xnums))]
+        img = Image.new(image[0].mode, [shape[0]*(size[0]+xspace)-xspace, shape[1]*(size[1]+yspace)-yspace], (255,255,255))
         for r, i in enumerate(image):
-            img.paste(i, (r%shape[1]*(size[0]+xspace), r//shape[1]*(size[1]+yspace)))
+            img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)))
         return img
+    if mode==5:
+        xnums = kwargs['xnums'] if 'xnums' in kwargs else np.ceil(np.sqrt(len(image)))
+        text = kwargs['text']
+        xspace = kwargs['xspace'] if 'xspace' in kwargs else 5
+        yspace = kwargs['yspace'] if 'yspace' in kwargs else 60
+        
+        shape = [int(xnums), int(np.ceil(len(image)/xnums))]
+        img = Image.new(image[0].mode, [shape[0]*(size[0]+xspace)-xspace, shape[1]*(size[1]+yspace)], (255,255,255))
+        draw = ImageDraw.Draw(img)
+        
+        for r, i in enumerate(image):
+            img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)))
+            textsize = draw.textsize(text[0])
+            t = min(yspace/2/textsize[1], size[0]/textsize[0])
+            xoffset = int((size[0]-t*textsize[0])/2)
+            font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
+            draw.text((r%shape[0]*(size[0]+xspace)+xoffset, r//shape[0]*(size[1]+yspace)+size[1]+int(yspace/4)), 
+                      text[r], fill=0, font=font)
+        return img
+    if mode==6:
+        xnums = kwargs['xnums'] if 'xnums' in kwargs else np.ceil(np.sqrt(len(image)))
+        text = kwargs['text']
+        xspace = kwargs['xspace'] if 'xspace' in kwargs else 5
+        yspace = kwargs['yspace'] if 'yspace' in kwargs else 60
+        
+        shape = [int(xnums), int(np.ceil(len(image)/xnums))]
+        img = Image.new(image[0].mode, [shape[0]*(size[0]+xspace)-xspace, shape[1]*(size[1]+yspace)], (255,255,255))
+        draw = ImageDraw.Draw(img)
+        
+        for r, i in enumerate(image):
+            img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)+yspace))
+            textsize = draw.textsize(text[0])
+            t = min(yspace/2/textsize[1], size[0]/textsize[0])
+            xoffset = int((size[0]-t*textsize[0])/2)
+            font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
+            draw.text((r%shape[0]*(size[0]+xspace)+xoffset, r//shape[0]*(size[1]+yspace)+int(yspace/4)), 
+                      text[r], fill=0, font=font)
+        return img
+    if mode==7:
+        xnums = kwargs['xnums'] if 'xnums' in kwargs else np.ceil(np.sqrt(len(image)))
+        text = kwargs['text']
+        xspace = kwargs['xspace'] if 'xspace' in kwargs else 60
+        yspace = kwargs['yspace'] if 'yspace' in kwargs else 5
+        
+        shape = [int(xnums), int(np.ceil(len(image)/xnums))]
+        img = Image.new(image[0].mode, [shape[0]*(size[0]+xspace), shape[1]*(size[1]+yspace)-yspace], (255,255,255))
+        draw = ImageDraw.Draw(img)
+        
+        for r, i in enumerate(image):
+            img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)))
+            textsize = draw.textsize(text[0])
+            t = min(xspace/2/textsize[1], size[1]/textsize[1]/len(text[0]))
+            yoffset = int((size[1]-t*textsize[1]*len(text[0]))/2)
+            font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
+            draw.text((r%shape[0]*(size[0]+xspace)+size[0]+int(xspace/4), r//shape[0]*(size[1]+yspace)+yoffset), 
+                      text[r], fill=0, font=font, direction='ttb')
+        return img
+    if mode==8:
+        xnums = kwargs['xnums'] if 'xnums' in kwargs else np.ceil(np.sqrt(len(image)))
+        text = kwargs['text']
+        xspace = kwargs['xspace'] if 'xspace' in kwargs else 60
+        yspace = kwargs['yspace'] if 'yspace' in kwargs else 5
+        
+        shape = [int(xnums), int(np.ceil(len(image)/xnums))]
+        img = Image.new(image[0].mode, [size[0]*shape[0]+(shape[0]-1)*xspace, size[1]*shape[1]+shape[1]*yspace], (255,255,255))
+        draw = ImageDraw.Draw(img)
+        
+        for r, i in enumerate(image):
+            img.paste(i, (r%shape[0]*(size[0]+xspace)+xspace, r//shape[0]*(size[1]+yspace)))
+            textsize = draw.textsize(text[0])
+            t = min(xspace/2/textsize[1], size[1]/textsize[1]/len(text[0]))
+            yoffset = int((size[1]-t*textsize[1]*len(text[0]))/2)
+            font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
+            draw.text((r%shape[0]*(size[0]+xspace)+int(xspace/4), r//shape[0]*(size[1]+yspace)+yoffset), 
+                      text[r], fill=0, font=font, direction='ttb')
+        return img
+    raise ValueError('`mode` value error.')
