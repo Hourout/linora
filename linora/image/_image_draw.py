@@ -2,11 +2,12 @@ import itertools
 from random import randint
 
 import numpy as np
-from PIL import ImageDraw
+from PIL import ImageDraw, ImageChops
 
+from linora.image._image_util import array_to_image
 from linora.image._image_rgb import _fill_color
 
-__all__ = ['draw_box', 'draw_point', 'mask', 'draw_line', 'draw_keypoints']
+__all__ = ['draw_box', 'draw_point', 'mask', 'draw_line', 'draw_keypoints', 'draw_segmentation_masks']
 
 
 def draw_point(image, points, size=0, color=None):
@@ -182,3 +183,32 @@ def draw_keypoints(image, keypoints, connectivity=None, point_width=3, line_widt
                 color = _fill_color(image, line_color)
                 draw.line(((start_pt_x, start_pt_y), (end_pt_x, end_pt_y)), fill=color, width=line_width)
     return image2
+
+
+def draw_segmentation_masks(mask, image=None, alpha=0.8, color=None):
+    """Draws segmentation masks on given RGB image.
+    
+    Args:
+        mask: a numpy array, shape is (H, W).
+        image: a PIL instance.
+        alpha: float number between 0 and 1 denoting the transparency of the masks.
+               0 means full transparency, 1 means no transparency.
+        color: str or tuple or la.image.RGBMode, rgb color, point color.
+               List containing the colors of the masks.
+    returns: 
+        a PIL instance.
+    """
+    canvas = np.zeros((mask.shape[0], mask.shape[1], 3))
+    if color is not None:
+        assert len(color)==mask.max()+1, 'color size not equal mask nunique size.'
+    else:
+        color = tuple([tuple([np.random.randint(0, 256) for j in range(3)]) for i in range(mask.max()+1)])
+    for label in range(mask.max()+1):
+        if canvas[mask == label].size:
+            canvas[mask == label] = color[label]
+    canvas = array_to_image(canvas)
+    if image is None:
+        return canvas
+    if image.size!=canvas.size:
+        return ImageChops.blend(image.resize(canvas.size), canvas, alpha=alpha)
+    return ImageChops.blend(image, canvas, alpha=alpha)
