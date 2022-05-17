@@ -1,7 +1,7 @@
 import random
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageStat
 
 from linora.image._image_draw import draw_point
 
