@@ -1,5 +1,16 @@
 __all__ = ['RGBMode']
 
+
+def _fill_color(image, fill_color):
+    if fill_color is None:
+        return tuple([np.random.randint(0, 256) for i in image.getbands()])
+    elif isinstance(fill_color, dict):
+        return fill_color['mode']
+    elif isinstance(fill_color, list):
+        return np.random.choice(fill_color)
+    return fill_color
+
+
 class rgb_mode:
     """image rgb color type."""
     Snow                = {'name': 'Snow', 'rgb': (255, 250, 250), 'mode': '#FFFAFA'}

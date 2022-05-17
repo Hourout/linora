@@ -3,6 +3,8 @@ import math
 import numpy as np
 from PIL import Image, ImageChops
 
+from linora.image._image_rgb import _fill_color
+
 __all__ = ['flip_up_left', 'flip_up_right', 'flip_left_right', 'flip_up_down', 
            'rotate', 'translate', 'offset', 'pad', 'channel_shuffle',
            'perspective', 'affine', 'shear', 'rescale', 'jigsaw'
@@ -63,16 +65,6 @@ def flip_up_down(image, p=1):
     if np.random.uniform()>p:
         return image
     return image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
-
-
-def _fill_color(image, fill_color):
-    if fill_color is None:
-        return tuple([np.random.randint(0, 255) for i in image.getbands()])
-    elif isinstance(fill_color, dict):
-        return fill_color['mode']
-    elif isinstance(fill_color, list):
-        return np.random.choice(fill_color)
-    return fill_color
 
 
 def rotate(image, angle, expand=False, center=(0.5,0.5), translate=(0,0), fill_color=None, p=1):

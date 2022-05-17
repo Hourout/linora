@@ -4,7 +4,9 @@ from random import randint
 import numpy as np
 from PIL import ImageDraw
 
-__all__ = ['draw_box', 'draw_point', 'mask', 'draw_line']
+from linora.image._image_rgb import _fill_color
+
+__all__ = ['draw_box', 'draw_point', 'mask', 'draw_line', 'draw_keypoints']
 
 
 def draw_point(image, points, size=0, color=None):
@@ -24,13 +26,8 @@ def draw_point(image, points, size=0, color=None):
     for i in range(int(len(point)/2)):
         axis = list(itertools.product(range(int(point[i*2]-size), int(point[i*2]+size+1)), 
                                       range(int(point[i*2+1]-size), int(point[i*2+1]+size+1))))
-        if color is None:
-            color1 = (randint(0, 255), randint(0, 255), randint(0, 255))
-        elif isinstance(color, dict):
-            color1 = color['mode']
-        else:
-            color1 = color
-        draw.point(axis, color1)
+        color = _fill_color(image, color)
+        draw.point(axis, color)
     return image2
 
 
@@ -60,13 +57,8 @@ def mask(image, size, max_num, random=True, color=None, p=1):
         for i in range(max_num):
             axis = (np.random.randint(0, image.width-size[1]), np.random.randint(0, image.height-size[0]))
             axis = [axis, (axis[0]+size[1], axis[1]+size[0])]
-            if color is None:
-                color1 = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
-            elif isinstance(color, dict):
-                color1 = color['mode']
-            else:
-                color1 = color
-            draw.rectangle(axis, fill=color1, width=0)
+            color = _fill_color(image, color)
+            draw.rectangle(axis, fill=color, width=0)
     else:
         width_num = min(int(image.width/size[1]*0.6), int(max_num**0.5))
         height_num = min(int(max_num/width_num), int(image.height/size[0]*0.6))
@@ -76,13 +68,8 @@ def mask(image, size, max_num, random=True, color=None, p=1):
             for j in range(height_num):
                 axis = [width_pix*(i+1)+size[1]*i, height_pix*(j+1)+size[0]*j, 
                         width_pix*(i+1)+size[1]*(i+1), height_pix*(j+1)+size[0]*(j+1)]
-                if color is None:
-                    color1 = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))
-                elif isinstance(color, dict):
-                    color1 = color['mode']
-                else:
-                    color1 = color
-                draw.rectangle(axis, fill=color1, width=0)
+                color = _fill_color(image, color)
+                draw.rectangle(axis, fill=color, width=0)
     return image2
 
 
@@ -133,15 +120,9 @@ def draw_box(image, boxs, fill_color=None, line_color=None, width=1):
     else:
             raise ValueError('boxs axis error')
     for i in boxs:
-        if line_color is None:
-            line_color1 = (randint(0, 255), randint(0, 255), randint(0, 255))
-        elif isinstance(line_color, dict):
-            line_color1 = line_color['mode']
-        else:
-            line_color1 = line_color
-        if isinstance(fill_color, dict):
-            fill_color = fill_color['mode']
-        draw.polygon(i, fill=fill_color, outline=line_color1, width=width)
+        fill_color = _fill_color(image, fill_color)
+        line_color = _fill_color(image, line_color)
+        draw.polygon(i, fill=fill_color, outline=line_color, width=width)
     return image2
 
 
@@ -161,11 +142,43 @@ def draw_line(image, axis, width=1, color=None):
     axis = list(itertools.chain.from_iterable(axis)) if isinstance(axis[0], (list, tuple)) else axis
     for i in range(int(len(axis)/2-1)):
         line = [axis[i*2], axis[i*2+1], axis[i*2+2], axis[i*2+3]]
-        if color is None:
-            color1 = (randint(0, 255), randint(0, 255), randint(0, 255))
-        elif isinstance(color, dict):
-            color1 = color['mode']
-        else:
-            color1 = color
-        draw.line(line, fill=color1, width=width)
+        color = _fill_color(image, color)
+        draw.line(line, fill=color, width=width)
+    return image2
+
+
+def draw_keypoints(image, keypoints, connectivity=None, point_width=3, line_width=2, point_color=None, line_color=None):
+    """Draws Keypoints on given RGB image.
+    
+    Args:
+        image: a PIL instance.
+        keypoints: list of shape (num_instances, K, 2) the K keypoints location for each of the N instances,
+                   in the format [x, y].
+        connectivity: A List of tuple where, each tuple contains pair of keypoints to be connected.
+        colors: str or tuple or la.image.RGBMode, rgb color.
+        point_width: Integer denoting radius of keypoint.
+        line_width: Integer denoting width of line connecting keypoints.
+    Returns:
+        a PIL instance.
+    """    
+    image2 = image.copy()
+    draw = ImageDraw.Draw(image2)
+    if isinstance(keypoints[0][0], (int, float)):
+        keypoints = [keypoints]
+    for kpt_id, kpt_inst in enumerate(keypoints):
+        for inst_id, kpt in enumerate(kpt_inst):
+            x1 = kpt[0] - point_width
+            x2 = kpt[0] + point_width
+            y1 = kpt[1] - point_width
+            y2 = kpt[1] + point_width
+            point_color = _fill_color(image, point_color)
+            draw.ellipse([x1, y1, x2, y2], fill=point_color, outline=None, width=0)
+        if connectivity:
+            for connection in connectivity:
+                start_pt_x = kpt_inst[connection[0]][0]
+                start_pt_y = kpt_inst[connection[0]][1]
+                end_pt_x = kpt_inst[connection[1]][0]
+                end_pt_y = kpt_inst[connection[1]][1]
+                color = _fill_color(image, line_color)
+                draw.line(((start_pt_x, start_pt_y), (end_pt_x, end_pt_y)), fill=color, width=line_width)
     return image2
