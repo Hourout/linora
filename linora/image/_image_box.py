@@ -5,7 +5,7 @@ from PIL import Image
 from linora.image._image_draw import draw_box
 from linora.image._image_feature import histogram
 
-__all__ = ['box_area', 'box_convert']
+__all__ = ['box_area', 'box_convert', 'masks_to_boxes']
 
 
 def box_area(box):
@@ -23,6 +23,22 @@ def box_area(box):
     return histogram(image, if_global=True)[-1]
 
 
+def masks_to_boxes(mask):
+    """Compute the bounding boxes around the provided masks.
+    
+    Args:
+        mask: a numpy array, shape is (H, W).
+    returns: 
+        a list of bounding boxes, eg [[x1,y1,x2,y2],...].
+    """
+    axis = []
+    for i in np.unique(image):
+        if i!=0:
+            y, x = np.where(image==i)
+            axis.append([x.min(), y.min(), x.max(), y.max()])
+    return axis
+
+
 def box_convert(box, in_fmt, out_fmt):
     """Converts boxes from given in_fmt to out_fmt. 
     
@@ -30,10 +46,11 @@ def box_convert(box, in_fmt, out_fmt):
     'xyxy': boxes are represented via corners, x1, y1 being top left and x2, y2 being bottom right. 
     'xywh': boxes are represented via corner, width and height, x1, y1 being top left, w, h being width and height.
     'cxcywh': boxes are represented via centre, width and height, cx, cy being center of box, w, h being width and height.
+    'axis': all coordinates of the 4 points in the boxes.
     Args:
         box: 4 tuple or list, boxes which will be converted.
-        in_fmt: str, input format of given boxes. Supported formats are ['xyxy', 'xywh', 'cxcywh'].
-        out_fmt: str, output format of given boxes. Supported formats are ['xyxy', 'xywh', 'cxcywh'].
+        in_fmt: str, input format of given boxes. Supported formats are ['xyxy', 'xywh', 'cxcywh', 'axis'].
+        out_fmt: str, output format of given boxes. Supported formats are ['xyxy', 'xywh', 'cxcywh', 'axis'].
     Returns:
         a box, list, boxes which will be converted.
     """
@@ -41,12 +58,24 @@ def box_convert(box, in_fmt, out_fmt):
         return [box[0], box[1], box[2]-box[0], box[3]-box[1]]
     if in_fmt=='xyxy' and out_fmt=='cxcywh':
         return [(box[2]+box[0])/2, (box[3]+box[1])/2, box[2]-box[0], box[3]-box[1]]
+    if in_fmt=='xyxy' and out_fmt=='axis':
+        return [box[0], box[1], box[2], box[1], box[2], box[3], box[0], box[3]]
     if in_fmt=='xywh' and out_fmt=='xyxy':
         return [box[0], box[1], box[2]+box[0], box[3]+box[1]]
     if in_fmt=='xywh' and out_fmt=='cxcywh':
         return [box[0]+box[2]/2, box[1]+box[3]/2, box[2], box[3]]
+    if in_fmt=='xywh' and out_fmt=='axis':
+        return [box[0], box[1], box[0]+box[2], box[1], box[0]+box[2], box[1]+box[3], box[0], box[1]+box[3]]
     if in_fmt=='cxcywh' and out_fmt=='xywh':
         return [box[0]-box[2]/2, box[1]-box[3]/2, box[2], box[3]]
     if in_fmt=='cxcywh' and out_fmt=='xyxy':
         return [box[0]-box[2]/2, box[1]-box[3]/2, box[0]+box[2]/2, box[1]+box[3]/2]
-    
+    if in_fmt=='cxcywh' and out_fmt=='axis':
+        return [box[0]-box[2]/2, box[1]-box[3]/2, box[0]+box[2]/2, box[1]-box[3]/2, 
+                box[0]+box[2]/2, box[1]+box[3]/2, box[0]-box[2]/2, box[1]+box[3]/2]
+    if in_fmt=='axis' and out_fmt=='xyxy':
+        return [box[0], box[1], box[4], box[5]]
+    if in_fmt=='axis' and out_fmt=='cxcywh':
+        return [(box[0]+box[4])/2, (box[1]+box[5])/2, box[4]-box[0], box[5]-box[1]]
+    if in_fmt=='axis' and out_fmt=='xywh':
+        return [box[0], box[1], box[4]-box[0], box[5]-box[1]]

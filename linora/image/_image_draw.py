@@ -1,5 +1,4 @@
 import itertools
-from random import randint
 
 import numpy as np
 from PIL import ImageDraw, ImageChops
@@ -27,8 +26,8 @@ def draw_point(image, points, size=0, color=None):
     for i in range(int(len(point)/2)):
         axis = list(itertools.product(range(int(point[i*2]-size), int(point[i*2]+size+1)), 
                                       range(int(point[i*2+1]-size), int(point[i*2+1]+size+1))))
-        color = _fill_color(image, color)
-        draw.point(axis, color)
+        color1 = _fill_color(image, color)
+        draw.point(axis, color1)
     return image2
 
 
@@ -58,8 +57,8 @@ def mask(image, size, max_num, random=True, color=None, p=1):
         for i in range(max_num):
             axis = (np.random.randint(0, image.width-size[1]), np.random.randint(0, image.height-size[0]))
             axis = [axis, (axis[0]+size[1], axis[1]+size[0])]
-            color = _fill_color(image, color)
-            draw.rectangle(axis, fill=color, width=0)
+            color1 = _fill_color(image, color)
+            draw.rectangle(axis, fill=color1, width=0)
     else:
         width_num = min(int(image.width/size[1]*0.6), int(max_num**0.5))
         height_num = min(int(max_num/width_num), int(image.height/size[0]*0.6))
@@ -69,8 +68,8 @@ def mask(image, size, max_num, random=True, color=None, p=1):
             for j in range(height_num):
                 axis = [width_pix*(i+1)+size[1]*i, height_pix*(j+1)+size[0]*j, 
                         width_pix*(i+1)+size[1]*(i+1), height_pix*(j+1)+size[0]*(j+1)]
-                color = _fill_color(image, color)
-                draw.rectangle(axis, fill=color, width=0)
+                color1 = _fill_color(image, color)
+                draw.rectangle(axis, fill=color1, width=0)
     return image2
 
 
@@ -121,9 +120,10 @@ def draw_box(image, boxs, fill_color=None, line_color=None, width=1):
     else:
             raise ValueError('boxs axis error')
     for i in boxs:
-        fill_color = _fill_color(image, fill_color)
-        line_color = _fill_color(image, line_color)
-        draw.polygon(i, fill=fill_color, outline=line_color, width=width)
+        if isinstance(fill_color, dict):
+            fill_color = fill_color['mode']
+        line_color1 = _fill_color(image, line_color)
+        draw.polygon(i, fill=fill_color, outline=line_color1, width=width)
     return image2
 
 
@@ -143,8 +143,8 @@ def draw_line(image, axis, width=1, color=None):
     axis = list(itertools.chain.from_iterable(axis)) if isinstance(axis[0], (list, tuple)) else axis
     for i in range(int(len(axis)/2-1)):
         line = [axis[i*2], axis[i*2+1], axis[i*2+2], axis[i*2+3]]
-        color = _fill_color(image, color)
-        draw.line(line, fill=color, width=width)
+        color1 = _fill_color(image, color)
+        draw.line(line, fill=color1, width=width)
     return image2
 
 
