@@ -1,6 +1,7 @@
 import itertools
 
 from PIL import Image
+import numpy as np
 
 from linora.image._image_draw import draw_box
 from linora.image._image_feature import histogram
