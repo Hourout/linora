@@ -202,8 +202,8 @@ def draw_segmentation_masks(mask, image=None, alpha=0.8, color=None):
     if color is not None:
         assert len(color)==mask.max()+1, 'color size not equal mask nunique size.'
     else:
-        color = tuple([tuple([np.random.randint(0, 256) for j in range(3)]) for i in range(mask.max()+1)])
-    for label in range(mask.max()+1):
+        color = tuple([tuple([np.random.randint(0, 256) for j in range(3)]) for i in range(int(mask.max()+1))])
+    for label in range(int(mask.max()+1)):
         if canvas[mask == label].size:
             canvas[mask == label] = color[label]
     canvas = array_to_image(canvas)
