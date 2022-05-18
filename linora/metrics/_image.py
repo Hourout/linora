@@ -2,7 +2,7 @@ import numpy as np
 
 from linora.metrics._classification import confusion_matrix
 
-__all__ = ['iou_detection', 'iou_segmentation', 'psnr', 'ssim']
+__all__ = ['iou_detection', 'iou_segmentation', 'psnr', 'ssim', 'total_variation']
 
 
 def iou_detection(box1, box2, mode=None):
@@ -116,3 +116,25 @@ def ssim(image1, image2):
     s12 = (sigma12 + C3)/(sigma1*sigma2 + C3)
     ssim = l12 * c12 * s12
     return ssim
+
+
+def total_variation(image):
+    """Calculate and return the total variation for one or more images.
+    
+    The total variation is the sum of the absolute differences for neighboring
+    pixel-values in the input images. This measures how much noise is in the image.
+    Args:
+        image: a NumPy array of image.
+    Returns:
+        a float.
+    """
+    if image.ndim==3:
+        pixel_dif1 = image[1:, :, :] - image[:-1, :, :]
+        pixel_dif2 = image[:, 1:, :] - image[:, :-1, :]
+        return np.abs(pixel_dif1).sum()+np.abs(pixel_dif2).sum()
+    elif image.ndim==4:
+        pixel_dif1 = image[:, 1:, :, :] - image[:, :-1, :, :]
+        pixel_dif2 = image[:, :, 1:, :] - image[:, :, :-1, :]
+        return np.abs(pixel_dif1).sum()+np.abs(pixel_dif2).sum()
+    else:
+        raise ValueError('`image` must be either 3 or 4-dimensional.')
