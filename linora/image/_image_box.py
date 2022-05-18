@@ -1,7 +1,7 @@
 import itertools
 
-from PIL import Image
 import numpy as np
+from PIL import Image
 
 from linora.image._image_draw import draw_box
 from linora.image._image_feature import histogram
@@ -33,9 +33,9 @@ def mask_to_box(mask):
         a list of bounding boxes, eg [[x1,y1,x2,y2],...].
     """
     axis = []
-    for i in np.unique(image):
+    for i in np.unique(mask):
         if i!=0:
-            y, x = np.where(image==i)
+            y, x = np.where(mask==i)
             axis.append([x.min(), y.min(), x.max(), y.max()])
     return axis
 
