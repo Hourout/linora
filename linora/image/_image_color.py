@@ -7,7 +7,7 @@ __all__ = ['enhance_saturation', 'enhance_brightness', 'enhance_sharpness', 'enh
            'enhance_contrast_log', 'enhance_contrast_linear', 'enhance_contrast_gamma',
            'enhance_hue', 'color_invert', 'color_clip', 'equalize', 'rgb_hex',
            'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
-           'dropout'
+           'rgb_to_yuv', 'yuv_to_rgb', 'dropout'
           ]
 
 
@@ -438,6 +438,39 @@ def yiq_to_rgb(image, normalize=False, dtype='float32'):
     to_rgb = np.vectorize(colorsys.yiq_to_rgb)
     r, g, b = to_rgb(y, i, q)
     return (np.stack((r, g, b), axis=2)*norm).astype(dtype)
+
+
+def rgb_to_yuv(image):
+    """Converts image from RGB to YUV.
+
+    Args:
+        image: NumPy RGB image array of shape (H, W, C) to be converted.
+    Returns:
+        a numpy array.
+    """
+    if image.max()>1:
+        image = image/255.
+    kernel = np.array([[0.299, -0.14714119, 0.61497538],
+                       [0.587, -0.28886916, -0.51496512],
+                       [0.114, 0.43601035, -0.10001026]])
+    return np.dot(image, kernel)
+
+
+def yuv_to_rgb(image, normalize=False, dtype='float32'):
+    """Converts image from YUV to RGB.
+
+    Args:
+        image: NumPy YUV image array of shape (H, W, C) to be converted.
+        normalize: if True, rgb numpy array is [0,255], if False, rgb numpy array is [0,1]
+        dtype: rgb numpy array dtype.
+    Returns:
+        a numpy array.
+    """
+    norm = 255. if normalize else 1.
+    kernel = np.array([[1, 1, 1], 
+                       [0, -0.394642334, 2.03206185],
+                       [1.13988303, -0.58062185, 0]])
+    return (np.dot(image, kernel)*norm).astype(dtype)
 
 
 def rgb_hex(color):
