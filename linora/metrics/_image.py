@@ -2,7 +2,7 @@ import numpy as np
 
 from linora.metrics._classification import confusion_matrix
 
-__all__ = ['iou_detection', 'iou_segmentation', 'psnr', 'ssim', 'total_variation']
+__all__ = ['iou_detection', 'psnr', 'ssim', 'total_variation']
 
 
 def iou_detection(box1, box2, mode=None):
@@ -62,16 +62,16 @@ def iou_detection(box1, box2, mode=None):
     raise ValueError("mode must be one of [None, 'C', 'D', 'E', 'G']")
 
 
-def iou_segmentation(y_true, y_pre):
+def iou_segmentation(y_true, y_pred):
     """Calculate object segmentation iou.
     
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
-        y_pre: pd.Series or array or list, predicted labels.
+        y_pred: pd.Series or array or list, predicted labels.
     Returns:
         a dict, object segmentation iou values.
     """
-    cm = confusion_matrix(np.array(y_true).flatten(), np.array(y_pre).flatten())
+    cm = confusion_matrix(np.array(y_true).flatten(), np.array(y_pred).flatten())
     intersection = np.diag(cm)
     union = np.sum(cm, axis=1) + np.sum(cm, axis=0) - np.diag(cm)
     IoU = intersection / union 

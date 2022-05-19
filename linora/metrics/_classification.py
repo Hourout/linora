@@ -6,7 +6,7 @@ from linora.metrics._regression import mean_squared_error
 __all__ = ['accuracy_binary', 'accuracy_categorical', 'recall', 'precision', 'confusion_matrix',
            'fbeta_score', 'f1_score', 'auc_roc', 'auc_pr', 'crossentropy_binary', 
            'crossentropy_categorical', 'ks', 'gini', 'psi', 'fmi', 'report_binary',
-           'accuracy_categorical_top_k'
+           'accuracy_categorical_top_k', 'iou_binary', 'iou_categorical',
           ]
 
 
@@ -21,20 +21,29 @@ def classified_func(y_true, y_pred, prob=0.5, pos_label=1):
     return t
 
 
+def _sample_weight(y_true, sample_weight):
+    if sample_weight is None:
+        sample_weight = np.ones(len(y_true))
+    elif isinstance(sample_weight, dict):
+        sample_weight = [sample_weight[i] for i in y_true]
+    else:
+        sample_weight = np.array(sample_weight)
+    return sample_weight/sample_weight.sum()*len(sample_weight)
+
+
 def accuracy_binary(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
     """Calculates how often predictions match binary labels.
     
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
         the fraction of correctly classified samples (float).
     """
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
     return ((t.label==t.prob)*sample_weight).mean()
 
@@ -45,17 +54,73 @@ def accuracy_categorical(y_true, y_pred, sample_weight=None):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
     Returns:
         the fraction of correctly classified samples (float).
     """
-    if not isinstance(y_true[0], int):
-        y_true = np.argmax(y_true, axis=1)
-    if not isinstance(y_pred[0], int):
-        y_pred = np.argmax(y_pred, axis=1)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    if y_true.ndim!=1:
+        y_true = np.argmax(y_true, axis=-1)
+    if y_pred.ndim!=1:
+        y_pred = np.argmax(y_pred, axis=-1)
+    sample_weight = _sample_weight(y_true, sample_weight)
     return ((pd.Series(y_true)==pd.Series(y_pred))*sample_weight).mean()
+
+
+def iou_binary(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
+    """Computes the Intersection-Over-Union metric for class 0 and/or 1.
+    
+    iou = true_positives / (true_positives + false_positives + false_negatives)
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
+        sample_weight: list or array or dict of sample weight.
+        prob: probability threshold.
+        pos_label: positive label.
+    Returns:
+        the fraction of correctly classified samples (float).
+    """
+    sample_weight = _sample_weight(y_true, sample_weight)
+    t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
+    t['weight'] = sample_weight
+    tp = (((t.label==pos_label)&(t.prob==pos_label))*t.weight).sum()
+    fp = (((t.label==pos_label)&(t.prob!=pos_label))*t.weight).sum()
+    fn = (((t.label!=pos_label)&(t.prob==pos_label))*t.weight).sum()
+    return tp/(tp+fp+fn)
+
+
+def iou_categorical(y_true, y_pred, sample_weight=None, target_class_ids=None):
+    """Computes mean Intersection-Over-Union metric for one-hot encoded or categorical labels.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
+        sample_weight: list or array or dict of sample weight.
+        target_class_ids: A tuple or list of target class ids for which the metric is returned. 
+    Returns:
+        the fraction of correctly classified samples (float).
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    if y_true.ndim!=1:
+        y_true = np.argmax(y_true, axis=-1)
+    if y_pred.ndim!=1:
+        y_pred = np.argmax(y_pred, axis=-1)
+    sample_weight = _sample_weight(y_true, sample_weight)
+    t = pd.DataFrame({'prob':y_pred.flatten(), 'label':y_true.flatten(), 'weight':sample_weight})
+    if target_class_ids is None:
+        target_class_ids = t.label.unique().tolist()
+    result = {'IoU_mean':[], 'IoU_class':{i:0 for i in target_class_ids}}
+    for i in t.label.unique():
+        if i in target_class_ids:
+            tp = (((t.label==i)&(t.prob==i))*t.weight).sum()
+            fp = (((t.label==i)&(t.prob!=i))*t.weight).sum()
+            fn = (((t.label!=i)&(t.prob==i))*t.weight).sum()
+            result['IoU_mean'].append(tp/(tp+fp+fn))
+            result['IoU_class'][i] = tp/(tp+fp+fn)
+    result['IoU_mean'] = sum(result['IoU_mean'])/len(result['IoU_mean'])
+    return result
 
 
 def recall(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
@@ -64,14 +129,13 @@ def recall(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
         Recall of the positive class in binary classification.
     """
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
     return (t.prob*sample_weight)[t.label==pos_label].mean()
 
@@ -82,14 +146,13 @@ def precision(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
         Precision of the positive class in binary classification.
     """
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
     return (t.label*sample_weight)[t.prob==pos_label].mean()
 
@@ -114,14 +177,13 @@ def fbeta_score(y_true, y_pred, beta, sample_weight=None, prob=0.5, pos_label=1)
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
         beta : int or float, weight of precision in harmonic mean.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
         Fbeta score of the positive class in binary classification.
     """
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     r = recall(y_true, y_pred, sample_weight, prob, pos_label)
     p = precision(y_true, y_pred, sample_weight, prob, pos_label)
     return r*p*(1+np.power(beta, 2))/(np.power(beta, 2)*p+r)
@@ -132,14 +194,13 @@ def f1_score(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
         F1 score of the positive class in binary classification.
     """
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     return fbeta_score(y_true, y_pred, beta=1, sample_weight=sample_weight, prob=prob, pos_label=pos_label)
 
 
@@ -149,13 +210,12 @@ def auc_roc(y_true, y_pred, sample_weight=None, pos_label=1):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         pos_label: positive label.
     Returns:
         Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
     """
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     t = pd.DataFrame({'prob':y_pred, 'label':y_true, 'weight':sample_weight})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     t.insert(0, 'target', t[t.label!=pos_label].label.unique()[0])
@@ -170,13 +230,12 @@ def auc_pr(y_true, y_pred, sample_weight=None, pos_label=1):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         pos_label: positive label.
     Returns:
         Area Under the Receiver Operating Characteristic Curve (PR AUC) from prediction scores.
     """
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     t = pd.DataFrame({'prob':y_pred, 'label':y_true, 'weight':sample_weight})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -198,14 +257,13 @@ def crossentropy_binary(y_true, y_pred, sample_weight=None):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
     Returns:
         binary crossentropy of the positive class in binary classification.
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     t = np.exp((y_pred-np.max(y_pred))*sample_weight)
     t = -(np.log(t/t.sum())*y_true).mean()
     return t
@@ -221,15 +279,14 @@ def crossentropy_categorical(y_true, y_pred, sample_weight=None, one_hot=False):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         one_hot: default True, Whether y_true is a one_hot variable.
     Returns:
         categorical crossentropy of the positive class in categorical classification.
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     assert y_pred.shape[1]==np.unique(np.array(y_true)).size, "`y_pred` and `y_true` dim not same."
     t = np.exp(y_pred.T-np.max(y_pred, axis=1))
     if one_hot:
@@ -245,13 +302,12 @@ def ks(y_true, y_pred, sample_weight=None, pos_label=1):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         pos_label: positive label.
     Returns:
         KS score of the positive class in binary classification.
     """
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     t = pd.DataFrame({'prob':y_pred, 'label':y_true, 'weight':sample_weight})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -271,13 +327,12 @@ def gini(y_true, y_pred, sample_weight=None, pos_label=1):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         pos_label: positive label.
     Returns:
         Gini score of the positive class in binary classification.
     """
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     t = pd.DataFrame({'prob':y_pred, 'label':y_true, 'weight':sample_weight})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
@@ -316,14 +371,13 @@ def fmi(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         prob: probability threshold.
         pos_label: positive label.
     Returns:
         FMI of the positive class in binary classification.
     """
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
     t['weight'] = sample_weight
     tp = (((t.label==pos_label)&(t.prob==pos_label))*t.weight).sum()
@@ -338,7 +392,7 @@ def report_binary(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1, pri
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         prob: probability threshold.
         pos_label: positive label.
         printable: bool, print report.
@@ -380,14 +434,14 @@ def accuracy_categorical_top_k(y_true, y_pred, k, sample_weight=None):
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted probs, as returned by a classifier.
-        sample_weight: list or array of sample weight.
+        sample_weight: list or array or dict of sample weight.
         k: Number of top elements to look at for computing accuracy.
     Returns:
         Top K categorical accuracy value.
     """
-    if not isinstance(y_true[0], int):
-        y_true = np.argmax(y_true, axis=1)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    y_true = np.array(y_true)
+    if y_true.ndim!=1:
+        y_true = np.argmax(y_true, axis=-1)
+    sample_weight = _sample_weight(y_true, sample_weight)
     y_pred = [[s.index(i) for i in sorted(s)[-k:]] for s in y_pred]
     return np.mean([sample_weight[i] if j in y_pred[i] else 0 for i,j in enumerate(y_true)])

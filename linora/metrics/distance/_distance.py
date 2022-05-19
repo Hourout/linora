@@ -322,13 +322,12 @@ def bhattacharyya(x, y, sample_weight=None):
     return np.log(np.sum(np.sqrt(x * y*sample_weight)))
 
 
-def wasserstein(x, y, sample_weight=None):
+def wasserstein(x, y):
     """wasserstein distance.
     
     Args:
         x: pd.Series or array or list, sample n dim feature value.
         y: pd.Series or array or list, sample n dim feature value.
-        sample_weight: list or array of sample weight.
     Returns:
         wasserstein distance value.
     """
