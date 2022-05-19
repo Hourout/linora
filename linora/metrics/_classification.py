@@ -7,6 +7,8 @@ __all__ = ['accuracy_binary', 'accuracy_categorical', 'recall', 'precision', 'co
            'fbeta_score', 'f1_score', 'auc_roc', 'auc_pr', 'crossentropy_binary', 
            'crossentropy_categorical', 'ks', 'gini', 'psi', 'fmi', 'report_binary',
            'accuracy_categorical_top_k', 'iou_binary', 'iou_categorical',
+           'precision_on_recall', 'recall_on_precision', 
+           'specificity_on_sensitivity', 'sensitivity_on_specificity'
           ]
 
 
@@ -155,6 +157,88 @@ def precision(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
     sample_weight = _sample_weight(y_true, sample_weight)
     t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
     return (t.label*sample_weight)[t.prob==pos_label].mean()
+
+
+def _cumsum_confusion_matrix(y_true, y_pred, sample_weight=None, pos_label=1):
+    sample_weight = _sample_weight(y_true, sample_weight)
+    t = pd.DataFrame({'prob':y_pred, 'label':y_true, 'weight':sample_weight})
+    assert t.label.nunique()==2, "`y_true` should be binary classification."
+    label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
+    t['label'] = t.label.replace(label_dict)
+    t = t.sort_values(['prob', 'label'], ascending=False).reset_index(drop=True)   
+    t['tp'] = (t.label*t.weight).cumsum()
+    t['fp'] = t.weight.cumsum()-t.tp
+    t['tn'] = ((1-t.label)*t.weight).iloc[::-1].cumsum()
+    t['fn'] = t.weight.iloc[::-1].cumsum()-t.tn
+    t['recall'] = t.tp/(t.tp + t.fn)
+    t['precision'] = t.tp/(t.tp+t.fp)
+    t['specificity'] = t.tn/(t.tn + t.fp)
+    t['sensitivity'] = t.tp/(t.tp + t.fn)
+    return t
+
+
+def precision_on_recall(y_true, y_pred, recall=0.5, sample_weight=None, pos_label=1):
+    """Computes best precision where recall is >= specified value.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
+        recall: A scalar value in range [0, 1].
+        sample_weight: list or array or dict of sample weight.
+        pos_label: positive label.
+    Returns:
+        prediction scores.
+    """
+    t = _cumsum_confusion_matrix(y_true, y_pred, sample_weight=sample_weight, pos_label=pos_label)
+    return t[t.recall>=recall].precision.max()
+
+
+def recall_on_precision(y_true, y_pred, precision=0.5, sample_weight=None, pos_label=1):
+    """Computes best recall where precision is >= specified value.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
+        precision: A scalar value in range [0, 1].
+        sample_weight: list or array or dict of sample weight.
+        pos_label: positive label.
+    Returns:
+        recall scores.
+    """
+    t = _cumsum_confusion_matrix(y_true, y_pred, sample_weight=sample_weight, pos_label=pos_label)
+    return t[t.precision>=precision].recall.max()
+
+
+def sensitivity_on_specificity(y_true, y_pred, specificity=0.5, sample_weight=None, pos_label=1):
+    """Computes best sensitivity where specificity is >= specified value.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
+        specificity: A scalar value in range [0, 1].
+        sample_weight: list or array or dict of sample weight.
+        pos_label: positive label.
+    Returns:
+        sensitivity scores.
+    """
+    t = _cumsum_confusion_matrix(y_true, y_pred, sample_weight=sample_weight, pos_label=pos_label)
+    return t[t.specificity>=specificity].sensitivity.max()
+
+
+def specificity_on_sensitivity(y_true, y_pred, sensitivity=0.5, sample_weight=None, pos_label=1):
+    """Computes best specificity where sensitivity is >= specified value.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
+        sensitivity: A scalar value in range [0, 1].
+        sample_weight: list or array or dict of sample weight.
+        pos_label: positive label.
+    Returns:
+        specificity scores.
+    """
+    t = _cumsum_confusion_matrix(y_true, y_pred, sample_weight=sample_weight, pos_label=pos_label)
+    return t[t.sensitivity>=sensitivity].specificity.max()
 
 
 def confusion_matrix(y_true, y_pred):
