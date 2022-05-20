@@ -61,6 +61,7 @@ class RandomSearch():
         """
         logger = Logger(name='lgb')
         logger.info(f"api is deprecated and will be removed in 1.5.0")
+        logger.info(f"please use la.param_search.RandomSearch")
         import warnings
         warnings.filterwarnings("ignore")
         import lightgbm as lgb

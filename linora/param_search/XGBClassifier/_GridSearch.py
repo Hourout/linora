@@ -71,6 +71,7 @@ class GridSearch():
         assert xgb.__version__>=__xgboost_version__, f'xgboost version should be >={__xgboost_version__}.'
         logger = Logger(name='xgb')
         logger.info(f"api is deprecated and will be removed in 1.5.0")
+        logger.info(f"please use la.param_search.GridSearch")
         if speedy:
             test_size = 1-round(min(speedy_param[0], feature.shape[0]*speedy_param[1])/feature.shape[0], 2)
         tree_method = ['gpu_hist'] if gpu_id>-1 else ['auto', 'exact', 'approx', 'hist']

@@ -58,7 +58,7 @@ class RandomSearch():
         import warnings
         warnings.filterwarnings("ignore")
         if speedy:
-            test_size = 1-round(min(speedy_param[0], feature.shape[0]*speedy_param[1])/feature.shape[0], 2)
+            test_size = 1-round(min(speedy_param[0], len(train_data[1])*speedy_param[1])/len(train_data[1]), 2)
         if self.params.model_init=='XGBClassifier':
             self._xgb_weight(train_data[1])
         
