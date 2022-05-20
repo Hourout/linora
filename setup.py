@@ -33,10 +33,10 @@ setup(name='linora',
           'Topic :: Scientific/Engineering :: Artificial Intelligence',
           'Topic :: Scientific/Engineering :: Visualization',
           'License :: OSI Approved :: Apache Software License',
-          'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
-          'Programming Language :: Python :: 3.9'
+          'Programming Language :: Python :: 3.9',
+          'Programming Language :: Python :: 3.10'
       ],
       packages=find_packages(),
       zip_safe=False)

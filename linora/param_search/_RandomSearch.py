@@ -15,9 +15,9 @@ __all__ = ['RandomSearch']
 
 
 class RandomSearch():
-    def __init__(self, model=None, hp=None, name=''):
+    def __init__(self, model=None, hp=None, name=None):
         self.params = Config()
-        self.params.name = name
+        self.params.name = 'RS' if name is None else name
         self.params.model_init = model
         
         if model in ['XGBClassifier', 'XGBRegressor', 'LGBMClassifier', 'LGBMRegressor']:
@@ -54,7 +54,7 @@ class RandomSearch():
         Raises:
             params error.
         """
-        logger = Logger(name='RS')
+        logger = Logger(name=self.params.name)
         import warnings
         warnings.filterwarnings("ignore")
         if speedy:
@@ -65,7 +65,7 @@ class RandomSearch():
         if vaild_data is not None:
             cv_score_list = []
             
-        logger.info(f"Start {self.name} hyperparameter random search.")
+        logger.info(f"Start hyperparameter random search.")
         for i in range(1, iter_num+1):
             self.hp.update()
             self.params.model = self.params.model_init(**self.hp.params)
