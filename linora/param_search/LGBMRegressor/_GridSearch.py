@@ -32,7 +32,7 @@ class GridSearch():
         self.best_params_history = dict()
         
     def search(self, feature, label, vaild_data=None, sample_weight=None, 
-               metrics=auc_roc, loss='binary', 
+               metrics=auc_roc, loss='regression', 
                scoring=0.5, cv=5, cv_num=3, metrics_min=True, 
                speedy=True, speedy_param=(20000, 0.3), 
                save_model_dir=None, save_model_name='lgb'):
