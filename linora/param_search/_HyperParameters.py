@@ -101,6 +101,15 @@ class HyperParametersRandom():
         self.params_history[self._update_nums] = self.params.copy()
         self._update_nums += 1
 
+    def from_HyperParameters(self, hp):
+        """update HyperParametersRandom class.
+        
+        Args:
+            hp: a HyperParametersRandom class.
+        """
+        for name, config in hp.space.items():
+            self.space[name] = config
+            self.params[name] = hp.params[name]
 
 class HyperParametersGrid():
     def __init__(self):
@@ -225,3 +234,26 @@ class HyperParametersGrid():
         if not self._rank_list:
             self._rank_list_func()
         return self._cardinality
+    
+    def from_HyperParameters(self, hp):
+        """update HyperParametersGrid class.
+        
+        Args:
+            hp: a HyperParametersGrid class.
+        """
+        for name, config in hp.space.items():
+            self.space[name] = config
+            self.params[name] = hp.params[name]
+        for rank, name_list in hp._rank.items():
+            if rank not in self._rank:
+                self._rank[rank].append(name_list)
+                continue
+            for name in name_list:
+                for r, n in self._rank.items():
+                    if rank==r:
+                        if name not in self._rank[rank]:
+                            self._rank[rank].append(name)
+                    else:
+                        if name in self._rank[rank]:
+                            self._rank[rank].remove(name)
+                        
