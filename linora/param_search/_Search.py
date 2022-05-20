@@ -80,6 +80,7 @@ class BaseSearch():
             params error.
         """
         logger = Logger(name=self.params.name)
+        logger.info(f"Start hyperparameter {self.params.method} search.")
         import warnings
         warnings.filterwarnings("ignore")
         if speedy:
@@ -90,7 +91,6 @@ class BaseSearch():
         if vaild_data is not None:
             cv_score_list = []
             
-        logger.info(f"Start hyperparameter {self.params.method} search.")
         if self.params.method=='grid':
             if iter_num is None:
                 iter_num = self.hp.cardinality()
@@ -163,7 +163,10 @@ class BaseSearch():
         else:
             weight_dict = {j:i for i,j in weight_dict.items()}
             weight = int(np.ceil(weight_dict[max(weight_dict)]/weight_dict[min(weight_dict)]))
-        self.hp.Choice('scale_pos_weight', [1, weight])
+        if self.params.method=='grid':
+            self.hp.Choice('scale_pos_weight', [1, weight], weight, rank=6)
+        else:
+            self.hp.Choice('scale_pos_weight', [1, weight])
         
         
 class RandomSearch(BaseSearch):

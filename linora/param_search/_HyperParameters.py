@@ -132,11 +132,12 @@ class HyperParametersGrid():
         Args:
             name: Str. Name of parameter. Must be unique.
             default: Default value to return for the parameter. If unspecified, the default value will be None.
-            rank: Int, default 0, Importance ordering of parameters, smaller is more important.
+            rank: Int, default 0, Importance ordering of parameters, smaller is more important, rank should be greater than 1.
         """
         if name not in self.space:
             self.space[name] = {'mode':'Boolean', 'default':default, 'rank':rank, 'values':[True, False]}
-            self._rank[rank].append(name)
+            if rank>0:
+                self._rank[rank].append(name)
             self.params[name] = np.random.choice([True, False]) if default is None else default
         
     def Float(self, name, min_value, max_value, rounds=1, default=None, rank=0):
@@ -148,12 +149,13 @@ class HyperParametersGrid():
             max_value: Float. Upper bound of the range.
             rounds: Optional. Int, e.g. 2 mean round(x, 2). smallest meaningful distance between two values. 
             default: Default value to return for the parameter. If unspecified, the default value will be None.
-            rank: Int, default 0, Importance ordering of parameters, smaller is more important.
+            rank: Int, default 0, Importance ordering of parameters, smaller is more important, rank should be greater than 1.
         """
         if name not in self.space:
             self.space[name] = {'mode':'Float', 'default':default, 'rank':rank, 
                                 'values':np.linspace(min_value, max_value, round((max_value-min_value)*10**rounds)+1).round(rounds).tolist()}
-            self._rank[rank].append(name)
+            if rank>0:
+                self._rank[rank].append(name)
             self.params[name] = round(random.uniform(min_value, max_value), rounds) if default is None else default
         
     def Int(self, name, min_value, max_value, default=None, rank=0):
@@ -165,11 +167,12 @@ class HyperParametersGrid():
             min_value: Int. Lower limit of range (included).
             max_value: Int. Upper limit of range (included).
             default: Default value to return for the parameter. If unspecified, the default value will be None.
-            rank: Int, default 0, Importance ordering of parameters, smaller is more important.
+            rank: Int, default 0, Importance ordering of parameters, smaller is more important, rank should be greater than 1.
         """
         if name not in self.space:
             self.space[name] = {'mode':'Int', 'default':default, 'rank':rank, 'values':list(range(min_value, max_value+1))}
-            self._rank[rank].append(name)
+            if rank>0:
+                self._rank[rank].append(name)
             self.params[name] = round(random.uniform(min_value, max_value)) if default is None else default
         
     def Choice(self, name, values, default=None, rank=0):
@@ -180,11 +183,12 @@ class HyperParametersGrid():
             name: Str. Name of parameter. Must be unique.
             values: List of possible values. Values must be int, float, str, or bool. All values must be of the same type.
             default: Default value to return for the parameter. If unspecified, the default value will be None.
-            rank: Int, default 0, Importance ordering of parameters, smaller is more important.
+            rank: Int, default 0, Importance ordering of parameters, smaller is more important, rank should be greater than 1.
         """
         if name not in self.space:
             self.space[name] = {'mode':'Choice', 'default':default, 'rank':rank, 'values':list(values)}
-            self._rank[rank].append(name)
+            if rank>0:
+                self._rank[rank].append(name)
             self.params[name] = random.choice(self.space[name]['values']) if default is None else default
         
     def Dependence(self, name, dependent_name, function, default=None):
