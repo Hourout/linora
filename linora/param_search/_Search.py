@@ -55,7 +55,7 @@ class BaseSearch():
         self.best_params_history = dict()
 
     def search(self, train_data, metrics, vaild_data=None,
-               iter_num=100, scoring=0.5, cv=5, cv_num=3, metrics_min=True, 
+               iter_num=None, scoring=0.5, cv=5, cv_num=3, metrics_min=True, 
                speedy=True, speedy_param=(20000, 0.3), 
                save_model_dir=None, save_model_name=None):
         """model params search method.
@@ -91,6 +91,13 @@ class BaseSearch():
             cv_score_list = []
             
         logger.info(f"Start hyperparameter {self.params.method} search.")
+        if self.params.method=='grid':
+            if iter_num is None:
+                iter_num = self.hp.cardinality()
+            else:
+                iter_num = min(iter_num, self.hp.cardinality())
+        if iter_num is None:
+            iter_num = 100
         for i in range(1, iter_num+1):
             self.hp.update(self.best_params)
             self.params.model = self.params.model_init(**self.hp.params)
