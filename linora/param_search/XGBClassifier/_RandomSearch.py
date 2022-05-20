@@ -66,6 +66,7 @@ class RandomSearch():
             params error.
         """
         logger = Logger(name='xgb')
+        logger.info(f"api is deprecated and will be removed in 1.5.0")
         import warnings
         warnings.filterwarnings("ignore")
         import xgboost as xgb

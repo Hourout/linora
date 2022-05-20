@@ -60,6 +60,7 @@ class RandomSearch():
             params error.
         """
         logger = Logger(name='lgb')
+        logger.info(f"api is deprecated and will be removed in 1.5.0")
         import warnings
         warnings.filterwarnings("ignore")
         import lightgbm as lgb

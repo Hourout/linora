@@ -64,6 +64,7 @@ class GridSearch():
         import lightgbm as lgb
         assert lgb.__version__>=__lightgbm_version__, f'lightgbm version should be >={__lightgbm_version__}.'
         logger = Logger(name='lgb')
+        logger.info(f"api is deprecated and will be removed in 1.5.0")
         if speedy:
             test_size = 1-round(min(speedy_param[0], feature.shape[0]*speedy_param[1])/feature.shape[0], 2)
         self.HyperParameter.Choice('objective', [loss])
