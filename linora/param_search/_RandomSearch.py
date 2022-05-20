@@ -10,6 +10,8 @@ from linora.utils._logger import Logger
 from linora.sample._fold import kfold, train_test_split
 from linora.param_search._config import model_hp
 from linora.param_search._HyperParameters import HyperParametersRandom
+from linora.param_search._config import __xgboost_version__, __lightgbm_version__
+
 
 __all__ = ['RandomSearch']
 
@@ -19,11 +21,28 @@ class RandomSearch():
         self.params = Config()
         self.params.name = 'RS' if name is None else name
         self.params.model_init = model
-        
+        self.params.model_name = ''
         if model in ['XGBClassifier', 'XGBRegressor', 'LGBMClassifier', 'LGBMRegressor']:
             self.hp = model_hp(model=model, method='random')
             if hp is not None:
                 self.hp.from_HyperParameters(hp)
+            self.params.model_name = model
+            if model=='XGBClassifier':
+                import xgboost as xgb
+                assert xgb.__version__>=__xgboost_version__, f'xgboost version should be >={__xgboost_version__}.'
+                self.params.model_init = xgb.XGBClassifier
+            elif model=='LGBMClassifier':
+                import xgboost as xgb
+                assert xgb.__version__>=__xgboost_version__, f'xgboost version should be >={__xgboost_version__}.'
+                self.params.model_init = xgb.XGBRegressor
+            elif model=='LGBMClassifier':
+                import lightgbm as lgb
+                assert lgb.__version__>=__lightgbm_version__, f'lightgbm version should be >={__lightgbm_version__}.'
+                self.params.model_init = lgb.LGBMClassifier
+            else model=='LGBMRegressor':
+                import lightgbm as lgb
+                assert lgb.__version__>=__lightgbm_version__, f'lightgbm version should be >={__lightgbm_version__}.'
+                self.params.model_init = lgb.LGBMRegressor
         else:
             self.hp = hp
         self.best_params = dict()
@@ -59,7 +78,7 @@ class RandomSearch():
         warnings.filterwarnings("ignore")
         if speedy:
             test_size = 1-round(min(speedy_param[0], len(train_data[1])*speedy_param[1])/len(train_data[1]), 2)
-        if self.params.model_init=='XGBClassifier':
+        if self.params.model_name=='XGBClassifier':
             self._xgb_weight(train_data[1])
         
         if vaild_data is not None:
@@ -92,7 +111,7 @@ class RandomSearch():
                 scoring = cv_score
                 self.best_params = self.hp.params.copy()
                 self.best_params_history[i] = {'score':scoring, 'best_params':self.best_params.copy()}
-                if self.params.model_init in ['XGBClassifier', 'XGBRegressor']:
+                if self.params.model_name in ['XGBClassifier', 'XGBRegressor']:
                     if save_model_dir is not None:
                         if save_model_name is None:
                             save_model_name = 'RS'
@@ -100,7 +119,7 @@ class RandomSearch():
                         with open(os.path.join(save_model_dir, f"{save_model_name}_params.json"),'w') as f:
                             json.dump(best_params, f)
             logger.info(f"Random search progress: {i/iter_num*100:.1f}%, best score: {scoring:.4f}", enter=False if i<iter_num else True)
-        logger.info(f"{self.name} random search best score: {scoring:.4f}", close=True, time_mode=1)
+        logger.info(f"{self.params.name} random search best score: {scoring:.4f}", close=True, time_mode=1)
         return self.best_params
 
     def _model_fit_predict(self, data, metrics, index=None, mode=1):
