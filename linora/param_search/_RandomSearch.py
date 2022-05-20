@@ -39,7 +39,7 @@ class RandomSearch():
                 import lightgbm as lgb
                 assert lgb.__version__>=__lightgbm_version__, f'lightgbm version should be >={__lightgbm_version__}.'
                 self.params.model_init = lgb.LGBMClassifier
-            else model=='LGBMRegressor':
+            elif model=='LGBMRegressor':
                 import lightgbm as lgb
                 assert lgb.__version__>=__lightgbm_version__, f'lightgbm version should be >={__lightgbm_version__}.'
                 self.params.model_init = lgb.LGBMRegressor
