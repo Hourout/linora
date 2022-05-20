@@ -103,20 +103,16 @@ def normalize_norm(feature, feature_scale=None):
     return t, scale
 
 
-def normalize_robust(feature, feature_scale=(None, 0.5)):
+def normalize_robust(feature, feature_scale=(0.5, 0.5)):
     """normalize feature with robust method.
     
     Args:
         feature: pd.Series, sample feature value.
-        feature_scale: list or tuple, [feature.median(), feature.quantile(0.75)-feature.quantile(0.25)];
-                       if feature_scale[0] is not None, 
+        feature_scale: list or tuple, each element is in the [0,1] interval.
                        (feature_scale[0], feature.quantile(0.5+feature_scale[1]/2)-feature.quantile(0.5-feature_scale[1]/2)).
     Returns:
         normalize feature and feature_scale.
     """
-    if feature_scale[0] is not None:
-        scale = [feature_scale[0], feature.quantile(0.5+feature_scale[1]/2)-feature.quantile(0.5-feature_scale[1]/2)]
-    else:
-        scale = [feature.median(), feature.quantile(0.75)-feature.quantile(0.25)]
+    scale = [feature.quantile(feature_scale[0]), feature.quantile(0.5+feature_scale[1]/2)-feature.quantile(0.5-feature_scale[1]/2)]
     t = (feature-scale[0])/scale[1]
-    return t, scale
+    return t, feature_scale

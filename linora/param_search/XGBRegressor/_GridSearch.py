@@ -46,7 +46,7 @@ class GridSearch():
         Args:
             feature: pandas dataframe, model's feature.
             label: pandas series, model's label.
-            vaild_data: A list of (X, y) tuple pairs to use as validation sets, for which metrics will be computed. 
+            vaild_data: A list of (X, y, sample_weight) tuple pairs to use as validation sets, for which metrics will be computed. 
             sample_weight: pd.Series or np.array, sample weight, shape is (n,).
             metrics: model metrics function, default is `la.metircs.mean_squared_error`.
             loss: XGBRegressor param 'objective'.
@@ -95,14 +95,20 @@ class GridSearch():
                     weight = None if sample_weight is None else sample_weight[index_list[0]]
                     model.fit(feature.loc[index_list[0]], label[index_list[0]], sample_weight=weight)
                     cv_pred = pd.Series(model.predict(feature.loc[index_list[1]]), index=label[index_list[1]].index)
-                    score.append(metrics(label[index_list[1]], cv_pred))
+                    if sample_weight is None:
+                        score.append(metrics(label[index_list[1]], cv_pred))
+                    else:
+                        score.append(metrics(label[index_list[1]], cv_pred, sample_weight=sample_weight))
             else:
                 index_list = kfold(feature, n_splits=cv, shuffle=True, seed=np.random.choice(range(100), 1)[0])
                 for n, index in enumerate(index_list):
                     weight = None if sample_weight is None else sample_weight[index[0]]
                     model.fit(feature.loc[index[0]], label[index[0]], sample_weight=weight)
                     cv_pred = pd.Series(model.predict(feature.loc[index[1]]), index=label[index[1]].index)
-                    score.append(metrics(label[index[1]], cv_pred))
+                    if sample_weight is None:
+                        score.append(metrics(label[index[1]], cv_pred))
+                    else:
+                        score.append(metrics(label[index[1]], cv_pred, sample_weight=sample_weight))
             cv_score = np.mean(score)
             if vaild_data is not None:
                 cv_score_list.append(cv_score)
@@ -110,7 +116,10 @@ class GridSearch():
                     cv_score_list.sort()
                     if cv_score_list[int(len(cv_score_list)*0.2)]>=cv_score:
                         cv_pred = pd.Series(model.predict(vaild_data[0]), index=vaild_data[1].index)
-                        cv_score = metrics(vaild_data[1], cv_pred)
+                        if len(vaild_data)==2:
+                            cv_score = metrics(vaild_data[1], cv_pred)
+                        else:
+                            cv_score = metrics(vaild_data[1], cv_pred, sample_weight=vaild_data[2])
                     else:
                         logger.info(f"Grid search progress: {i/nums*100:.1f}%, best score: {scoring:.4f}", enter=False if i<nums else True)
                         continue
