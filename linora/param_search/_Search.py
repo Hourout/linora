@@ -13,17 +13,23 @@ from linora.param_search._HyperParameters import HyperParametersRandom
 from linora.param_search._config import __xgboost_version__, __lightgbm_version__
 
 
-__all__ = ['RandomSearch']
+__all__ = ['RandomSearch', 'GridSearch']
 
 
-class RandomSearch():
-    def __init__(self, model, hp=None, name=None):
+class BaseSearch():
+    def __init__(self, model, hp=None, name=None, method='random'):
         self.params = Config()
-        self.params.name = 'RS' if name is None else name
+        if name is not None:
+            self.params.name = name
+        elif method=='random':
+            self.params.name = 'RS'
+        elif method=='grid':
+            self.params.name = 'GS'
         self.params.model_init = model
         self.params.model_name = ''
+        self.params.method = method
         if model in ['XGBClassifier', 'XGBRegressor', 'LGBMClassifier', 'LGBMRegressor']:
-            self.hp = model_hp(model=model, method='random')
+            self.hp = model_hp(model=model, method=method)
             if hp is not None:
                 self.hp.from_HyperParameters(hp)
             self.params.model_name = model
@@ -52,7 +58,7 @@ class RandomSearch():
                iter_num=100, scoring=0.5, cv=5, cv_num=3, metrics_min=True, 
                speedy=True, speedy_param=(20000, 0.3), 
                save_model_dir=None, save_model_name=None):
-        """model params search use RandomSearch method.
+        """model params search method.
 
         Args:
             train_data: A list of (X, y, sample_weight) tuple pairs to use as train sets.
@@ -84,9 +90,9 @@ class RandomSearch():
         if vaild_data is not None:
             cv_score_list = []
             
-        logger.info(f"Start hyperparameter random search.")
+        logger.info(f"Start hyperparameter {self.params.method} search.")
         for i in range(1, iter_num+1):
-            self.hp.update()
+            self.hp.update(self.best_params)
             self.params.model = self.params.model_init(**self.hp.params)
             score = []
             if speedy:
@@ -105,7 +111,7 @@ class RandomSearch():
                 if (metrics_min==True and threshold>=cv_score) or (metrics_min==False and threshold<=cv_score):
                     cv_score = self._model_fit_predict(vaild_data, metrics, index=None, mode=0)
                 else:
-                    logger.info(f"Random search progress: {i/iter_num*100:.1f}%, best score: {scoring:.4f}", enter=False if i<iter_num else True)
+                    logger.info(f"Model {self.params.method} search progress: {i/iter_num*100:.1f}%, best score: {scoring:.4f}", enter=False if i<iter_num else True)
                     continue
             if (metrics_min==True and cv_score<scoring) or (metrics_min==False and cv_score>scoring):
                 scoring = cv_score
@@ -118,8 +124,8 @@ class RandomSearch():
                         model.save_model(os.path.join(save_model_dir, f"{save_model_name}_model.json"))
                         with open(os.path.join(save_model_dir, f"{save_model_name}_params.json"),'w') as f:
                             json.dump(best_params, f)
-            logger.info(f"Random search progress: {i/iter_num*100:.1f}%, best score: {scoring:.4f}", enter=False if i<iter_num else True)
-        logger.info(f"{self.params.name} random search best score: {scoring:.4f}", close=True, time_mode=1)
+            logger.info(f"Model {self.params.method} search progress: {i/iter_num*100:.1f}%, best score: {scoring:.4f}", enter=False if i<iter_num else True)
+        logger.info(f"Model {self.params.method} search best score: {scoring:.4f}", close=True, time_mode=1)
         return self.best_params
 
     def _model_fit_predict(self, data, metrics, index=None, mode=1):
@@ -151,3 +157,27 @@ class RandomSearch():
             weight_dict = {j:i for i,j in weight_dict.items()}
             weight = int(np.ceil(weight_dict[max(weight_dict)]/weight_dict[min(weight_dict)]))
         self.hp.Choice('scale_pos_weight', [1, weight])
+        
+        
+class RandomSearch(BaseSearch):
+    """model params search use RandomSearch method.
+    
+    Args:
+        model: a model object or one of ['XGBClassifier', 'XGBRegressor', 'LGBMClassifier', 'LGBMRegressor'].
+        hp: a la.param_search.HyperParametersRandom object.
+        name: logger name.
+    """
+    def __init__(self, model, hp=None, name=None):
+        super(RandomSearch, self).__init__(model, hp=hp, name=name, method='random')
+
+
+class GridSearch(BaseSearch):
+    """model params search use GridSearch method.
+    
+    Args:
+        model: a model object or one of ['XGBClassifier', 'XGBRegressor', 'LGBMClassifier', 'LGBMRegressor'].
+        hp: a la.param_search.HyperParametersGrid object.
+        name: logger name.
+    """
+    def __init__(self, model, hp=None, name=None):
+        super(GridSearch, self).__init__(model, hp=hp, name=name, method='grid')

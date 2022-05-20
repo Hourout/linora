@@ -82,7 +82,7 @@ class HyperParametersRandom():
             self.space[name] = {'mode':'Dependence', 'dependent_name':dependent_name, 'function':function, 'default':default}
             self.params[name] = function(self.params[dependent_name]) if default is None else default
     
-    def update(self):
+    def update(self, best_params=None):
         """params update"""
         if self._update_init:
             self._update_init = False
@@ -100,6 +100,8 @@ class HyperParametersRandom():
                     self.params[name] = config['function'](self.params[config['dependent_name']])
         self.params_history[self._update_nums] = self.params.copy()
         self._update_nums += 1
+        if best_params is not None:
+            self.best_params = best_params.copy()
 
     def from_HyperParameters(self, hp):
         """update HyperParametersRandom class.
@@ -225,6 +227,7 @@ class HyperParametersGrid():
             self._update_init = False
         else:
             if best_params is not None:
+                self.best_params = best_params.copy()
                 self.params = best_params.copy()
             self.params.update(self._rank_list[self._update_nums-1])
         self.params_history[self._update_nums] = self.params.copy()
