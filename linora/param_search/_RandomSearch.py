@@ -17,7 +17,7 @@ __all__ = ['RandomSearch']
 
 
 class RandomSearch():
-    def __init__(self, model=None, hp=None, name=None):
+    def __init__(self, model, hp=None, name=None):
         self.params = Config()
         self.params.name = 'RS' if name is None else name
         self.params.model_init = model
