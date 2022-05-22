@@ -242,6 +242,9 @@ class HyperParametersGrid():
             self._rank_list_func()
         return self._cardinality
     
+    def grid_space(self):
+        return self._rank_list
+    
     def from_HyperParameters(self, hp):
         """update HyperParametersGrid class.
         

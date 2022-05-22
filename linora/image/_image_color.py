@@ -42,9 +42,7 @@ def enhance_contrast_linear(image, delta, p=1):
     """Adjust image contrast.
   
     Contrast is adjusted independently for each channel of each image.
-    
     pixel = (x - mean) * delta + mean
-    Values in the range gamma=(0.6, 1.4) seem to be sensible.
     
     Tips:
         1 means pixel value no change.
@@ -120,16 +118,13 @@ def enhance_contrast_sigmoid(image, cutoff=0.5, gain=10, p=1):
 
 
 def enhance_contrast_log(image, gain=1, p=1):
-    """Perform sigmoid correction on an image.
+    """Perform log correction on an image.
     
     pixel = 255*gain*log_2(1+v/255)
     Values in the range gain=[0.6, 1.4] seem to be sensible.
     
     Args:
         image: a PIL instance.
-        cutoff: float, Cutoff that shifts the sigmoid function in horizontal direction. 
-                Higher values mean that the switch from dark to light pixels happens later. 
-                if list or tuple, randomly picked in the interval `[cutoff[0], cutoff[1])`.
         gain: float, The constant multiplier.
               if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
         p: probability that the image does this. Default value is 1.

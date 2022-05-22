@@ -13,6 +13,10 @@ class ImageCropAug(object):
             box: The crop rectangle, as a (left, upper, right, lower)-tuple.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = crop(self.image, box, p)
@@ -40,6 +44,10 @@ class ImageCropAug(object):
                           `[central_rate[0], central_rate[1])`, value is fraction of size to crop.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = crop_central(self.image, central_rate, p)
@@ -60,6 +68,10 @@ class ImageCropAug(object):
         Raises:
             ValueError: if central_crop_fraction is not within (0, 1].
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = crop_point(self.image, height_rate, width_rate, p)

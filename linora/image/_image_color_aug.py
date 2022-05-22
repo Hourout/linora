@@ -21,19 +21,20 @@ class ImageColorAug(object):
                    `[delta[0], delta[1])` , value is float multiplier for adjusting color.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = enhance_saturation(self.image, delta, p)
         return self
     
-    def enhance_contrast(self, delta, p=None):
+    def enhance_contrast_linear(self, delta, p=None):
         """Adjust contrast of RGB or grayscale images.
   
         Contrast is adjusted independently for each channel of each image.
-
-        For each channel, this Ops computes the mean of the image pixels in the
-        channel and then adjusts each component `x` of each pixel to
-        `(x - mean) * delta + mean`.
+        pixel = (x - mean) * delta + mean
 
         Tips:
             1 means pixel value no change.
@@ -45,9 +46,83 @@ class ImageColorAug(object):
                    `[delta[0], delta[1])` , value is float multiplier for adjusting contrast.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
-        self.image = enhance_contrast(self.image, delta, p)
+        self.image = enhance_contrast_linear(self.image, delta, p)
+        return self
+    
+    def enhance_contrast_gamma(self, gamma=1, gain=1.0, p=None):
+        """Perform gamma correction on an image.
+
+        For gamma greater than 1, the histogram will shift towards left and the output image will be darker than the input image. 
+        For gamma less than 1, the histogram will shift towards right and the output image will be brighter than the input image.
+
+        pixel = 255*gain *((v/255)**gamma)
+        Values in the range gamma=(0.5, 2.0) seem to be sensible.
+
+        Args:
+            gamma: float, Non negative real number, gamma larger than 1 make the shadows darker, 
+                   while gamma smaller than 1 make dark regions lighter.
+                   if list or tuple, randomly picked in the interval `[gamma[0], gamma[1])`.
+            gain: float, The constant multiplier.
+                  if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
+            p: probability that the image does this. Default value is 1.
+        """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
+        if p is None:
+            p = self._p
+        self.image = enhance_contrast_gamma(self.image, gamma, gain, p)
+        return self
+    
+    def enhance_contrast_sigmoid(self, cutoff=0.5, gain=10, p=None):
+        """Perform sigmoid correction on an image.
+
+        pixel = 255*1/(1+exp(gain*(cutoff-v/255)))
+        Values in the range gain=(5, 20) and cutoff=(0.25, 0.75) seem to be sensible.
+
+        Args:
+            image: a PIL instance.
+            cutoff: float, Cutoff that shifts the sigmoid function in horizontal direction. 
+                    Higher values mean that the switch from dark to light pixels happens later. 
+                    if list or tuple, randomly picked in the interval `[cutoff[0], cutoff[1])`.
+            gain: float, The constant multiplier.
+                  if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
+            p: probability that the image does this. Default value is 1.
+        """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
+        if p is None:
+            p = self._p
+        self.image = enhance_contrast_sigmoid(self.image, cutoff, gain, p)
+        return self
+    
+    def enhance_contrast_log(self, gain=1, p=None):
+        """Perform log correction on an image.
+
+        pixel = 255*gain*log_2(1+v/255)
+        Values in the range gain=[0.6, 1.4] seem to be sensible.
+
+        Args:
+            gain: float, The constant multiplier.
+                  if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
+            p: probability that the image does this. Default value is 1.
+        """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
+        if p is None:
+            p = self._p
+        self.image = enhance_contrast_log(self.image, gain, p)
         return self
     
     def enhance_brightness(self, delta, p=None):
@@ -62,6 +137,10 @@ class ImageColorAug(object):
                    if list, tuple, randomly picked in the interval `[delta[0], delta[1])` to add to the pixel values.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = enhance_brightness(self.image, delta, p)
@@ -84,6 +163,10 @@ class ImageColorAug(object):
                        `[delta[0], delta[1])` , value is float multiplier for adjusting color.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = enhance_sharpness(self.image, delta, p)
@@ -107,27 +190,13 @@ class ImageColorAug(object):
                    if list or tuple, randomly picked in the interval `[delta[0], delta[1])`.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = enhance_hue(self.image, delta, p)
-        return self
-    
-    def gamma(self, gamma=1, gain=1.0, p=None):
-        """Perform gamma correction on an image.
-
-        For gamma greater than 1, the histogram will shift towards left and the output image will be darker than the input image. 
-        For gamma less than 1, the histogram will shift towards right and the output image will be brighter than the input image.
-        Args:
-            gamma: float, Non negative real number, gamma larger than 1 make the shadows darker, 
-                   while gamma smaller than 1 make dark regions lighter.
-                   if list or tuple, randomly picked in the interval `[gamma[0], gamma[1])`.
-            gain: float, The constant multiplier.
-                  if list or tuple, randomly picked in the interval `[gain[0], gain[1])`.
-            p: probability that the image does this. Default value is 1.
-        """
-        if p is None:
-            p = self._p
-        self.image = gamma(self.image, gamma, gain, p)
         return self
     
     def color_invert(self, lower=None, upper=None, wise='pixel', prob=1, p=None):
@@ -142,6 +211,10 @@ class ImageColorAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = color_invert(self.image, lower, upper, wise, prob, p)
@@ -159,6 +232,10 @@ class ImageColorAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = color_clip(self.image, lower, upper, wise, prob, p)
@@ -173,6 +250,10 @@ class ImageColorAug(object):
         Args:
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = equalize(self.image, p)
@@ -189,6 +270,10 @@ class ImageColorAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = dropout(self.image, value, wise, prob, p)

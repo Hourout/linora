@@ -16,6 +16,10 @@ class ImageRescaleAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = add(self.image, scale, wise, prob, p)
@@ -32,6 +36,10 @@ class ImageRescaleAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = multiply(self.image, scale, wise, prob, p)
@@ -50,6 +58,10 @@ class ImageRescaleAug(object):
                  if tuple or list, randomly picked in the interval `[std[0], std[1])`
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = normalize_global(self.image, mean, std, p)
@@ -66,6 +78,10 @@ class ImageRescaleAug(object):
                  if tuple or list, customize image each channels std, shape should 3 dims.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = normalize_channel(self.image, mean, std, p)
@@ -80,6 +96,10 @@ class ImageRescaleAug(object):
                   if list or tuple, randomly picked in the interval `[bits[0], bits[1])` value.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = normalize_posterize(self.image, bits, p)

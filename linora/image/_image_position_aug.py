@@ -11,6 +11,10 @@ class ImagePositionAug(object):
         Args:
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = flip_up_left(self.image, p)
@@ -22,6 +26,10 @@ class ImagePositionAug(object):
         Args:
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = flip_up_right(self.image, p)
@@ -33,6 +41,10 @@ class ImagePositionAug(object):
         Args:
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = flip_left_right(self.image, p)
@@ -44,6 +56,10 @@ class ImagePositionAug(object):
         Args:
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = flip_up_down(self.image, p)
@@ -73,6 +89,10 @@ class ImagePositionAug(object):
             fill_color: color for area outside, int or str or tuple or la.image.RGBMode, rgb color.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = rotate(self.image, angle, expand, center, translate, fillcolor, p)
@@ -89,6 +109,10 @@ class ImagePositionAug(object):
             fill_color: int or str or tuple or la.image.RGBMode, rgb color.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = translate(self.image, xoffset, yoffset, fillcolor, p)
@@ -107,6 +131,10 @@ class ImagePositionAug(object):
                      if tuple or list, randomly picked in the interval `[yoffset[0], yoffset[1])`
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = offset(self.image, xoffset, yoffset, p)
@@ -126,6 +154,10 @@ class ImagePositionAug(object):
                        if len(pad_color) == 4, left_color, top_color, right_color, bottom_color = pad_color
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = pad(self.image, pad_value, pad_color, p)
@@ -137,6 +169,10 @@ class ImagePositionAug(object):
         Args:
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = shuffle_channel(self.image, p)
@@ -150,6 +186,10 @@ class ImagePositionAug(object):
             fill_color: int or str or tuple or la.image.RGBMode, rgb color.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = perspective(self.image, distortion_scale, fill_color, p)
@@ -159,7 +199,6 @@ class ImagePositionAug(object):
         """Apply affine transformation on the image keeping image center invariant.
 
         Args:
-            image: a PIL instance.
             angle: int or float, rotation angle in degrees between -180 and 180. Set to 0 to deactivate rotations.
                    if list or tuple, randomly picked in the interval `[angle[0], angle[1])`.
             center: center of rotation, xaxis and yaxis in [0,1], default is the center of the image.
@@ -179,12 +218,16 @@ class ImagePositionAug(object):
             fill_color: int or str or tuple or la.image.RGBMode, rgb color. 
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
-        self.image = affine(self.image, angle, center, translate, scale, shear, fill_color, p=p)
+        self.image = affine(self.image, angle, center, translate, scale, shear, fill_color, p)
         return self
     
-    def shear(self, xoffset=(-90, 90), yoffset=None, fill_color=None, p=1):
+    def shear(self, xoffset=(-90, 90), yoffset=None, fill_color=None, p=None):
         """Apply affine shear on the image.
 
         Args:
@@ -196,12 +239,16 @@ class ImagePositionAug(object):
             fill_color: int or str or tuple or la.image.RGBMode, rgb color. 
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
-        self.image = shear(self.image, xoffset, yoffset, fill_color, p=p)
+        self.image = shear(self.image, xoffset, yoffset, fill_color, p)
         return self
     
-    def rescale(self, xscale=(0.5,1.5), yscale=(0.5,1.5), fill_color=None, p=1):
+    def rescale(self, xscale=(0.5,1.5), yscale=(0.5,1.5), fill_color=None, p=None):
         """Apply scaling on the y-axis to input data.
 
         Args:
@@ -212,12 +259,16 @@ class ImagePositionAug(object):
             fill_color: int or str or tuple or la.image.RGBMode, rgb color.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = rescale(self.image, xscale, yscale, fill_color, p=p)
         return self
     
-    def jigsaw(self, size=(10,10), prob=0.1, p=1):
+    def jigsaw(self, size=(10,10), prob=0.1, p=None):
         """Move cells within images similar to jigsaw patterns.
 
         Args:
@@ -227,7 +278,11 @@ class ImagePositionAug(object):
             prob: probability of every jigsaw being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
-        self.image = jigsaw(self.image, size, prob, p=p)
+        self.image = jigsaw(self.image, size, prob, p)
         return self

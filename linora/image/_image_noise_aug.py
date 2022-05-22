@@ -17,6 +17,10 @@ class ImageNoiseAug(object):
             prob: probability of numbers of mosaci.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = mosaic(self.image, size, block, axis, prob, p=p)
@@ -34,6 +38,10 @@ class ImageNoiseAug(object):
             black_prob: black pixel prob.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = noise_saltpepper(self.image, white_prob, black_prob, p=p)
@@ -53,6 +61,10 @@ class ImageNoiseAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = noise_gaussian(self.image, mean, std, wise, scale, prob, p=p)
@@ -72,6 +84,10 @@ class ImageNoiseAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = noise_laplace(self.image, mean, lam, wise, scale, prob, p=p)
@@ -89,6 +105,10 @@ class ImageNoiseAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = noise_poisson(self.image, lam, wise, scale, prob, p=p)
@@ -109,6 +129,10 @@ class ImageNoiseAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = noise_uniform(self.image, lower, upper, wise, scale, prob, p=p)
@@ -123,6 +147,10 @@ class ImageNoiseAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = noise_speckle(self.image, wise, prob, p=p)
@@ -139,6 +167,10 @@ class ImageNoiseAug(object):
             prob: probability of every pixel or channel being changed.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = noise_impulse(self.image, binomial, wise, prob, p=p)

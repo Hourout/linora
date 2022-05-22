@@ -137,6 +137,10 @@ class ImageFilterAug(object):
             mode: la.image.FilterMode.
             p: probability that the image does this. Default value is 1.
         """
+        if self._max_aug_nums>0:
+            if self._nums>self._max_aug_nums:
+                return self
+            self._nums += 1
         if p is None:
             p = self._p
         self.image = filters(self.image, mode, p, **kwarg)

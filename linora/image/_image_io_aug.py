@@ -26,7 +26,7 @@ class ImageIoAug(object):
         save_image(filename, self.image, file_format=file_format, **kwargs)
         return self
     
-    def color_convert(self, color_mode='RGB'):
+    def color_convert(self, color_mode=ColorMode.RGB):
         """Transform image color mode.
 
         Args:
