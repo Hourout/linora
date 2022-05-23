@@ -18,6 +18,7 @@ class DataSet():
         self.params.batch = 0
         self.params.batch_size = 1
         self.params.step = 1
+        self.params.to_tensor = 'numpy'
         self.params.options = defaultdict(dict)
         
     def batch(self, batch_size, drop_remainder=False):
