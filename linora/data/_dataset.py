@@ -264,6 +264,29 @@ class DataSet():
         self.params.step += 1
         return self
     
+    def to_tensor(self, mode='tf'):
+        """Transform data from numpy array to tensor.
+        
+        Args:
+            mode: Deep learning framework name, one of ['tf', 'pytorch', 'paddle'].
+        """
+        assert 'to_tensor' not in self.params.options, '`to_tensor` already exists.'
+        assert 'take_while' not in self.params.options, '`take` must be placed in `take_while` front.'
+        assert mode in ['tf', 'tensorflow', 'pytorch'], '`mode` value error.'
+        self.params.to_tensor = mode
+        self.params.options['to_tensor'].update({self.params.step: {'mode':mode}})
+        self.params.step += 1
+        return self
+    
+    def _to_tensor(self, data):
+        if self.params.to_tensor in ['tf', 'tensorflow']:
+            return tf.convert_to_tensor(data)
+        if self.params.to_tensor in ['pytorch', 'torch']:
+            return torch.as_tensor(data)
+        if self.params.to_tensor in ['paddle', 'paddlepaddle']:
+            return paddle.to_tensor(data)
+        return data
+    
     def __iter__(self):
         if self.params.data_mode=='list':
             if 'map' in self.params.options:
@@ -286,5 +309,5 @@ class DataSet():
         self.params.batch += 1
         if 'enumerate' in self.params.options:
             self.params.enumerate += 1
-            return (self.params.enumerate-1, self._batch_func(loc))
-        return self._batch_func(loc)
+            return (self.params.enumerate-1, self._to_tensor(self._batch_func(loc)))
+        return self._to_tensor(self._batch_func(loc))

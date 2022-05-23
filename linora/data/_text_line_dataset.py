@@ -26,6 +26,7 @@ class DataSet():
         self.params.prefetch_size = 1
         self.params.sample = 0
         self.params.step = 1
+        self.params.to_tensor = 'numpy'
         self.params.options = defaultdict(dict)
         
     def batch(self, batch_size, drop_remainder=False):
@@ -48,7 +49,7 @@ class DataSet():
         """Creates a Dataset by concatenating the given dataset with this dataset.
         
         Args:
-            dataset: Dataset to be concatenated.
+            dataset: la.data.TextLineDataset object, Dataset to be concatenated.
         """
         self.params.data.append(dataset.params.data)
         self.params.options['concatenate'].update({self.params.step: None})
@@ -223,6 +224,29 @@ class DataSet():
 #         self.params.options['take_while'].append((self.params.step, take_func))
 #         self.params.step += 1
 #         return self
+
+    def to_tensor(self, mode='tf'):
+        """Transform data from numpy array to tensor.
+        
+        Args:
+            mode: Deep learning framework name, one of ['tf', 'pytorch', 'paddle'].
+        """
+        assert 'to_tensor' not in self.params.options, '`to_tensor` already exists.'
+        assert 'take_while' not in self.params.options, '`take` must be placed in `take_while` front.'
+        assert mode in ['tf', 'tensorflow', 'pytorch'], '`mode` value error.'
+        self.params.to_tensor = mode
+        self.params.options['to_tensor'].update({self.params.step: {'mode':mode}})
+        self.params.step += 1
+        return self
+    
+    def _to_tensor(self, data):
+        if self.params.to_tensor in ['tf', 'tensorflow']:
+            return tf.convert_to_tensor(data)
+        if self.params.to_tensor in ['pytorch', 'torch']:
+            return torch.as_tensor(data)
+        if self.params.to_tensor in ['paddle', 'paddlepaddle']:
+            return paddle.to_tensor(data)
+        return data
     
     def __iter__(self):
         self.params.shuffle_size = np.ceil(max(self.params.shuffle_size, self.params.prefetch_size, 1)/self.params.batch_size)*self.params.batch_size
@@ -258,8 +282,8 @@ class DataSet():
                 raise StopIteration
             self.params.sample += len(values)
         if 'map' in self.params.options:
-            return values.apply(self.params.map_func, axis=1).values
-        return values.values
+            return self._to_tensor(values.apply(self.params.map_func, axis=1).values)
+        return self._to_tensor(values.values)
 
 
 class TextLineDataset(DataSet):
@@ -281,7 +305,7 @@ class TextLineDataset(DataSet):
         """
         self.params.sep = sep
         self.params.header = header
-        data = data if isinstance(data, (tuple, list)) else [data]
+        data = list(data) if isinstance(data, (tuple, list)) else [data]
         for i in data:
             if not gfile.isfile(i):
                 raise ValueError(f'`{i}` not a file path.')
