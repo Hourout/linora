@@ -18,7 +18,7 @@ class DataSet():
         self.params.batch = 0
         self.params.batch_size = 1
         self.params.step = 1
-        self.params.to_tensor = 'numpy'
+        self.params.tensor_mode = 'numpy'
         self.params.options = defaultdict(dict)
         
     def batch(self, batch_size, drop_remainder=False):
@@ -273,29 +273,26 @@ class DataSet():
         """
         assert 'to_tensor' not in self.params.options, '`to_tensor` already exists.'
         assert 'take_while' not in self.params.options, '`take` must be placed in `take_while` front.'
-        assert mode in ['tf', 'tensorflow', 'pytorch'], '`mode` value error.'
-        if self.params.to_tensor in ['tf', 'tensorflow']:
+        if mode in ['tf', 'tensorflow']:
             from tensorflow import convert_to_tensor
             self.params.framework = convert_to_tensor
-        if self.params.to_tensor in ['pytorch', 'torch']:
+        elif mode in ['pytorch', 'torch']:
             from torch import as_tensor
             self.params.framework = as_tensor
-        if self.params.to_tensor in ['paddle', 'paddlepaddle']:
+        elif mode in ['paddle', 'paddlepaddle']:
             from paddle import to_tensor
             self.params.framework = to_tensor
-        self.params.to_tensor = mode
+        else:
+            raise ValueError('`mode` value error.')
+        self.params.tensor_mode = mode
         self.params.options['to_tensor'].update({self.params.step: {'mode':mode}})
         self.params.step += 1
         return self
     
     def _to_tensor(self, data):
-        if self.params.to_tensor in ['tf', 'tensorflow']:
-            return self.params.framework(data)
-        if self.params.to_tensor in ['pytorch', 'torch']:
-            return self.params.framework(data)
-        if self.params.to_tensor in ['paddle', 'paddlepaddle']:
-            return self.params.framework(data)
-        return data
+        if self.params.tensor_mode=='numpy':
+            return data
+        return self.params.framework(data)
     
     def __iter__(self):
         if self.params.data_mode=='list':
