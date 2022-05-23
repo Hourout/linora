@@ -274,6 +274,15 @@ class DataSet():
         assert 'to_tensor' not in self.params.options, '`to_tensor` already exists.'
         assert 'take_while' not in self.params.options, '`take` must be placed in `take_while` front.'
         assert mode in ['tf', 'tensorflow', 'pytorch'], '`mode` value error.'
+        if self.params.to_tensor in ['tf', 'tensorflow']:
+            from tensorflow import convert_to_tensor
+            self.params.framework = convert_to_tensor
+        if self.params.to_tensor in ['pytorch', 'torch']:
+            from torch import as_tensor
+            self.params.framework = as_tensor
+        if self.params.to_tensor in ['paddle', 'paddlepaddle']:
+            from paddle import to_tensor
+            self.params.framework = to_tensor
         self.params.to_tensor = mode
         self.params.options['to_tensor'].update({self.params.step: {'mode':mode}})
         self.params.step += 1
@@ -281,11 +290,11 @@ class DataSet():
     
     def _to_tensor(self, data):
         if self.params.to_tensor in ['tf', 'tensorflow']:
-            return tf.convert_to_tensor(data)
+            return self.params.framework(data)
         if self.params.to_tensor in ['pytorch', 'torch']:
-            return torch.as_tensor(data)
+            return self.params.framework(data)
         if self.params.to_tensor in ['paddle', 'paddlepaddle']:
-            return paddle.to_tensor(data)
+            return self.params.framework(data)
         return data
     
     def __iter__(self):
