@@ -1,16 +1,21 @@
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 
 __all__ = ['grid']
 
 
 def grid(image, mode, size=None, **kwargs):
     """grid image.
-    
+
     Args:
         image: a list or tuple of PIL instance.
         mode: grid type.
         size: frist image size.
+        rate: if mode in [0,1,2,3], the ratio of the second image, default is 0.25.
+        xnums: if mode in [4,5,6,7,8], how many columns to display.
+        xspace: if mode in [4,5,6,7,8], width between images in each column.
+        yspace: if mode in [4,5,6,7,8], width between images in each row.
+        text: if mode in [4,5,6,7,8], each image text, len(text)==len(image)
     Returns:
         a PIL instance.
     """
