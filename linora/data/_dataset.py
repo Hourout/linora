@@ -59,6 +59,42 @@ class DataSet():
         self.params.step += 1
         return self
         
+    def choose_from_datasets(self, datasets, index, stop_on_empty_dataset=True):
+        """Creates a dataset that deterministically chooses elements from datasets.
+
+        Args:
+            datasets: A non-empty list of la.data.Dataset objects with compatible structure.
+            index: A list of scalar between 0 and len(datasets) - 1.
+            stop_on_empty_dataset: If True, selection stops if it encounters an empty dataset. 
+                                   If False, it skips empty datasets. It is recommended to set it to True. 
+                                   Otherwise, the selected elements start off as the user intends, 
+                                   but may change as input datasets become empty. 
+                                   This can be difficult to detect since the dataset starts off looking correct. 
+                                   Defaults to True.
+        """
+        if isinstance(datasets[0].params.data, list):
+            self.params.data = []
+            for i in range(len(datasets[0].params.data)):
+                self.params.data += [np.concatenate([sets.params.data[i] for sets in datasets])]
+        else:
+            self.params.data = np.concatenate([sets.params.data for sets in datasets])
+        data_index = []
+        for r, sets in enumerate(datasets):
+            if r==0:
+                data_index.append(sets.params.data_index)
+            else:
+                t = max(data_index[-1])+1
+                data_index.append([i+t for i in sets.params.data_index])
+        if stop_on_empty_dataset:
+            self.params.data_index = []
+            for i in index:
+                if len(data_index[i])==0:
+                    break
+                self.params.data_index.append(data_index[i].pop(0))
+        else:
+            self.params.data_index = [data_index[i].pop(0) for i in index if len(data_index[i])>0]
+        return self
+    
     def enumerate(self, start=0):
         """Enumerates the elements of this dataset.
         
@@ -175,6 +211,23 @@ class DataSet():
         self.params.step += 1
         return self
         
+    def sample_from_datasets(self, datasets, weight=None, stop_on_empty_dataset=False)
+        """Creates a dataset that deterministically chooses elements from datasets.
+
+        Args:
+            datasets: A non-empty list of la.data.Dataset objects with compatible structure.
+            weight: A list of len(datasets) floating-point values where weight[i] 
+                    represents the probability to sample from datasets[i].
+            stop_on_empty_dataset: If True, selection stops if it encounters an empty dataset. 
+                                   If False, it skips empty datasets. It is recommended to set it to True. 
+                                   Otherwise, the selected elements start off as the user intends, 
+                                   but may change as input datasets become empty. 
+                                   This can be difficult to detect since the dataset starts off looking correct. 
+        """
+        
+        index = np.random.choice(range(3), size=sum([len(sets.params.data_index) for sets in datasets])*1.5, p=weight)
+        return self.choose_from_datasets(datasets, index, stop_on_empty_dataset)
+    
     def shard(self, shard_size, shard_index):
         """Creates a Dataset that includes only 1/num_shards of this dataset.
         
@@ -288,6 +341,20 @@ class DataSet():
         self.params.options['to_tensor'].update({self.params.step: {'mode':mode}})
         self.params.step += 1
         return self
+    
+    def unbatch(self):
+        """Splits elements of a dataset into multiple elements."""
+        assert not isinstance(self.params.data, list), 'Input data cannot be a tuple.'
+        self.params.data = np.array(list(itertools.chain.from_iterable(self.params.data)))
+        self.params.data_index = list(range(len(self.params.data)))
+        return self
+    
+    def unique(self):
+        """A transformation that discards duplicate elements of a Dataset."""
+        if isinstance(self.params.data, list):
+            return tuple([np.unique(i) for i in self.params.data])
+        else:
+            return np.unique(self.params.data)
     
     def _to_tensor(self, data):
         if self.params.tensor_mode=='numpy':
