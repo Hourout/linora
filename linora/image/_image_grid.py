@@ -77,9 +77,9 @@ def grid(image, mode, size=None, **kwargs):
         
         for r, i in enumerate(image):
             img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)))
-            textsize = draw.textsize(text[0])
-            t = min(yspace/2/textsize[1], size[0]/textsize[0])
-            xoffset = int((size[0]-t*textsize[0])/2)
+            textsize = draw.textsize(text[r])
+            t = min(yspace/2/textsize[1], size[0]/min(textsize[0], textsize[1]*len(text[r])))
+            xoffset = int((size[0]-t*min(textsize[0], textsize[1]*len(text[r])))/2)
             font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
             draw.text((r%shape[0]*(size[0]+xspace)+xoffset, r//shape[0]*(size[1]+yspace)+size[1]+int(yspace/4)), 
                       text[r], fill=0, font=font)
@@ -96,9 +96,9 @@ def grid(image, mode, size=None, **kwargs):
         
         for r, i in enumerate(image):
             img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)+yspace))
-            textsize = draw.textsize(text[0])
-            t = min(yspace/2/textsize[1], size[0]/textsize[0])
-            xoffset = int((size[0]-t*textsize[0])/2)
+            textsize = draw.textsize(text[r])
+            t = min(yspace/2/textsize[1], size[0]/min(textsize[0], textsize[1]*len(text[r])))
+            xoffset = int((size[0]-t*min(textsize[0], textsize[1]*len(text[r])))/2)
             font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
             draw.text((r%shape[0]*(size[0]+xspace)+xoffset, r//shape[0]*(size[1]+yspace)+int(yspace/4)), 
                       text[r], fill=0, font=font)
@@ -115,9 +115,9 @@ def grid(image, mode, size=None, **kwargs):
         
         for r, i in enumerate(image):
             img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)))
-            textsize = draw.textsize(text[0])
-            t = min(xspace/2/textsize[1], size[1]/textsize[1]/len(text[0]))
-            yoffset = int((size[1]-t*textsize[1]*len(text[0]))/2)
+            textsize = draw.textsize(text[r])
+            t = min(xspace/2/textsize[1], size[1]/textsize[1]/len(text[r]))
+            yoffset = int((size[1]-t*textsize[1]*len(text[r]))/2)
             font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
             draw.text((r%shape[0]*(size[0]+xspace)+size[0]+int(xspace/4), r//shape[0]*(size[1]+yspace)+yoffset), 
                       text[r], fill=0, font=font, direction='ttb')
@@ -134,9 +134,9 @@ def grid(image, mode, size=None, **kwargs):
         
         for r, i in enumerate(image):
             img.paste(i, (r%shape[0]*(size[0]+xspace)+xspace, r//shape[0]*(size[1]+yspace)))
-            textsize = draw.textsize(text[0])
-            t = min(xspace/2/textsize[1], size[1]/textsize[1]/len(text[0]))
-            yoffset = int((size[1]-t*textsize[1]*len(text[0]))/2)
+            textsize = draw.textsize(text[r])
+            t = min(xspace/2/textsize[1], size[1]/textsize[1]/len(text[r]))
+            yoffset = int((size[1]-t*textsize[1]*len(text[r]))/2)
             font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
             draw.text((r%shape[0]*(size[0]+xspace)+int(xspace/4), r//shape[0]*(size[1]+yspace)+yoffset), 
                       text[r], fill=0, font=font, direction='ttb')
