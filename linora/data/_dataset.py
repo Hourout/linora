@@ -211,7 +211,7 @@ class DataSet():
         self.params.step += 1
         return self
         
-    def sample_from_datasets(self, datasets, weight=None, stop_on_empty_dataset=False)
+    def sample_from_datasets(self, datasets, weight=None, stop_on_empty_dataset=False):
         """Creates a dataset that deterministically chooses elements from datasets.
 
         Args:
