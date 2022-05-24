@@ -1,7 +1,7 @@
 import colorsys
 
 import numpy as np
-from PIL import ImageEnhance, ImageOps
+from PIL import ImageEnhance, ImageOps, Image
 
 __all__ = ['enhance_saturation', 'enhance_brightness', 'enhance_sharpness', 'enhance_contrast_sigmoid',
            'enhance_contrast_log', 'enhance_contrast_linear', 'enhance_contrast_gamma',
