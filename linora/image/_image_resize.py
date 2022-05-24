@@ -38,10 +38,19 @@ def resize(image, size, method=ResizeMode.BILINEAR):
     Args:
         image: a PIL instance.
         size: The requested size in pixels, as a 2-tuple: (width, height).
+              if float, (0,1], size=[int(width*size), int(height*size)]
+              if [0.2, 0.7], size=[int(width*0.2), int(height*0.7)]
         method: An optional resampling filter. see la.image.ResizeMode.
     Returns:
         a PIL instance.
     """
     if image.mode in ['1', 'P'] and method!=ResizeMode.NEAREST:
         method = ResizeMode.NEAREST
+    if isinstance(size, float):
+        size = (int(image.size[0]*size), int(image.size[1]*size))
+    elif isinstance(size, (list, tuple)):
+        if size[0]<=1:
+            size = (int(image.size[0]*size[0]), size[1])
+        if size[1]<=1:
+            size = (size[0], int(image.size[1]*size[1]))
     return image.resize(size, resample=method)

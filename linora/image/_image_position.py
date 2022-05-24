@@ -303,7 +303,7 @@ def perspective(image, distortion_scale, fill_color=None, p=1):
 
 
 def affine(image, angle=(-180, 180), center=(0.5,0.5), translate=(0, 0), scale=1., shear=(0,0), fill_color=None, p=1):
-    """Apply affine transformation on the image keeping image center invariant.
+    """Apply affine transformation on the image.
     
     Args:
         image: a PIL instance.
