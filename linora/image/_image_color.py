@@ -68,7 +68,7 @@ def enhance_contrast_gamma(image, gamma=1, gain=1.0, p=1):
     For gamma greater than 1, the histogram will shift towards left and the output image will be darker than the input image. 
     For gamma less than 1, the histogram will shift towards right and the output image will be brighter than the input image.
     
-    pixel = 255*gain *((v/255)**gamma)
+    pixel = 255*gain *((pixel/255)**gamma)
     Values in the range gamma=(0.5, 2.0) seem to be sensible.
     
     Args:
@@ -94,7 +94,7 @@ def enhance_contrast_gamma(image, gamma=1, gain=1.0, p=1):
 def enhance_contrast_sigmoid(image, cutoff=0.5, gain=10, p=1):
     """Perform sigmoid correction on an image.
     
-    pixel = 255*1/(1+exp(gain*(cutoff-v/255)))
+    pixel = 255*1/(1+exp(gain*(cutoff-pixel/255)))
     Values in the range gain=(5, 20) and cutoff=(0.25, 0.75) seem to be sensible.
     
     Args:
@@ -120,7 +120,7 @@ def enhance_contrast_sigmoid(image, cutoff=0.5, gain=10, p=1):
 def enhance_contrast_log(image, gain=1, p=1):
     """Perform log correction on an image.
     
-    pixel = 255*gain*log_2(1+v/255)
+    pixel = 255*gain*log_2(1+pixel/255)
     Values in the range gain=[0.6, 1.4] seem to be sensible.
     
     Args:
@@ -524,4 +524,4 @@ def dropout(image, value=0, wise='pixel', prob=0.1, p=1):
                 split[i] = split[i].point(lambda x:np.random.choice(value))
         return Image.merge(image.mode, split)
     else:
-        raise ValueError("`wise` should be list of channel.")
+        raise ValueError("`wise` value error.")

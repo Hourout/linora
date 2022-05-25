@@ -423,7 +423,7 @@ def shear(image, xoffset=(-90, 90), yoffset=None, fill_color=None, p=1):
 
 
 def rescale(image, xscale=(0.5,1.5), yscale=(0.5,1.5), fill_color=None, p=1):
-    """Apply scaling on the y-axis to input data.
+    """Apply scaling on the x or y axis to input data.
     
     Args:
         image: a PIL instance.
