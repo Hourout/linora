@@ -6,13 +6,14 @@ from linora.image._image_rescale_aug import ImageRescaleAug
 from linora.image._image_position_aug import ImagePositionAug
 from linora.image._image_crop_aug import ImageCropAug
 from linora.image._image_filter_aug import ImageFilterAug
+from linora.image._image_draw_aug import ImageDrawAug
 
 __all__ = ['ImageAug']
 
 
 class ImageAug(ImageIoAug, ImageColorAug, ImageNoiseAug, ImageResizeAug, 
                ImageRescaleAug, ImagePositionAug, ImageCropAug, 
-               ImageFilterAug
+               ImageFilterAug, ImageDrawAug
               ):
     """General class of image enhancement, which is used for pipeline image processing
     

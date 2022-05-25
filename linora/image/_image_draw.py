@@ -156,9 +156,10 @@ def draw_keypoints(image, keypoints, connectivity=None, point_width=3, line_widt
         keypoints: list of shape (num_instances, K, 2) the K keypoints location for each of the N instances,
                    in the format [x, y].
         connectivity: A List of tuple where, each tuple contains pair of keypoints to be connected.
-        colors: str or tuple or la.image.RGBMode, rgb color.
         point_width: Integer denoting radius of keypoint.
         line_width: Integer denoting width of line connecting keypoints.
+        point_color: str or tuple or la.image.RGBMode, rgb color, key points color.
+        line_color: str or tuple or la.image.RGBMode, rgb color, line color.
     Returns:
         a PIL instance.
     """    

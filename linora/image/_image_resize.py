@@ -49,8 +49,8 @@ def resize(image, size, method=ResizeMode.BILINEAR):
     if isinstance(size, float):
         size = (int(image.size[0]*size), int(image.size[1]*size))
     elif isinstance(size, (list, tuple)):
-        if size[0]<=1:
+        if isinstance(size[0], float):
             size = (int(image.size[0]*size[0]), size[1])
-        if size[1]<=1:
+        if isinstance(size[1], float):
             size = (size[0], int(image.size[1]*size[1]))
     return image.resize(size, resample=method)
