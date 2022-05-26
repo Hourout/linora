@@ -153,15 +153,15 @@ class DataSet():
         self.params.step += 1
         return self
         
-    def range(self, *args, **kwargs):
-        """Creates a Dataset of a step-separated range of values."""
-        self._params_init()
-        self.params.data_mode = 'array'
-        self.params.data = np.array(range(*args, **kwargs))
-        self.params.data_index = list(range(len(self.params.data)))
-        self.params.options['range'].update({self.params.step: {'args':args, 'kwargs':kwargs}})
-        self.params.step += 1
-        return self
+#     def range(self, *args, **kwargs):
+#         """Creates a Dataset of a step-separated range of values."""
+#         self._params_init()
+#         self.params.data_mode = 'array'
+#         self.params.data = np.array(range(*args, **kwargs))
+#         self.params.data_index = list(range(len(self.params.data)))
+#         self.params.options['range'].update({self.params.step: {'args':args, 'kwargs':kwargs}})
+#         self.params.step += 1
+#         return self
     
     def random(self, size, lower=0, upper=10, seed=None):
         """Creates a Dataset of pseudorandom values. The dataset generates a sequence of uniformly distributed integer values.
