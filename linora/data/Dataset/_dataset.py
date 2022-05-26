@@ -48,7 +48,7 @@ class range(DataSet, BatchFunction):
         super(range, self).__init__()
         self._params_init()
         self.params.data_mode = 'array'
-        self.params.data = np.array(range(*args, **kwargs))
-        self.params.data_index = list(range(len(self.params.data)))
-        self.params.options['range'].update({self.params.step: {'args':args, 'kwargs':kwargs}})
-        self.params.step += 1
+        self.params.data = np.arange(*args, **kwargs)
+        self.params.data_index = list(np.arange(len(self.params.data)))
+#         self.params.options['range'].update({self.params.step: {'args':args, 'kwargs':kwargs}})
+#         self.params.step += 1
