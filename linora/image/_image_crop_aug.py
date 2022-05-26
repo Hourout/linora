@@ -1,9 +1,8 @@
 from linora.image._image_crop import *
 
 class ImageCropAug(object):
-    def __init__(self, image=None, p=1):
+    def __init__(self, image=None):
         self.image = image
-        self._p = p
         
     def crop(self, box, p=None):
         """Returns a rectangular region from this image. 

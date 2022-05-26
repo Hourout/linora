@@ -1,9 +1,8 @@
 from linora.image._image_noise import *
 
 class ImageNoiseAug(object):
-    def __init__(self, image=None, p=1):
+    def __init__(self, image=None):
         self.image = image
-        self._p = p
     
     def mosaic(self, size=(80,80), block=0, axis=None, prob=0.3, p=None):
         """mosaic noise apply to image.

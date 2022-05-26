@@ -23,7 +23,7 @@ class ImageAug(ImageIoAug, ImageColorAug, ImageNoiseAug, ImageResizeAug,
         p: probability that the image does this. Default value is 1.
     """
     def __init__(self, image=None, max_aug_nums=None, p=1):
-        super(ImageAug, self).__init__(image=image, p=p)
+        super(ImageAug, self).__init__(image=image)
         if max_aug_nums is not None:
             if max_aug_nums>0:
                 self._max_aug_nums = max_aug_nums
@@ -32,3 +32,4 @@ class ImageAug(ImageIoAug, ImageColorAug, ImageNoiseAug, ImageResizeAug,
                 raise ValueError('`max_aug_nums` value error.')
         else:
             self._max_aug_nums = 0
+        self._p = p

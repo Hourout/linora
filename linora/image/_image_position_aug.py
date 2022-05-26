@@ -1,9 +1,8 @@
 from linora.image._image_position import *
 
 class ImagePositionAug(object):
-    def __init__(self, image=None, p=1):
+    def __init__(self, image=None):
         self.image = image
-        self._p = p
     
     def flip_up_left(self, p=None):
         """Randomly flip an image (up to left).

@@ -1,9 +1,8 @@
 from linora.image._image_draw import *
 
 class ImageDrawAug(object):
-    def __init__(self, image=None, p=1):
+    def __init__(self, image=None):
         self.image = image
-        self._p = p
     
     def mask(self, size, max_num, random=True, color=None, p=None):
         """Draws a mask.

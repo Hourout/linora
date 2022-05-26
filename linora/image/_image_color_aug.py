@@ -1,9 +1,8 @@
 from linora.image._image_color import *
 
 class ImageColorAug(object):
-    def __init__(self, image=None, p=1):
+    def __init__(self, image=None):
         self.image = image
-        self._p = p
     
     def enhance_saturation(self, delta, p=None):
         """Adjust image color balance.
