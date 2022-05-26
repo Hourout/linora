@@ -120,7 +120,7 @@ class BaseSearch():
                     continue
             if i==1:
                 scoring = cv_score
-            if (metrics_min==True and cv_score<=scoring) or (metrics_min==False and cv_score=>scoring):
+            if (metrics_min==True and cv_score<=scoring) or (metrics_min==False and cv_score>=scoring):
                 scoring = cv_score
                 self.best_params = self.hp.params.copy()
                 self.best_params_history[i] = {'score':scoring, 'best_params':self.best_params.copy()}
