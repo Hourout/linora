@@ -174,7 +174,7 @@ class ImagePositionAug(object):
             self._nums += 1
         if p is None:
             p = self._p
-        self.image = shuffle_channel(self.image, p)
+        self.image = channel_shuffle(self.image, p)
         return self
     
     def perspective(self, distortion_scale, fill_color=None, p=None):
