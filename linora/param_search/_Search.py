@@ -55,7 +55,7 @@ class BaseSearch():
         self.best_params_history = dict()
 
     def search(self, train_data, metrics, vaild_data=None,
-               iter_num=None, scoring=0.5, cv=5, cv_num=3, metrics_min=True, 
+               iter_num=None, cv=3, metrics_min=True, 
                speedy=True, speedy_param=(20000, 0.3), 
                save_model_dir=None, save_model_name=None):
         """model params search method.
@@ -64,10 +64,8 @@ class BaseSearch():
             train_data: A list of (X, y, sample_weight) tuple pairs to use as train sets.
             metrics: model metrics function.
             vaild_data: A list of (X, y, sample_weight) tuple pairs to use as validation sets.
-            iter_num: random search count.
-            scoring: metrics error opt base line value.
+            iter_num: search count.
             cv: cross validation fold.
-            cv_num: if use speedy method, minimum cross validation fold.
             metrics_min: metrics value whether the smaller the better.
             speedy: whether use speedy method.
             speedy_param: if use speedy method, test_size will be set, 
@@ -103,7 +101,7 @@ class BaseSearch():
             self.params.model = self.params.model_init(**self.hp.params)
             score = []
             if speedy:
-                for _ in range(cv_num):
+                for _ in range(cv):
                     index = train_test_split(train_data[0], train_data[1], test_size, seed=np.random.choice(range(100), 1)[0])
                     score.append(self._model_fit_predict(train_data, metrics, index, mode=1))
             else:
@@ -120,14 +118,16 @@ class BaseSearch():
                 else:
                     logger.info(f"Model {self.params.method} search progress: {i/iter_num*100:.1f}%, best score: {scoring:.4f}", enter=False if i<iter_num else True)
                     continue
-            if (metrics_min==True and cv_score<scoring) or (metrics_min==False and cv_score>scoring):
+            if i==1:
+                scoring = cv_score
+            if (metrics_min==True and cv_score<=scoring) or (metrics_min==False and cv_score=>scoring):
                 scoring = cv_score
                 self.best_params = self.hp.params.copy()
                 self.best_params_history[i] = {'score':scoring, 'best_params':self.best_params.copy()}
                 if self.params.model_name in ['XGBClassifier', 'XGBRegressor']:
                     if save_model_dir is not None:
                         if save_model_name is None:
-                            save_model_name = 'RS'
+                            save_model_name = self.params.name
                         model.save_model(os.path.join(save_model_dir, f"{save_model_name}_model.json"))
                         with open(os.path.join(save_model_dir, f"{save_model_name}_params.json"),'w') as f:
                             json.dump(best_params, f)
