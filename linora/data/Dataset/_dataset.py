@@ -43,8 +43,9 @@ class from_tensor(DataSet, BatchFunction):
     
     
 class range(DataSet, BatchFunction):
+    """Creates a Dataset of a step-separated range of values."""
     def __init__(self, *args, **kwargs):
-        """Creates a Dataset of a step-separated range of values."""
+        super(range, self).__init__()
         self._params_init()
         self.params.data_mode = 'array'
         self.params.data = np.array(range(*args, **kwargs))
