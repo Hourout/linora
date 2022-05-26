@@ -13,27 +13,29 @@ class Metrics:
         self.function = function
         self.result = []
     
-    def compute(self, y_true, y_pred, **kwargs):
+    def compute(self, y_true, y_pred, sample_weight=None, **kwargs):
         """compute function value
         
         Args:
             y_true: pd.Series or array or list, ground truth (correct) labels.
-            y_pred: pd.Series or array or list, predicted values
+            y_pred: pd.Series or array or list, predicted values.
+            sample_weight: list or array of sample weight.
             **kwargs: function other params
         Return:
             function value
         """
-        return self.function(y_true, y_pred, **kwargs)
+        return self._function(y_true, y_pred, sample_weight, **kwargs)
         
-    def update(self, y_true, y_pred, **kwargs):
+    def update(self, y_true, y_pred, sample_weight=None, **kwargs):
         """update function value
         
         Args:
             y_true: pd.Series or array or list, ground truth (correct) labels.
-            y_pred: pd.Series or array or list, predicted values
+            y_pred: pd.Series or array or list, predicted values.
+            sample_weight: list or array of sample weight.
             **kwargs: function other params
         """
-        self.result += [self.function(y_true, y_pred, **kwargs)]
+        self.result += [self._function(y_true, y_pred, sample_weight, **kwargs)]
         
     def accumulate(self, latest_num=-1, method='mean'):
         """compute function history value
@@ -56,3 +58,9 @@ class Metrics:
     
     def reset():
         self.result = []
+        
+    def _function(self, y_true, y_pred, sample_weight, **kwargs):
+        if sample_weight is None:
+            return self.function(y_true, y_pred, **kwargs)
+        else:
+            return self.function(y_true, y_pred, sample_weight=sample_weight, **kwargs)

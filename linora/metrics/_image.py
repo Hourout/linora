@@ -119,7 +119,7 @@ def ssim(image1, image2):
 
 
 def total_variation(image):
-    """Calculate and return the total variation for one or more images.
+    """Calculate and return the total variation for image.
     
     The total variation is the sum of the absolute differences for neighboring
     pixel-values in the input images. This measures how much noise is in the image.
