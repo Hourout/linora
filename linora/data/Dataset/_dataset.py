@@ -10,7 +10,7 @@ __all__ = ['from_tensor', 'range', 'random', 'choose_from_datasets', 'sample_fro
 class BatchFunction():
     def _batch_list_map(self, loc):
         data = list(map(self._params.map_func, *(i[loc] for i in self._params.data)))
-        return [np.array(list(map(lambda x:x[i], data))) for i in range(len(data[0]))]
+        return [np.array(list(map(lambda x:x[i], data))) for i in np.arange(len(data[0]))]
     
     def _batch_list(self, loc):
         return [i[loc] for i in self._params.data]
@@ -68,7 +68,7 @@ class random(DataSet, BatchFunction):
         random1.shuffle(t, random=lambda :((seed if seed is not None else random1.randint(1, 99)))%10/10)
         self._params.data_mode = 'array'
         self._params.data = np.array(t).reshape(size)
-        self._params.data_index = list(range(len(self._params.data)))
+        self._params.data_index = list(np.arange(len(self._params.data)))
 
         
 class choose_from_datasets(DataSet, BatchFunction):
@@ -88,7 +88,7 @@ class choose_from_datasets(DataSet, BatchFunction):
         super(choose_from_datasets, self).__init__()
         if isinstance(datasets[0]._params.data, list):
             self._params.data = []
-            for i in range(len(datasets[0]._params.data)):
+            for i in np.arange(len(datasets[0]._params.data)):
                 self._params.data += [np.concatenate([sets._params.data[i] for sets in datasets])]
         else:
             self._params.data = np.concatenate([sets._params.data for sets in datasets])
@@ -124,5 +124,5 @@ class sample_from_datasets(DataSet, BatchFunction):
     """
     def __init__(self, datasets, weight=None, stop_on_empty_dataset=False):
         super(sample_from_datasets, self).__init__()
-        index = np.random.choice(range(3), size=sum([len(sets._params.data_index) for sets in datasets])*1.5, p=weight)
+        index = np.random.choice(np.arange(3), size=sum([len(sets._params.data_index) for sets in datasets])*1.5, p=weight)
         choose_from_datasets(datasets, index, stop_on_empty_dataset)
