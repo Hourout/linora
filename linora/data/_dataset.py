@@ -322,7 +322,7 @@ class DataSet():
         """Transform data from numpy array to tensor.
         
         Args:
-            mode: Deep learning framework name, one of ['tf', 'pytorch', 'paddle', 'mxnet'].
+            mode: Deep learning framework name, one of ['tf', 'pytorch', 'paddle', 'mxnet', 'mindspore'].
         """
         assert 'to_tensor' not in self._params.options, '`to_tensor` already exists.'
         assert 'take_while' not in self._params.options, '`take` must be placed in `take_while` front.'
@@ -337,6 +337,9 @@ class DataSet():
             self._params.framework = to_tensor
         elif mode in ['mx', 'mxnet']:
             from mxnet.ndarray import array
+            self._params.framework = array
+        elif mode in ['mindspore']:
+            from mindspore.numpy import array
             self._params.framework = array
         else:
             raise ValueError('`mode` value error.')
@@ -377,7 +380,7 @@ class DataSet():
         return self
     
     def __next__(self):
-        loc = tuple(self._params.data_index[self._params.batch_size*self._params.batch:self._params.batch_size*(self._params.batch+1)])
+        loc = self._params.data_index[self._params.batch_size*self._params.batch:self._params.batch_size*(self._params.batch+1)]
         if len(loc)==0:
             raise StopIteration
         elif len(loc)<self._params.batch_size:
