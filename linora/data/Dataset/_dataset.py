@@ -110,7 +110,7 @@ class choose_from_datasets(DataSet, BatchFunction):
 
 
 class sample_from_datasets(DataSet, BatchFunction):
-    """Creates a dataset that deterministically chooses elements from datasets.
+    """Creates a dataset that not deterministically chooses elements from datasets.
 
     Args:
         datasets: A non-empty list of la.data.Dataset objects with compatible structure.
