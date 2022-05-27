@@ -6,7 +6,7 @@ from PIL import ImageDraw, ImageChops
 from linora.image._image_util import array_to_image
 from linora.image._image_rgb import _fill_color
 
-__all__ = ['draw_box', 'draw_point', 'mask', 'draw_line', 'draw_keypoints', 'draw_segmentation_masks']
+__all__ = ['draw_box', 'draw_point', 'mask', 'mask_box', 'draw_line', 'draw_keypoints', 'draw_segmentation_masks', 'stripe']
 
 
 def draw_point(image, points, size=0, color=None):
@@ -71,6 +71,57 @@ def mask(image, size, max_num, random=True, color=None, p=1):
                 color1 = _fill_color(image, color)
                 draw.rectangle(axis, fill=color1, width=0)
     return image2
+
+
+def mask_box(image, boxes, fill='inner', color=None, p=1):
+    """Fill color inside or outside a rectangular area.
+    
+    Args:
+        image: a PIL  instance.
+        boxes: box axis with same [[x1,y1,x2,y2],...]
+        fill: 'inner' or 'outer', color fill position.
+        color: str or tuple or la.image.RGBMode, rgb color, box line color.
+        p: probability that the image does this. Default value is 1.
+    Returns:
+        a PIL  instance.
+    """
+    if np.random.uniform()>p:
+        return image
+    if isinstance(boxes[0], int):
+        boxes = [boxes]
+    color = _fill_color(image, color)
+    if fill=='inner':
+        image1 = image.copy()
+        for i in boxes:
+            image1.paste(Image.new(image.mode, (i[2]-i[0], i[3]-i[1]), color=color), (i[0], i[1]))
+    else:
+        image1 = Image.new(image.mode, image.size, color=color)
+        for i in boxes:
+            image1.paste(image.crop(i), (i[0], i[1]))
+    return image1
+
+
+def stripe(image, width=4, mode=1, color=None, p=1):
+    """vertically and horizontally line apply to image.
+    
+    Args:
+        image: a numpy array.
+        width: int, line spacing width.
+        mode: 0 is vertically and 1 is horizontally.
+        color: int or list, line color.
+        p: probability that the image does this. Default value is 1.
+    returns: 
+        a numpy array.
+    """
+    if np.random.uniform()>p:
+        return image
+    image1 = image.copy()
+    color = _fill_color(image1, color)
+    if mode:
+        image1[::width,:] = color
+    else:
+        image1[:,::width] = color
+    return image1
 
 
 def draw_box(image, boxs, fill_color=None, line_color=None, width=1):

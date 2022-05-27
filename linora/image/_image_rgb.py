@@ -5,7 +5,10 @@ __all__ = ['RGBMode']
 
 def _fill_color(image, fill_color):
     if fill_color is None:
-        return tuple([np.random.randint(0, 256) for i in image.getbands()])
+        if isinstance(image, np.ndarray):
+            return tuple([np.random.randint(0, 256) for i in image.shape])
+        else:
+            return tuple([np.random.randint(0, 256) for i in image.getbands()])
     elif isinstance(fill_color, dict):
         return fill_color['mode']
     elif isinstance(fill_color, list):
