@@ -64,7 +64,7 @@ class from_tensor(DataSet, BatchFunction):
         else:
             self._params.data = np.array(data)
         self._params.data_mode = 'list' if isinstance(data, tuple) else 'image'
-        self._params.data_index = list(range(len(data[0] if isinstance(data, tuple) else data)))
+        self._params.data_index = list(range(len(self._params.data[0] if isinstance(data, tuple) else self._params.data)))
     
     
 class from_folder(DataSet, BatchFunction):
