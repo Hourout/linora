@@ -33,7 +33,7 @@ class BatchFunction():
         for i in loc:
             loom.add_function(self._params.map_func, [self._params.data[i]])
         t = loom.execute()
-        print(i)
+#         print(i)
         for i in t:
             if t[i]['got_error']:
                 continue

@@ -16,7 +16,7 @@ class DataSet():
     def _params_init(self):
         self._params = Config()
         self._params.batch = 0
-        self._params.batch_size = 1
+        self._params.batch_size = 0
         self._params.step = 1
         self._params.tensor_mode = 'numpy'
         self._params.options = defaultdict(dict)
@@ -380,6 +380,11 @@ class DataSet():
         return self
     
     def __next__(self):
+        if self._params.batch_size==0:
+            if 'enumerate' in self._params.options:
+                self._params.enumerate += 1
+                return (self._params.enumerate-1, self._to_tensor(self._batch_func(self._params.data_index)))
+            return self._to_tensor(self._batch_func(self._params.data_index))
         loc = self._params.data_index[self._params.batch_size*self._params.batch:self._params.batch_size*(self._params.batch+1)]
         if len(loc)==0:
             raise StopIteration
