@@ -50,16 +50,21 @@ class from_tensor(DataSet, BatchFunction):
     """Represents a potentially large set of elements from image path.
     
     Args:
-        data: image path or tuple of image path
+        data: image path or list of image path or tuple(list, list,...) data format.
     """
     def __init__(self, data):
         super(from_tensor, self).__init__()
         if isinstance(data, tuple):
             for i in data:
                 assert len(data[0])==len(i), 'Length needs to be consistent between data.'
+        if isinstance(data, (int, float, str)):
+            self._params.data = np.array([data])
+        elif isinstance(data, tuple):
+            self._params.data = [np.array(i) for i in data]
+        else:
+            self._params.data = np.array(data)
         self._params.data_mode = 'list' if isinstance(data, tuple) else 'image'
         self._params.data_index = list(range(len(data[0] if isinstance(data, tuple) else data)))
-        self._params.data = [np.array(i) for i in data] if isinstance(data, tuple) else np.array(data)
     
     
 class from_folder(DataSet, BatchFunction):

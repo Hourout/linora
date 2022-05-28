@@ -33,9 +33,14 @@ class from_tensor(DataSet, BatchFunction):
         if isinstance(data, tuple):
             for i in data:
                 assert len(data[0])==len(i), 'Length needs to be consistent between data.'
+        if isinstance(data, (int, float, str)):
+            self._params.data = np.array([data])
+        elif isinstance(data, tuple):
+            self._params.data = [np.array(i) for i in data]
+        else:
+            self._params.data = np.array(data)
         self._params.data_mode = 'list' if isinstance(data, tuple) else 'array'
         self._params.data_index = list(range(len(data[0] if isinstance(data, tuple) else data)))
-        self._params.data = [np.array(i) for i in data] if isinstance(data, tuple) else np.array(data)
     
     
 class range(DataSet, BatchFunction):
