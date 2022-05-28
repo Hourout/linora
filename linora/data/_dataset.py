@@ -381,6 +381,8 @@ class DataSet():
     
     def __next__(self):
         if self._params.batch_size==0:
+            self._params.batch_size = 1
+            self._params.batch = len(self._params.data_index)
             if 'enumerate' in self._params.options:
                 self._params.enumerate += 1
                 return (self._params.enumerate-1, self._to_tensor(self._batch_func(self._params.data_index)))
