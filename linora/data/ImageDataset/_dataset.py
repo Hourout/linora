@@ -92,6 +92,7 @@ class from_folder(DataSet, BatchFunction):
         else:
             self._params.data = dataset.image.values
         self._params.data_index = dataset.index.to_list()
+        self._params.data_mode = 'list' if isinstance(self._params.data, list) else 'image'
         
     
 class from_class_folder(DataSet, BatchFunction):
@@ -122,5 +123,6 @@ class from_class_folder(DataSet, BatchFunction):
             data['label'] = data.label.replace(self.name_label_dict['positive'])
         self._params.data = [data.image.values, data.label.values]
         self._params.data_index = data.index.to_list()
+        self._params.data_mode = 'list'
 
     

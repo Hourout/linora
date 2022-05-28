@@ -112,6 +112,7 @@ class choose_from_datasets(DataSet, BatchFunction):
                 self._params.data_index.append(data_index[i].pop(0))
         else:
             self._params.data_index = [data_index[i].pop(0) for i in index if len(data_index[i])>0]
+        self._params.data_mode = 'array'
 
 
 class sample_from_datasets(DataSet, BatchFunction):
