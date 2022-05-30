@@ -110,7 +110,7 @@ class DataSet():
         """A transformation that filter dataset based on a filter_func.
         
         Args:
-            filter_func: A function that return True or False.
+            filter_func: A function that return True or False, datasets that are kept as True.
         """
         if self._params.data_mode=='list':
             filter_list = [i for i in range(len(self._params.data[0])) if filter_func([j[i] for j in self._params.data])]
