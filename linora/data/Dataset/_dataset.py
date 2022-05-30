@@ -100,10 +100,10 @@ class choose_from_datasets(DataSet, BatchFunction):
         data_index = []
         for r, sets in enumerate(datasets):
             if r==0:
-                data_index.append(sets._params.data_index)
+                data_index.append(sets._params.data_index.copy())
             else:
                 t = max(data_index[-1])+1
-                data_index.append([i+t for i in sets._params.data_index])
+                data_index.append([i+t for i in sets._params.data_index.copy()])
         if stop_on_empty_dataset:
             self._params.data_index = []
             for i in index:
@@ -113,8 +113,7 @@ class choose_from_datasets(DataSet, BatchFunction):
         else:
             self._params.data_index = [data_index[i].pop(0) for i in index if len(data_index[i])>0]
         self._params.data_mode = 'array'
-
-
+        
 class sample_from_datasets(DataSet, BatchFunction):
     """Creates a dataset that not deterministically chooses elements from datasets.
 
@@ -130,8 +129,37 @@ class sample_from_datasets(DataSet, BatchFunction):
     """
     def __init__(self, datasets, weight=None, stop_on_empty_dataset=False):
         super(sample_from_datasets, self).__init__()
-        index = np.random.choice(np.arange(len(datasets)), size=int(sum([len(sets._params.data_index) for sets in datasets])*1.5), p=weight)
-        data = choose_from_datasets(datasets, index, stop_on_empty_dataset)
-        self._params.data_mode = data._params.data_mode
-        self._params.data_index = data._params.data_index
-        self._params.data = data._params.data
+        if isinstance(datasets[0]._params.data, list):
+            self._params.data = []
+            for i in np.arange(len(datasets[0]._params.data)):
+                self._params.data += [np.concatenate([sets._params.data[i] for sets in datasets])]
+        else:
+            self._params.data = np.concatenate([sets._params.data for sets in datasets])
+        data_index = []
+        for r, sets in enumerate(datasets):
+            if r==0:
+                data_index.append(sets._params.data_index.copy())
+            else:
+                t = max(data_index[-1])+1
+                data_index.append([i+t for i in sets._params.data_index.copy()])
+        if stop_on_empty_dataset:
+            self._params.data_index = []
+            while 1:
+                index = np.random.choice(np.arange(len(data_index)), p=weight)
+                self._params.data_index.append(data_index[index].pop(0))
+                if len(data_index[index])==0:
+                    break
+        else:
+            self._params.data_index = []
+            while 1:
+                if len(data_index)==0:
+                    break
+                index = np.random.choice(np.arange(len(data_index)), p=weight)
+                self._params.data_index.append(data_index[index].pop(0))
+                if len(data_index[index])==0:
+                    data_index.pop(index)
+                    if weight is not None:
+                        weight.pop(index)
+                        weight = [i/sum(weight) for i in weight]
+                print(index, data_index)
+        self._params.data_mode = 'array'
