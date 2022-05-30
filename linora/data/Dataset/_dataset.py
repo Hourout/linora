@@ -130,5 +130,8 @@ class sample_from_datasets(DataSet, BatchFunction):
     """
     def __init__(self, datasets, weight=None, stop_on_empty_dataset=False):
         super(sample_from_datasets, self).__init__()
-        index = np.random.choice(np.arange(len(datasets)), size=sum([len(sets._params.data_index) for sets in datasets])*1.5, p=weight)
-        choose_from_datasets(datasets, index, stop_on_empty_dataset)
+        index = np.random.choice(np.arange(len(datasets)), size=int(sum([len(sets._params.data_index) for sets in datasets])*1.5), p=weight)
+        data = choose_from_datasets(datasets, index, stop_on_empty_dataset)
+        self._params.data_mode = data._params.data_mode
+        self._params.data_index = data._params.data_index
+        self._params.data = data._params.data
