@@ -129,6 +129,7 @@ class sample_from_datasets(DataSet, BatchFunction):
     """
     def __init__(self, datasets, weight=None, stop_on_empty_dataset=False):
         super(sample_from_datasets, self).__init__()
+        weights = weight.copy()
         if isinstance(datasets[0]._params.data, list):
             self._params.data = []
             for i in np.arange(len(datasets[0]._params.data)):
@@ -145,7 +146,7 @@ class sample_from_datasets(DataSet, BatchFunction):
         if stop_on_empty_dataset:
             self._params.data_index = []
             while 1:
-                index = np.random.choice(np.arange(len(data_index)), p=weight)
+                index = np.random.choice(np.arange(len(data_index)), p=weights)
                 self._params.data_index.append(data_index[index].pop(0))
                 if len(data_index[index])==0:
                     break
@@ -154,12 +155,11 @@ class sample_from_datasets(DataSet, BatchFunction):
             while 1:
                 if len(data_index)==0:
                     break
-                index = np.random.choice(np.arange(len(data_index)), p=weight)
+                index = np.random.choice(np.arange(len(data_index)), p=weights)
                 self._params.data_index.append(data_index[index].pop(0))
                 if len(data_index[index])==0:
                     data_index.pop(index)
-                    if weight is not None:
-                        weight.pop(index)
-                        weight = [i/sum(weight) for i in weight]
-                print(index, data_index)
+                    if weights is not None:
+                        weights.pop(index)
+                        weights = [i/sum(weights) for i in weights]
         self._params.data_mode = 'array'
