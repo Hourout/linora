@@ -288,7 +288,7 @@ class DataSet():
         """
         assert 'take_while' not in self._params.options, '`take` must be placed in `take_while` front.'
         assert isinstance(take_size, int) and take_size>-2 and take_size!=0, '`take_size` type should be int and greater than 0 or equal to -1.'
-        if self._params.take != -1:
+        if take_size != -1:
             self._params.data_index = self._params.data_index[:take_size]
         self._params.options['take'].update({self._params.step: {'take_size':take_size}})
         self._params.step += 1
