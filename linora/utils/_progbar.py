@@ -1,12 +1,9 @@
 import time
 
+from linora.utils._config import Config
 from linora.utils._logger import Logger
 
 __all__ = ['Progbar']
-
-
-class Param:
-    pass
 
 
 class Progbar():
@@ -19,7 +16,7 @@ class Progbar():
             verbose: Verbosity mode, 0 (silent), 1 (verbose)
             unit_name: Display name for step counts (usually "step" or "sample").
         """
-        self.param = Param
+        self.param = Config()
         self.param.width = width
         self.param.target = target
         self.param.time = time.time()
