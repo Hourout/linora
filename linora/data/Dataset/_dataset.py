@@ -10,7 +10,8 @@ from linora.gfile._gfile import isfile
 from linora.data._dataset import DataSet
 from linora.parallel._thread import ThreadLoom
 
-__all__ = ['from_tensor', 'range', 'random', 'choose_from_datasets', 'sample_from_datasets']
+__all__ = ['from_tensor', 'from_folder', 'from_class_folder', 'range', 'random', 
+           'choose_from_datasets', 'sample_from_datasets']
 
 
 class BatchFunction():
