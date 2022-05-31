@@ -36,6 +36,8 @@ class Progbar():
             current: add Index of current step, current += current.
             values: List of tuples: (name, value_for_last_step). 
         """
+        if not self.param.verbose:
+            return 0
         self.param.n += 1
         self.param.current += current
         if self.param.target is not None:
@@ -58,13 +60,13 @@ class Progbar():
             msg = msg+f"- {int(time_diff/self.param.n*1000)}ms/{self.param.unit_name}"
         if values is not None:
             msg = msg+' - '+''.join([f"{i[0]}: {i[1]} " for i in values])
-        if self.param.verbose:
-            if self.param.target is None:
-                self.param.logger.info(msg+' '*4, enter=False)
-            elif self.param.current<self.param.target:
-                self.param.logger.info(msg+' '*4, enter=False)
-            else:
-                self.param.logger.info(msg+' '*4, enter=True)
+        
+        if self.param.target is None:
+            self.param.logger.info(msg+' '*4, enter=False)
+        elif self.param.current<self.param.target:
+            self.param.logger.info(msg+' '*4, enter=False)
+        else:
+            self.param.logger.info(msg+' '*4, enter=True)
             
     def update(self, current, values=None):
         """
@@ -72,6 +74,8 @@ class Progbar():
             current: update Index of current step.
             values: List of tuples: (name, value_for_last_step). 
         """
+        if not self.param.verbose:
+            return 0
         self.param.n += 1
         if self.param.target is not None:
             if current>self.param.target:
@@ -93,10 +97,10 @@ class Progbar():
             msg = msg+f"- {int(time_diff/self.param.n*1000)}ms/{self.param.unit_name}"
         if values is not None:
             msg = msg+' - '+''.join([f"{i[0]}: {i[1]} " for i in values])
-        if self.param.verbose:
-            if self.param.target is None:
-                self.param.logger.info(msg+' '*4, enter=False)
-            elif current<self.param.target:
-                self.param.logger.info(msg+' '*4, enter=False)
-            else:
-                self.param.logger.info(msg+' '*4, enter=True)
+        
+        if self.param.target is None:
+            self.param.logger.info(msg+' '*4, enter=False)
+        elif current<self.param.target:
+            self.param.logger.info(msg+' '*4, enter=False)
+        else:
+            self.param.logger.info(msg+' '*4, enter=True)
