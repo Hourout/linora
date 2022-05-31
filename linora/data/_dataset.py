@@ -6,6 +6,7 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
+from linora.gfile._gfile import isfile
 from linora.utils._config import Config
 
 

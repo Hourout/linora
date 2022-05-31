@@ -6,7 +6,6 @@ from itertools import chain
 import numpy as np
 import pandas as pd
 
-from linora.gfile._gfile import isfile
 from linora.data._dataset import DataSet
 from linora.parallel._thread import ThreadLoom
 
