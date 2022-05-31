@@ -58,42 +58,6 @@ class DataSet():
         self._params.options['concatenate'].update({self._params.step: None})
         self._params.step += 1
         return self
-        
-#     def choose_from_datasets(self, datasets, index, stop_on_empty_dataset=True):
-#         """Creates a dataset that deterministically chooses elements from datasets.
-
-#         Args:
-#             datasets: A non-empty list of la.data.Dataset objects with compatible structure.
-#             index: A list of scalar between 0 and len(datasets) - 1.
-#             stop_on_empty_dataset: If True, selection stops if it encounters an empty dataset. 
-#                                    If False, it skips empty datasets. It is recommended to set it to True. 
-#                                    Otherwise, the selected elements start off as the user intends, 
-#                                    but may change as input datasets become empty. 
-#                                    This can be difficult to detect since the dataset starts off looking correct. 
-#                                    Defaults to True.
-#         """
-#         if isinstance(datasets[0]._params.data, list):
-#             self._params.data = []
-#             for i in range(len(datasets[0]._params.data)):
-#                 self._params.data += [np.concatenate([sets._params.data[i] for sets in datasets])]
-#         else:
-#             self._params.data = np.concatenate([sets._params.data for sets in datasets])
-#         data_index = []
-#         for r, sets in enumerate(datasets):
-#             if r==0:
-#                 data_index.append(sets._params.data_index)
-#             else:
-#                 t = max(data_index[-1])+1
-#                 data_index.append([i+t for i in sets._params.data_index])
-#         if stop_on_empty_dataset:
-#             self._params.data_index = []
-#             for i in index:
-#                 if len(data_index[i])==0:
-#                     break
-#                 self._params.data_index.append(data_index[i].pop(0))
-#         else:
-#             self._params.data_index = [data_index[i].pop(0) for i in index if len(data_index[i])>0]
-#         return self
     
     def enumerate(self, start=0):
         """Enumerates the elements of this dataset.
@@ -152,41 +116,6 @@ class DataSet():
         self._params.options['prefetch'].update({self._params.step: {'prefetch_size':prefetch_size}})
         self._params.step += 1
         return self
-        
-#     def range(self, *args, **kwargs):
-#         """Creates a Dataset of a step-separated range of values."""
-#         self._params_init()
-#         self.params.data_mode = 'array'
-#         self.params.data = np.array(range(*args, **kwargs))
-#         self.params.data_index = list(range(len(self.params.data)))
-#         self.params.options['range'].update({self.params.step: {'args':args, 'kwargs':kwargs}})
-#         self.params.step += 1
-#         return self
-    
-#     def random(self, size, lower=0, upper=10, seed=None):
-#         """Creates a Dataset of pseudorandom values. The dataset generates a sequence of uniformly distributed integer values.
-        
-#         Args:
-#             size: shape of output values.
-#             lower: min random values.
-#             upper: max random values.
-#             seed: random seed.
-#         """
-#         if isinstance(size, int):
-#             t = (list(range(lower, upper))*(size//10+1))[:size]
-#         else:
-#             t = 1
-#             for i in size:
-#                 t *= i
-#             t = (list(range(lower, upper))*(t//10+1))[:t]
-#         random.shuffle(t, random=lambda :((seed if seed is not None else random.randint(1, 99)))%10/10)
-#         self._params_init()
-#         self._params.data_mode = 'array'
-#         self._params.data = np.array(t).reshape(size)
-#         self._params.data_index = list(range(len(self._params.data)))
-#         self._params.options['random'].update({self._params.step: {'size':size, 'lower':lower, 'upper':upper, 'seed':seed}})
-#         self._params.step += 1
-#         return self
     
     def reduce(self, reduce_func):
         """Reduces the input dataset to a single element.
@@ -210,23 +139,6 @@ class DataSet():
         self._params.options['repeat'].update({self._params.step: {'repeat_size':repeat_size}})
         self._params.step += 1
         return self
-        
-#     def sample_from_datasets(self, datasets, weight=None, stop_on_empty_dataset=False):
-#         """Creates a dataset that deterministically chooses elements from datasets.
-
-#         Args:
-#             datasets: A non-empty list of la.data.Dataset objects with compatible structure.
-#             weight: A list of len(datasets) floating-point values where weight[i] 
-#                     represents the probability to sample from datasets[i].
-#             stop_on_empty_dataset: If True, selection stops if it encounters an empty dataset. 
-#                                    If False, it skips empty datasets. It is recommended to set it to True. 
-#                                    Otherwise, the selected elements start off as the user intends, 
-#                                    but may change as input datasets become empty. 
-#                                    This can be difficult to detect since the dataset starts off looking correct. 
-#         """
-        
-#         index = np.random.choice(range(3), size=sum([len(sets._params.data_index) for sets in datasets])*1.5, p=weight)
-#         return self.choose_from_datasets(datasets, index, stop_on_empty_dataset)
     
     def shard(self, shard_size, shard_index):
         """Creates a Dataset that includes only 1/num_shards of this dataset.
@@ -367,8 +279,22 @@ class DataSet():
             return data
         return self._params.framework(data)
     
+    def _data_mode(self):
+        self._params.data_mode = 'list_array' if isinstance(self._params.data, list) else 'array'
+        t = [i[0] for i in data] if isinstance(self._params.data, list) else self._params.data[0]
+        if isinstance(t, str):
+            if isfile(t):
+                if t.split('.')[-1] in ['png', 'jpg', 'jpeg', 'bmp', 'rgb', 'tif', 'tiff', 'webp']:
+                    self._params.data_mode = 'image'
+        elif isinstance(t, list):
+            for i in t:
+                if isinstance(i, str):
+                    if isfile(i):
+                        if i.split('.')[-1] in ['png', 'jpg', 'jpeg', 'bmp', 'rgb', 'tif', 'tiff', 'webp']:
+                            self._params.data_mode = 'list_image'
+    
     def __iter__(self):
-        if self._params.data_mode=='list':
+        if 'list' in self._params.data_mode:
             if 'map' in self._params.options:
                 self._batch_func = self._batch_list_map
             else:

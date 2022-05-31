@@ -1,27 +1,57 @@
+import os
+import pathlib
 import random as random1
+from itertools import chain
 
 import numpy as np
+import pandas as pd
 
+from linora.gfile._gfile import isfile
 from linora.data._dataset import DataSet
+from linora.parallel._thread import ThreadLoom
 
 __all__ = ['from_tensor', 'range', 'random', 'choose_from_datasets', 'sample_from_datasets']
 
 
 class BatchFunction():
     def _batch_list_map(self, loc):
-        data = list(map(self._params.map_func, *(i[loc] for i in self._params.data)))
-        return [np.array(list(map(lambda x:x[i], data))) for i in np.arange(len(data[0]))]
+        if 'array' in self._params.data_mode:
+            data = list(map(self._params.map_func, *(i[loc] for i in self._params.data)))
+            return [np.array(list(map(lambda x:x[i], data))) for i in np.arange(len(data[0]))]
+        loom = ThreadLoom(self._params.map_size)
+        for i in loc:
+            loom.add_function(self._params.map_func, [j[i] for j in self._params.data])
+        t = loom.execute()
+        for i in t:
+            if t[i]['got_error']:
+                continue
+            if isinstance(t[i]['output'], (list, tuple)):
+                return [np.concatenate([np.expand_dims(t[j]['output'][k], 0) for j in t if not t[j]['got_error']]) for k in range(len(t[i]['output']))]
+            else:
+                return np.concatenate([np.expand_dims(t[j]['output'], 0) for j in t if not t[j]['got_error']])
     
     def _batch_list(self, loc):
         return [i[loc] for i in self._params.data]
     
     def _batch_map(self, loc):
-        return np.array(list(map(self._params.map_func, self._params.data[loc])))
+        if 'array' in self._params.data_mode:
+            return np.array(list(map(self._params.map_func, self._params.data[loc])))
+        loom = ThreadLoom(self._params.map_size)
+        for i in loc:
+            loom.add_function(self._params.map_func, [self._params.data[i]])
+        t = loom.execute()
+        for i in t:
+            if t[i]['got_error']:
+                continue
+            if isinstance(t[i]['output'], (list, tuple)):
+                return [np.concatenate([np.expand_dims(t[j]['output'][k], 0) for j in t if not t[j]['got_error']]) for k in range(len(t[i]['output']))]
+            else:
+                return np.concatenate([np.expand_dims(t[j]['output'], 0) for j in t if not t[j]['got_error']])
     
     def _batch(self, loc):
         return self._params.data[loc]
 
-    
+
 class from_tensor(DataSet, BatchFunction):
     """Creates a Dataset whose elements are slices of the given tensors.
         
@@ -38,17 +68,76 @@ class from_tensor(DataSet, BatchFunction):
             self._params.data = [np.array(i) for i in data]
         else:
             self._params.data = np.array(data)
-        self._params.data_mode = 'list' if isinstance(data, tuple) else 'array'
         self._params.data_index = list(np.arange(len(self._params.data[0] if isinstance(data, tuple) else self._params.data)))
+        self._image_mode()
     
+
+class from_folder(DataSet, BatchFunction):
+    """Construct an image dataset label index.
+
+    Args:
+        root: image dataset file root.
+        image_format: list, default ['png', 'jpg', 'jpeg'].
+        label_func: Function is applied to the name of each picture.
+        label_encoder: whether encode labels with value between 0 and n_classes-1.
+    """
+    def __init__(self, root, image_format=['png', 'jpg', 'jpeg'], label_func=None, label_encoder=False):
+        super(from_folder, self).__init__()
+        p = pathlib.Path(root)
+        dataset = pd.DataFrame(chain.from_iterable((p.rglob(f'*.{i}') for i in image_format)), columns=['image'])
+        if label_func is not None:
+            dataset['label'] = dataset.image.map(lambda x:label_func(x.name))
+            name_label_dict = {j: i for i, j in enumerate(dataset.label.unique())}
+            self.name_label_dict = {'positive':name_label_dict, 'negative':{j: i for i, j in name_label_dict.items()}}
+            if label_encoder:
+                dataset['label'] = dataset.label.replace(self.name_label_dict['positive'])
+        dataset['image'] = dataset.image.astype(str).map(lambda x:eval(repr(x).replace("\\", '/').replace("//", '/')))
+        if label_func is not None:
+            self._params.data = [dataset.image.values, dataset.label.values]
+        else:
+            self._params.data = dataset.image.values
+        self._params.data_index = dataset.index.to_list()
+        self._image_mode()
+        
     
+class from_class_folder(DataSet, BatchFunction):
+    """Construct an image dataset label index.
+
+    Args:
+        root: image dataset file root.
+        image_format: list, default ['png', 'jpg', 'jpeg'].
+        label_encoder: whether encode labels with value between 0 and n_classes-1.
+    """
+    def __init__(self, root, image_format=['png', 'jpg', 'jpeg'], label_encoder=False):
+        super(from_class_folder, self).__init__()
+        file = os.listdir(root)
+        file = [i for i in file if os.path.isdir(root+'/'+i) and i[0]!='.']
+        data = pd.DataFrame()
+        for i in file:
+            data = pd.concat([data, pd.DataFrame({'image':os.listdir(root+'/'+i), 'label':i})])
+        data = data.reset_index(drop=True)
+        data['image'] = root+'/'+data.label+'/'+data.image
+        data = data[data.image.map(lambda x: True if '.' in x.split('/')[-1] else False)]
+        data = data[data.image.map(lambda x: True if x.split('/')[-1][0]!='.' else False)]
+        data = data[data.image.map(lambda x: True if len(x.split('/')[-1].split('.'))==2 else False)]
+        data = data[data.image.map(lambda x: True if str.lower(x.split('/')[-1].split('.')[1]) in image_format else False)]
+        data = data.reset_index(drop=True)
+        name_label_dict = {j: i for i, j in enumerate(data.label.unique())}
+        self.name_label_dict = {'positive':name_label_dict, 'negative':{j: i for i, j in name_label_dict.items()}}
+        if label_encoder:
+            data['label'] = data.label.replace(self.name_label_dict['positive'])
+        self._params.data = [data.image.values, data.label.values]
+        self._params.data_index = data.index.to_list()
+        self._image_mode()
+
+
 class range(DataSet, BatchFunction):
     """Creates a Dataset of a step-separated range of values."""
     def __init__(self, *args, **kwargs):
         super(range, self).__init__()
-        self._params.data_mode = 'array'
         self._params.data = np.arange(*args, **kwargs)
         self._params.data_index = list(np.arange(len(self._params.data)))
+        self._image_mode()
 
 
 class random(DataSet, BatchFunction):
@@ -70,9 +159,9 @@ class random(DataSet, BatchFunction):
                 t *= i
             t = (list(np.arange(lower, upper))*(t//int(upper-lower)+1))[:t]
         random1.shuffle(t, random=lambda :((seed if seed is not None else random1.randint(1, 99)))%10/10)
-        self._params.data_mode = 'array'
         self._params.data = np.array(t).reshape(size)
         self._params.data_index = list(np.arange(len(self._params.data)))
+        self._image_mode()
 
         
 class choose_from_datasets(DataSet, BatchFunction):
@@ -111,7 +200,7 @@ class choose_from_datasets(DataSet, BatchFunction):
                 self._params.data_index.append(data_index[i].pop(0))
         else:
             self._params.data_index = [data_index[i].pop(0) for i in index if len(data_index[i])>0]
-        self._params.data_mode = 'array'
+        self._image_mode()
         
 class sample_from_datasets(DataSet, BatchFunction):
     """Creates a dataset that not deterministically chooses elements from datasets.
@@ -161,4 +250,4 @@ class sample_from_datasets(DataSet, BatchFunction):
                     if weights is not None:
                         weights.pop(index)
                         weights = [i/sum(weights) for i in weights]
-        self._params.data_mode = 'array'
+        self._image_mode()
