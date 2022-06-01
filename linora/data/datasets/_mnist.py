@@ -36,7 +36,7 @@ def mnist(root=None, dataset=True, verbose=1):
     Returns:
         Store the absolute path of the data directory, is `root/mnist`.
     """
-    p = la.utils.Progbar(10, verbose=verbose)
+    p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist')
     p.add(1)
     url_list = ['https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/mnist/train-labels-idx1-ubyte.gz',
@@ -105,7 +105,7 @@ def mnist_fashion(root=None, dataset=True, verbose=1):
     Returns:
         Store the absolute path of the data directory, is `root/mnist_fashion`.
     """
-    p = la.utils.Progbar(10, verbose=verbose)
+    p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist_fashion')
     p.add(1)
     url_list = ['http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz',
