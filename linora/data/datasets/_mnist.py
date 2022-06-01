@@ -358,6 +358,8 @@ def mnist_kuzushiji_kanji(root=None, dataset=True, verbose=1):
     Returns:
         Store the absolute path of the data directory, is `root/mnist_kuzushiji_kanji.
     """
+    if root is None:
+        root = './'
     p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist_kuzushiji_kanji', make_root_dir=False)
     p.add(1)
