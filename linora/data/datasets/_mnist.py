@@ -74,8 +74,8 @@ def mnist(root=None, dataset=True, verbose=1):
     for url in url_list:
         gfile.remove(gfile.path_join(task_path, url.split('/')[-1]))
     p.add(1)
-    if dataset:
-        return from_class_folder(task_path, label_encoder=True)
+#     if dataset:
+#         return from_class_folder(task_path, label_encoder=True)
     return task_path
 
 
@@ -143,6 +143,6 @@ def mnist_fashion(root=None, dataset=True, verbose=1):
     for url in url_list:
         gfile.remove(gfile.path_join(task_path, url.split('/')[-1]))
     p.add(1)
-    if dataset:
-        return from_class_folder(task_path, label_encoder=True)
+#     if dataset:
+#         return from_class_folder(task_path, label_encoder=True)
     return task_path
