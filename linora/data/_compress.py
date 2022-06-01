@@ -21,7 +21,7 @@ def decompress(file, folder=None):
     """
     mat = file.split('.')[-1]
     if folder is None:
-        folder = file[:len(mat)+1]
+        folder = file[:-(len(mat)+1)]
     if mat in ['gz']:
         with gzip.GzipFile(file) as g:
             with open(folder, "w+") as f:

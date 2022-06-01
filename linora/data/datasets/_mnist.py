@@ -175,10 +175,10 @@ def mnist_kannada(root=None, dataset=True, verbose=1):
         root: str, Store the absolute path of the data directory.
               example:if you want data path is `/user/.../mydata/mnist_kannada`,
               root should be `/user/.../mydata`.
-        dataset: whether to return a la.data.Dataset object.
+        dataset: bool, whether to return a la.data.Dataset object.
         verbose: Verbosity mode, 0 (silent), 1 (verbose)
     Returns:
-        Store the absolute path of the data directory, is `root/mnist_kannada`.
+        Store the absolute path of the data directory, is `root/mnist_kannada` or la.data.Dataset.
     """
     p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist_kannada')
