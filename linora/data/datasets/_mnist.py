@@ -5,7 +5,7 @@ import numpy as np
 from linora import gfile
 from linora.utils._progbar import Progbar
 from linora.data._utils import assert_dirs, get_file
-from linora.image._io import save_image, array_to_image
+from linora.image._image_io import save_image, array_to_image
 from linora.data.Dataset._dataset import from_class_folder
 
 __all__ = ['mnist', 'mnist_fashion']
