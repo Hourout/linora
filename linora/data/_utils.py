@@ -7,6 +7,8 @@ __all__ = ['get_file']
 
 
 def assert_dirs(root, root_dir=None, delete=True, make_root_dir=True):
+    if root is None:
+        root = './'
     assert gfile.isdir(root), '{} should be directory.'.format(root)
     if root_dir is not None:
         assert isinstance(root_dir, str), '{} should be str.'.format(root_dir)
@@ -24,7 +26,7 @@ def assert_dirs(root, root_dir=None, delete=True, make_root_dir=True):
         return root
 
 
-def get_file(url, root_file, retries=3, verbose=1, chunk_size=5120):
+def get_file(url, root_file, verbose=1, retries=3, chunk_size=5120):
     """Request url and download to root_file.
     
     Args:
