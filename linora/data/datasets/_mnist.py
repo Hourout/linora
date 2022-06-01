@@ -14,7 +14,7 @@ from linora.image._image_io import save_image
 from linora.image._image_util import array_to_image
 from linora.data.Dataset._dataset import from_class_folder
 
-__all__ = ['mnist', 'mnist_fashion', 'mnist_kannada', 'mnist_tibetan'
+__all__ = ['mnist', 'mnist_fashion', 'mnist_kannada', 'mnist_tibetan',
            'mnist_kuzushiji10', 'mnist_kuzushiji49', 'mnist_kuzushiji_kanji']
 
 
