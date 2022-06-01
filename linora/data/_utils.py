@@ -32,11 +32,11 @@ def get_file(url, root_file, verbose=1, retries=3, chunk_size=5120):
     Args:
         url: str, request url.
         root_file: str, downloaded and saved file name.
-        retries: retry counts.
         verbose: Verbosity mode, 0 (silent), 1 (verbose)
+        retries: retry counts.
         chunk_size: the number of bytes it should read into memory.
     Return:
-        root_file: str, downloaded and saved file name.
+        str, downloaded and saved file name.
     """
     for i in range(retries):
         try:
