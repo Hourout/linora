@@ -211,7 +211,7 @@ class DataSet():
             seed: random seed.
         """
         t = sum(split_dict[i] for i in split_dict)
-        t = {i:split_dict[i]/t for i in split_dict:}
+        t = {i:split_dict[i]/t for i in split_dict}
         for i in t:
             assert i!='total', "`split_dict` key can't be 'total'."
         index = pd.Series(self._params.data_index[self._params.index_mode]).sample(frac=1, random_state=seed).tolist()
