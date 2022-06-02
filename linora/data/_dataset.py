@@ -45,14 +45,25 @@ class DataSet():
         """Returns the cardinality of the dataset, if known."""
         return len(self._params.data_index[self._params.index_mode])
     
-    def concatenate(self, dataset):
+    def concatenate(self, datasets):
         """Creates a Dataset by concatenating the given dataset with this dataset.
         
         Args:
-            dataset: Dataset to be concatenated.
+            datasets: la.data.Dataset or list of la.data.Dataset to be concatenated.
         """
         assert 'take_while' not in self._params.options, '`concatenate` must be placed in `take_while` front.'
-        assert self._params.data_mode==dataset._params.data_mode, 'The data types of the two data sets are inconsistent.'
+        if not isinstance(datasets, list):
+            self._concatenate(datasets)
+        else:
+            for dataset in datasets:
+                assert self._params.data_mode==dataset._params.data_mode, 'The data types of the two data sets are inconsistent.'
+            for dataset in datasets:
+                self._concatenate(dataset)
+        self._params.options['concatenate'].update({self._params.step: None})
+        self._params.step += 1
+        return self
+    
+    def _concatenate(self, dataset):
         t = len(self._params.data[0]) if 'list' in self._params.data_mode else len(self._params.data)
         if 'list' in self._params.data_mode:
             assert len(self._params.data)==len(dataset._params.data), 'Width needs to be consistent between data.'
@@ -60,10 +71,26 @@ class DataSet():
         else:
             self._params.data = np.concatenate([self._params.data, dataset._params.data])
         self._params.data_index[self._params.index_mode] += [i+t for i in dataset._params.data_index[dataset._params.index_mode]]
-        self._params.options['concatenate'].update({self._params.step: None})
-        self._params.step += 1
+        
+    def drop(self, name):
+        """Drop current dataset.
+        
+        Args:
+            name: drop dataset name.
+        """
+        if name in self._params.data_index:
+            self._params.data_index.pop(name)
+            
+        if name in self._params.map_func:
+            self._params.map_func.pop(name)
+            
+        if name in self._params.batch_func:
+            self._params.batch_func.pop(name)
+            
+        if self._params.index_mode==name:
+            self._params.index_mode = 'total'
         return self
-    
+        
     def enumerate(self, start=0):
         """Enumerates the elements of this dataset.
         
@@ -103,6 +130,17 @@ class DataSet():
         self._params.index_mode = name
         self._params.batch = 0
         return self
+    
+#     def join(self, join_dict, drop_exist_dataset=True):
+#         """Join Dataset.
+        
+#         Args:
+#             join_dict: dict, {data_name:Dataset}, eg.{'train':la.data.Dataset.from_tensor()}.
+#         """
+#         for i in join_dict:
+#             assert self._params.data_mode==dataset._params.data_mode, 'The data types of the two data sets are inconsistent.'
+            
+#         return self
     
     def map(self, map_func, map_size=8):
         """Maps map_func across the elements of this dataset.

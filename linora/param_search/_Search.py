@@ -54,7 +54,7 @@ class BaseSearch():
         self.best_params = dict()
         self.best_params_history = dict()
 
-    def search(self, train_data, metrics, vaild_data=None,
+    def search(self, train_data, metrics, valid_data=None,
                iter_num=None, cv=3, metrics_min=True, 
                speedy=True, speedy_param=(20000, 0.3), 
                save_model_dir=None, save_model_name=None):
@@ -63,7 +63,7 @@ class BaseSearch():
         Args:
             train_data: A list of (X, y, sample_weight) tuple pairs to use as train sets.
             metrics: model metrics function.
-            vaild_data: A list of (X, y, sample_weight) tuple pairs to use as validation sets.
+            valid_data: A list of (X, y, sample_weight) tuple pairs to use as validation sets.
             iter_num: search count.
             cv: cross validation fold.
             metrics_min: metrics value whether the smaller the better.
@@ -86,7 +86,7 @@ class BaseSearch():
         if self.params.model_name=='XGBClassifier':
             self._xgb_weight(train_data[1])
         
-        if vaild_data is not None:
+        if valid_data is not None:
             cv_score_list = []
             
         if self.params.method=='grid':
@@ -109,12 +109,12 @@ class BaseSearch():
                 for n, index in enumerate(index_list):
                     score.append(self._model_fit_predict(train_data, metrics, index, mode=1))
             cv_score = np.mean(score)
-            if vaild_data is not None:
+            if valid_data is not None:
                 cv_score_list.append(cv_score)
                 cv_score_list.sort()
                 threshold = cv_score_list[int(len(cv_score_list)*(0.2 if metrics_min else 0.8))]
                 if (metrics_min==True and threshold>=cv_score) or (metrics_min==False and threshold<=cv_score):
-                    cv_score = self._model_fit_predict(vaild_data, metrics, index=None, mode=0)
+                    cv_score = self._model_fit_predict(valid_data, metrics, index=None, mode=0)
                 else:
                     logger.info(f"Model {self.params.method} search progress: {i/iter_num*100:.1f}%, best score: {scoring:.4f}", enter=False if i<iter_num else True)
                     continue
