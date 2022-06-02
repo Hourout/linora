@@ -211,6 +211,7 @@ class DataSet():
         
         Args:
             split_dict: dict, {data_name:data_rate}, eg.{'train':0.7, 'test':0.3}.
+            shuffle: whether randomly shuffles the elements of this dataset
             seed: random seed.
         """
         t = sum(split_dict[i] for i in split_dict)
@@ -338,7 +339,7 @@ class DataSet():
     
     def _data_mode(self):
         self._params.data_mode = 'list_array' if isinstance(self._params.data, list) else 'array'
-        t = [i[0] for i in data] if isinstance(self._params.data, list) else self._params.data[0]
+        t = [i[0] for i in self._params.data] if isinstance(self._params.data, list) else self._params.data[0]
         if isinstance(t, str):
             if isfile(t):
                 if t.split('.')[-1] in ['png', 'jpg', 'jpeg', 'bmp', 'rgb', 'tif', 'tiff', 'webp']:
