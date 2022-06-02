@@ -97,6 +97,7 @@ class DataSet():
         """
         assert name in self._params.data_index, '`name` not in split dataset.'
         self._params.index_mode = name
+        self._params.batch = 0
         return self
     
     def map(self, map_func, map_size=8):
