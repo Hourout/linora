@@ -20,6 +20,8 @@ class DataSet():
         self._params.batch_size = 0
         self._params.step = 1
         self._params.tensor_mode = 'numpy'
+        self._params.index_mode = 'total'
+        self._params.data_index = defaultdict()
         self._params.options = defaultdict(dict)
         
     def batch(self, batch_size, drop_remainder=False):
@@ -39,7 +41,7 @@ class DataSet():
     
     def cardinality(self):
         """Returns the cardinality of the dataset, if known."""
-        return len(self._params.data_index)
+        return len(self._params.data_index[self._params.index_mode])
     
     def concatenate(self, dataset):
         """Creates a Dataset by concatenating the given dataset with this dataset.
@@ -49,13 +51,13 @@ class DataSet():
         """
         assert 'take_while' not in self._params.options, '`concatenate` must be placed in `take_while` front.'
         assert self._params.data_mode==dataset._params.data_mode, 'The data types of the two data sets are inconsistent.'
-        t = len(self._params.data[0]) if self._params.data_mode=='list' else len(self._params.data)
-        if self._params.data_mode=='list':
+        t = len(self._params.data[0]) if 'list' in self._params.data_mode else len(self._params.data)
+        if 'list' in self._params.data_mode:
             assert len(self._params.data)==len(dataset._params.data), 'Width needs to be consistent between data.'
             self._params.data = [np.concatenate([self._params.data[i], dataset._params.data[i]]) for i in range(len(self._params.data))]
         else:
             self._params.data = np.concatenate([self._params.data, dataset._params.data])
-        self._params.data_index = self._params.data_index+[i+t for i in dataset._params.data_index]
+        self._params.data_index[self._params.index_mode] += [i+t for i in dataset._params.data_index[dataset._params.index_mode]]
         self._params.options['concatenate'].update({self._params.step: None})
         self._params.step += 1
         return self
@@ -82,9 +84,19 @@ class DataSet():
         else:
             filter_list = [r for r, i in enumerate(self._params.data) if filter_func(i)]
         if filter_list:
-            self._params.data_index = [i for i in self._params.data_index if i in filter_list]
+            self._params.data_index[self._params.index_mode] = [i for i in self._params.data_index[self._params.index_mode] if i in filter_list]
         self._params.options['filter'].update({self._params.step: {'filter_func':filter_func}})
         self._params.step += 1
+        return self
+    
+    def get(self, name):
+        """Select current dataset.
+        
+        Args:
+            name: split dataset name.
+        """
+        assert name in self._params.data_index, '`name` not in split dataset.'
+        self._params.index_mode = name
         return self
     
     def map(self, map_func, map_size=8):
@@ -125,8 +137,8 @@ class DataSet():
             reduce_func: A function that maps to new_state. It must take two arguments and return a new element
         """
         if self._params.data_mode=='list':
-            return [functools.reduce(reduce_func, i[self._params.data_index]) for i in self._params.data]
-        return functools.reduce(reduce_func, self._params.data[self._params.data_index])
+            return [functools.reduce(reduce_func, i[self._params.data_index[self._params.index_mode]]) for i in self._params.data]
+        return functools.reduce(reduce_func, self._params.data[self._params.data_index[self._params.index_mode]])
     
     def repeat(self, repeat_size):
         """Repeats this dataset so each original value is seen count times.
@@ -136,7 +148,7 @@ class DataSet():
         """
         assert 'take_while' not in self._params.options, '`repeat` must be placed in `take_while` front.'
         assert isinstance(repeat_size, int) and repeat_size>0, '`repeat_size` type should be int and greater than 0.'
-        self._params.data_index = self._params.data_index*(repeat_size+1)
+        self._params.data_index[self._params.index_mode] = self._params.data_index[self._params.index_mode]*(repeat_size+1)
         self._params.options['repeat'].update({self._params.step: {'repeat_size':repeat_size}})
         self._params.step += 1
         return self
@@ -151,7 +163,7 @@ class DataSet():
         assert 'take_while' not in self._params.options, '`shard` must be placed in `take_while` front.'
         assert isinstance(shard_size, int) and shard_size>0, '`shard_size` type should be int and greater than 0.'
         assert isinstance(shard_index, int) and shard_index>=0, '`shard_index` type should be int and greater than or equal to 0.'
-        self._params.data_index = [self._params.data_index[i] for i in range(shard_index, len(self._params.data_index), shard_size)]
+        self._params.data_index[self._params.index_mode] = [self._params.data_index[self._params.index_mode][i] for i in range(shard_index, len(self._params.data_index[self._params.index_mode]), shard_size)]
         self._params.options['shard'].update({self._params.step: {'shard_size':shard_size, 'shard_index':shard_index}})
         self._params.step += 1
         return self
@@ -165,14 +177,14 @@ class DataSet():
         """
         assert 'take_while' not in self._params.options, '`shuffle` must be placed in `take_while` front.'
         assert isinstance(shuffle_size, int) and shuffle_size>-2 and shuffle_size!=0, '`shuffle_size` type should be int and greater than 0 or equal to -1.'
-        if isinstance(self._params.data_index, list):
-            self._params.data_index = pd.Series(index=self._params.data_index, data=1).index
+        if isinstance(self._params.data_index[self._params.index_mode], list):
+            self._params.data_index[self._params.index_mode] = pd.Series(index=self._params.data_index[self._params.index_mode], data=1).index
         if shuffle_size > 0:
-            t = [self._params.data_index[shuffle_size*i:shuffle_size*(i+1)].to_list() for i in range(len(self._params.data_index)//shuffle_size+1)]
+            t = [self._params.data_index[self._params.index_mode][shuffle_size*i:shuffle_size*(i+1)].to_list() for i in range(len(self._params.data_index[self._params.index_mode])//shuffle_size+1)]
             [random.shuffle(i, random=lambda :((seed if seed is not None else random.randint(1, 99))+self._params.batch)%10/10) for i in t]
-            self._params.data_index = list(itertools.chain.from_iterable(t))
+            self._params.data_index[self._params.index_mode] = list(itertools.chain.from_iterable(t))
         else:
-            self._params.data_index = self._params.data_index.to_series().sample(frac=1, random_state=seed).tolist()
+            self._params.data_index[self._params.index_mode] = self._params.data_index[self._params.index_mode].to_series().sample(frac=1, random_state=seed).tolist()
         self._params.options['shuffle'].update({self._params.step: {'shuffle_size':shuffle_size, 'seed':seed}})
         self._params.step += 1
         return self
@@ -186,9 +198,27 @@ class DataSet():
         """
         assert 'take_while' not in self._params.options, '`skip` must be placed in `take_while` front.'
         assert isinstance(skip_size, int) and skip_size>0, '`skip_size` type should be int and greater than 0.'
-        self._params.data_index = self._params.data_index[skip_size:]
+        self._params.data_index[self._params.index_mode] = self._params.data_index[self._params.index_mode][skip_size:]
         self._params.options['skip'].update({self._params.step: {'skip_size':skip_size}})
         self._params.step += 1
+        return self
+    
+    def split(self, split_dict, seed=None):
+        """Split Dataset.
+        
+        Args:
+            split_dict: dict, {data_name:data_rate}, eg.{'train':0.7, 'test':0.3}.
+            seed: random seed.
+        """
+        t = sum(split_dict[i] for i in split_dict)
+        t = {i:split_dict[i]/t for i in split_dict:}
+        for i in t:
+            assert i!='total', "`split_dict` key can't be 'total'."
+        index = pd.Series(self._params.data_index[self._params.index_mode]).sample(frac=1, random_state=seed).tolist()
+        n = 0
+        for i in t:
+            self._params.data_index[i] = index[n:n+int(t[i]*len(index))]
+            n = int(t[i]*len(index))
         return self
         
     def take(self, take_size):
@@ -202,7 +232,7 @@ class DataSet():
         assert 'take_while' not in self._params.options, '`take` must be placed in `take_while` front.'
         assert isinstance(take_size, int) and take_size>-2 and take_size!=0, '`take_size` type should be int and greater than 0 or equal to -1.'
         if take_size != -1:
-            self._params.data_index = self._params.data_index[:take_size]
+            self._params.data_index[self._params.index_mode] = self._params.data_index[self._params.index_mode][:take_size]
         self._params.options['take'].update({self._params.step: {'take_size':take_size}})
         self._params.step += 1
         return self
@@ -214,18 +244,18 @@ class DataSet():
             take_func: A function that return True or False
         """
         temp = set()
-        index = self._params.data_index[:max([self._params.data_index.index(i) for i in range(len(self._params.data))])+1]
+        index = self._params.data_index[self._params.index_mode][:max([self._params.data_index[self._params.index_mode].index(i) for i in range(len(self._params.data))])+1]
         for r, i in enumerate(index):
             if i in temp:
                 continue
             temp.add(i)
             if self._params.data_mode=='list':
                 if take_func([j[i] for j in self._params.data]):
-                    self._params.data_index = self._params.data_index[:r]
+                    self._params.data_index[self._params.index_mode] = self._params.data_index[self._params.index_mode][:r]
                     break
             else:
                 if take_func(self._params.data[i]):
-                    self._params.data_index = self._params.data_index[:r]
+                    self._params.data_index[self._params.index_mode] = self._params.data_index[self._params.index_mode][:r]
                     break
         self._params.options['take_while'].update({self._params.step: {'take_func':take_func}})
         self._params.step += 1
@@ -265,7 +295,7 @@ class DataSet():
         """Splits elements of a dataset into multiple elements."""
         assert not isinstance(self._params.data, list), 'Input data cannot be a tuple.'
         self._params.data = np.array(list(itertools.chain.from_iterable(self._params.data)))
-        self._params.data_index = list(range(len(self._params.data)))
+        self._params.data_index[self._params.index_mode] = list(range(len(self._params.data)))
         return self
     
     def unique(self):
@@ -309,12 +339,12 @@ class DataSet():
     def __next__(self):
         if self._params.batch_size==0:
             self._params.batch_size = 1
-            self._params.batch = len(self._params.data_index)
+            self._params.batch = len(self._params.data_index[self._params.index_mode])
             if 'enumerate' in self._params.options:
                 self._params.enumerate += 1
-                return (self._params.enumerate-1, self._to_tensor(self._batch_func(self._params.data_index)))
-            return self._to_tensor(self._batch_func(self._params.data_index))
-        loc = self._params.data_index[self._params.batch_size*self._params.batch:self._params.batch_size*(self._params.batch+1)]
+                return (self._params.enumerate-1, self._to_tensor(self._batch_func(self._params.data_index[self._params.index_mode])))
+            return self._to_tensor(self._batch_func(self._params.data_index[self._params.index_mode]))
+        loc = self._params.data_index[self._params.index_mode][self._params.batch_size*self._params.batch:self._params.batch_size*(self._params.batch+1)]
         if len(loc)==0:
             raise StopIteration
         elif len(loc)<self._params.batch_size:

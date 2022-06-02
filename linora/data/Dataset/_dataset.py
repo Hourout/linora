@@ -68,7 +68,7 @@ class from_tensor(DataSet, BatchFunction):
             self._params.data = [np.array(i) for i in data]
         else:
             self._params.data = np.array(data)
-        self._params.data_index = list(np.arange(len(self._params.data[0] if isinstance(data, tuple) else self._params.data)))
+        self._params.data_index[self._params.index_mode] = list(np.arange(len(self._params.data[0] if isinstance(data, tuple) else self._params.data)))
         self._data_mode()
     
 
@@ -96,7 +96,7 @@ class from_folder(DataSet, BatchFunction):
             self._params.data = [dataset.image.values, dataset.label.values]
         else:
             self._params.data = dataset.image.values
-        self._params.data_index = dataset.index.to_list()
+        self._params.data_index[self._params.index_mode] = dataset.index.to_list()
         self._data_mode()
         
     
@@ -127,7 +127,7 @@ class from_class_folder(DataSet, BatchFunction):
         if label_encoder:
             data['label'] = data.label.replace(self.name_label_dict['positive'])
         self._params.data = [data.image.values, data.label.values]
-        self._params.data_index = data.index.to_list()
+        self._params.data_index[self._params.index_mode] = data.index.to_list()
         self._data_mode()
 
 
@@ -136,7 +136,7 @@ class range(DataSet, BatchFunction):
     def __init__(self, *args, **kwargs):
         super(range, self).__init__()
         self._params.data = np.arange(*args, **kwargs)
-        self._params.data_index = list(np.arange(len(self._params.data)))
+        self._params.data_index[self._params.index_mode] = list(np.arange(len(self._params.data)))
         self._data_mode()
 
 
@@ -160,7 +160,7 @@ class random(DataSet, BatchFunction):
             t = (list(np.arange(lower, upper))*(t//int(upper-lower)+1))[:t]
         random1.shuffle(t, random=lambda :((seed if seed is not None else random1.randint(1, 99)))%10/10)
         self._params.data = np.array(t).reshape(size)
-        self._params.data_index = list(np.arange(len(self._params.data)))
+        self._params.data_index[self._params.index_mode] = list(np.arange(len(self._params.data)))
         self._data_mode()
 
         
@@ -193,13 +193,13 @@ class choose_from_datasets(DataSet, BatchFunction):
                 t = max(data_index[-1])+1
                 data_index.append([i+t for i in sets._params.data_index.copy()])
         if stop_on_empty_dataset:
-            self._params.data_index = []
+            self._params.data_index[self._params.index_mode] = []
             for i in index:
                 if len(data_index[i])==0:
                     break
-                self._params.data_index.append(data_index[i].pop(0))
+                self._params.data_index[self._params.index_mode].append(data_index[i].pop(0))
         else:
-            self._params.data_index = [data_index[i].pop(0) for i in index if len(data_index[i])>0]
+            self._params.data_index[self._params.index_mode] = [data_index[i].pop(0) for i in index if len(data_index[i])>0]
         self._data_mode()
         
 class sample_from_datasets(DataSet, BatchFunction):
@@ -232,19 +232,19 @@ class sample_from_datasets(DataSet, BatchFunction):
                 t = max(data_index[-1])+1
                 data_index.append([i+t for i in sets._params.data_index.copy()])
         if stop_on_empty_dataset:
-            self._params.data_index = []
+            self._params.data_index[self._params.index_mode] = []
             while 1:
                 index = np.random.choice(np.arange(len(data_index)), p=weights)
-                self._params.data_index.append(data_index[index].pop(0))
+                self._params.data_index[self._params.index_mode].append(data_index[index].pop(0))
                 if len(data_index[index])==0:
                     break
         else:
-            self._params.data_index = []
+            self._params.data_index[self._params.index_mode] = []
             while 1:
                 if len(data_index)==0:
                     break
                 index = np.random.choice(np.arange(len(data_index)), p=weights)
-                self._params.data_index.append(data_index[index].pop(0))
+                self._params.data_index[self._params.index_mode].append(data_index[index].pop(0))
                 if len(data_index[index])==0:
                     data_index.pop(index)
                     if weights is not None:
