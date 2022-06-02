@@ -13,6 +13,7 @@ from linora.data._utils import assert_dirs, get_file
 from linora.image._image_io import save_image
 from linora.image._image_util import array_to_image
 from linora.data.Dataset._dataset import from_class_folder
+from linora.data.datasets._config_path import Param
 
 __all__ = ['mnist', 'mnist_fashion', 'mnist_kannada', 'mnist_tibetan',
            'mnist_kuzushiji10', 'mnist_kuzushiji49', 'mnist_kuzushiji_kanji']
@@ -45,11 +46,7 @@ def mnist(root=None, dataset=True, verbose=1):
     p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist')
     p.add(1)
-    url_list = ['https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/mnist/train-labels-idx1-ubyte.gz',
-                'https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/mnist/train-images-idx3-ubyte.gz',
-                'https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/mnist/t10k-labels-idx1-ubyte.gz',
-                'https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/dataset/mnist/t10k-images-idx3-ubyte.gz']
-    for url in url_list:
+    for url in Param.mnist:
         get_file(url, gfile.path_join(task_path, url.split('/')[-1]), verbose=0)
         p.add(1)
     with gzip.open(gfile.path_join(task_path, 'train-labels-idx1-ubyte.gz'), 'rb') as lbpath:
@@ -114,11 +111,7 @@ def mnist_fashion(root=None, dataset=True, verbose=1):
     p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist_fashion')
     p.add(1)
-    url_list = ['http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz',
-                'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz',
-                'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz',
-                'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz']
-    for url in url_list:
+    for url in Param.mnist_fashion:
         get_file(url, gfile.path_join(task_path, url.split('/')[-1]), verbose=0)
         p.add(1)
     with gzip.open(gfile.path_join(task_path, 'train-labels-idx1-ubyte.gz'), 'rb') as lbpath:
@@ -183,8 +176,7 @@ def mnist_kannada(root=None, dataset=True, verbose=1):
     p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist_kannada')
     p.add(1)
-    zip_path = get_file('https://github.com/Hourout/datasets/releases/download/0.0.1/kannada_MNIST.zip',
-                        task_path+'/kannada_MNIST.zip', verbose=0)
+    zip_path = get_file(Param.mnist_kannada[0], task_path+'/kannada_MNIST.zip', verbose=0)
     p.add(2)
     unzip_path = decompress(task_path+'/kannada_MNIST.zip')
     p.add(1)
@@ -242,11 +234,7 @@ def mnist_kuzushiji10(root=None, dataset=True, verbose=1):
     p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist_kuzushiji10')
     p.add(1)
-    url_list = ['http://codh.rois.ac.jp/kmnist/dataset/kmnist/kmnist-train-imgs.npz',
-                'http://codh.rois.ac.jp/kmnist/dataset/kmnist/kmnist-train-labels.npz',
-                'http://codh.rois.ac.jp/kmnist/dataset/kmnist/kmnist-test-imgs.npz',
-                'http://codh.rois.ac.jp/kmnist/dataset/kmnist/kmnist-test-labels.npz']
-    for url in url_list:
+    for url in Param.mnist_kuzushiji10:
         get_file(url, gfile.path_join(task_path, url.split('/')[-1]), verbose=0)
         p.add(1)
     train = np.load(gfile.path_join(task_path, 'kmnist-train-imgs.npz'))['arr_0']
@@ -304,11 +292,7 @@ def mnist_kuzushiji49(root=None, dataset=True, verbose=1):
     p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist_kuzushiji49')
     p.add(1)
-    url_list = ['http://codh.rois.ac.jp/kmnist/dataset/k49/k49-train-imgs.npz',
-                'http://codh.rois.ac.jp/kmnist/dataset/k49/k49-train-labels.npz',
-                'http://codh.rois.ac.jp/kmnist/dataset/k49/k49-test-imgs.npz',
-                'http://codh.rois.ac.jp/kmnist/dataset/k49/k49-test-labels.npz']
-    for url in url_list:
+    for url in Param.mnist_kuzushiji49:
         get_file(url, gfile.path_join(task_path, url.split('/')[-1]), verbose=0)
         p.add(1)
     train = np.load(gfile.path_join(task_path, 'k49-train-imgs.npz'))['arr_0']
@@ -363,8 +347,7 @@ def mnist_kuzushiji_kanji(root=None, dataset=True, verbose=1):
     p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist_kuzushiji_kanji', make_root_dir=False)
     p.add(1)
-    url = "http://codh.rois.ac.jp/kmnist/dataset/kkanji/kkanji.tar"
-    get_file(url, gfile.path_join(root, url.split('/')[-1]), verbose=0)
+    get_file(Param.mnist_kuzushiji_kanji[0], gfile.path_join(root, url.split('/')[-1]), verbose=0)
     p.add(7)
     decompress(gfile.path_join(root, url.split('/')[-1]), task_path)
     p.add(1)
@@ -407,10 +390,8 @@ def mnist_tibetan(root=None, dataset=True, verbose=1):
     p = Progbar(10, verbose=verbose)
     task_path = assert_dirs(root, 'mnist_tibetan')
     p.add(1)
-    url_list = ['https://raw.githubusercontent.com/Hourout/datasets/master/TibetanMNIST/TibetanMNIST_28_28_01.csv',
-                'https://raw.githubusercontent.com/Hourout/datasets/master/TibetanMNIST/TibetanMNIST_28_28_02.csv']
     data = pd.DataFrame()
-    for url in url_list:
+    for url in Param.mnist_tibetan:
         s = requests.get(url).content
         data = pd.concat([data, pd.read_csv(io.StringIO(s.decode('utf-8')), header=None, dtype='uint8')])
         p.add(3)
