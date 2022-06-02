@@ -78,6 +78,7 @@ class DataSet():
         Args:
             name: drop dataset name.
         """
+        assert name!='total', "`name` can't be 'total'."
         if name in self._params.data_index:
             self._params.data_index.pop(name)
             
@@ -180,6 +181,28 @@ class DataSet():
         if self._params.data_mode=='list':
             return [functools.reduce(reduce_func, i[self._params.data_index[self._params.index_mode]]) for i in self._params.data]
         return functools.reduce(reduce_func, self._params.data[self._params.data_index[self._params.index_mode]])
+    
+    def rename(self, name_dict):
+        """Rename current dataset.
+        
+        Args:
+            name_dict: rename dataset name dict, eg.{'train':'train_set'}.
+        """
+        for name in name_dict:
+            assert name!='total', "`name` can't be 'total'."
+        for name in name_dict:
+            if name in self._params.data_index:
+                self._params.data_index[name_dict[name]] = self._params.data_index.pop(name)
+            
+            if name in self._params.map_func:
+                self._params.map_func[name_dict[name]] = self._params.map_func.pop(name)
+
+            if name in self._params.batch_func:
+                self._params.batch_func[name_dict[name]] = self._params.batch_func.pop(name)
+
+            if self._params.index_mode==name:
+                self._params.index_mode = name_dict[name]
+        return self
     
     def repeat(self, repeat_size):
         """Repeats this dataset so each original value is seen count times.
