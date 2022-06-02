@@ -96,6 +96,8 @@ class DataSet():
             name: split dataset name.
         """
         assert name in self._params.data_index, '`name` not in split dataset.'
+        if self._params.batch==len(self._params.data_index[self._params.index_mode]):
+            self._params.batch_size=0
         self._params.index_mode = name
         self._params.batch = 0
         return self
