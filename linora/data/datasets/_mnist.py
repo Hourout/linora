@@ -74,7 +74,7 @@ def mnist(root=None, dataset=True, verbose=1):
         save_image(gfile.path_join(task_path, 'test', str(test_label[idx]), str(idx)+'.png'), 
                    array_to_image(test[idx].reshape(28, 28, 1)))
     p.add(1)
-    for url in url_list:
+    for url in Param.mnist:
         gfile.remove(gfile.path_join(task_path, url.split('/')[-1]))
     p.add(1)
 #     if dataset:
@@ -139,7 +139,7 @@ def mnist_fashion(root=None, dataset=True, verbose=1):
         save_image(gfile.path_join(task_path, 'test', str(test_label[idx]), str(idx)+'.png'), 
                    array_to_image(test[idx].reshape(28, 28, 1)))
     p.add(1)
-    for url in url_list:
+    for url in Param.mnist_fashion:
         gfile.remove(gfile.path_join(task_path, url.split('/')[-1]))
     p.add(1)
 #     if dataset:
@@ -255,7 +255,7 @@ def mnist_kuzushiji10(root=None, dataset=True, verbose=1):
         save_image(gfile.path_join(task_path, 'test', str(test_label[idx]), str(idx)+'.png'), 
                    array_to_image(test[idx].reshape(28, 28, 1)))
     p.add(1)
-    for url in url_list:
+    for url in Param.mnist_kuzushiji10:
         gfile.remove(gfile.path_join(task_path, url.split('/')[-1]))
     p.add(1)
     return task_path
@@ -313,7 +313,7 @@ def mnist_kuzushiji49(root=None, dataset=True, verbose=1):
         save_image(gfile.path_join(task_path, 'test', str(test_label[idx]), str(idx)+'.png'), 
                    array_to_image(test[idx].reshape(28, 28, 1)))
     p.add(1)
-    for url in url_list:
+    for url in Param.mnist_kuzushiji49:
         gfile.remove(gfile.path_join(task_path, url.split('/')[-1]))
     p.add(1)
     return task_path
