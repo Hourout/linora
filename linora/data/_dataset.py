@@ -22,6 +22,7 @@ class DataSet():
         self._params.tensor_mode = 'numpy'
         self._params.index_mode = 'total'
         self._params.data_index = defaultdict()
+        self._params.map_func = defaultdict()
         self._params.options = defaultdict(dict)
         
     def batch(self, batch_size, drop_remainder=False):
@@ -109,10 +110,8 @@ class DataSet():
             map_func: A function mapping a dataset element to another dataset element.
             map_size: representing the number elements to process asynchronously in parallel. 
         """
-        assert 'map' not in self._params.options, '`map` can only be set once.'
         assert isinstance(map_size, int) and map_size>0, '`map_size` type should be int and greater than 0.'
-        self._params.map_func = map_func
-        self._params.map_size = map_size
+        self._params.map_func[self._params.index_mode] = [map_func, map_size]
         self._params.options['map'].update({self._params.step: {'map_func':map_func, 'map_size':map_size}})
         self._params.step += 1
         return self
@@ -252,7 +251,7 @@ class DataSet():
             if i in temp:
                 continue
             temp.add(i)
-            if self._params.data_mode=='list':
+            if 'list' in self._params.data_mode:
                 if take_func([j[i] for j in self._params.data]):
                     self._params.data_index[self._params.index_mode] = self._params.data_index[self._params.index_mode][:r]
                     break
@@ -297,6 +296,7 @@ class DataSet():
     def unbatch(self):
         """Splits elements of a dataset into multiple elements."""
         assert not isinstance(self._params.data, list), 'Input data cannot be a tuple.'
+        assert self._params.index_mode=='total', f'{self._params.index_mode} dataset not supported.'
         self._params.data = np.array(list(itertools.chain.from_iterable(self._params.data)))
         self._params.data_index[self._params.index_mode] = list(range(len(self._params.data)))
         return self
@@ -304,9 +304,9 @@ class DataSet():
     def unique(self):
         """A transformation that discards duplicate elements of a Dataset."""
         if isinstance(self._params.data, list):
-            return tuple([np.unique(i) for i in self._params.data])
+            return tuple([np.unique(i) for i in self._params.data[self._params.data_index[self._params.index_mode]]])
         else:
-            return np.unique(self._params.data)
+            return np.unique(self._params.data[self._params.data_index[self._params.index_mode]])
     
     def _to_tensor(self, data):
         if self._params.tensor_mode=='numpy':

@@ -16,11 +16,11 @@ __all__ = ['from_tensor', 'from_folder', 'from_class_folder', 'range', 'random',
 class BatchFunction():
     def _batch_list_map(self, loc):
         if 'array' in self._params.data_mode:
-            data = list(map(self._params.map_func, *(i[loc] for i in self._params.data)))
+            data = list(map(self._params.map_func[self._params.index_mode][0], *(i[loc] for i in self._params.data)))
             return [np.array(list(map(lambda x:x[i], data))) for i in np.arange(len(data[0]))]
-        loom = ThreadLoom(self._params.map_size)
+        loom = ThreadLoom(self._params.map_func[self._params.index_mode][1])
         for i in loc:
-            loom.add_function(self._params.map_func, [j[i] for j in self._params.data])
+            loom.add_function(self._params.map_func[self._params.index_mode][0], [j[i] for j in self._params.data])
         t = loom.execute()
         for i in t:
             if t[i]['got_error']:
@@ -35,10 +35,10 @@ class BatchFunction():
     
     def _batch_map(self, loc):
         if 'array' in self._params.data_mode:
-            return np.array(list(map(self._params.map_func, self._params.data[loc])))
-        loom = ThreadLoom(self._params.map_size)
+            return np.array(list(map(self._params.map_func[self._params.index_mode][0], self._params.data[loc])))
+        loom = ThreadLoom(self._params.map_func[self._params.index_mode][1])
         for i in loc:
-            loom.add_function(self._params.map_func, [self._params.data[i]])
+            loom.add_function(self._params.map_func[self._params.index_mode][0], [self._params.data[i]])
         t = loom.execute()
         for i in t:
             if t[i]['got_error']:
