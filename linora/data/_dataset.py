@@ -21,7 +21,8 @@ class DataSet():
         self._params.step = 1
         self._params.tensor_mode = 'numpy'
         self._params.index_mode = 'total'
-        self._params.data_index = defaultdict()
+        self._params.data_from = 'tensor'
+        self._params.data_index = defaultdict(list)
         self._params.map_func = defaultdict()
         self._params.options = defaultdict(dict)
         
@@ -205,7 +206,7 @@ class DataSet():
         self._params.step += 1
         return self
     
-    def split(self, split_dict, seed=None):
+    def split(self, split_dict, shuffle=True, seed=None):
         """Split Dataset.
         
         Args:
@@ -216,12 +217,34 @@ class DataSet():
         t = {i:split_dict[i]/t for i in split_dict}
         for i in t:
             assert i!='total', "`split_dict` key can't be 'total'."
-        index = pd.Series(self._params.data_index[self._params.index_mode]).sample(frac=1, random_state=seed).tolist()
+        if self._params.data_from in ['from_folder', 'from_class_folder']:
+            if isinstance(self._params.data, list):
+                label = self._params.data[1][self._params.data_index[self._params.index_mode]]
+                index = np.array(self._params.data_index[self._params.index_mode])
+                for i in np.unique(label):
+                    index1 = index[label==i].tolist()
+                    n = 0
+                    for j in t:
+                        self._params.data_index[j] += index1[n:n+int(t[j]*len(index1))]
+                        n = int(t[i]*len(index))
+                if shuffle:
+                    for i in t:
+                        self._params.data_index[i] = pd.Series(self._params.data_index[i]).sample(frac=1, random_state=seed).tolist()
+            else:
+                self._split(t, shuffle, seed)
+        else:
+            self._split(t, shuffle, seed)
+        return self
+    
+    def _split(self, t, shuffle, seed):
+        if shuffle:
+            index = pd.Series(self._params.data_index[self._params.index_mode]).sample(frac=1, random_state=seed).tolist()
+        else:
+            index = self._params.data_index[self._params.index_mode]
         n = 0
         for i in t:
             self._params.data_index[i] = index[n:n+int(t[i]*len(index))]
             n = int(t[i]*len(index))
-        return self
         
     def take(self, take_size):
         """Creates a Dataset with at most count elements from this dataset.

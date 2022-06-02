@@ -98,6 +98,7 @@ class from_folder(DataSet, BatchFunction):
             self._params.data = dataset.image.values
         self._params.data_index[self._params.index_mode] = dataset.index.to_list()
         self._data_mode()
+        self._params.data_from = 'from_folder'
         
     
 class from_class_folder(DataSet, BatchFunction):
@@ -129,6 +130,7 @@ class from_class_folder(DataSet, BatchFunction):
         self._params.data = [data.image.values, data.label.values]
         self._params.data_index[self._params.index_mode] = data.index.to_list()
         self._data_mode()
+        self._params.data_from = 'from_class_folder'
 
 
 class range(DataSet, BatchFunction):
