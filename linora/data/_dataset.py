@@ -17,13 +17,14 @@ class DataSet():
     def _params_init(self):
         self._params = Config()
         self._params.batch = 0
-        self._params.batch_size = 0
         self._params.step = 1
         self._params.tensor_mode = 'numpy'
         self._params.index_mode = 'total'
         self._params.data_from = 'tensor'
         self._params.data_index = defaultdict(list)
         self._params.map_func = defaultdict()
+        self._params.batch_func = defaultdict()
+        self._params.batch_func[self._params.index_mode] = [0, False]
         self._params.options = defaultdict(dict)
         
     def batch(self, batch_size, drop_remainder=False):
@@ -35,8 +36,7 @@ class DataSet():
                             the default behavior is not to drop the smaller batch.
         """
         assert isinstance(batch_size, int) and batch_size>0, '`batch_size` type should be int and greater than 0.'
-        self._params.batch_size = batch_size
-        self._params.drop_remainder = drop_remainder
+        self._params.batch_func[self._params.index_mode] = [batch_size, drop_remainder]
         self._params.options['batch'].update({self._params.step: {'batch_size':batch_size, 'drop_remainder':drop_remainder}})
         self._params.step += 1
         return self
@@ -364,18 +364,18 @@ class DataSet():
         return self
     
     def __next__(self):
-        if self._params.batch_size==0:
-            self._params.batch_size = 1
+        if self._params.batch_func[self._params.index_mode][0]==0:
+            self._params.batch_func[self._params.index_mode][0] = 1
             self._params.batch = len(self._params.data_index[self._params.index_mode])
             if 'enumerate' in self._params.options:
                 self._params.enumerate += 1
                 return (self._params.enumerate-1, self._to_tensor(self._batch_func(self._params.data_index[self._params.index_mode])))
             return self._to_tensor(self._batch_func(self._params.data_index[self._params.index_mode]))
-        loc = self._params.data_index[self._params.index_mode][self._params.batch_size*self._params.batch:self._params.batch_size*(self._params.batch+1)]
+        loc = self._params.data_index[self._params.index_mode][self._params.batch_func[self._params.index_mode][0]*self._params.batch:self._params.batch_func[self._params.index_mode][0]*(self._params.batch+1)]
         if len(loc)==0:
             raise StopIteration
-        elif len(loc)<self._params.batch_size:
-            if self._params.drop_remainder:
+        elif len(loc)<self._params.batch_func[self._params.index_mode][0]:
+            if self._params.batch_func[self._params.index_mode][1]:
                 raise StopIteration
         self._params.batch += 1
         if 'enumerate' in self._params.options:
