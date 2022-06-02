@@ -227,7 +227,7 @@ class DataSet():
                     n = 0
                     for j in t:
                         self._params.data_index[j] += index1[n:n+int(t[j]*len(index1))]
-                        n = int(t[i]*len(index))
+                        n += int(t[j]*len(index1))
                 if shuffle:
                     for i in t:
                         self._params.data_index[i] = pd.Series(self._params.data_index[i]).sample(frac=1, random_state=seed).tolist()
@@ -245,7 +245,7 @@ class DataSet():
         n = 0
         for i in t:
             self._params.data_index[i] = index[n:n+int(t[i]*len(index))]
-            n = int(t[i]*len(index))
+            n += int(t[i]*len(index))
         
     def take(self, take_size):
         """Creates a Dataset with at most count elements from this dataset.
