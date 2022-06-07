@@ -169,13 +169,13 @@ class DataSet():
         self._params.index[name] = join_dict[name]._params.index[join_dict[name]._params.mode].copy()
 
         if name in join_dict[name]._params.map:
-            self._params.map[name] = join_dict[name]._params.map[name].copy()
+            self._params.map[name] = join_dict[name]._params.map[join_dict[name]._params.mode].copy()
 
         if name in join_dict[name]._params.batch:
-            self._params.batch[name] = join_dict[name]._params.batch[name].copy()
+            self._params.batch[name] = join_dict[name]._params.batch[join_dict[name]._params.mode].copy()
 
         if name in join_dict[name]._params.enumerate:
-            self._params.enumerate[name] = join_dict[name]._params.enumerate[name].copy()
+            self._params.enumerate[name] = join_dict[name]._params.enumerate[join_dict[name]._params.mode].copy()
             
     def list_names(self):
         return [i for i in self._params.index]
