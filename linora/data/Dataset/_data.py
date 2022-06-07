@@ -21,6 +21,8 @@ class DataSet():
         self._params.mode = 'total'
         self._params.mode1 = 'total'
         self._params.data_from = 'tensor'
+        self._params.data = defaultdict()
+        self._params.index = defaultdict()
         self._params.map = defaultdict()
         self._params.batch = defaultdict()
         self._params.batch[self._params.mode] = [0, False, 0]
