@@ -23,10 +23,10 @@ class DataSet():
         self._params.data_from = 'tensor'
         self._params.data = defaultdict()
         self._params.index = defaultdict()
-        self._params.map = defaultdict()
-        self._params.batch = defaultdict()
+        self._params.map = defaultdict(list)
+        self._params.batch = defaultdict(list)
         self._params.batch[self._params.mode] = [0, False, 0]
-        self._params.enumerate = defaultdict()
+        self._params.enumerate = defaultdict(int)
         self._params.options = defaultdict(dict)
         
     def batch(self, batch_size, drop_remainder=False):
@@ -168,13 +168,10 @@ class DataSet():
         self._params.data[name] = join_dict[name]._params.data[join_dict[name]._params.mode1].copy()
         self._params.index[name] = join_dict[name]._params.index[join_dict[name]._params.mode].copy()
 
-        if name in join_dict[name]._params.map:
-            self._params.map[name] = join_dict[name]._params.map[join_dict[name]._params.mode].copy()
+        self._params.map[name] = join_dict[name]._params.map[join_dict[name]._params.mode].copy()
+        self._params.batch[name] = join_dict[name]._params.batch[join_dict[name]._params.mode].copy()
 
-        if name in join_dict[name]._params.batch:
-            self._params.batch[name] = join_dict[name]._params.batch[join_dict[name]._params.mode].copy()
-
-        if name in join_dict[name]._params.enumerate:
+        if join_dict[name]._params.mode in join_dict[name]._params.enumerate:
             self._params.enumerate[name] = join_dict[name]._params.enumerate[join_dict[name]._params.mode].copy()
             
     def list_names(self):
