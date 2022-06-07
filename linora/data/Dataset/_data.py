@@ -231,6 +231,9 @@ class DataSet():
         for name in name_dict:
             if name in self._params.data:
                 self._params.data[name_dict[name]] = self._params.data.pop(name)
+                
+            if name in self._params.index:
+                self._params.index[name_dict[name]] = self._params.index.pop(name)
             
             if name in self._params.map:
                 self._params.map[name_dict[name]] = self._params.map.pop(name)
