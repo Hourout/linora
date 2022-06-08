@@ -92,9 +92,9 @@ class DataSet():
         for name in names:
             assert name!='total', "`name` can't be 'total'."
         for name in names:
+            if name in self._params.index_data:
+                self._params.index_data.pop(name)
             if name in self._params.data:
-                if name in self._params.index_data:
-                    self._params.index_data.pop(name)
                 if name in [j for i,j in self._params.index_data.items()]:
                     name1 = str(time.time()).split('.')[0]
                     self._params.data[name1] = self._params.data.pop(name)
