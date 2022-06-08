@@ -25,7 +25,7 @@ class DataSet():
         self._params.index_data['total'] = 'total'
         self._params.data_from = 'tensor'
         self._params.data = defaultdict()
-        self._params.index = defaultdict()
+        self._params.index = defaultdict(list)
         self._params.map = defaultdict(list)
         self._params.batch = defaultdict(list)
         self._params.batch[self._params.mode] = [0, False, 0]
@@ -355,10 +355,9 @@ class DataSet():
         """
         for i in split_dict:
             assert i not in self._params.index, f"`{i}` has exist."
+            assert i!='total', "`split_dict` key can't be 'total'."
         t = sum(split_dict[i] for i in split_dict)
         t = {i:split_dict[i]/t for i in split_dict}
-        for i in t:
-            assert i!='total', "`split_dict` key can't be 'total'."
         if self._params.data_from in ['from_folder', 'from_class_folder']:
             if isinstance(self._params.data[self._params.mode1], list):
                 label = self._params.data[self._params.mode1][1][self._params.index[self._params.mode]]
@@ -389,7 +388,7 @@ class DataSet():
             index = self._params.index[self._params.mode]
         n = 0
         for i in t:
-            self._params.index[i] = index[n:n+int(t[i]*len(index))]
+            self._params.index[i] += index[n:n+int(t[i]*len(index))]
             n += int(t[i]*len(index))
         
     def take(self, take_size):
