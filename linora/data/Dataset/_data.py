@@ -120,7 +120,7 @@ class DataSet():
                 self._params.mode = 'total'
                 self._params.mode1 = 'total'
 
-            for i in self._params.data:
+            for i in list(self._params.data):
                 if i not in [j for k,j in self._params.index_data.items()]:
                     self._params.data.pop(i)
         return self
