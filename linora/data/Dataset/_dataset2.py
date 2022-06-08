@@ -6,8 +6,7 @@ from itertools import chain
 import numpy as np
 import pandas as pd
 
-from linora import gfile
-from linora.data.Dataset._data import DataSet
+from linora.data._dataset import DataSet
 from linora.parallel._thread import ThreadLoom
 
 __all__ = ['from_tensor', 'from_folder', 'from_class_folder', 'range', 'random', 
@@ -17,40 +16,40 @@ __all__ = ['from_tensor', 'from_folder', 'from_class_folder', 'range', 'random',
 class BatchFunction():
     def _batch_list_map(self, loc):
         if 'array' in self._params.data_mode:
-            data = list(map(self._params.map[self._params.mode][0], *(i[loc] for i in self._params.data[self._params.mode1])))
+            data = list(map(self._params.map_func[self._params.index_mode][0], *(i[loc] for i in self._params.data)))
             return [np.array(list(map(lambda x:x[i], data))) for i in np.arange(len(data[0]))]
-        loom = ThreadLoom(self._params.map[self._params.mode][1])
+        loom = ThreadLoom(self._params.map_func[self._params.index_mode][1])
         for i in loc:
-            loom.add_function(self._params.map[self._params.mode][0], [j[i] for j in self._params.data[self._params.mode1]])
+            loom.add_function(self._params.map_func[self._params.index_mode][0], [j[i] for j in self._params.data])
         t = loom.execute()
         for i in t:
             if t[i]['got_error']:
                 continue
             if isinstance(t[i]['output'], (list, tuple)):
-                return [np.concatenate([np.expand_dims(t[j]['output'][k], 0) for j in t if not t[j]['got_error']]) for k in np.arange(len(t[i]['output']))]
+                return [np.concatenate([np.expand_dims(t[j]['output'][k], 0) for j in t if not t[j]['got_error']]) for k in range(len(t[i]['output']))]
             else:
                 return np.concatenate([np.expand_dims(t[j]['output'], 0) for j in t if not t[j]['got_error']])
     
     def _batch_list(self, loc):
-        return [i[loc] for i in self._params.data[self._params.mode1]]
+        return [i[loc] for i in self._params.data]
     
     def _batch_map(self, loc):
         if 'array' in self._params.data_mode:
-            return np.array(list(map(self._params.map[self._params.mode][0], self._params.data[self._params.mode1][loc])))
-        loom = ThreadLoom(self._params.map[self._params.mode][1])
+            return np.array(list(map(self._params.map_func[self._params.index_mode][0], self._params.data[loc])))
+        loom = ThreadLoom(self._params.map_func[self._params.index_mode][1])
         for i in loc:
-            loom.add_function(self._params.map[self._params.mode][0], [self._params.data[self._params.mode1][i]])
+            loom.add_function(self._params.map_func[self._params.index_mode][0], [self._params.data[i]])
         t = loom.execute()
         for i in t:
             if t[i]['got_error']:
                 continue
             if isinstance(t[i]['output'], (list, tuple)):
-                return [np.concatenate([np.expand_dims(t[j]['output'][k], 0) for j in t if not t[j]['got_error']]) for k in np.arange(len(t[i]['output']))]
+                return [np.concatenate([np.expand_dims(t[j]['output'][k], 0) for j in t if not t[j]['got_error']]) for k in range(len(t[i]['output']))]
             else:
                 return np.concatenate([np.expand_dims(t[j]['output'], 0) for j in t if not t[j]['got_error']])
     
     def _batch(self, loc):
-        return self._params.data[self._params.mode1][loc]
+        return self._params.data[loc]
 
 
 class from_tensor(DataSet, BatchFunction):
@@ -62,14 +61,14 @@ class from_tensor(DataSet, BatchFunction):
     def __init__(self, data):
         super(from_tensor, self).__init__()
         if isinstance(data, (int, float, str)):
-            self._params.data[self._params.mode1] = np.array([data])
+            self._params.data = np.array([data])
         elif isinstance(data, tuple):
             for i in data:
                 assert len(data[0])==len(i), 'Length needs to be consistent between data.'
-            self._params.data[self._params.mode1] = [np.array(i) for i in data]
+            self._params.data = [np.array(i) for i in data]
         else:
-            self._params.data[self._params.mode1] = np.array(data)
-        self._params.index[self._params.mode] = list(np.arange(len(self._params.data[self._params.mode1][0] if isinstance(data, tuple) else self._params.data[self._params.mode1])))
+            self._params.data = np.array(data)
+        self._params.data_index[self._params.index_mode] = list(np.arange(len(self._params.data[0] if isinstance(data, tuple) else self._params.data)))
         self._data_mode()
     
 
@@ -94,10 +93,10 @@ class from_folder(DataSet, BatchFunction):
                 dataset['label'] = dataset.label.replace(self.name_label_dict['positive'])
         dataset['image'] = dataset.image.astype(str).map(lambda x:eval(repr(x).replace("\\", '/').replace("//", '/')))
         if label_func is not None:
-            self._params.data[self._params.mode1] = [dataset.image.values, dataset.label.values]
+            self._params.data = [dataset.image.values, dataset.label.values]
         else:
-            self._params.data[self._params.mode1] = dataset.image.values
-        self._params.index[self._params.mode] = dataset.index.to_list()
+            self._params.data = dataset.image.values
+        self._params.data_index[self._params.index_mode] = dataset.index.to_list()
         self._data_mode()
         self._params.data_from = 'from_folder'
         
@@ -128,8 +127,8 @@ class from_class_folder(DataSet, BatchFunction):
         self.name_label_dict = {'positive':name_label_dict, 'negative':{j: i for i, j in name_label_dict.items()}}
         if label_encoder:
             data['label'] = data.label.replace(self.name_label_dict['positive'])
-        self._params.data[self._params.mode1] = [data.image.values, data.label.values]
-        self._params.index[self._params.mode] = data.index.to_list()
+        self._params.data = [data.image.values, data.label.values]
+        self._params.data_index[self._params.index_mode] = data.index.to_list()
         self._data_mode()
         self._params.data_from = 'from_class_folder'
 
@@ -138,8 +137,8 @@ class range(DataSet, BatchFunction):
     """Creates a Dataset of a step-separated range of values."""
     def __init__(self, *args, **kwargs):
         super(range, self).__init__()
-        self._params.data[self._params.mode1] = np.arange(*args, **kwargs)
-        self._params.index[self._params.mode] = list(np.arange(len(self._params.data[self._params.mode1])))
+        self._params.data = np.arange(*args, **kwargs)
+        self._params.data_index[self._params.index_mode] = list(np.arange(len(self._params.data)))
         self._data_mode()
 
 
@@ -162,8 +161,8 @@ class random(DataSet, BatchFunction):
                 t *= i
             t = (list(np.arange(lower, upper))*(t//int(upper-lower)+1))[:t]
         random1.shuffle(t, random=lambda :((seed if seed is not None else random1.randint(1, 99)))%10/10)
-        self._params.data[self._params.mode1] = np.array(t).reshape(size)
-        self._params.index[self._params.mode] = list(np.arange(len(self._params.data[self._params.mode1])))
+        self._params.data = np.array(t).reshape(size)
+        self._params.data_index[self._params.index_mode] = list(np.arange(len(self._params.data)))
         self._data_mode()
 
         
@@ -182,27 +181,27 @@ class choose_from_datasets(DataSet, BatchFunction):
     """
     def __init__(self, datasets, index, stop_on_empty_dataset=True):
         super(choose_from_datasets, self).__init__()
-        if isinstance(datasets[0]._params.data[datasets[0]._params.mode1], list):
-            self._params.data[self._params.mode1] = []
-            for i in np.arange(len(datasets[0]._params.data[datasets[0]._params.mode1])):
-                self._params.data[self._params.mode1] += [np.concatenate([sets._params.data[sets._params.mode1][i] for sets in datasets])]
+        if isinstance(datasets[0]._params.data, list):
+            self._params.data = []
+            for i in np.arange(len(datasets[0]._params.data)):
+                self._params.data += [np.concatenate([sets._params.data[i] for sets in datasets])]
         else:
-            self._params.data[self._params.mode1] = np.concatenate([sets._params.data[sets._params.mode1] for sets in datasets])
-        data_dict = []
+            self._params.data = np.concatenate([sets._params.data for sets in datasets])
+        data_index = []
         for r, sets in enumerate(datasets):
             if r==0:
-                data_dict.append(sets._params.index[sets._params.mode].copy())
+                data_index.append(sets._params.data_index.copy())
             else:
-                t = max(data_dict[-1])+1
-                data_dict.append([i+t for i in sets._params.index[sets._params.mode].copy()])
+                t = max(data_index[-1])+1
+                data_index.append([i+t for i in sets._params.data_index.copy()])
         if stop_on_empty_dataset:
-            self._params.index[self._params.mode] = []
+            self._params.data_index[self._params.index_mode] = []
             for i in index:
-                if len(data_dict[i])==0:
+                if len(data_index[i])==0:
                     break
-                self._params.index[self._params.mode].append(data_dict[i].pop(0))
+                self._params.data_index[self._params.index_mode].append(data_index[i].pop(0))
         else:
-            self._params.index[self._params.mode] = [data_dict[i].pop(0) for i in index if len(data_dict[i])>0]
+            self._params.data_index[self._params.index_mode] = [data_index[i].pop(0) for i in index if len(data_index[i])>0]
         self._data_mode()
         
 class sample_from_datasets(DataSet, BatchFunction):
@@ -221,35 +220,35 @@ class sample_from_datasets(DataSet, BatchFunction):
     def __init__(self, datasets, weight=None, stop_on_empty_dataset=False):
         super(sample_from_datasets, self).__init__()
         weights = weight.copy()
-        if isinstance(datasets[0]._params.data[datasets[0]._params.mode1], list):
-            self._params.data[self._params.mode1] = []
-            for i in np.arange(len(datasets[0]._params.data[datasets[0]._params.mode1])):
-                self._params.data[self._params.mode1] += [np.concatenate([sets._params.data[sets._params.mode1][i] for sets in datasets])]
+        if isinstance(datasets[0]._params.data, list):
+            self._params.data = []
+            for i in np.arange(len(datasets[0]._params.data)):
+                self._params.data += [np.concatenate([sets._params.data[i] for sets in datasets])]
         else:
-            self._params.data[self._params.mode1] = np.concatenate([sets._params.data[sets._params.mode1] for sets in datasets])
-        data_dict = []
+            self._params.data = np.concatenate([sets._params.data for sets in datasets])
+        data_index = []
         for r, sets in enumerate(datasets):
             if r==0:
-                data_dict.append(sets._params.index[sets._params.mode].copy())
+                data_index.append(sets._params.data_index.copy())
             else:
-                t = max(data_dict[-1])+1
-                data_dict.append([i+t for i in sets._params.index[sets._params.mode].copy()])
+                t = max(data_index[-1])+1
+                data_index.append([i+t for i in sets._params.data_index.copy()])
         if stop_on_empty_dataset:
-            self._params.index[self._params.mode] = []
+            self._params.data_index[self._params.index_mode] = []
             while 1:
-                index = np.random.choice(np.arange(len(data_dict)), p=weights)
-                self._params.index[self._params.mode].append(data_dict[index].pop(0))
-                if len(data_dict[index])==0:
+                index = np.random.choice(np.arange(len(data_index)), p=weights)
+                self._params.data_index[self._params.index_mode].append(data_index[index].pop(0))
+                if len(data_index[index])==0:
                     break
         else:
-            self._params.index[self._params.mode] = []
+            self._params.data_index[self._params.index_mode] = []
             while 1:
-                if len(data_dict)==0:
+                if len(data_index)==0:
                     break
-                index = np.random.choice(np.arange(len(data_dict)), p=weights)
-                self._params.index[self._params.mode].append(data_dict[index].pop(0))
-                if len(data_dict[index])==0:
-                    data_dict.pop(index)
+                index = np.random.choice(np.arange(len(data_index)), p=weights)
+                self._params.data_index[self._params.index_mode].append(data_index[index].pop(0))
+                if len(data_index[index])==0:
+                    data_index.pop(index)
                     if weights is not None:
                         weights.pop(index)
                         weights = [i/sum(weights) for i in weights]

@@ -6,9 +6,9 @@ def readme():
         return f.read()
 
 setup(name='linora',
-      version='1.4.0rc2',
+      version='1.4.0',
       install_requires=[
-          'pandas>=1.0.0', 
+          'pandas>=1.3.0', 
           'pyecharts>=1.9.0',
           'pillow>=9.1.0',
           'joblib>=1.0.1',
