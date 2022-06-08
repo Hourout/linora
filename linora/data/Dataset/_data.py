@@ -89,8 +89,11 @@ class DataSet():
         """
         assert name!='total', "`name` can't be 'total'."
         if name in self._params.data:
+            if name in self._params.index_data:
+                self._params.index_data.pop(name)
             if name in [j for i,j in self._params.index_data.items()]:
                 name1 = str(time.time()).split('.')[0]
+                self._params.data[name1] = self._params.data.pop(name)
                 for i,j in self._params.index_data.items():
                     if name==j:
                         self._params.index_data[i] = name1
@@ -112,6 +115,10 @@ class DataSet():
         if self._params.mode==name:
             self._params.mode = 'total'
             self._params.mode1 = 'total'
+            
+        for i in self._params.data:
+            if i not in [j for k,j in self._params.index_data.items()]:
+                self._params.data.pop(i)
         return self
         
     def enumerate(self, start=0):
