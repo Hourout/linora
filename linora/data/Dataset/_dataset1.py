@@ -27,7 +27,7 @@ class BatchFunction():
             if t[i]['got_error']:
                 continue
             if isinstance(t[i]['output'], (list, tuple)):
-                return [np.concatenate([np.expand_dims(t[j]['output'][k], 0) for j in t if not t[j]['got_error']]) for k in range(len(t[i]['output']))]
+                return [np.concatenate([np.expand_dims(t[j]['output'][k], 0) for j in t if not t[j]['got_error']]) for k in np.arange(len(t[i]['output']))]
             else:
                 return np.concatenate([np.expand_dims(t[j]['output'], 0) for j in t if not t[j]['got_error']])
     
