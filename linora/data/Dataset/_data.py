@@ -1,3 +1,4 @@
+import time
 import random
 import functools
 import itertools
@@ -20,6 +21,8 @@ class DataSet():
         self._params.tensor = 'numpy'
         self._params.mode = 'total'
         self._params.mode1 = 'total'
+        self._params.index_data = defaultdict()
+        self._params.index_data['total'] = 'total'
         self._params.data_from = 'tensor'
         self._params.data = defaultdict()
         self._params.index = defaultdict()
@@ -86,7 +89,13 @@ class DataSet():
         """
         assert name!='total', "`name` can't be 'total'."
         if name in self._params.data:
-            self._params.data.pop(name)
+            if name in [j for i,j in self._params.index_data.items()]:
+                name1 = str(time.time()).split('.')[0]
+                for i,j in self._params.index_data.items():
+                    if name==j:
+                        self._params.index_data[i] = name1
+            else:
+                self._params.data.pop(name)
             
         if name in self._params.index:
             self._params.index.pop(name)
@@ -141,9 +150,10 @@ class DataSet():
         assert name in self._params.index, '`name` not in split dataset.'
         if self._params.batch[name][2]==-1:
             self._params.batch[name][0] = 0
-        self._params.mode = name
-        self._params.mode1 = name if name in self._params.data else 'total'
         self._params.batch[name][2] = 0
+        
+        self._params.mode = name
+        self._params.mode1 = self._params.index_data[name]
         return self
     
     def join(self, join_dict, drop_exist_dataset=True):
@@ -151,7 +161,7 @@ class DataSet():
         
         Args:
             join_dict: dict, {name: Dataset}, eg.{'train':la.data.Dataset.from_tensor()}.
-            drop_exist_dataset: bool, If the name of the dataset is repeated， drop self exist dataset.
+            drop_exist_dataset: bool, If the name of the dataset is repeated, drop self exist dataset.
         """
         for name in join_dict:
             assert name!='total', "`name` can't be 'total'."
@@ -174,7 +184,10 @@ class DataSet():
         if join_dict[name]._params.mode in join_dict[name]._params.enumerate:
             self._params.enumerate[name] = join_dict[name]._params.enumerate[join_dict[name]._params.mode].copy()
             
+        self._params.index_data[name] = name
+            
     def list_names(self):
+        """list datasets name."""
         return [i for i in self._params.index]
         
     def map(self, map_func, map_size=8):
@@ -225,12 +238,20 @@ class DataSet():
         for name in name_dict:
             assert name!='total', "`name` can't be 'total'."
             assert name_dict[name]!='total', "`name` can't be 'total'."
+            assert name in self._params.index, "name not exist."
+            assert name_dict[name] not in self._params.index, "name already exist."
         for name in name_dict:
             if name in self._params.data:
                 self._params.data[name_dict[name]] = self._params.data.pop(name)
                 
             if name in self._params.index:
                 self._params.index[name_dict[name]] = self._params.index.pop(name)
+                
+            if name in self._params.index_data:
+                self._params.index_data[name_dict[name]] = self._params.index_data.pop(name)
+            for i,j in self._params.index_data.items():
+                if name==j:
+                    self._params.index_data[i] = [name_dict[name]]
             
             if name in self._params.map:
                 self._params.map[name_dict[name]] = self._params.map.pop(name)
@@ -243,7 +264,7 @@ class DataSet():
                 
             if self._params.mode==name:
                 self._params.mode = name_dict[name]
-                self._params.mode1 = name_dict[name] if name in self._params.data else 'total'
+                self._params.mode1 = self._params.index_data[self._params.mode]
         return self
     
     def repeat(self, repeat_size):
@@ -314,7 +335,7 @@ class DataSet():
         
         Args:
             split_dict: dict, {data_name:data_rate}, eg.{'train':0.7, 'test':0.3}.
-            shuffle: whether randomly shuffles the elements of this dataset
+            shuffle: whether randomly shuffles the elements of this dataset.
             seed: random seed.
         """
         for i in split_dict:
@@ -343,6 +364,7 @@ class DataSet():
         
         for i in split_dict:
             self._params.batch[i] = [0, False, 0]
+            self._params.index_data[i] = self._params.mode1
         return self
     
     def _split(self, t, shuffle, seed):
