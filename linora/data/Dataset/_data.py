@@ -81,44 +81,48 @@ class DataSet():
             self._params.data[self._params.mode1] = np.concatenate([self._params.data[self._params.mode1], dataset._params.data[self._params.mode1]])
         self._params.index[self._params.mode] += [i+t for i in dataset._params.index[dataset._params.mode]]
         
-    def drop(self, name):
+    def drop(self, names):
         """Drop current dataset.
         
         Args:
-            name: drop dataset name.
+            name: str or list, drop dataset name.
         """
-        assert name!='total', "`name` can't be 'total'."
-        if name in self._params.data:
-            if name in self._params.index_data:
-                self._params.index_data.pop(name)
-            if name in [j for i,j in self._params.index_data.items()]:
-                name1 = str(time.time()).split('.')[0]
-                self._params.data[name1] = self._params.data.pop(name)
-                for i,j in self._params.index_data.items():
-                    if name==j:
-                        self._params.index_data[i] = name1
-            else:
-                self._params.data.pop(name)
-            
-        if name in self._params.index:
-            self._params.index.pop(name)
-            
-        if name in self._params.map:
-            self._params.map.pop(name)
-            
-        if name in self._params.batch:
-            self._params.batch.pop(name)
-            
-        if name in self._params.enumerate:
-            self._params.enumerate.pop(name)
-            
-        if self._params.mode==name:
-            self._params.mode = 'total'
-            self._params.mode1 = 'total'
-            
-        for i in self._params.data:
-            if i not in [j for k,j in self._params.index_data.items()]:
-                self._params.data.pop(i)
+        if isinstance(names, str):
+            names = [names]
+        for name in names:
+            assert name!='total', "`name` can't be 'total'."
+        for name in names:
+            if name in self._params.data:
+                if name in self._params.index_data:
+                    self._params.index_data.pop(name)
+                if name in [j for i,j in self._params.index_data.items()]:
+                    name1 = str(time.time()).split('.')[0]
+                    self._params.data[name1] = self._params.data.pop(name)
+                    for i,j in self._params.index_data.items():
+                        if name==j:
+                            self._params.index_data[i] = name1
+                else:
+                    self._params.data.pop(name)
+
+            if name in self._params.index:
+                self._params.index.pop(name)
+
+            if name in self._params.map:
+                self._params.map.pop(name)
+
+            if name in self._params.batch:
+                self._params.batch.pop(name)
+
+            if name in self._params.enumerate:
+                self._params.enumerate.pop(name)
+
+            if self._params.mode==name:
+                self._params.mode = 'total'
+                self._params.mode1 = 'total'
+
+            for i in self._params.data:
+                if i not in [j for k,j in self._params.index_data.items()]:
+                    self._params.data.pop(i)
         return self
         
     def enumerate(self, start=0):
