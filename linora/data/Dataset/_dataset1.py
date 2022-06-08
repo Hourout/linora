@@ -61,7 +61,7 @@ class from_tensor(DataSet, BatchFunction):
     def __init__(self, data):
         super(from_tensor, self).__init__()
         if isinstance(data, (int, float, str)):
-            self._params.data = np.array([data])
+            self._params.data[self._params.mode1] = np.array([data])
         elif isinstance(data, tuple):
             for i in data:
                 assert len(data[0])==len(i), 'Length needs to be consistent between data.'
