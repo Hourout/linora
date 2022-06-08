@@ -165,6 +165,10 @@ class DataSet():
         
         self._params.mode = name
         self._params.mode1 = self._params.index_data[name]
+        
+        for i in self._params.data:
+            if i not in [j for k,j in self._params.index_data.items()]:
+                self._params.data.pop(i)
         return self
     
     def join(self, join_dict, drop_exist_dataset=True):
