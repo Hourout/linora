@@ -500,11 +500,11 @@ class DataSet():
     
     def __iter__(self):
         if 'list' in self._params.data_mode:
-            if 'map' in self._params.options:
+            if self._params.mode in self._params.map:
                 self._batch_func = self._batch_list_map
             else:
                 self._batch_func = self._batch_list
-        elif 'map' in self._params.options:
+        elif self._params.mode in self._params.map:
             self._batch_func = self._batch_map
         else:
             self._batch_func = self._batch

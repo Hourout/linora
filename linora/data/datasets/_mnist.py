@@ -77,8 +77,9 @@ def mnist(root=None, dataset=True, verbose=1):
     for url in Param.mnist:
         gfile.remove(gfile.path_join(task_path, url.split('/')[-1]))
     p.add(1)
-#     if dataset:
-#         return from_class_folder(task_path, label_encoder=True)
+    if dataset:
+        return (from_class_folder(gfile.path_join(task_path, 'train'), label_encoder=1).split({'train':1})
+                .join({'test':from_class_folder(gfile.path_join(task_path, 'test'), label_encoder=1)}))
     return task_path
 
 
@@ -142,8 +143,9 @@ def mnist_fashion(root=None, dataset=True, verbose=1):
     for url in Param.mnist_fashion:
         gfile.remove(gfile.path_join(task_path, url.split('/')[-1]))
     p.add(1)
-#     if dataset:
-#         return from_class_folder(task_path, label_encoder=True)
+    if dataset:
+        return (from_class_folder(gfile.path_join(task_path, 'train'), label_encoder=1).split({'train':1})
+                .join({'test':from_class_folder(gfile.path_join(task_path, 'test'), label_encoder=1)}))
     return task_path
 
 
@@ -198,6 +200,9 @@ def mnist_kannada(root=None, dataset=True, verbose=1):
     gfile.remove(zip_path)
     gfile.remove(unzip_path)
     p.add(1)
+    if dataset:
+        return (from_class_folder(gfile.path_join(task_path, 'train'), label_encoder=1).split({'train':1})
+                .join({'test':from_class_folder(gfile.path_join(task_path, 'test'), label_encoder=1)}))
     return task_path
 
 
@@ -258,6 +263,9 @@ def mnist_kuzushiji10(root=None, dataset=True, verbose=1):
     for url in Param.mnist_kuzushiji10:
         gfile.remove(gfile.path_join(task_path, url.split('/')[-1]))
     p.add(1)
+    if dataset:
+        return (from_class_folder(gfile.path_join(task_path, 'train'), label_encoder=1).split({'train':1})
+                .join({'test':from_class_folder(gfile.path_join(task_path, 'test'), label_encoder=1)}))
     return task_path
 
 
@@ -316,6 +324,9 @@ def mnist_kuzushiji49(root=None, dataset=True, verbose=1):
     for url in Param.mnist_kuzushiji49:
         gfile.remove(gfile.path_join(task_path, url.split('/')[-1]))
     p.add(1)
+    if dataset:
+        return (from_class_folder(gfile.path_join(task_path, 'train'), label_encoder=1).split({'train':1})
+                .join({'test':from_class_folder(gfile.path_join(task_path, 'test'), label_encoder=1)}))
     return task_path
 
 
@@ -354,6 +365,9 @@ def mnist_kuzushiji_kanji(root=None, dataset=True, verbose=1):
     gfile.rename(gfile.path_join(task_path, 'kkanji2'), gfile.path_join(task_path, 'train'))
     gfile.remove(gfile.path_join(root, 'kkanji.tar'))
     p.add(1)
+    if dataset:
+        return (from_class_folder(gfile.path_join(task_path, 'train'), label_encoder=1).split({'train':1})
+               )
     return task_path
 
 
@@ -404,4 +418,7 @@ def mnist_tibetan(root=None, dataset=True, verbose=1):
         save_image(gfile.path_join(task_path, 'train', str(train_label[idx]), str(idx)+'.png'),
                    array_to_image(train[idx].reshape(28, 28, 1)))
     p.add(2)
+    if dataset:
+        return (from_class_folder(gfile.path_join(task_path, 'train'), label_encoder=1).split({'train':1})
+                .join({'test':from_class_folder(gfile.path_join(task_path, 'test'), label_encoder=1)}))
     return task_path
