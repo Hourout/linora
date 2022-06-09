@@ -260,11 +260,13 @@ class HyperParametersGrid():
         self._update_nums += 1
         
     def cardinality(self):
+        """number of grid searches."""
         if not self._rank_list:
             self._rank_list_func()
         return self._cardinality
     
     def grid_space(self):
+        """grid search space."""
         return self._rank_list
     
     def from_HyperParameters(self, hp):
