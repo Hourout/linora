@@ -11,7 +11,7 @@ from linora import utils
 from linora import gfile
 from linora import data
 
-__version__ = '1.5.0rc0'
+__version__ = '1.4.1'
 __author__ = 'JinQing Lee'
 
 def _version():
