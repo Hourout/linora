@@ -151,7 +151,7 @@ def walk(path, topdown=True, onerror=None):
         That is, each yield looks like: (dirname, [subdirname, subdirname, ...], [filename, filename, ...]). 
         Each item is a string.
     """
-    return list(os.walk(top, topdown, onerror))
+    return list(os.walk(path, topdown, onerror))
 
 
 def path_join(path, *paths):
