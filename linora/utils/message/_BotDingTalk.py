@@ -12,22 +12,23 @@ import requests
 
 from linora.utils._config import Config
 
-__all__ = ['BotDingTalk']
-
-
 class BotDingTalk():
-    """
-    钉钉群自定义机器人（每个机器人每分钟最多发送20条），支持文本（text）、连接（link）、markdown三种消息类型！
+    """Dingding group custom robot
+    
+    each robot can send up to 20 messages per minute, 
+    supports three message types: text (text), link (link), and markdown.
     """
     def __init__(self, webhook, secret=None, pc_slide=False, fail_notice=False):
         """
         Args:
-            webhook: 钉钉群自定义机器人webhook地址
-            secret: 机器人安全设置页面勾选“加签”时需要传入的密钥
-            pc_slide: 消息链接打开方式，默认False为浏览器打开，设置为True时为PC端侧边栏打开
-            fail_notice: 消息发送失败提醒，默认为False不提醒，开发者可以根据返回的消息发送结果自行判断和处理
+            webhook: Dingding group custom robot webhook address.
+            secret: The secret key that needs to be passed in when "Signing" is checked on the robot security settings page.
+            pc_slide: The message link opening method, the default is False to open the browser, 
+                      when set to True, the sidebar on the PC side is opened.
+            fail_notice: message sending failure reminder, the default is False to not remind, 
+                         the developer can judge and deal with it according to the returned message sending result.
         """
-        super(BotDingtalk, self).__init__()
+#         super(BotDingtalk, self).__init__()
         self._params.Config()
         self._params.headers = {'Content-Type': 'application/json; charset=utf-8'}
         self._params.queue = queue.Queue(20)  # 钉钉官方限流每分钟发送20条信息
@@ -153,37 +154,22 @@ class BotDingTalk():
             raise TypeError("ActionCard类型：传入的实例类型不正确，内容为：{}".format(str(action_card)))
 
     def send_feed_card(self, links):
-        """
-        FeedCard类型
-        :param links: FeedLink实例列表 or CardItem实例列表
-        :return: 返回消息发送结果
-        """
-        if not isinstance(links, list):
-            logging.error("FeedLink类型：传入的数据格式不正确，内容为：{}".format(str(links)))
-            raise ValueError("FeedLink类型：传入的数据格式不正确，内容为：{}".format(str(links)))
+        """send FeedCard message.
         
+        Args:
+            links: a list of FeedLink isinstance or CardItem isinstance.
+        """
+        assert isinstance(links, list), '`links` format error, should be list.'
         link_list = []
         for link in links:
-            # 兼容：1、传入FeedLink实例列表；2、CardItem实例列表；
-            if isinstance(link, FeedLink) or isinstance(link, CardItem):
-                link = link.get_data()
-                link['messageURL'] = self._format_url(link['messageURL'])
-                link_list.append(link)
-            else:
-                logging.error("FeedLink类型，传入的数据格式不正确，内容为：{}".format(str(link)))
-                raise ValueError("FeedLink类型，传入的数据格式不正确，内容为：{}".format(str(link)))
-
-        
+            assert isinstance(link, FeedLink) or isinstance(link, CardItem), f'`{link}` format error'
+            link = link.get_data()
+            link['messageURL'] = self._format_url(link['messageURL'])
+            link_list.append(link)
         data = {"msgtype": "feedCard", "feedCard": {"links": link_list}}
-        logging.debug("FeedCard类型：%s" % data)
         return self._post(data)
 
     def _post(self, data):
-        """
-        发送消息（内容UTF-8编码）
-        :param data: 消息数据（字典）
-        :return: 返回消息发送结果
-        """
         now = time.time()
         
         # 钉钉自定义机器人安全设置加签时，签名中的时间戳与请求时不能超过一个小时，所以每个1小时需要更新签名
