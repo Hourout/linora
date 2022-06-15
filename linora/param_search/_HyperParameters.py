@@ -38,7 +38,7 @@ class HyperParametersRandom():
         """
         if name not in self._space:
             self._space[name] = {'mode':'Choice', 'values':list(values), 'weight':weight, 'default':default}
-            self.params[name] = np.random.choice(self.space[name]['values'], p=weight) if default is None else default
+            self.params[name] = np.random.choice(self._space[name]['values'], p=weight) if default is None else default
     
     def Dependence(self, name, dependent_name, function, default=None):
         """Values generated depending on other parameters.
@@ -165,7 +165,7 @@ class HyperParametersGrid():
             self._space[name] = {'mode':'Choice', 'default':default, 'rank':rank, 'values':list(values)}
             if rank>0:
                 self._rank[rank].append(name)
-            self.params[name] = random.choice(self.space[name]['values']) if default is None else default
+            self.params[name] = random.choice(self._space[name]['values']) if default is None else default
         
     def Dependence(self, name, dependent_name, function, default=None):
         """Values generated depending on other parameters.
