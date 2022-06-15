@@ -27,7 +27,7 @@ def _sample_weight(y_true, sample_weight):
     if sample_weight is None:
         sample_weight = np.ones(len(y_true))
     elif isinstance(sample_weight, dict):
-        sample_weight = [sample_weight[i] for i in y_true]
+        sample_weight = np.array([sample_weight[i] for i in y_true])
     else:
         sample_weight = np.array(sample_weight)
     return sample_weight/sample_weight.sum()*len(sample_weight)
@@ -299,12 +299,20 @@ def auc_roc(y_true, y_pred, sample_weight=None, pos_label=1):
     Returns:
         Area Under the Receiver Operating Characteristic Curve (ROC AUC) from prediction scores.
     """
+#     sample_weight = _sample_weight(y_true, sample_weight)
+#     t = pd.DataFrame({'prob':y_pred, 'label':y_true, 'weight':sample_weight})
+#     assert t.label.nunique()==2, "`y_true` should be binary classification."
+#     t.insert(0, 'target', t[t.label!=pos_label].label.unique()[0])
+#     t = t[t.label!=pos_label].merge(t[t.label==pos_label], on='target')
+#     auc = ((t.prob_y>t.prob_x)*(t.weight_y+t.weight_x)/2).mean()+((t.prob_y==t.prob_x)*(t.weight_y+t.weight_x)/2).mean()/2
+    
     sample_weight = _sample_weight(y_true, sample_weight)
-    t = pd.DataFrame({'prob':y_pred, 'label':y_true, 'weight':sample_weight})
+    t = pd.DataFrame({'prob':y_pred, 'label':y_true, 'weight':sample_weight}).sort_values(['prob']).reset_index(drop=True)
     assert t.label.nunique()==2, "`y_true` should be binary classification."
-    t.insert(0, 'target', t[t.label!=pos_label].label.unique()[0])
-    t = t[t.label!=pos_label].merge(t[t.label==pos_label], on='target')
-    auc = ((t.prob_y>t.prob_x)*(t.weight_y+t.weight_x)/2).mean()+((t.prob_y==t.prob_x)*(t.weight_y+t.weight_x)/2).mean()/2
+    pos_rank = ((t[t.label==pos_label].index+1).values*(t[t.label==pos_label].weight.values)).sum()
+    pos_cnt = t[t.label==pos_label].weight.sum()
+    neg_cnt = t[t.label!=pos_label].weight.sum()
+    auc = (pos_rank - pos_cnt*(pos_cnt+1)/2) / (pos_cnt*neg_cnt)
     return auc
 
 
