@@ -169,7 +169,7 @@ def _cumsum_confusion_matrix(y_true, y_pred, sample_weight=None, pos_label=1):
     t['tp'] = (t.label*t.weight).cumsum()
     t['fp'] = t.weight.cumsum()-t.tp
     t['tn'] = ((1-t.label)*t.weight).iloc[::-1].cumsum()
-    t['fn'] = t.weight.iloc[::-1].cumsum()-t.tn
+    t['fn'] = t.tp.max()-t.tp#t.weight.iloc[::-1].cumsum()-t.tn
     t['recall'] = t.tp/(t.tp + t.fn)
     t['precision'] = t.tp/(t.tp+t.fp)
     t['specificity'] = t.tn/(t.tn + t.fp)
