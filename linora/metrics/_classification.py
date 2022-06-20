@@ -192,10 +192,10 @@ def best_prob(y_true, y_pred, precision=None, recall=None, specificity=None, sam
         best prob threshold.
     """
     t = _cumsum_confusion_matrix(y_true, y_pred, sample_weight=sample_weight, pos_label=pos_label)
-    if precision is not None:
-        t = t[t.precision>=precision]
     if recall is not None:
         t = t[t.recall>=recall]
+    if precision is not None:
+        t = t[t.precision>=precision]
     if specificity is not None:
         t = t[t.specificity>=specificity]
     return t.prob.min()
