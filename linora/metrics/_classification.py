@@ -8,7 +8,7 @@ __all__ = ['accuracy_binary', 'accuracy_categorical', 'recall', 'precision', 'co
            'crossentropy_categorical', 'ks', 'gini', 'psi', 'fmi', 'report_binary',
            'accuracy_categorical_top_k', 'iou_binary', 'iou_categorical',
            'precision_on_recall', 'recall_on_precision', 
-           'specificity_on_sensitivity', 'sensitivity_on_specificity'
+           'specificity_on_sensitivity', 'sensitivity_on_specificity', 'best_prob'
           ]
 
 
@@ -177,6 +177,30 @@ def _cumsum_confusion_matrix(y_true, y_pred, sample_weight=None, pos_label=1):
     return t
 
 
+def best_prob(y_true, y_pred, precision=None, recall=None, specificity=None, sample_weight=None, pos_label=1):
+    """Computes best best prob threshold when precision or recall or specificity is >= specified value.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
+        precision: A scalar value in range [0, 1].
+        recall: A scalar value in range [0, 1].
+        specificity: A scalar value in range [0, 1].
+        sample_weight: list or array or dict of sample weight.
+        pos_label: positive label.
+    Returns:
+        best prob threshold.
+    """
+    t = _cumsum_confusion_matrix(y_true, y_pred, sample_weight=sample_weight, pos_label=pos_label)
+    if precision is not None:
+        t = t[t.precision>=precision]
+    if recall is not None:
+        t = t[t.recall>=recall]
+    if specificity is not None:
+        t = t[t.specificity>=specificity]
+    return t.prob.min()
+
+
 def precision_on_recall(y_true, y_pred, recall=0.5, sample_weight=None, pos_label=1):
     """Computes best precision where recall is >= specified value.
     
@@ -210,7 +234,7 @@ def recall_on_precision(y_true, y_pred, precision=0.5, sample_weight=None, pos_l
 
 
 def sensitivity_on_specificity(y_true, y_pred, specificity=0.5, sample_weight=None, pos_label=1):
-    """Computes best sensitivity where specificity is >= specified value.
+    """Computes best sensitivity(recall) where specificity is >= specified value.
     
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
@@ -226,7 +250,7 @@ def sensitivity_on_specificity(y_true, y_pred, specificity=0.5, sample_weight=No
 
 
 def specificity_on_sensitivity(y_true, y_pred, sensitivity=0.5, sample_weight=None, pos_label=1):
-    """Computes best specificity where sensitivity is >= specified value.
+    """Computes best specificity where sensitivity(recall) is >= specified value.
     
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
