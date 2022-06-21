@@ -177,8 +177,10 @@ def _cumsum_confusion_matrix(y_true, y_pred, sample_weight=None, pos_label=1):
     return t
 
 
-def best_prob(y_true, y_pred, precision=None, recall=None, specificity=None, sample_weight=None, pos_label=1):
-    """Computes best best prob threshold when precision or recall or specificity is >= specified value.
+def best_prob(y_true, y_pred, precision=None, recall=None, specificity=None, 
+              accuracy=None, f1_score=None, iou_binary=None,
+              sample_weight=None, pos_label=1):
+    """Computes best best prob threshold when method is >= specified value.
     
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
@@ -186,18 +188,30 @@ def best_prob(y_true, y_pred, precision=None, recall=None, specificity=None, sam
         precision: A scalar value in range [0, 1].
         recall: A scalar value in range [0, 1].
         specificity: A scalar value in range [0, 1].
+        accuracy: A scalar value in range [0, 1].
+        f1_score: A scalar value in range [0, 1].
+        iou_binary: A scalar value in range [0, 1].
         sample_weight: list or array or dict of sample weight.
         pos_label: positive label.
     Returns:
         best prob threshold.
     """
     t = _cumsum_confusion_matrix(y_true, y_pred, sample_weight=sample_weight, pos_label=pos_label)
+    t['accuracy'] = (t.tp+t.tn)/(t.tp + t.fn+t.tn+t.fp)
+    t['f1_score'] = 2*t.precision*t.recall/(t.precision+t.recall)
+    t['iou_binary'] = t.tp/(t.tp+t.fp+t.fn)
     if recall is not None:
         t = t[t.recall>=recall]
     if precision is not None:
         t = t[t.precision>=precision]
     if specificity is not None:
         t = t[t.specificity>=specificity]
+    if accuracy is not None:
+        t = t[t.accuracy>=accuracy]
+    if f1_score is not None:
+        t = t[t.f1_score>=f1_score]
+    if iou_binary is not None:
+        t = t[t.iou_binary>=iou_binary]
     return t.prob.min()
 
 
