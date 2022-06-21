@@ -1,5 +1,7 @@
 import numpy as np
 
+from linora.metrics._utils import _sample_weight
+
 __all__ = ['normal_loss', 'mean_absolute_error', 'mean_squared_error',
            'mean_absolute_percentage_error', 'hinge', 'explained_variance_score',
            'median_absolute_error', 'r2_score', 'report_regression',
@@ -22,8 +24,7 @@ def normal_loss(y_true, y_pred, k, log=False, root=False, sample_weight=None):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     if log:
         loss = (np.power(np.abs(np.log1p(y_true)-np.log1p(y_pred))*sample_weight, k)).mean()
     else:
@@ -74,8 +75,7 @@ def mean_absolute_percentage_error(y_true, y_pred, sample_weight=None):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     value = np.abs(y_pred - y_true)
     y_true[np.where(y_true==0)] = 1
     return (value/np.abs(y_true)*sample_weight).mean()
@@ -94,8 +94,7 @@ def hinge(y_true, y_pred, k=1, sample_weight=None):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     return np.power((1-y_true*y_pred).clip(min=0)*sample_weight, k).mean()
 
 
@@ -111,8 +110,7 @@ def explained_variance_score(y_true, y_pred, sample_weight=None):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     return 1-((y_true-y_pred)*sample_weight).std()**2/y_true.std()**2
 
 
@@ -128,8 +126,7 @@ def median_absolute_error(y_true, y_pred, sample_weight=None):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     return np.median(np.abs(y_true-y_pred)*sample_weight)
 
 
@@ -145,8 +142,7 @@ def r2_score(y_true, y_pred, sample_weight=None):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     return 1-np.power((y_true-y_pred)*sample_weight, 2).sum()/np.power((y_true-y_true.mean())*sample_weight, 2).sum()
 
 
@@ -193,8 +189,7 @@ def mean_relative_error(y_true, y_pred, normalizer, sample_weight=None):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     return (np.abs(y_true-y_pred)/np.array(normalizer)*sample_weight).mean()
 
 
@@ -210,8 +205,7 @@ def poisson(y_true, y_pred, sample_weight=None):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     return np.mean((y_pred - y_true * np.log(y_pred+ 1e-7))*sample_weight)
 
 
@@ -228,6 +222,5 @@ def log_cosh_error(y_true, y_pred, sample_weight=None):
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
     x = (y_pred-y_true)*sample_weight
-    sample_weight = np.ones(len(y_true)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(y_true, sample_weight)
     return np.mean(x + np.log(np.exp(-2. * x) + 1.) - np.log(2.))
