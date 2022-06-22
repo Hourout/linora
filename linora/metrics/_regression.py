@@ -6,7 +6,8 @@ __all__ = ['normal_loss', 'mean_absolute_error', 'mean_squared_error',
            'mean_absolute_percentage_error', 'hinge', 'explained_variance_score',
            'median_absolute_error', 'r2_score', 'report_regression',
            'mean_relative_error', 'poisson', 'log_cosh_error', 'max_error',
-           'mean_tweedie_deviance', 'mean_poisson_deviance', 'mean_gamma_deviance'
+           'mean_tweedie_deviance', 'mean_poisson_deviance', 'mean_gamma_deviance',
+           'mean_pinball_error'
           ]
 
 
@@ -318,3 +319,22 @@ def mean_gamma_deviance(y_true, y_pred, sample_weight=None):
         A non-negative floating point value (the best value is 0.0).
     """
     return mean_tweedie_deviance(y_true, y_pred, p=2, sample_weight=sample_weight)
+
+
+def mean_pinball_error(y_true, y_pred, alpha=0.5, sample_weight=None):
+    """Pinball loss for quantile regression.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
+        alpha: this loss is equivalent to Mean absolute error when alpha=0.5, 
+               alpha=0.95 is minimized by estimators of the 95th percentile.
+        sample_weight: list or array of sample weight.
+    Returns:
+        A non-negative floating point value (the best value is 0.0).
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    sample_weight = _sample_weight(y_true, sample_weight)
+    t = alpha*np.maximum(y_true-y_pred, 0)+(1-alpha)*np.maximum(y_pred-y_true, 0)
+    return np.average(t, weights=sample_weight)
