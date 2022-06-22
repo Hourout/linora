@@ -9,7 +9,7 @@ __all__ = ['accuracy_binary', 'accuracy_categorical', 'recall', 'precision', 'co
            'crossentropy_categorical', 'ks', 'gini', 'psi', 'fmi', 'report_binary',
            'accuracy_categorical_top_k', 'iou_binary', 'iou_categorical',
            'precision_on_recall', 'recall_on_precision', 
-           'specificity_on_sensitivity', 'sensitivity_on_specificity', 'best_prob'
+           'specificity_on_sensitivity', 'sensitivity_on_specificity', 'best_prob', 'matthews_score'
           ]
 
 
@@ -59,6 +59,37 @@ def accuracy_categorical(y_true, y_pred, sample_weight=None):
         y_pred = np.argmax(y_pred, axis=-1)
     sample_weight = _sample_weight(y_true, sample_weight)
     return ((pd.Series(y_true)==pd.Series(y_pred))*sample_weight).mean()
+
+
+def matthews_score(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
+    """Compute the Matthews correlation coefficient (MCC).
+
+    The Matthews correlation coefficient is used in machine learning as a measure of 
+    the quality of binary and multiclass classifications. 
+    It takes into account true and false positives and negatives and is generally 
+    regarded as a balanced measure which can be used even if the classes are of very different sizes. 
+    The MCC is in essence a correlation coefficient value between -1 and +1. 
+    A coefficient of +1 represents a perfect prediction, 
+    0 an average random prediction and -1 an inverse prediction. 
+    The statistic is also known as the phi coefficient.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
+        sample_weight: list or array or dict of sample weight.
+        prob: probability threshold.
+        pos_label: positive label.
+    Returns:
+        The Matthews correlation coefficient (+1 represents a perfect prediction, 0 an average random prediction and -1 and inverse prediction).
+    """
+    sample_weight = _sample_weight(y_true, sample_weight)
+    t = classified_func(y_true, y_pred, prob=prob, pos_label=pos_label)
+    t['weight'] = sample_weight
+    tp = (((t.label==pos_label)&(t.prob==pos_label))*t.weight).sum()
+    fp = (((t.label==pos_label)&(t.prob!=pos_label))*t.weight).sum()
+    fn = (((t.label!=pos_label)&(t.prob==pos_label))*t.weight).sum()
+    tn = (((t.label!=pos_label)&(t.prob!=pos_label))*t.weight).sum()
+    return (tp*tn+fp*fn)/np.sqrt((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn))
 
 
 def iou_binary(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
