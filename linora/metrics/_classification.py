@@ -89,7 +89,7 @@ def matthews_score(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
     fp = (((t.label==pos_label)&(t.prob!=pos_label))*t.weight).sum()
     fn = (((t.label!=pos_label)&(t.prob==pos_label))*t.weight).sum()
     tn = (((t.label!=pos_label)&(t.prob!=pos_label))*t.weight).sum()
-    return (tp*tn+fp*fn)/np.sqrt((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn))
+    return (tp*tn-fp*fn)/np.sqrt((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn))
 
 
 def iou_binary(y_true, y_pred, sample_weight=None, prob=0.5, pos_label=1):
