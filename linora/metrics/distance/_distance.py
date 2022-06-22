@@ -3,6 +3,8 @@ import math
 import numpy as np
 import pandas as pd
 
+from linora.metrics._utils import _sample_weight
+
 __all__ = ['euclidean', 'manhattan', 'chebyshev', 'minkowski', 'hamming', 'jaccard', 'pearson', 'cosine', 
            'levenshtein', 'dice', 'ochiia', 'braycurtis', 'geodesic', 'canberra', 'hausdorff', 'chisquare', 
            'hellinger', 'bhattacharyya', 'wasserstein'
@@ -22,8 +24,7 @@ def euclidean(x, y, normalize=False, sample_weight=None):
     """
     x = pd.Series(x)
     y = pd.Series(y)
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     std = pd.concat([x, y], axis=1).std(axis=1) if normalize else 1
     return np.sqrt(np.sum(np.square((x-y)*sample_weight/std)))
 
@@ -38,8 +39,7 @@ def manhattan(x, y, sample_weight=None):
     Returns:
         manhattan distance value.
     """
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     return np.sum(np.abs(np.array(x)-np.array(y))*sample_weight)
 
 
@@ -53,8 +53,7 @@ def chebyshev(x, y, sample_weight=None):
     Returns:
         chebyshev distance value.
     """
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     return np.max((np.array(x)-np.array(y))*sample_weight)
 
 
@@ -69,8 +68,7 @@ def minkowski(x, y, p, sample_weight=None):
     Returns:
         minkowski distance value.
     """
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     return np.power(np.sum(np.power(np.abs(np.array(x)-np.array(y))*sample_weight, p)), 1/p)
 
 
@@ -84,9 +82,8 @@ def hamming(x, y, sample_weight=None):
     Returns:
         hamming distance value.
     """
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
-    return len(x)-np.sum(np.equal(np.array(x)-np.array(y))*sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
+    return sum(map(lambda x,y,z:(x!=y)*z, x, y, sample_weight))/sample_weight.sum()
 
 
 def jaccard(x, y):
@@ -113,8 +110,7 @@ def pearson(x, y, sample_weight=None):
     """
     x = np.array(x)
     y = np.array(y)
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     x_mean, y_mean = np.mean(x), np.mean(y)
     d = np.sum((x-x_mean)*(y-y_mean)*sample_weight)
     d2 = np.sqrt(np.sum(np.square(x-x_mean)))*np.sqrt(np.sum(np.square(y-y_mean)))
@@ -133,8 +129,7 @@ def cosine(x, y, sample_weight=None):
     """
     x = np.array(x)
     y = np.array(y)
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     return (x*y*sample_weight).sum()/np.sqrt(np.square(x).sum())/np.sqrt(np.square(y).sum())
 
 
@@ -165,8 +160,7 @@ def levenshtein(x, y, normalize=False, sample_weight=None):
         if normalize:
             return (b[-1] / len(s1))*weight
         return b[-1]*weight
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     return pd.DataFrame({'label1':x, 'label2':y, 'weight':sample_weight}).apply(lambda x:levenshtein1(x[0], x[1], x[2], normalize=normalize), axis=1).sum()
 
 
@@ -183,8 +177,7 @@ def canberra(x, y, sample_weight=None):
     assert len(x)==len(y), 'x shape should be same with y.'
     x = pd.Series(x)
     y = pd.Series(y)
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     return ((x-y)*sample_weight/(x.abs()+y.abs())).sum()
 
 
@@ -217,8 +210,7 @@ def braycurtis(x, y, sample_weight=None):
     """
     x = np.array(x)
     y = np.array(y)
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     return np.sum(np.abs(x-y)*sample_weight)/(np.sum(x)+np.sum(y))
 
 
@@ -231,8 +223,7 @@ def ochiia(x, y):
     Returns:
         ochiia distance value.
     """
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     return 1 - len(set(x).intersection(set(y)))/np.sqrt(len(set(x))*len(set(y)))
 
 
@@ -245,8 +236,6 @@ def dice(x, y):
     Returns:
         dice distance value.
     """
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
     return 1 - 2*len(set(x).intersection(set(y)))/(len(set(x))+len(set(y)))
 
 
@@ -264,8 +253,7 @@ def hausdorff(x, y, method=euclidean, sample_weight=None):
     """
     x = np.array(x)
     y = np.array(y)
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     fhd = max([min([method(i, j, sample_weight=sample_weight) for j in y]) for i in x])
     rhd = max([min([method(i, j, sample_weight=sample_weight) for j in x]) for i in y])
     return max(fhd,rhd)
@@ -283,8 +271,7 @@ def chisquare(x, y, sample_weight=None):
     """
     x = np.asarray(x, np.int32)
     y = np.asarray(y, np.int32)
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     value = np.square((x-y)*sample_weight)
     y[np.where(y==0)] = 1
     return np.sum(value/y)
@@ -300,8 +287,7 @@ def hellinger(x, y, sample_weight=None):
     Returns:
         hellinger distance value.
     """
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     return 1/np.sqrt(2)*np.linalg.norm((np.sqrt(x)-np.sqrt(y))*sample_weight)
 
 
@@ -317,8 +303,7 @@ def bhattacharyya(x, y, sample_weight=None):
     """
     x = np.array(x)
     y = np.array(y)
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+    sample_weight = _sample_weight(x, sample_weight)
     return np.log(np.sum(np.sqrt(x * y*sample_weight)))
 
 
@@ -333,8 +318,7 @@ def wasserstein(x, y):
     """
     x = np.array(x)
     y = np.array(y)
-    sample_weight = np.ones(len(x)) if sample_weight is None else np.array(sample_weight)
-    sample_weight = sample_weight/sample_weight.sum()*len(sample_weight)
+
     x_sort = np.argsort(x)
     y_sort = np.argsort(y)
 
