@@ -5,4 +5,4 @@ __all__ = ['Options']
 
 
 Options = Config()
-Options.theme = plt.style.available
+Options.theme = Config(**{i.replace('-', '_'):i for i in plt.style.available})

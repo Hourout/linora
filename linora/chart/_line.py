@@ -4,16 +4,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 from linora.utils._config import Config
 
+__all__ = ['Line']
+
 
 class Line():
     def __init__(self, *args, **kwargs):
-        
-        vars_list = ['xmin', 'xmax', 'ymin', 'ymax', 
-                     'xlabel', 'ylabel', 
-                     'title', 
-                     'theme', 'width', 'height']
-        kwarg = {i:j for i, j in kwargs.items() if i in vars_list}
-        self._params = Config(**kwarg)
+        self._init()
+        if len(args)!=0:
+            if isinstance(args[0], dict):
+                for i,j in args[0].items():
+                    setattr(self._params, i, j)
+        if kwargs:
+            for i,j in kwargs.items():
+                setattr(self._params, i, j)
+
+    def _init(self):
+        self._params = Config()
+        self._params.ydata = defaultdict(defaultdict)
         
         self._params.theme = 'seaborn-whitegrid'
         self._params.figsize = (10, 6)
@@ -22,14 +29,25 @@ class Line():
         self._params.edgecolor = None
         self._params.frameon = True
         self._params.clear = False
-            
-    def add_xdata(self, xdata):
-        self._params.xdata = xdata
-        return self
+        
+        self._params.axis = None
+        
+        self._params.xlabel = None
+        self._params.xloc = None
+        self._params.xlabelpad = None
+        self._params.ylabel = None
+        self._params.yloc = None
+        self._params.ylabelpad = None
+        
+        self._params.legendloc = 'best'
+        
+        self._params.title = None
+        self._params.titleloc = None
+        self._params.titlepad = None
+        self._params.titley = None
     
-    def add_ydata(self, name, ydata, linestyle='-', linecolor=None, linewidth=1):
-        if not hasattr(self._params, 'ydata'):
-            self._params.ydata = defaultdict(defaultdict)
+    def add_data(self, name, xdata, ydata, linestyle='-', linecolor=None, linewidth=1):
+        self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['linestyle'] = linestyle
         self._params.ydata[name]['linewidth'] = linewidth
@@ -232,6 +250,9 @@ handler_map : dict or None
         return self
         
     def show(self):
+        return self._execute().show()
+    
+    def _execute(self):
         with plt.style.context(self._params.theme):
             fig = plt.figure(figsize=self._params.figsize, 
                              dpi=self._params.dpi, 
@@ -241,19 +262,19 @@ handler_map : dict or None
                              clear=self._params.clear)
             ax = fig.add_subplot()
         for i,j in self._params.ydata.items():
-            ax.plot(self._params.xdata, j['ydata'], label=i, 
+            ax.plot(j['xdata'], j['ydata'], label=i, 
                     linestyle=j['linestyle'], color=j['linecolor'], linewidth=j['linewidth'])
-        if hasattr(self._params, 'xlabel'):
+        if self._params.xlabel is not None:
             ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
-        if hasattr(self._params, 'ylabel'):
+        if self._params.ylabel is not None:
             ax.set_ylabel(self._params.ylabel, labelpad=self._params.ylabelpad, loc=self._params.yloc)
-        if hasattr(self._params, 'title'):
+        if self._params.title is not None:
             ax.set_title(self._params.title, fontdict=None, loc=self._params.titleloc, 
                          pad=self._params.titlepad, y=self._params.titley)
-        if hasattr(self._params, 'axis'):
+        if self._params.axis is not None:
             ax.axis(self._params.axis)
-        if hasattr(self._params, 'legendloc'):
+        if self._params.legendloc is not None:
             ax.legend(loc=self._params.legendloc)
-        return fig.show()
+        return fig
         
         
