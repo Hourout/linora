@@ -1,8 +1,6 @@
-from collections import defaultdict
-
 import numpy as np
 import matplotlib.pyplot as plt
-from linora.utils._config import Config
+
 from linora.chart._base import Coordinate
 
 __all__ = ['Line']
