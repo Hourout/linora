@@ -3,13 +3,14 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 from linora.utils._config import Config
+from linora.chart._base import Coordinate
 
 __all__ = ['Line']
 
 
-class Line():
+class Line(Coordinate):
     def __init__(self, *args, **kwargs):
-        self._init()
+        super(Line, self).__init__()
         if len(args)!=0:
             if isinstance(args[0], dict):
                 for i,j in args[0].items():
@@ -17,36 +18,72 @@ class Line():
         if kwargs:
             for i,j in kwargs.items():
                 setattr(self._params, i, j)
-
-    def _init(self):
-        self._params = Config()
-        self._params.ydata = defaultdict(defaultdict)
-        
-        self._params.theme = 'seaborn-whitegrid'
-        self._params.figsize = (10, 6)
-        self._params.dpi = None
-        self._params.facecolor = None
-        self._params.edgecolor = None
-        self._params.frameon = True
-        self._params.clear = False
-        
-        self._params.axis = None
-        
-        self._params.xlabel = None
-        self._params.xloc = None
-        self._params.xlabelpad = None
-        self._params.ylabel = None
-        self._params.yloc = None
-        self._params.ylabelpad = None
-        
-        self._params.legendloc = 'best'
-        
-        self._params.title = None
-        self._params.titleloc = None
-        self._params.titlepad = None
-        self._params.titley = None
     
-    def add_data(self, name, xdata, ydata, linestyle='-', linecolor=None, linewidth=1):
+    def add_data(self, name, xdata, ydata, linestyle=None, linecolor=None, linewidth=None,
+                 marker=None, markersize=None, markeredgewidth=None, markeredgecolor=None, 
+                 markerfacecolor=None, markerfacecoloralt='none', markevery=None,
+                 fillstyle=None, antialiased=None, drawstyle=None, 
+                 dash_capstyle=None, solid_capstyle=None, dash_joinstyle=None, solid_joinstyle=None, 
+                ):
+        """Plot y versus x as lines and/or markers.
+        
+        Args:
+            name: data name.
+            xdata: x-axis data.
+            ydata: y-axis data.
+            linestyle: line style, {'-', '--', '-.', ':'}.
+                       '-' or 'solid': solid line
+                       '--' or 'dashed': dashed line
+                       '-.' or 'dashdot': dash-dotted line
+                       ':' or 'dotted': dotted line
+                       'none', 'None', ' ', or '': draw nothing
+            linecolor: line color, eg. 'blue' or '0.75' or 'g' or '#FFDD44' or (1.0,0.2,0.3) or 'chartreuse'.
+            linewidth: line width.
+            drawstyle: Set the drawstyle of the plot. The drawstyle determines how the points are connected.
+                       {'default', 'steps', 'steps-pre', 'steps-mid', 'steps-post'}.
+                       'default': the points are connected with straight lines.
+                       'steps-pre': The step is at the beginning of the line segment.
+                       'steps-mid': The step is halfway between the points.
+                       'steps-post: The step is at the end of the line segment.
+                       'steps': is equal to 'steps-pre' and is maintained for backward-compatibility.
+            dash_capstyle: Define how the two endpoints (caps) of an unclosed line are drawn.
+                           {'butt', 'projecting', 'round'}
+                           'butt': the line is squared off at its endpoint.
+                           'projecting': the line is squared off as in butt, 
+                                         but the filled in area extends beyond the endpoint a distance of linewidth/2.
+                           'round': like butt, but a semicircular cap is added to the end of the line, of radius linewidth/2.
+            dash_joinstyle: Define how the connection between two line segments is drawn.
+                            {'miter', 'round', 'bevel'}
+                            'miter': the "arrow-tip" style. Each boundary of the filled-in area will extend 
+                                     in a straight line parallel to the tangent vector of the centerline at 
+                                     the point it meets the corner, until they meet in a sharp point.
+                            'round': stokes every point within a radius of linewidth/2 of the center lines.
+                            'bevel': the "squared-off" style. It can be thought of as a rounded corner where 
+                                     the "circular" part of the corner has been cut off.
+            fillstyle: {'full', 'left', 'right', 'bottom', 'top', 'none'}
+                       'full': Fill the whole marker with the markerfacecolor.
+                       'left', 'right', 'bottom', 'top': Fill the marker half at the given side with the markerfacecolor. 
+                                                         The other half of the marker is filled with markerfacecoloralt.
+                       'none': No filling.
+            marker: marker style string, 
+                    {'.': 'point', ',': 'pixel', 'o': 'circle', 'v': 'triangle_down', '^': 'triangle_up', 
+                    '<': 'triangle_left', '>': 'triangle_right', '1': 'tri_down', '2': 'tri_up', '3': 'tri_left', 
+                    '4': 'tri_right', '8': 'octagon', 's': 'square', 'p': 'pentagon', '*': 'star', 'h': 'hexagon1', 
+                    'H': 'hexagon2', '+': 'plus', 'x': 'x', 'D': 'diamond', 'd': 'thin_diamond', '|': 'vline', 
+                    '_': 'hline', 'P': 'plus_filled', 'X': 'x_filled', 0: 'tickleft', 1: 'tickright', 2: 'tickup', 
+                    3: 'tickdown', 4: 'caretleft', 5: 'caretright', 6: 'caretup', 7: 'caretdown', 8: 'caretleftbase', 
+                    9: 'caretrightbase', 10: 'caretupbase', 11: 'caretdownbase', 
+                    'None': 'nothing', None: 'nothing', ' ': 'nothing', '': 'nothing'}
+            markeredgecolor: color
+            markeredgewidth: float
+            markerfacecolor: color
+            markerfacecoloralt: color
+            markersize: float
+            markevery: None or int or (int, int) or slice or list[int] or float or (float, float) or list[bool]
+            solid_capstyle: {'butt', 'projecting', 'round'}
+            solid_joinstyle: {'miter', 'round', 'bevel'}
+            antialiased: Set whether to use antialiased rendering.
+        """
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['linestyle'] = linestyle
@@ -56,200 +93,23 @@ class Line():
         elif isinstance(linecolor, dict):
             linecolor = linecolor['mode']
         self._params.ydata[name]['linecolor'] = linecolor
-        return self
-    
-    def set_axis(self, axis=None, xmin=None, xmax=None, ymin=None, ymax=None):
-        """Convenience method to get or set some axis properties.
-        
-            axis: bool or str, If a bool, turns axis lines and labels on or off. 
-                  If a string, possible values are:
-                    ======== ==========================================================
-                    Value    Description
-                    ======== ==========================================================
-                    'on'     Turn on axis lines and labels. Same as ``True``.
-                    'off'    Turn off axis lines and labels. Same as ``False``.
-                    'equal'  Set equal scaling (i.e., make circles circular) by
-                             changing axis limits. This is the same as
-                             ``ax.set_aspect('equal', adjustable='datalim')``.
-                             Explicit data limits may not be respected in this case.
-                    'scaled' Set equal scaling (i.e., make circles circular) by
-                             changing dimensions of the plot box. This is the same as
-                             ``ax.set_aspect('equal', adjustable='box', anchor='C')``.
-                             Additionally, further autoscaling will be disabled.
-                    'tight'  Set limits just large enough to show all data, then
-                             disable further autoscaling.
-                    'auto'   Automatic scaling (fill plot box with data).
-                    'image'  'scaled' with axis limits equal to data limits.
-                    'square' Square plot; similar to 'scaled', but initially forcing
-                             ``xmax-xmin == ymax-ymin``.
-                    ======== ==========================================================
-                    if axis is set, other parameters are invalid.
-            xmin: float, The left xlim in data coordinates.
-            xmax: float, The right xlim in data coordinates.
-            ymin: float, The bottom ylim in data coordinates.
-            ymax: float, The top ylim in data coordinates.
-        """
-        if axis is not None:
-            self._params.axis = axis
-        elif xmin is not None or xmax is not None or ymin is not None or ymax is not None:
-            self._params.axis = [xmin, xmax, ymin, ymax]
-        else:
-            raise ValueError("params is not None.")
-        return self
-    
-    def set_label(self, xlabel=None, ylabel=None, xloc=None, yloc=None, xlabelpad=None, ylabelpad=None):
-        """Set the label for the x-axis and y-axis.
-        
-        Args:
-            xlabel : str, The label text.
-            ylabel : str, The label text.
-            xloc : {'bottom', 'center', 'top'}, The label position.
-            yloc : {'bottom', 'center', 'top'}, The label position.
-            xlabelpad : float, Spacing in points from the axes bounding box including ticks and tick labels.
-            ylabelpad : float, Spacing in points from the axes bounding box including ticks and tick labels.
-        """
-        if xlabel is not None:
-            self._params.xlabel = xlabel
-            self._params.xloc = xloc
-            self._params.xlabelpad = xlabelpad
-        if ylabel is not None:
-            self._params.ylabel = ylabel
-            self._params.yloc = yloc
-            self._params.ylabelpad = ylabelpad
-        return self
-    
-    def set_legend(self, legendloc='best'):
-        """Place a legend on the Axes.
-        
-        Args:
-            legendloc: str or pair of floats, The location of the legend.
-                      The strings ``'upper left', 'upper right', 'lower left', 'lower right'``
-                      place the legend at the corresponding corner of the axes/figure.
-                      
-                      The strings ``'upper center', 'lower center', 'center left', 'center right'``
-                      place the legend at the center of the corresponding edge of the axes/figure.
-                      The string ``'center'`` places the legend at the center of the axes/figure.
-
-                      The string ``'best'`` places the legend at the location, among the nine
-                      locations defined so far, with the minimum overlap with other drawn artists.  
-                      This option can be quite slow for plots with large amounts of data; 
-                      your plotting speed may benefit from providing a specific location.
-
-                      The location can also be a 2-tuple giving the coordinates of the lower-left
-                      corner of the legend in axes coordinates (in which case *bbox_to_anchor*
-                      will be ignored).
-            fontsize: int or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
-                      The font size of the legend. If the value is numeric the size will be the absolute 
-                      font size in points. String values are relative to the current default font size.
-
-            
-
-numpoints: int, The number of marker points in the legend when creating a legend.
-markerscale: float, The relative size of legend markers compared with the originally drawn ones.
-markerfirst: bool, default: True
-            If *True*, legend marker is placed to the left of the legend label.
-            If *False*, legend marker is placed to the right of the legend label.
-
-frameon : bool, Whether the legend should be drawn on a patch (frame).
-
-fancybox : bool, Whether round edges should be enabled around the `~.FancyBboxPatch` which
-    makes up the legend's background.
-
-shadow : bool, Whether to draw a shadow behind the legend.
-
-framealpha : float, The alpha transparency of the legend's background.
-             If *shadow* is activated and *framealpha* is ``None``, the default value is ignored.
-
-facecolor : "inherit" or color, default: :rc:`legend.facecolor`
-    The legend's background color.
-    If ``"inherit"``, use :rc:`axes.facecolor`.
-
-edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
-    The legend's background patch edge color.
-    If ``"inherit"``, use take :rc:`axes.edgecolor`.
-
-mode : {"expand", None}
-    If *mode* is set to ``"expand"`` the legend will be horizontally
-    expanded to fill the axes area (or *bbox_to_anchor* if defines
-    the legend's size).
-
-bbox_transform : None or `matplotlib.transforms.Transform`
-    The transform for the bounding box (*bbox_to_anchor*). For a value
-    of ``None`` (default) the Axes'
-    :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
-
-title : str or None, The legend's title. Default is no title (``None``).
-title_fontsize: int or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
-                The font size of the legend's title.
-borderpad : float, The fractional whitespace inside the legend border, in font-size units.
-labelspacing : float, The vertical space between the legend entries, in font-size units.
-handlelength : float, The length of the legend handles, in font-size units.
-handletextpad : float, The pad between the legend handle and text, in font-size units.
-borderaxespad : float, The pad between the axes and legend border, in font-size units.
-columnspacing : float, The spacing between columns, in font-size units.
-
-handler_map : dict or None
-    The custom dictionary mapping instances or types to a legend
-    handler. This *handler_map* updates the default handler map
-    found at `matplotlib.legend.Legend.get_legend_handler_map`.
-
-                      
-        """
-        self._params.legendloc = legendloc
+        self._params.ydata[name]['marker'] = marker
+        self._params.ydata[name]['markersize'] = markersize
+        self._params.ydata[name]['markeredgewidth'] = markeredgewidth
+        self._params.ydata[name]['markeredgecolor'] = markeredgecolor
+        self._params.ydata[name]['markerfacecolor'] = markerfacecolor
+        self._params.ydata[name]['markerfacecoloralt'] = markerfacecoloralt
+        self._params.ydata[name]['markevery'] = markevery
+        self._params.ydata[name]['fillstyle'] = fillstyle
+        self._params.ydata[name]['drawstyle'] = drawstyle
+        self._params.ydata[name]['dash_capstyle'] = dash_capstyle
+        self._params.ydata[name]['solid_capstyle'] = solid_capstyle
+        self._params.ydata[name]['dash_joinstyle'] = dash_joinstyle
+        self._params.ydata[name]['solid_joinstyle'] = solid_joinstyle
+        self._params.ydata[name]['antialiased'] = antialiased
         return self
         
-    def set_title(self, title, titleloc=None, titlepad=None, titley=None):
-        """Set a title for the Axes.
-        
-        Args:
-            title: str, Text to use for the title.
-
-            fontdict : dict
-                A dictionary controlling the appearance of the title text,
-                the default *fontdict* is::
-
-                   {'fontsize': rcParams['axes.titlesize'],
-                    'fontweight': rcParams['axes.titleweight'],
-                    'color': rcParams['axes.titlecolor'],
-                    'verticalalignment': 'baseline',
-                    'horizontalalignment': loc}
-
-            titleloc : {'center', 'left', 'right'}, Which title to set.
-            titlepad : float, The offset of the title from the top of the Axes, in points.
-            titley : float, Vertical Axes loation for the title (1.0 is the top).
-                     If None (the default), y is determined automatically to avoid decorators on the Axes.
-        """
-        self._params.title = title
-        self._params.titleloc = titleloc
-        self._params.titlepad = titlepad
-        self._params.titley = titley
-        return self
-        
-    def set_theme(self, theme=None, width=10, height=6, dpi=None, 
-                  facecolor=None, edgecolor=None, frameon=True, clear=False):
-        """Create a new figure, or activate an existing figure.
-        
-        Args:
-            theme: str, figure theme.
-            width: float, figure size width in inches.
-            height: float, figure size height in inches.
-            dpi: float, The resolution of the figure in dots-per-inch.
-            facecolor: color, The background color.
-            edgecolor: color, The border color.
-            frameon: bool, default: True, If False, suppress drawing the figure frame.
-            clear: bool, default: False, If True and the figure already exists, then it is cleared.
-        """
-        if theme is not None:
-            self._params.theme = theme
-        self._params.figsize = (width, height)
-        self._params.dpi = dpi
-        self._params.facecolor = facecolor
-        self._params.edgecolor = edgecolor
-        self._params.frameon = frameon
-        self._params.clear = clear
-        return self
-        
-    def show(self):
+    def render(self):
         return self._execute().show()
     
     def _execute(self):
@@ -263,7 +123,13 @@ handler_map : dict or None
             ax = fig.add_subplot()
         for i,j in self._params.ydata.items():
             ax.plot(j['xdata'], j['ydata'], label=i, 
-                    linestyle=j['linestyle'], color=j['linecolor'], linewidth=j['linewidth'])
+                    linestyle=j['linestyle'], color=j['linecolor'], linewidth=j['linewidth'], 
+                    marker=j['marker'], markersize=j['markersize'], markeredgewidth=j['markeredgewidth'], 
+                    markeredgecolor=j['markeredgecolor'], markerfacecolor=j['markerfacecolor'], 
+                    markerfacecoloralt=j['markerfacecoloralt'], markevery=j['markevery'],
+                    fillstyle=j['fillstyle'], drawstyle=j['drawstyle'], antialiased=j['antialiased'],
+                    dash_capstyle=j['dash_capstyle'], solid_capstyle=j['solid_capstyle'], 
+                    dash_joinstyle=j['dash_joinstyle'], solid_joinstyle=j['solid_joinstyle'])
         if self._params.xlabel is not None:
             ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
         if self._params.ylabel is not None:
@@ -276,5 +142,3 @@ handler_map : dict or None
         if self._params.legendloc is not None:
             ax.legend(loc=self._params.legendloc)
         return fig
-        
-        
