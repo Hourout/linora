@@ -90,7 +90,15 @@ class Scatter(Coordinate):
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['pointsize'] = pointsize
-        self._params.ydata[name]['pointcolor'] = pointcolor
+        if pointcolor is None:
+            color = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
+            pointcolor = None
+        elif isinstance(pointcolor, dict):
+            color = pointcolor['mode']
+            pointcolor = None
+        else:
+            color = pointcolor
+        self._params.ydata[name]['pointcolor'] = color
         self._params.ydata[name]['marker'] = marker
         self._params.ydata[name]['cmap'] = 'viridis' if cmap is None else cmap
         self._params.ydata[name]['norm'] = norm
@@ -100,7 +108,7 @@ class Scatter(Coordinate):
         self._params.ydata[name]['linewidths'] = linewidths
         self._params.ydata[name]['edgecolors'] = edgecolors
         self._params.ydata[name]['plotnonfinite'] = plotnonfinite
-        if pointsize is not None or pointcolor is not None or not self._params.set_label:
+        if pointcolor is not None or not self._params.set_label:
             self._params.set_label = False
         self._params.colorbar.add('viridis' if cmap is None else cmap)
         return self
@@ -130,7 +138,7 @@ class Scatter(Coordinate):
                         edgecolors=j['edgecolors'],
                         plotnonfinite=j['plotnonfinite'],)
             ax_plot.set_label(i)
-            if j['pointsize'] is not None or j['pointcolor'] is not None:
+            if not self._params.set_label:
                 if len(self._params.colorbar)>0:
                     fig.colorbar(ax_plot)
                     self._params.colorbar.remove(j['cmap'])
