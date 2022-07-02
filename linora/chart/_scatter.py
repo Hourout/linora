@@ -15,6 +15,8 @@ class Scatter(Coordinate):
         if kwargs:
             for i,j in kwargs.items():
                 setattr(self._params, i, j)
+        self._params.set_label = True
+        self._params.colorbar = set()
     
     def add_data(self, name, xdata, ydata, pointsize=None, pointcolor=None, marker=None,
                  cmap=None, norm=None, vmin=None, vmax=None, alpha=None, linewidths=None,
@@ -90,7 +92,7 @@ class Scatter(Coordinate):
         self._params.ydata[name]['pointsize'] = pointsize
         self._params.ydata[name]['pointcolor'] = pointcolor
         self._params.ydata[name]['marker'] = marker
-        self._params.ydata[name]['cmap'] = cmap
+        self._params.ydata[name]['cmap'] = 'viridis' if cmap is None else cmap
         self._params.ydata[name]['norm'] = norm
         self._params.ydata[name]['vmin'] = vmin
         self._params.ydata[name]['vmax'] = vmax
@@ -98,6 +100,9 @@ class Scatter(Coordinate):
         self._params.ydata[name]['linewidths'] = linewidths
         self._params.ydata[name]['edgecolors'] = edgecolors
         self._params.ydata[name]['plotnonfinite'] = plotnonfinite
+        if pointsize is not None or pointcolor is not None or not self._params.set_label:
+            self._params.set_label = False
+        self._params.colorbar.add('viridis' if cmap is None else cmap)
         return self
         
     def show(self):
@@ -124,7 +129,11 @@ class Scatter(Coordinate):
                         linewidths=j['linewidths'],
                         edgecolors=j['edgecolors'],
                         plotnonfinite=j['plotnonfinite'],)
-            fig.colorbar(ax_plot)
+            ax_plot.set_label(i)
+            if j['pointsize'] is not None or j['pointcolor'] is not None:
+                if len(self._params.colorbar)>0:
+                    fig.colorbar(ax_plot)
+                    self._params.colorbar.remove(j['cmap'])
         if self._params.xlabel is not None:
             ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
         if self._params.ylabel is not None:
@@ -134,7 +143,7 @@ class Scatter(Coordinate):
                          pad=self._params.titlepad, y=self._params.titley)
         if self._params.axis is not None:
             ax.axis(self._params.axis)
-#         if self._params.legendloc is not None:
-#             ax.legend(loc=self._params.legendloc)
+        if self._params.set_label:
+            ax.legend(loc=self._params.legendloc)
         
         return fig
