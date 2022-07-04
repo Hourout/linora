@@ -3,5 +3,6 @@
 
 from linora.chart._config import *
 
+from linora.chart._errorbar import *
 from linora.chart._line import *
 from linora.chart._scatter import *

@@ -113,8 +113,7 @@ class Scatter(Coordinate):
         self._params.colorbar.add('viridis' if cmap is None else cmap)
         return self
         
-    def show(self):
-        
+    def render(self):
         return self._execute().show()
     
     def _execute(self):
