@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 
 from linora.chart._base import Coordinate
 
-__all__ = ['Hist']
+__all__ = ['Hist2d']
 
 
-class Hist(Coordinate):
+class Hist2d(Coordinate):
     def __init__(self, *args, **kwargs):
-        super(Hist, self).__init__()
+        super(Hist2d, self).__init__()
         if len(args)!=0:
             if isinstance(args[0], dict):
                 for i,j in args[0].items():
@@ -17,7 +17,7 @@ class Hist(Coordinate):
             for i,j in kwargs.items():
                 setattr(self._params, i, j)
 
-    def add_data(self, name, xdata, **kwargs):
+    def add_data(self, name, xdata, ydata, **kwargs):
         """A scatter plot of *y* vs. *x* with varying marker size and/or color.
         
         Args:
@@ -26,11 +26,8 @@ class Hist(Coordinate):
             
         """
         self._params.ydata[name]['x'] = xdata
+        self._params.ydata[name]['y'] = ydata
         self._params.ydata[name].update(kwargs)
-        if 'color' not in kwargs:
-            self._params.ydata[name]['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
-        elif isinstance(kwargs['color'], dict):
-            self._params.ydata[name]['color'] = color['mode']
         return self
         
     def render(self):
@@ -46,7 +43,7 @@ class Hist(Coordinate):
                              clear=self._params.clear)
             ax = fig.add_subplot()
         for i,j in self._params.ydata.items():
-            ax_plot = ax.hist(**j)
+            ax_plot = ax.hist2d(**j)
 #             print(ax_plot)
 #             ax_plot[2].set_label(i)
         if self._params.xlabel is not None:
