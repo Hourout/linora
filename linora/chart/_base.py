@@ -32,6 +32,9 @@ class Coordinate():
         self._params.titlepad = None
         self._params.titley = None
         
+    def render(self):
+        return self._execute().show()
+    
     def set_axis(self, axis=None, xmin=None, xmax=None, ymin=None, ymax=None):
         """Convenience method to get or set some axis properties.
         
@@ -93,7 +96,7 @@ class Coordinate():
             self._params.ylabelpad = ylabelpad
         return self
     
-    def set_legend(self, legendloc='best'):
+    def set_legend(self, legendloc='best', **kwargs):
         """Place a legend on the Axes.
         
         Args:
@@ -171,6 +174,7 @@ handler_map : dict or None
                       
         """
         self._params.legendloc = legendloc
+#         self._params.legend
         return self
         
     def set_title(self, title, titleloc=None, titlepad=None, titley=None):
@@ -223,3 +227,5 @@ handler_map : dict or None
         self._params.frameon = frameon
         self._params.clear = clear
         return self
+    
+    
