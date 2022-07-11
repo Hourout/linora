@@ -193,9 +193,6 @@ errorevery : int or (int, int), default: 1
         self._params.ydata[name]['solid_joinstyle'] = solid_joinstyle
         self._params.ydata[name]['antialiased'] = antialiased
         return self
-        
-    def render(self):
-        return self._execute().show()
     
     def _execute(self):
         with plt.style.context(self._params.theme):

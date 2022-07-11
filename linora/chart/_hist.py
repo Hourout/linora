@@ -32,9 +32,6 @@ class Hist(Coordinate):
         elif isinstance(kwargs['color'], dict):
             self._params.ydata[name]['color'] = color['mode']
         return self
-        
-    def render(self):
-        return self._execute().show()
     
     def _execute(self):
         with plt.style.context(self._params.theme):

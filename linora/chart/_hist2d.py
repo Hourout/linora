@@ -29,9 +29,6 @@ class Hist2d(Coordinate):
         self._params.ydata[name]['y'] = ydata
         self._params.ydata[name].update(kwargs)
         return self
-        
-    def render(self):
-        return self._execute().show()
     
     def _execute(self):
         with plt.style.context(self._params.theme):
