@@ -62,15 +62,16 @@ class Line():
             solid_joinstyle: {'miter', 'round', 'bevel'}
             antialiased: Set whether to use antialiased rendering.
         """
-        self._params.ydata[name]['xdata'] = xdata
-        self._params.ydata[name]['ydata'] = ydata
         kwargs['label'] = name
         if 'linecolor' not in kwargs:
             kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
         else:
             if isinstance(kwargs['linecolor'], dict):
                 kwargs['color'] = kwargs['linecolor']['mode']
-            kwargs.pop('linecolor')
+            else:
+                kwargs['color'] = kwargs.pop('linecolor')
         self._params.ydata[name]['kwargs'] = kwargs
+        self._params.ydata[name]['xdata'] = xdata
+        self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['plotmode'] = 'line'
         return self

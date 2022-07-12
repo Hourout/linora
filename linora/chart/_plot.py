@@ -2,11 +2,12 @@ import matplotlib.pyplot as plt
 
 from linora.chart._base import Coordinate
 from linora.chart._line import Line
+from linora.chart._scatter import Scatter
 
 __all__ = ['Plot']
 
 
-class Plot(Coordinate, Line):
+class Plot(Coordinate, Line, Scatter):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__()
         if len(args)!=0:
@@ -31,8 +32,11 @@ class Plot(Coordinate, Line):
                 ax_plot = ax.plot(j['xdata'], j['ydata'], **j['kwargs'])
             elif j['plotmode']=='scatter':
                 ax_plot = ax.scatter(j['xdata'], j['ydata'], **j['kwargs'])
-#             print(ax_plot)
-#             ax_plot[2].set_label(i)
+                ax_plot.set_label(i)
+                if not self._params.set_label:
+                    if len(self._params.colorbar)>0:
+                        fig.colorbar(ax_plot)
+                        self._params.colorbar.remove(list(self._params.colorbar)[0])
         if self._params.xlabel is not None:
             ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
         if self._params.ylabel is not None:

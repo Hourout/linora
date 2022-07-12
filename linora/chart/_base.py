@@ -32,6 +32,9 @@ class Coordinate():
         self._params.titlepad = None
         self._params.titley = None
         
+        self._params.set_label = True
+        self._params.colorbar = set()
+        
     def render(self):
         return self._execute().show()
     

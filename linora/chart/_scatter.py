@@ -1,27 +1,8 @@
-import matplotlib.pyplot as plt
-
-from linora.chart._base import Coordinate
-
-__all__ = ['Scatter']
+import numpy as np
 
 
-class Scatter(Coordinate):
-    def __init__(self, *args, **kwargs):
-        super(Scatter, self).__init__()
-        if len(args)!=0:
-            if isinstance(args[0], dict):
-                for i,j in args[0].items():
-                    setattr(self._params, i, j)
-        if kwargs:
-            for i,j in kwargs.items():
-                setattr(self._params, i, j)
-        self._params.set_label = True
-        self._params.colorbar = set()
-    
-    def add_data(self, name, xdata, ydata, pointsize=None, pointcolor=None, marker=None,
-                 cmap=None, norm=None, vmin=None, vmax=None, alpha=None, linewidths=None,
-                 edgecolors=None, plotnonfinite=False
-                ):
+class Scatter():
+    def add_scatter(self, name, xdata, ydata, **kwargs):
         """A scatter plot of *y* vs. *x* with varying marker size and/or color.
         
         Args:
@@ -87,67 +68,23 @@ class Scatter(Coordinate):
                 colormap color (see `.Colormap.set_bad`).
 
         """
+        if 'pointsize' in kwargs:
+            kwargs['s'] = kwargs.pop('pointsize')
+        if 'pointcolor' not in kwargs:
+            kwargs['c'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
+        else:
+            if isinstance(kwargs['pointcolor'], dict):
+                kwargs['c'] = kwargs['pointcolor']['mode']
+            else:
+                kwargs['c'] = kwargs.pop('pointcolor')
+        self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
-        self._params.ydata[name]['pointsize'] = pointsize
-        if pointcolor is None:
-            color = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
-            pointcolor = None
-        elif isinstance(pointcolor, dict):
-            color = pointcolor['mode']
-            pointcolor = None
-        else:
-            color = pointcolor
-        self._params.ydata[name]['pointcolor'] = color
-        self._params.ydata[name]['marker'] = marker
-        self._params.ydata[name]['cmap'] = 'viridis' if cmap is None else cmap
-        self._params.ydata[name]['norm'] = norm
-        self._params.ydata[name]['vmin'] = vmin
-        self._params.ydata[name]['vmax'] = vmax
-        self._params.ydata[name]['alpha'] = alpha
-        self._params.ydata[name]['linewidths'] = linewidths
-        self._params.ydata[name]['edgecolors'] = edgecolors
-        self._params.ydata[name]['plotnonfinite'] = plotnonfinite
-        if pointcolor is not None or not self._params.set_label:
+        self._params.ydata[name]['plotmode'] = 'scatter'
+        
+        if 'pointcolor' not in kwargs or not self._params.set_label:
             self._params.set_label = False
-        self._params.colorbar.add('viridis' if cmap is None else cmap)
+        self._params.colorbar.add('viridis' if 'cmap' not in kwargs else not in kwargs['cmap'])
         return self
     
-    def _execute(self):
-        with plt.style.context(self._params.theme):
-            fig = plt.figure(figsize=self._params.figsize, 
-                             dpi=self._params.dpi, 
-                             facecolor=self._params.facecolor,
-                             edgecolor=self._params.edgecolor, 
-                             frameon=self._params.frameon, 
-                             clear=self._params.clear)
-            ax = fig.add_subplot()
-        for i,j in self._params.ydata.items():
-            ax_plot = ax.scatter(j['xdata'], j['ydata'], s=j['pointsize'], c=j['pointcolor'],
-                        marker=j['marker'],
-                        cmap=j['cmap'],
-                        norm=j['norm'],
-                        vmin=j['vmin'],
-                        vmax=j['vmax'],
-                        alpha=j['alpha'],
-                        linewidths=j['linewidths'],
-                        edgecolors=j['edgecolors'],
-                        plotnonfinite=j['plotnonfinite'],)
-            ax_plot.set_label(i)
-            if not self._params.set_label:
-                if len(self._params.colorbar)>0:
-                    fig.colorbar(ax_plot)
-                    self._params.colorbar.remove(j['cmap'])
-        if self._params.xlabel is not None:
-            ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
-        if self._params.ylabel is not None:
-            ax.set_ylabel(self._params.ylabel, labelpad=self._params.ylabelpad, loc=self._params.yloc)
-        if self._params.title is not None:
-            ax.set_title(self._params.title, fontdict=None, loc=self._params.titleloc, 
-                         pad=self._params.titlepad, y=self._params.titley)
-        if self._params.axis is not None:
-            ax.axis(self._params.axis)
-        if self._params.set_label:
-            ax.legend(loc=self._params.legendloc)
-        
-        return fig
+    
