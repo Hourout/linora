@@ -1,28 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
-
-from linora.chart._base import Coordinate
-
-__all__ = ['Line']
 
 
-class Line(Coordinate):
-    def __init__(self, *args, **kwargs):
-        super(Line, self).__init__()
-        if len(args)!=0:
-            if isinstance(args[0], dict):
-                for i,j in args[0].items():
-                    setattr(self._params, i, j)
-        if kwargs:
-            for i,j in kwargs.items():
-                setattr(self._params, i, j)
-    
-    def add_data(self, name, xdata, ydata, linestyle=None, linecolor=None, linewidth=None,
-                 marker=None, markersize=None, markeredgewidth=None, markeredgecolor=None, 
-                 markerfacecolor=None, markerfacecoloralt='none', markevery=None,
-                 fillstyle=None, antialiased=None, drawstyle=None, 
-                 dash_capstyle=None, solid_capstyle=None, dash_joinstyle=None, solid_joinstyle=None, 
-                ):
+class Line():
+    def add_line(self, name, xdata, ydata, **kwargs):
         """Plot y versus x as lines and/or markers.
         
         Args:
@@ -84,56 +64,13 @@ class Line(Coordinate):
         """
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
-        self._params.ydata[name]['linestyle'] = linestyle
-        self._params.ydata[name]['linewidth'] = linewidth
-        if linecolor is None:
-            linecolor = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
-        elif isinstance(linecolor, dict):
-            linecolor = linecolor['mode']
-        self._params.ydata[name]['linecolor'] = linecolor
-        self._params.ydata[name]['marker'] = marker
-        self._params.ydata[name]['markersize'] = markersize
-        self._params.ydata[name]['markeredgewidth'] = markeredgewidth
-        self._params.ydata[name]['markeredgecolor'] = markeredgecolor
-        self._params.ydata[name]['markerfacecolor'] = markerfacecolor
-        self._params.ydata[name]['markerfacecoloralt'] = markerfacecoloralt
-        self._params.ydata[name]['markevery'] = markevery
-        self._params.ydata[name]['fillstyle'] = fillstyle
-        self._params.ydata[name]['drawstyle'] = drawstyle
-        self._params.ydata[name]['dash_capstyle'] = dash_capstyle
-        self._params.ydata[name]['solid_capstyle'] = solid_capstyle
-        self._params.ydata[name]['dash_joinstyle'] = dash_joinstyle
-        self._params.ydata[name]['solid_joinstyle'] = solid_joinstyle
-        self._params.ydata[name]['antialiased'] = antialiased
+        kwargs['label'] = name
+        if 'linecolor' not in kwargs:
+            kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
+        else:
+            if isinstance(kwargs['linecolor'], dict):
+                kwargs['color'] = kwargs['linecolor']['mode']
+            kwargs.pop('linecolor')
+        self._params.ydata[name]['kwargs'] = kwargs
+        self._params.ydata[name]['plotmode'] = 'line'
         return self
-    
-    def _execute(self):
-        with plt.style.context(self._params.theme):
-            fig = plt.figure(figsize=self._params.figsize, 
-                             dpi=self._params.dpi, 
-                             facecolor=self._params.facecolor,
-                             edgecolor=self._params.edgecolor, 
-                             frameon=self._params.frameon, 
-                             clear=self._params.clear)
-            ax = fig.add_subplot()
-        for i,j in self._params.ydata.items():
-            ax.plot(j['xdata'], j['ydata'], label=i, 
-                    linestyle=j['linestyle'], color=j['linecolor'], linewidth=j['linewidth'], 
-                    marker=j['marker'], markersize=j['markersize'], markeredgewidth=j['markeredgewidth'], 
-                    markeredgecolor=j['markeredgecolor'], markerfacecolor=j['markerfacecolor'], 
-                    markerfacecoloralt=j['markerfacecoloralt'], markevery=j['markevery'],
-                    fillstyle=j['fillstyle'], drawstyle=j['drawstyle'], antialiased=j['antialiased'],
-                    dash_capstyle=j['dash_capstyle'], solid_capstyle=j['solid_capstyle'], 
-                    dash_joinstyle=j['dash_joinstyle'], solid_joinstyle=j['solid_joinstyle'])
-        if self._params.xlabel is not None:
-            ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
-        if self._params.ylabel is not None:
-            ax.set_ylabel(self._params.ylabel, labelpad=self._params.ylabelpad, loc=self._params.yloc)
-        if self._params.title is not None:
-            ax.set_title(self._params.title, fontdict=None, loc=self._params.titleloc, 
-                         pad=self._params.titlepad, y=self._params.titley)
-        if self._params.axis is not None:
-            ax.axis(self._params.axis)
-        if self._params.legendloc is not None:
-            ax.legend(loc=self._params.legendloc)
-        return fig
