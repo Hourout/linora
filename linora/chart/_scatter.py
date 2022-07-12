@@ -84,7 +84,7 @@ class Scatter():
         
         if 'pointcolor' not in kwargs or not self._params.set_label:
             self._params.set_label = False
-        self._params.colorbar.add('viridis' if 'cmap' not in kwargs else not in kwargs['cmap'])
+        self._params.colorbar.add('viridis' if 'cmap' not in kwargs else kwargs['cmap'])
         return self
     
     
