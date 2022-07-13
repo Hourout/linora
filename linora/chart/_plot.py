@@ -33,10 +33,10 @@ class Plot(Coordinate, Line, Scatter):
             elif j['plotmode']=='scatter':
                 ax_plot = ax.scatter(j['xdata'], j['ydata'], **j['kwargs'])
                 ax_plot.set_label(i)
-                if not self._params.set_label:
-                    if len(self._params.colorbar)>0:
-                        fig.colorbar(ax_plot)
-                        self._params.colorbar.remove(list(self._params.colorbar)[0])
+#                 if not self._params.set_label:
+#                     if len(self._params.colorbar)>0:
+#                         fig.colorbar(ax_plot)
+#                         self._params.colorbar.remove(list(self._params.colorbar)[0])
         if self._params.xlabel is not None:
             ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
         if self._params.ylabel is not None:
