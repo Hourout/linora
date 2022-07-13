@@ -4,11 +4,12 @@ from linora.chart._base import Coordinate
 from linora.chart._line import Line
 from linora.chart._scatter import Scatter
 from linora.chart._errorbar import Errorbar
+from linora.chart._fillline import Fillline
 
 __all__ = ['Plot']
 
 
-class Plot(Coordinate, Line, Scatter, Errorbar):
+class Plot(Coordinate, Line, Scatter, Errorbar, Fillline):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__()
         if len(args)!=0:
@@ -40,6 +41,9 @@ class Plot(Coordinate, Line, Scatter, Errorbar):
 #                         self._params.colorbar.remove(list(self._params.colorbar)[0])
             elif j['plotmode']=='errorbar':
                 ax_plot = ax.errorbar(j['xdata'], j['ydata'], **j['kwargs'])
+                ax_plot.set_label(i)
+            elif j['plotmode']=='fillline':
+                ax_plot = ax.fill_between(j['xdata'], j['ydata'], y2=j['ydata2'], **j['kwargs'])
                 ax_plot.set_label(i)
         if self._params.xlabel is not None:
             ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)

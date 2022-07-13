@@ -78,7 +78,7 @@ class Scatter():
             kwargs['c'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
         else:
             if isinstance(kwargs['pointcolor'], dict):
-                kwargs['c'] = kwargs['pointcolor']['mode']
+                kwargs['c'] = kwargs.pop('pointcolor')['mode']
             else:
                 kwargs['c'] = kwargs.pop('pointcolor')
         self._params.ydata[name]['kwargs'] = kwargs

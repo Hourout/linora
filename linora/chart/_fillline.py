@@ -1,32 +1,12 @@
 import numpy as np
-import matplotlib.pyplot as plt
-
-from linora.chart._base import Coordinate
-
-__all__ = ['Fillline']
 
 
-class Fillline(Coordinate):
-    def __init__(self, *args, **kwargs):
-        super(Fillline, self).__init__()
-        if len(args)!=0:
-            if isinstance(args[0], dict):
-                for i,j in args[0].items():
-                    setattr(self._params, i, j)
-        if kwargs:
-            for i,j in kwargs.items():
-                setattr(self._params, i, j)
-
-    def add_data(
-        self, 
-        name, 
-        xdata, 
-        ydata, 
-        ydata2=0,
-        where=None,
-        interpolate=False,
-        step=None,
-                 linestyle=None, fillcolor=None, linewidth=None,alpha=None
+class Fillline():
+    def add_fillline(self, name, xdata, ydata, ydata2=0, **kwargs
+#         where=None,
+#         interpolate=False,
+#         step=None,
+#                  linestyle=None, fillcolor=None, linewidth=None,alpha=None
                 ):
         """A scatter plot of *y* vs. *x* with varying marker size and/or color.
         
@@ -82,55 +62,14 @@ class Fillline(Coordinate):
             linewidth: line width.
             alpha:
         """
+        if 'fillcolor' not in kwargs:
+            kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
+        elif isinstance(kwargs['fillcolor'], dict):
+            kwargs['color'] = kwargs.pop('fillcolor')['mode']
+        else:
+            kwargs['color'] = kwargs.pop('fillcolor')
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['ydata2'] = ydata2
-        self._params.ydata[name]['where'] = where
-        self._params.ydata[name]['interpolate'] = interpolate
-        self._params.ydata[name]['step'] = step
-        
-        self._params.ydata[name]['linestyle'] = linestyle
-        self._params.ydata[name]['linewidth'] = linewidth
-        if fillcolor is None:
-            fillcolor = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
-        elif isinstance(fillcolor, dict):
-            fillcolor = fillcolor['mode']
-        self._params.ydata[name]['fillcolor'] = fillcolor
-        self._params.ydata[name]['alpha'] = alpha
+        self._params.ydata[name]['plotmode'] = 'fillline'
         return self
-    
-    def _execute(self):
-        with plt.style.context(self._params.theme):
-            fig = plt.figure(figsize=self._params.figsize, 
-                             dpi=self._params.dpi, 
-                             facecolor=self._params.facecolor,
-                             edgecolor=self._params.edgecolor, 
-                             frameon=self._params.frameon, 
-                             clear=self._params.clear)
-            ax = fig.add_subplot()
-        for i,j in self._params.ydata.items():
-            ax_plot = ax.fill_between(
-                j['xdata'], 
-                j['ydata'], 
-                y2=j['ydata2'],
-                where=j['where'],
-                interpolate=j['interpolate'],
-                step=j['step'],
-#                 linestyle=j['linestyle'], 
-                color=j['fillcolor'], 
-                linewidth=j['linewidth'],
-                alpha=j['alpha']
-            )
-            ax_plot.set_label(i)
-        if self._params.xlabel is not None:
-            ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
-        if self._params.ylabel is not None:
-            ax.set_ylabel(self._params.ylabel, labelpad=self._params.ylabelpad, loc=self._params.yloc)
-        if self._params.title is not None:
-            ax.set_title(self._params.title, fontdict=None, loc=self._params.titleloc, 
-                         pad=self._params.titlepad, y=self._params.titley)
-        if self._params.axis is not None:
-            ax.axis(self._params.axis)
-#         if self._params.legendloc is not None:
-#             ax.legend(loc=self._params.legendloc)  
-        return fig
