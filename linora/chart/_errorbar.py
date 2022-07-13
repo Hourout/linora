@@ -1,46 +1,25 @@
 import numpy as np
-import matplotlib.pyplot as plt
-
-from linora.chart._base import Coordinate
 
 
-__all__ = ['Errorbar']
-
-
-class Errorbar(Coordinate):
-    def __init__(self, *args, **kwargs):
-        super(Errorbar, self).__init__()
-        if len(args)!=0:
-            if isinstance(args[0], dict):
-                for i,j in args[0].items():
-                    setattr(self._params, i, j)
-        if kwargs:
-            for i,j in kwargs.items():
-                setattr(self._params, i, j)
-
-    
-    def add_data(
-        self, 
-        name, 
-        xdata, 
-        ydata, 
-        yerr=None, 
-        xerr=None, 
-        ecolor=None,
-        elinewidth=None, 
-        capsize=None,
-        barsabove=False,
-        lolims=False,
-        uplims=False,
-        xlolims=False,
-        xuplims=False,
-        errorevery=1,
-        capthick=None,
-                 linestyle=None, linecolor=None, linewidth=None,
-                 marker=None, markersize=None, markeredgewidth=None, markeredgecolor=None, 
-                 markerfacecolor=None, markevery=None,
-                 fillstyle=None, antialiased=None, drawstyle=None, 
-                 dash_capstyle=None, solid_capstyle=None, dash_joinstyle=None, solid_joinstyle=None
+class Errorbar():
+    def add_errorbar(self, name, xdata, ydata, **kwargs
+#         yerr=None, 
+#         xerr=None, 
+#         ecolor=None,
+#         elinewidth=None, 
+#         capsize=None,
+#         barsabove=False,
+#         lolims=False,
+#         uplims=False,
+#         xlolims=False,
+#         xuplims=False,
+#         errorevery=1,
+#         capthick=None,
+#                  linestyle=None, linecolor=None, linewidth=None,
+#                  marker=None, markersize=None, markeredgewidth=None, markeredgecolor=None, 
+#                  markerfacecolor=None, markevery=None,
+#                  fillstyle=None, antialiased=None, drawstyle=None, 
+#                  dash_capstyle=None, solid_capstyle=None, dash_joinstyle=None, solid_joinstyle=None
                 ):
         """A scatter plot of *y* vs. *x* with varying marker size and/or color.
         
@@ -157,94 +136,18 @@ errorevery : int or (int, int), default: 1
             solid_joinstyle: {'miter', 'round', 'bevel'}
             antialiased: Set whether to use antialiased rendering.
         """
+        if 'linecolor' not in kwargs:
+            kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
+        else:
+            if isinstance(kwargs['linecolor'], dict):
+                kwargs['color'] = kwargs.pop('linecolor')['mode']
+            else:
+                kwargs['color'] = kwargs.pop('linecolor')
+        if 'ecolor' not in kwargs:
+            kwargs['ecolor'] = 'lightgray' 
+        self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
-        self._params.ydata[name]['yerr'] = yerr
-        self._params.ydata[name]['xerr'] = xerr
-        self._params.ydata[name]['ecolor'] = 'lightgray' if ecolor is None else ecolor
-        self._params.ydata[name]['elinewidth'] = elinewidth
-        self._params.ydata[name]['capsize'] = capsize
-        self._params.ydata[name]['barsabove'] = barsabove
-        self._params.ydata[name]['lolims'] = lolims
-        self._params.ydata[name]['uplims'] = uplims
-        self._params.ydata[name]['xlolims'] = xlolims
-        self._params.ydata[name]['xuplims'] = xuplims
-        self._params.ydata[name]['errorevery'] = errorevery
-        self._params.ydata[name]['capthick'] = capthick
-        
-        self._params.ydata[name]['linestyle'] = linestyle
-        self._params.ydata[name]['linewidth'] = linewidth
-        if linecolor is None:
-            linecolor = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
-        elif isinstance(linecolor, dict):
-            linecolor = linecolor['mode']
-        self._params.ydata[name]['linecolor'] = linecolor
-        self._params.ydata[name]['marker'] = marker
-        self._params.ydata[name]['markersize'] = markersize
-        self._params.ydata[name]['markeredgewidth'] = markeredgewidth
-        self._params.ydata[name]['markeredgecolor'] = markeredgecolor
-        self._params.ydata[name]['markerfacecolor'] = markerfacecolor
-        self._params.ydata[name]['markevery'] = markevery
-        self._params.ydata[name]['fillstyle'] = fillstyle
-        self._params.ydata[name]['drawstyle'] = drawstyle
-        self._params.ydata[name]['dash_capstyle'] = dash_capstyle
-        self._params.ydata[name]['solid_capstyle'] = solid_capstyle
-        self._params.ydata[name]['dash_joinstyle'] = dash_joinstyle
-        self._params.ydata[name]['solid_joinstyle'] = solid_joinstyle
-        self._params.ydata[name]['antialiased'] = antialiased
+        self._params.ydata[name]['plotmode'] = 'errorbar'
         return self
     
-    def _execute(self):
-        with plt.style.context(self._params.theme):
-            fig = plt.figure(figsize=self._params.figsize, 
-                             dpi=self._params.dpi, 
-                             facecolor=self._params.facecolor,
-                             edgecolor=self._params.edgecolor, 
-                             frameon=self._params.frameon, 
-                             clear=self._params.clear)
-            ax = fig.add_subplot()
-        for i,j in self._params.ydata.items():
-            ax_plot = ax.errorbar(
-                j['xdata'], 
-                j['ydata'], 
-                yerr=j['yerr'], 
-                xerr=j['xerr'], 
-                ecolor=j['ecolor'],
-                elinewidth=j['elinewidth'], 
-                capsize=j['capsize'],
-                barsabove=j['barsabove'],
-                lolims=j['lolims'],
-                uplims=j['uplims'],
-                xlolims=j['xlolims'],
-                xuplims=j['xuplims'],
-                errorevery=j['errorevery'],
-                capthick=j['capthick'],
-                linestyle=j['linestyle'], 
-                color=j['linecolor'], 
-                linewidth=j['linewidth'], 
-                marker=j['marker'], 
-                markersize=j['markersize'], 
-                markeredgewidth=j['markeredgewidth'], 
-                markeredgecolor=j['markeredgecolor'], 
-                markerfacecolor=j['markerfacecolor'], 
-                markevery=j['markevery'],
-                fillstyle=j['fillstyle'], 
-                drawstyle=j['drawstyle'], 
-                antialiased=j['antialiased'],
-                dash_capstyle=j['dash_capstyle'], 
-                solid_capstyle=j['solid_capstyle'], 
-                dash_joinstyle=j['dash_joinstyle'], 
-                solid_joinstyle=j['solid_joinstyle'])
-            ax_plot.set_label(i)
-        if self._params.xlabel is not None:
-            ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
-        if self._params.ylabel is not None:
-            ax.set_ylabel(self._params.ylabel, labelpad=self._params.ylabelpad, loc=self._params.yloc)
-        if self._params.title is not None:
-            ax.set_title(self._params.title, fontdict=None, loc=self._params.titleloc, 
-                         pad=self._params.titlepad, y=self._params.titley)
-        if self._params.axis is not None:
-            ax.axis(self._params.axis)
-        if self._params.legendloc is not None:
-            ax.legend(loc=self._params.legendloc)        
-        return fig

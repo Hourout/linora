@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 from linora.chart._base import Coordinate
 from linora.chart._line import Line
 from linora.chart._scatter import Scatter
+from linora.chart._errorbar import Errorbar
 
 __all__ = ['Plot']
 
 
-class Plot(Coordinate, Line, Scatter):
+class Plot(Coordinate, Line, Scatter, Errorbar):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__()
         if len(args)!=0:
@@ -37,6 +38,9 @@ class Plot(Coordinate, Line, Scatter):
 #                     if len(self._params.colorbar)>0:
 #                         fig.colorbar(ax_plot)
 #                         self._params.colorbar.remove(list(self._params.colorbar)[0])
+            elif j['plotmode']=='errorbar':
+                ax_plot = ax.errorbar(j['xdata'], j['ydata'], **j['kwargs'])
+                ax_plot.set_label(i)
         if self._params.xlabel is not None:
             ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
         if self._params.ylabel is not None:
