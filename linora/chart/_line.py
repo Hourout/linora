@@ -67,7 +67,7 @@ class Line():
             kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
         else:
             if isinstance(kwargs['linecolor'], dict):
-                kwargs['color'] = kwargs['linecolor']['mode']
+                kwargs['color'] = kwargs.pop('linecolor')['mode']
             else:
                 kwargs['color'] = kwargs.pop('linecolor')
         self._params.ydata[name]['kwargs'] = kwargs
