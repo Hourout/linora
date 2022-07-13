@@ -68,6 +68,7 @@ class Fillline():
             kwargs['color'] = kwargs.pop('fillcolor')['mode']
         else:
             kwargs['color'] = kwargs.pop('fillcolor')
+        self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['ydata2'] = ydata2

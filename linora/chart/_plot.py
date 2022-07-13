@@ -5,11 +5,12 @@ from linora.chart._line import Line
 from linora.chart._scatter import Scatter
 from linora.chart._errorbar import Errorbar
 from linora.chart._fillline import Fillline
+from linora.chart._hist import Hist
 
 __all__ = ['Plot']
 
 
-class Plot(Coordinate, Line, Scatter, Errorbar, Fillline):
+class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__()
         if len(args)!=0:
@@ -45,6 +46,10 @@ class Plot(Coordinate, Line, Scatter, Errorbar, Fillline):
             elif j['plotmode']=='fillline':
                 ax_plot = ax.fill_between(j['xdata'], j['ydata'], y2=j['ydata2'], **j['kwargs'])
                 ax_plot.set_label(i)
+            elif j['plotmode']=='hist':
+                ax_plot = ax.hist(j['xdata'], **j['kwargs'])
+            elif j['plotmode']=='hist2d':
+                ax_plot = ax.hist(j['xdata'], j['ydata'], **j['kwargs'])
         if self._params.xlabel is not None:
             ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
         if self._params.ylabel is not None:
