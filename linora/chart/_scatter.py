@@ -68,6 +68,10 @@ class Scatter():
                 colormap color (see `.Colormap.set_bad`).
 
         """
+        if 'pointcolor' not in kwargs or not self._params.set_label:
+            self._params.set_label = False
+        self._params.colorbar.add('viridis' if 'cmap' not in kwargs else kwargs['cmap'])
+        
         if 'pointsize' in kwargs:
             kwargs['s'] = kwargs.pop('pointsize')
         if 'pointcolor' not in kwargs:
@@ -81,10 +85,6 @@ class Scatter():
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['plotmode'] = 'scatter'
-        
-        if 'pointcolor' not in kwargs or not self._params.set_label:
-            self._params.set_label = False
-        self._params.colorbar.add('viridis' if 'cmap' not in kwargs else kwargs['cmap'])
         return self
     
     
