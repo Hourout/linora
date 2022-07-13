@@ -6,11 +6,13 @@ from linora.chart._scatter import Scatter
 from linora.chart._errorbar import Errorbar
 from linora.chart._fillline import Fillline
 from linora.chart._hist import Hist
+from linora.chart._hist2d import Hist2d
+
 
 __all__ = ['Plot']
 
 
-class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist):
+class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist, Hist2d):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__()
         if len(args)!=0:
