@@ -59,7 +59,7 @@ class Grid():
                     t[0] = '0'
                 if t[1]=='':
                     t[1] = self._grid.grid['ncols']
-                grid_id[i] = [int(t[0]), int(t[1])+1]
+                grid_id[i] = [int(t[0]), int(t[1])]
             else:
                 grid_id[i] = [int(grid_id[i]), int(grid_id[i])+1]
         
