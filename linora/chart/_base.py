@@ -77,7 +77,7 @@ class Coordinate():
         else:
             raise ValueError("params is not None.")
         return self
-    
+        
     def set_label(self, xlabel=None, ylabel=None, xloc=None, yloc=None, xlabelpad=None, ylabelpad=None):
         """Set the label for the x-axis and y-axis.
         
@@ -207,8 +207,15 @@ handler_map : dict or None
         self._params.titley = titley
         return self
         
-    def set_theme(self, theme=None, width=10, height=6, dpi=None, 
-                  facecolor=None, edgecolor=None, frameon=True, clear=False):
+    def set_theme(self, theme):
+        """
+        Args:
+            theme: str, figure theme.
+        """
+        self._params.theme = theme
+        return self
+            
+    def set_figure(width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
         """Create a new figure, or activate an existing figure.
         
         Args:
@@ -221,8 +228,6 @@ handler_map : dict or None
             frameon: bool, default: True, If False, suppress drawing the figure frame.
             clear: bool, default: False, If True and the figure already exists, then it is cleared.
         """
-        if theme is not None:
-            self._params.theme = theme
         self._params.figsize = (width, height)
         self._params.dpi = dpi
         self._params.facecolor = facecolor

@@ -24,14 +24,18 @@ class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist, Hist2d):
                 setattr(self._params, i, j)
                 
     def _execute(self):
+        fig = plt.figure(figsize=self._params.figsize, 
+                         dpi=self._params.dpi, 
+                         facecolor=self._params.facecolor,
+                         edgecolor=self._params.edgecolor, 
+                         frameon=self._params.frameon, 
+                         clear=self._params.clear)
         with plt.style.context(self._params.theme):
-            fig = plt.figure(figsize=self._params.figsize, 
-                             dpi=self._params.dpi, 
-                             facecolor=self._params.facecolor,
-                             edgecolor=self._params.edgecolor, 
-                             frameon=self._params.frameon, 
-                             clear=self._params.clear)
             ax = fig.add_subplot()
+        ax = self._execute_ax(ax)
+        return fig
+            
+    def _execute_ax(self, ax):
         for i,j in self._params.ydata.items():
             if j['plotmode']=='line':
                 ax_plot = ax.plot(j['xdata'], j['ydata'], **j['kwargs'])
@@ -63,4 +67,4 @@ class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist, Hist2d):
             ax.axis(self._params.axis)
         if self._params.legendloc is not None:
             ax.legend(loc=self._params.legendloc)  
-        return fig
+        return ax
