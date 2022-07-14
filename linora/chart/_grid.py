@@ -50,13 +50,26 @@ class Grid():
         self._grid.grid_id = dict()
         
     def add_plot(self, grid_id, plot):
+        grid_id = grid_id.split(',')
+        assert len(grid_id)==2, '`grid_id` value error.'
+        for i in range(2):
+            if ':' in grid_id[i]:
+                t = grid_id[i].split(':')
+                if t[0]=='':
+                    t[0] = '0'
+                if t[1]=='':
+                    t[1] = self._grid.grid['ncols']
+                grid_id[i] = [int(t[0]), int(t[1])+1]
+            else:
+                grid_id[i] = [int(grid_id[i]), int(grid_id[i])+1]
+        
         self._grid.grid_id[len(self._grid.grid_id)] = {'grid_id':grid_id, 'plot':plot}        
         return self
         
     def render(self):
         return self._execute().show()
     
-    def set_figure(width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
+    def set_figure(self, width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
         """Create a new figure, or activate an existing figure.
         
         Args:
@@ -78,6 +91,7 @@ class Grid():
         grid = plt.GridSpec(**self._grid.grid)
         for i, grid_id in self._grid.grid_id.items():
             with plt.style.context(grid_id['plot']._params.theme):
-                ax = fig.add_subplot(grid_id['grid_id'])
+                ax = fig.add_subplot(grid[grid_id['grid_id'][0][0]:grid_id['grid_id'][0][1], 
+                                          grid_id['grid_id'][1][0]:grid_id['grid_id'][1][1]])
                 ax = grid_id['plot']._execute_ax(ax)
         return fig
