@@ -13,7 +13,7 @@ class Grid():
         Args:
             nrows, ncols : int
                 The number of rows and columns of the grid.
-
+                
             left, right, top, bottom : float, optional
                 Extent of the subplots as a fraction of figure width or height.
                 Left cannot be larger than right, and bottom cannot be larger than
@@ -50,6 +50,12 @@ class Grid():
         self._grid.grid_id = dict()
         
     def add_plot(self, grid_id, plot):
+        """Add la.chart.Plot object in designated area.
+        
+        Args:
+            grid_id: str, grid area.
+            plot: a la.chart.Plot object.
+        """
         grid_id = grid_id.split(',')
         assert len(grid_id)==2, '`grid_id` value error.'
         for i in range(2):
@@ -67,10 +73,11 @@ class Grid():
         return self
         
     def render(self):
+        """show plot."""
         return self._execute().show()
     
     def set_figure(self, width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
-        """Create a new figure, or activate an existing figure.
+        """Add figure config.
         
         Args:
             width: float, figure size width in inches.

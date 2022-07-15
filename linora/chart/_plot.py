@@ -24,12 +24,7 @@ class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist, Hist2d):
                 setattr(self._params, i, j)
                 
     def _execute(self):
-        fig = plt.figure(figsize=self._params.figsize, 
-                         dpi=self._params.dpi, 
-                         facecolor=self._params.facecolor,
-                         edgecolor=self._params.edgecolor, 
-                         frameon=self._params.frameon, 
-                         clear=self._params.clear)
+        fig = plt.figure(**self._params.figure)
         with plt.style.context(self._params.theme):
             ax = fig.add_subplot()
         ax = self._execute_ax(ax)
@@ -56,15 +51,14 @@ class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist, Hist2d):
                 ax_plot = ax.hist(j['xdata'], **j['kwargs'])
             elif j['plotmode']=='hist2d':
                 ax_plot = ax.hist(j['xdata'], j['ydata'], **j['kwargs'])
-        if self._params.xlabel is not None:
-            ax.set_xlabel(self._params.xlabel, labelpad=self._params.xlabelpad, loc=self._params.xloc)
-        if self._params.ylabel is not None:
-            ax.set_ylabel(self._params.ylabel, labelpad=self._params.ylabelpad, loc=self._params.yloc)
-        if self._params.title is not None:
-            ax.set_title(self._params.title, fontdict=None, loc=self._params.titleloc, 
-                         pad=self._params.titlepad, y=self._params.titley)
+        if self._params.xlabel['xlabel'] is not None:
+            ax.set_xlabel(**self._params.xlabel)
+        if self._params.ylabel['ylabel'] is not None:
+            ax.set_ylabel(**self._params.ylabel)
+        if self._params.title['label'] is not None:
+            ax.set_title(**self._params.title)
         if self._params.axis is not None:
             ax.axis(self._params.axis)
-        if self._params.legendloc is not None:
-            ax.legend(loc=self._params.legendloc)  
+        if self._params.legend['loc'] is not None:
+            ax.legend(**self._params.legend)  
         return ax

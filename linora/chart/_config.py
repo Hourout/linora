@@ -1,26 +1,10 @@
 import matplotlib.pyplot as plt
+
 from linora.utils._config import Config
 
 __all__ = ['Options']
 
-
-Options = Config()
-Options.theme = Config(**{i.replace('-', '_'):i for i in plt.style.available})
-
-Options.linestyle = Config(**{
-    'solid': '-', 
-    'dashed': '--', 
-    'dashdot': '-.', 
-    'dotted': ':'})
-Options.drawstyle = Config(**{
-    'steps': 'steps',
-    'steps_pre': 'steps-pre',
-    'steps_mid': 'steps-mid',
-    'steps_post': 'steps-post'})
-Options.dash_capstyle = Config(**{'butt': 'butt', 'projecting': 'projecting', 'round': 'round'})
-Options.dash_joinstyle = Config(**{'miter': 'miter', 'round': 'round', 'bevel': 'bevel'})
-Options.fillstyle = Config(**{'full': 'full', 'left': 'left', 'right': 'right', 'bottom': 'bottom', 'top': 'top'})
-Options.marker = Config(**{
+_marker = Config(**{
     'point': '.',
     'pixel': ',',
     'circle': 'o',
@@ -58,5 +42,56 @@ Options.marker = Config(**{
     'caretrightbase': 9,
     'caretupbase': 10,
     'caretdownbase': 11})
-Options.solid_capstyle = Config(**{'butt': 'butt', 'projecting': 'projecting', 'round': 'round'})
-Options.solid_joinstyle = Config(**{'miter': 'miter', 'round': 'round', 'bevel': 'bevel'})
+_xloc = Config(**{'left':'left', 'center':'center', 'right':'right'})
+_fontsize = Config(**{
+    'small_xx':'xx_small', 
+    'small_x':'x-small', 
+    'small':'small', 
+    'medium':'medium', 
+    'large':'large', 
+    'large_x':'x-large', 
+    'large_xx':'xx-large'})
+_fontweight = Config(**{
+    'book': 'book', 
+    'normal': 'normal',
+    'bold': 'bold',
+    'demi': 'demi',
+    'semibold': 'semibold',
+    'roman': 'roman',
+    'black': 'black',
+    'extra bold': 'extra bold',
+    'light': 'light',
+    'regular': 'regular',
+    'demibold': 'demibold',
+    'medium': 'medium',
+    'ultralight': 'ultralight',
+    'heavy': 'heavy'})
+_dash_capstyle = Config(**{'butt': 'butt', 'projecting': 'projecting', 'round': 'round'})
+_dash_joinstyle = Config(**{'miter': 'miter', 'round': 'round', 'bevel': 'bevel'})
+
+Options = Config()
+Options.theme = Config(**{i.replace('-', '_'):i for i in plt.style.available})
+Options.axis = Config(**{'on':'on', 'off':'off', 'equal':'equal', 'scaled':'scaled', 
+                         'tight':'tight', 'auto':'auto', 'image':'image', 'square':'square'})
+Options.label = Config()
+Options.label.xloc = _xloc
+Options.label.yloc = {'bottom':'bottom', 'center':'center', 'top':'top'}
+
+Options.title = Config()
+Options.title.titleloc = _xloc
+Options.title.titlesize = _fontsize
+# Options.title.titlecolor = 'auto', 
+Options.title.titlepad = 
+Options.title.titley = None, 
+Options.title.titleweight = _fontweight
+
+Options.line = Config()
+Options.line.linestyle = Config(**{'solid':'-', 'dashed':'--', 'dashdot':'-.', 'dotted':':'})
+Options.line.drawstyle = Config(**{'steps':'steps', 'steps_pre':'steps-pre', 'steps_mid':'steps-mid', 'steps_post':'steps-post'})
+Options.line.dash_capstyle = _dash_capstyle
+Options.line.dash_joinstyle = _dash_joinstyle
+Options.line.fillstyle = Config(**{'full': 'full', 'left': 'left', 'right': 'right', 'bottom': 'bottom', 'top': 'top'})
+Options.line.marker = _marker
+Options.line.solid_capstyle = _dash_capstyle
+Options.line.solid_joinstyle = _dash_joinstyle
+

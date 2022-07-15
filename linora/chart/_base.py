@@ -9,28 +9,17 @@ class Coordinate():
         self._params.ydata = defaultdict(defaultdict)
         
         self._params.theme = 'seaborn-whitegrid'
-        self._params.figsize = (10, 6)
-        self._params.dpi = None
-        self._params.facecolor = None
-        self._params.edgecolor = None
-        self._params.frameon = True
-        self._params.clear = False
+        
+        self._grid.figure = {'figsize':(10, 6)}
         
         self._params.axis = None
         
-        self._params.xlabel = None
-        self._params.xloc = None
-        self._params.xlabelpad = None
-        self._params.ylabel = None
-        self._params.yloc = None
-        self._params.ylabelpad = None
+        self._params.xlabel = {'xlabel':None}
+        self._params.ylabel = {'ylabel':None}
         
-        self._params.legendloc = 'best'
+        self._params.legend = {'loc':None}
         
-        self._params.title = None
-        self._params.titleloc = None
-        self._params.titlepad = None
-        self._params.titley = None
+        self._params.title = {'label':None}
         
         self._params.set_label = True
         self._params.colorbar = set()
@@ -84,41 +73,37 @@ class Coordinate():
         Args:
             xlabel : str, The label text.
             ylabel : str, The label text.
-            xloc : {'bottom', 'center', 'top'}, The label position.
+            xloc : {'left', 'center', 'right'}, The label position.
             yloc : {'bottom', 'center', 'top'}, The label position.
             xlabelpad : float, Spacing in points from the axes bounding box including ticks and tick labels.
             ylabelpad : float, Spacing in points from the axes bounding box including ticks and tick labels.
         """
         if xlabel is not None:
-            self._params.xlabel = xlabel
-            self._params.xloc = xloc
-            self._params.xlabelpad = xlabelpad
+            self._params.xlabel.update({'xlabel':xlabel, 'loc':xloc, 'labelpad':xlabelpad})
         if ylabel is not None:
-            self._params.ylabel = ylabel
-            self._params.yloc = yloc
-            self._params.ylabelpad = ylabelpad
+            self._params.ylabel.update({'ylabel':ylabel, 'loc':yloc, 'labelpad':ylabelpad})
         return self
     
-    def set_legend(self, legendloc='best', **kwargs):
+    def set_legend(self, loc='best', **kwargs):
         """Place a legend on the Axes.
         
         Args:
-            legendloc: str or pair of floats, The location of the legend.
-                      The strings ``'upper left', 'upper right', 'lower left', 'lower right'``
-                      place the legend at the corresponding corner of the axes/figure.
-                      
-                      The strings ``'upper center', 'lower center', 'center left', 'center right'``
-                      place the legend at the center of the corresponding edge of the axes/figure.
-                      The string ``'center'`` places the legend at the center of the axes/figure.
+            loc: str or pair of floats, The location of the legend.
+                The strings ``'upper left', 'upper right', 'lower left', 'lower right'``
+                place the legend at the corresponding corner of the axes/figure.
 
-                      The string ``'best'`` places the legend at the location, among the nine
-                      locations defined so far, with the minimum overlap with other drawn artists.  
-                      This option can be quite slow for plots with large amounts of data; 
-                      your plotting speed may benefit from providing a specific location.
+                The strings ``'upper center', 'lower center', 'center left', 'center right'``
+                place the legend at the center of the corresponding edge of the axes/figure.
+                The string ``'center'`` places the legend at the center of the axes/figure.
 
-                      The location can also be a 2-tuple giving the coordinates of the lower-left
-                      corner of the legend in axes coordinates (in which case *bbox_to_anchor*
-                      will be ignored).
+                The string ``'best'`` places the legend at the location, among the nine
+                locations defined so far, with the minimum overlap with other drawn artists.  
+                This option can be quite slow for plots with large amounts of data; 
+                your plotting speed may benefit from providing a specific location.
+
+                The location can also be a 2-tuple giving the coordinates of the lower-left
+                corner of the legend in axes coordinates (in which case *bbox_to_anchor*
+                will be ignored).
             fontsize: int or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
                       The font size of the legend. If the value is numeric the size will be the absolute 
                       font size in points. String values are relative to the current default font size.
@@ -176,35 +161,44 @@ handler_map : dict or None
 
                       
         """
-        self._params.legendloc = legendloc
-#         self._params.legend
+#         'legend.borderaxespad': 0.5,
+# 'legend.borderpad': 0.4,
+# 'legend.columnspacing': 2.0,
+# 'legend.edgecolor': '0.8',
+# 'legend.facecolor': 'inherit',
+# 'legend.fancybox': True,
+# 'legend.fontsize': 'medium',
+# 'legend.framealpha': 0.8,
+# 'legend.frameon': True,
+# 'legend.handleheight': 0.7,
+# 'legend.handlelength': 2.0,
+# 'legend.handletextpad': 0.8,
+# 'legend.labelspacing': 0.5,
+# 'legend.loc': 'best',
+# 'legend.markerscale': 1.0,
+# 'legend.numpoints': 1,
+# 'legend.scatterpoints': 1,
+# 'legend.shadow': False,
+# 'legend.title_fontsize': None,
+        kwargs['loc'] = legendloc
+        self._params.legend.update(kwargs)
         return self
         
-    def set_title(self, title, titleloc=None, titlepad=None, titley=None):
+    def set_title(self, title, titleloc='center', titlesize='large', titlecolor='auto', 
+                  titlepad=6., titley=None, titleweight='normal'):
         """Set a title for the Axes.
         
         Args:
             title: str, Text to use for the title.
-
-            fontdict : dict
-                A dictionary controlling the appearance of the title text,
-                the default *fontdict* is::
-
-                   {'fontsize': rcParams['axes.titlesize'],
-                    'fontweight': rcParams['axes.titleweight'],
-                    'color': rcParams['axes.titlecolor'],
-                    'verticalalignment': 'baseline',
-                    'horizontalalignment': loc}
-
             titleloc : {'center', 'left', 'right'}, Which title to set.
             titlepad : float, The offset of the title from the top of the Axes, in points.
             titley : float, Vertical Axes loation for the title (1.0 is the top).
-                     If None (the default), y is determined automatically to avoid decorators on the Axes.
+                     If None (the default), titley is determined automatically to avoid decorators on the Axes.
         """
-        self._params.title = title
-        self._params.titleloc = titleloc
-        self._params.titlepad = titlepad
-        self._params.titley = titley
+        kwargs = {'label':title, 'loc':titleloc, 'pad':titlepad, 'y':titley,
+                  'fontdict':{'fontsize':titlesize, 'fontweight':titleweight, 'color':titlecolor,
+                              'verticalalignment': 'baseline', 'horizontalalignment': titleloc}}
+        self._params.title = kwargs
         return self
         
     def set_theme(self, theme):
@@ -214,12 +208,11 @@ handler_map : dict or None
         """
         self._params.theme = theme
         return self
-            
-    def set_figure(width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
-        """Create a new figure, or activate an existing figure.
+    
+    def set_figure(self, width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
+        """Add figure config.
         
         Args:
-            theme: str, figure theme.
             width: float, figure size width in inches.
             height: float, figure size height in inches.
             dpi: float, The resolution of the figure in dots-per-inch.
@@ -228,12 +221,11 @@ handler_map : dict or None
             frameon: bool, default: True, If False, suppress drawing the figure frame.
             clear: bool, default: False, If True and the figure already exists, then it is cleared.
         """
-        self._params.figsize = (width, height)
-        self._params.dpi = dpi
-        self._params.facecolor = facecolor
-        self._params.edgecolor = edgecolor
-        self._params.frameon = frameon
-        self._params.clear = clear
+        kwargs = {'figsize':(width, height), 'dpi':dpi, 'facecolor':facecolor, 
+                  'edgecolor':edgecolor, 'frameon':frameon, 'clear':clear}
+        self._params.figure.update(kwargs)
         return self
+    
+
     
     
