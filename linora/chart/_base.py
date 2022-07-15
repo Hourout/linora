@@ -10,7 +10,7 @@ class Coordinate():
         
         self._params.theme = 'seaborn-whitegrid'
         
-        self._grid.figure = {'figsize':(10, 6)}
+        self._params.figure = {'figsize':(10, 6)}
         
         self._params.axis = None
         
