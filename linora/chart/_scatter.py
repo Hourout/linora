@@ -9,8 +9,8 @@ class Scatter():
             name: data name.
             xdata: x-axis data.
             ydata: y-axis data.
-            pointsize: float or array-like, shape (n, ), The marker size in points**2.
-            pointcolor: array-like or list of colors or color, optional
+            size: float or array-like, shape (n, ), The marker size in points**2.
+            color: array-like or list of colors or color, optional
                 The marker colors. Possible values:
 
                 - A scalar or sequence of n numbers to be mapped to colors using *cmap* and *norm*.
@@ -39,7 +39,7 @@ class Scatter():
                 3: 'tickdown', 4: 'caretleft', 5: 'caretright', 6: 'caretup', 7: 'caretdown', 8: 'caretleftbase', 
                 9: 'caretrightbase', 10: 'caretupbase', 11: 'caretdownbase', 
                 'None': 'nothing', None: 'nothing', ' ': 'nothing', '': 'nothing'}
-            cmap: {'viridis', 'jet'}. *cmap* is only used if *pointcolor* is an array of floats.
+            cmap: {'viridis', 'jet'}. *cmap* is only used if *color* is an array of floats.
             norm: If *c* is an array of floats, *norm* is used to scale the color data, 
                   *c*, in the range 0 to 1, in order to map into the colormap *cmap*.
             vmin, vmax : float, default: None
@@ -72,15 +72,15 @@ class Scatter():
 #             self._params.set_label = False
 #         self._params.colorbar.add('viridis' if 'cmap' not in kwargs else kwargs['cmap'])
         
-        if 'pointsize' in kwargs:
-            kwargs['s'] = kwargs.pop('pointsize')
-        if 'pointcolor' not in kwargs:
+        if 'size' in kwargs:
+            kwargs['s'] = kwargs.pop('size')
+        if 'color' not in kwargs:
             kwargs['c'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
         else:
-            if isinstance(kwargs['pointcolor'], dict):
-                kwargs['c'] = kwargs.pop('pointcolor')['mode']
+            if isinstance(kwargs['color'], dict):
+                kwargs['c'] = kwargs.pop('color')['mode']
             else:
-                kwargs['c'] = kwargs.pop('pointcolor')
+                kwargs['c'] = kwargs.pop('color')
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
