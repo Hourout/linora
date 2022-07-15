@@ -81,8 +81,8 @@ Options.title = Config()
 Options.title.titleloc = _xloc
 Options.title.titlesize = _fontsize
 # Options.title.titlecolor = 'auto', 
-Options.title.titlepad = 
-Options.title.titley = None, 
+# Options.title.titlepad = 
+# Options.title.titley = None, 
 Options.title.titleweight = _fontweight
 
 Options.line = Config()
