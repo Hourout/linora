@@ -15,9 +15,9 @@ class Line():
                 '-.' or 'dashdot': dash-dotted line
                 ':' or 'dotted': dotted line
                 'none', 'None', ' ', or '': draw nothing
-            color: line color, eg. 'blue' or '0.75' or 'g' or '#FFDD44' or (1.0,0.2,0.3) or 'chartreuse'.
+            linecolor: line color, eg. 'blue' or '0.75' or 'g' or '#FFDD44' or (1.0,0.2,0.3) or 'chartreuse'.
             linewidth: line width.
-            drawstyle: Set the drawstyle of the plot. The drawstyle determines how the points are connected.
+            linelink: Set the drawstyle of the plot. The drawstyle determines how the points are connected.
                 {'default', 'steps', 'steps-pre', 'steps-mid', 'steps-post'}.
                 'default': the points are connected with straight lines.
                 'steps-pre': The step is at the beginning of the line segment.
@@ -38,7 +38,7 @@ class Line():
                 'round': stokes every point within a radius of linewidth/2 of the center lines.
                 'bevel': the "squared-off" style. It can be thought of as a rounded corner where 
                          the "circular" part of the corner has been cut off.
-            fillstyle: {'full', 'left', 'right', 'bottom', 'top', 'none'}
+            markerfillstyle: {'full', 'left', 'right', 'bottom', 'top', 'none'}
                 'full': Fill the whole marker with the markerfacecolor.
                 'left', 'right', 'bottom', 'top': Fill the marker half at the given side with the markerfacecolor. 
                                                   The other half of the marker is filled with markerfacecoloralt.
@@ -68,6 +68,12 @@ class Line():
         else:
             if isinstance(kwargs['color'], dict):
                 kwargs['color'] = kwargs['color']['mode']
+            else:
+                kwargs['color'] = kwargs.pop('linecolor')
+        if 'linelink' in kwargs:
+            kwargs['drawstyle'] = kwargs.pop('linelink')
+        if 'markerfillstyle' in kwargs:
+            kwargs['fillstyle'] = kwargs.pop('markerfillstyle')
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata

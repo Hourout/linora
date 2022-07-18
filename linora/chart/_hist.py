@@ -3,7 +3,7 @@ import numpy as np
 
 class Hist():
     def add_hist(self, name, xdata, **kwargs):
-        """A scatter plot of *y* vs. *x* with varying marker size and/or color.
+        """Plot a histogram.
         
         Args:
             name: data name.
