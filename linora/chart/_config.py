@@ -98,6 +98,17 @@ Options.line.marker = _marker
 Options.line.solid_capstyle = _dash_capstyle
 Options.line.solid_joinstyle = _dash_joinstyle
 
+Options.errorbar = Config()
+Options.errorbar.linestyle = Config(**{'solid':'-', 'dashed':'--', 'dashdot':'-.', 'dotted':':'})
+Options.errorbar.drawstyle = Config(**{'steps':'steps', 'steps_pre':'steps-pre', 'steps_mid':'steps-mid', 'steps_post':'steps-post'})
+Options.errorbar.dash_capstyle = _dash_capstyle
+Options.errorbar.dash_joinstyle = _dash_joinstyle
+Options.errorbar.fillstyle = Config(**{'full': 'full', 'left': 'left', 'right': 'right', 'bottom': 'bottom', 'top': 'top'})
+Options.errorbar.marker = _marker
+Options.errorbar.solid_capstyle = _dash_capstyle
+Options.errorbar.solid_joinstyle = _dash_joinstyle
+
 Options.scatter = Config()
 Options.scatter.marker = _marker
 Options.scatter.cmap = _cmap
+
