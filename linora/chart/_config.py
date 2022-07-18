@@ -4,6 +4,33 @@ from linora.utils._config import Config
 
 __all__ = ['Options']
 
+
+_cmap = Config(**{'viridis':'viridis', 'jet':'jet'})
+_dash_capstyle = Config(**{'butt': 'butt', 'projecting': 'projecting', 'round': 'round'})
+_dash_joinstyle = Config(**{'miter': 'miter', 'round': 'round', 'bevel': 'bevel'})
+_fontsize = Config(**{
+    'small_xx':'xx_small', 
+    'small_x':'x-small', 
+    'small':'small', 
+    'medium':'medium', 
+    'large':'large', 
+    'large_x':'x-large', 
+    'large_xx':'xx-large'})
+_fontweight = Config(**{
+    'book': 'book', 
+    'normal': 'normal',
+    'bold': 'bold',
+    'demi': 'demi',
+    'semibold': 'semibold',
+    'roman': 'roman',
+    'black': 'black',
+    'extra bold': 'extra bold',
+    'light': 'light',
+    'regular': 'regular',
+    'demibold': 'demibold',
+    'medium': 'medium',
+    'ultralight': 'ultralight',
+    'heavy': 'heavy'})
 _marker = Config(**{
     'point': '.',
     'pixel': ',',
@@ -43,31 +70,7 @@ _marker = Config(**{
     'caretupbase': 10,
     'caretdownbase': 11})
 _xloc = Config(**{'left':'left', 'center':'center', 'right':'right'})
-_fontsize = Config(**{
-    'small_xx':'xx_small', 
-    'small_x':'x-small', 
-    'small':'small', 
-    'medium':'medium', 
-    'large':'large', 
-    'large_x':'x-large', 
-    'large_xx':'xx-large'})
-_fontweight = Config(**{
-    'book': 'book', 
-    'normal': 'normal',
-    'bold': 'bold',
-    'demi': 'demi',
-    'semibold': 'semibold',
-    'roman': 'roman',
-    'black': 'black',
-    'extra bold': 'extra bold',
-    'light': 'light',
-    'regular': 'regular',
-    'demibold': 'demibold',
-    'medium': 'medium',
-    'ultralight': 'ultralight',
-    'heavy': 'heavy'})
-_dash_capstyle = Config(**{'butt': 'butt', 'projecting': 'projecting', 'round': 'round'})
-_dash_joinstyle = Config(**{'miter': 'miter', 'round': 'round', 'bevel': 'bevel'})
+
 
 Options = Config()
 Options.theme = Config(**{i.replace('-', '_'):i for i in plt.style.available})
@@ -95,3 +98,6 @@ Options.line.marker = _marker
 Options.line.solid_capstyle = _dash_capstyle
 Options.line.solid_joinstyle = _dash_joinstyle
 
+Options.scatter = Config()
+Options.scatter.marker = _marker
+Options.scatter.cmap = _cmap

@@ -40,18 +40,16 @@ class Scatter():
                 9: 'caretrightbase', 10: 'caretupbase', 11: 'caretdownbase', 
                 'None': 'nothing', None: 'nothing', ' ': 'nothing', '': 'nothing'}
             cmap: {'viridis', 'jet'}. *cmap* is only used if *color* is an array of floats.
-            norm: If *c* is an array of floats, *norm* is used to scale the color data, 
-                  *c*, in the range 0 to 1, in order to map into the colormap *cmap*.
+            norm: If *color* is an array of floats, *norm* is used to scale the color data, 
+                  *color*, in the range 0 to 1, in order to map into the colormap *cmap*.
             vmin, vmax : float, default: None
-                        *vmin* and *vmax* are used in conjunction with the default norm to
-                        map the color array *c* to the colormap *cmap*. If None, the
-                        respective min and max of the color array is used.
-                        It is deprecated to use *vmin*/*vmax* when *norm* is given.
-
+                *vmin* and *vmax* are used in conjunction with the default norm to
+                map the color array *color* to the colormap *cmap*. If None, the
+                respective min and max of the color array is used.
+                It is deprecated to use *vmin*/*vmax* when *norm* is given.
             alpha : float, default: None, The alpha blending value, between 0 (transparent) and 1 (opaque).
             linewidths : float or array-like, The linewidth of the marker edges. 
-                         Note: The default *edgecolors* is 'face'. You may want to change this as well.
-
+                Note: The default *edgecolors* is 'face'. You may want to change this as well.
             edgecolors : {'face', 'none', *None*} or color or sequence of color
                 The edge color of the marker. Possible values:
 
@@ -63,7 +61,7 @@ class Scatter():
                 is determined like with 'face', i.e. from *c*, *colors*, or *facecolors*.
 
             plotnonfinite : bool, default: False
-                Whether to plot points with nonfinite *c* (i.e. ``inf``, ``-inf``
+                Whether to plot points with nonfinite *color* (i.e. ``inf``, ``-inf``
                 or ``nan``). If ``True`` the points are drawn with the *bad*
                 colormap color (see `.Colormap.set_bad`).
 

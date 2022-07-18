@@ -9,7 +9,6 @@ setup(name='linora',
       version='1.5.0rc0',
       install_requires=[
           'pandas>=1.3.0', 
-#           'pyecharts>=1.9.0',
           'pillow>=9.1.0',
           'joblib>=1.0.1',
           'requests>=2.26.0',
