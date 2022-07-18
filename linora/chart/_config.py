@@ -8,6 +8,8 @@ __all__ = ['Options']
 _cmap = Config(**{'viridis':'viridis', 'jet':'jet'})
 _dash_capstyle = Config(**{'butt': 'butt', 'projecting': 'projecting', 'round': 'round'})
 _dash_joinstyle = Config(**{'miter': 'miter', 'round': 'round', 'bevel': 'bevel'})
+_drawstyle = Config(**{'steps':'steps', 'steps_pre':'steps-pre', 'steps_mid':'steps-mid', 'steps_post':'steps-post'})
+_fillstyle = Config(**{'full': 'full', 'left': 'left', 'right': 'right', 'bottom': 'bottom', 'top': 'top'})
 _fontsize = Config(**{
     'small_xx':'xx_small', 
     'small_x':'x-small', 
@@ -31,6 +33,7 @@ _fontweight = Config(**{
     'medium': 'medium',
     'ultralight': 'ultralight',
     'heavy': 'heavy'})
+_linestyle = Config(**{'solid':'-', 'dashed':'--', 'dashdot':'-.', 'dotted':':'})
 _marker = Config(**{
     'point': '.',
     'pixel': ',',
@@ -89,24 +92,27 @@ Options.title.titlesize = _fontsize
 Options.title.titleweight = _fontweight
 
 Options.line = Config()
-Options.line.linestyle = Config(**{'solid':'-', 'dashed':'--', 'dashdot':'-.', 'dotted':':'})
-Options.line.drawstyle = Config(**{'steps':'steps', 'steps_pre':'steps-pre', 'steps_mid':'steps-mid', 'steps_post':'steps-post'})
+Options.line.linestyle = _linestyle
+Options.line.drawstyle = _drawstyle
 Options.line.dash_capstyle = _dash_capstyle
 Options.line.dash_joinstyle = _dash_joinstyle
-Options.line.fillstyle = Config(**{'full': 'full', 'left': 'left', 'right': 'right', 'bottom': 'bottom', 'top': 'top'})
+Options.line.fillstyle = _fillstyle
 Options.line.marker = _marker
 Options.line.solid_capstyle = _dash_capstyle
 Options.line.solid_joinstyle = _dash_joinstyle
 
 Options.errorbar = Config()
-Options.errorbar.linestyle = Config(**{'solid':'-', 'dashed':'--', 'dashdot':'-.', 'dotted':':'})
-Options.errorbar.drawstyle = Config(**{'steps':'steps', 'steps_pre':'steps-pre', 'steps_mid':'steps-mid', 'steps_post':'steps-post'})
+Options.errorbar.linestyle = _linestyle
+Options.errorbar.drawstyle = _drawstyle
 Options.errorbar.dash_capstyle = _dash_capstyle
 Options.errorbar.dash_joinstyle = _dash_joinstyle
-Options.errorbar.fillstyle = Config(**{'full': 'full', 'left': 'left', 'right': 'right', 'bottom': 'bottom', 'top': 'top'})
+Options.errorbar.fillstyle = _fillstyle
 Options.errorbar.marker = _marker
 Options.errorbar.solid_capstyle = _dash_capstyle
 Options.errorbar.solid_joinstyle = _dash_joinstyle
+
+Options.fillline = Config()
+Options.fillline.linestyle = _linestyle
 
 Options.scatter = Config()
 Options.scatter.marker = _marker

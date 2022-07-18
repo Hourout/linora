@@ -2,12 +2,7 @@ import numpy as np
 
 
 class Fillline():
-    def add_fillline(self, name, xdata, ydata, ydata2=0, **kwargs
-#         where=None,
-#         interpolate=False,
-#         step=None,
-#                  linestyle=None, fillcolor=None, linewidth=None,alpha=None
-                ):
+    def add_fillline(self, name, xdata, ydata, ydata2=0, **kwargs):
         """A scatter plot of *y* vs. *x* with varying marker size and/or color.
         
         Args:
@@ -50,7 +45,6 @@ class Fillline():
                   every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
                   value ``y[i]``.
                 - 'mid': Steps occur half-way between the *x* positions.
-
     
             linestyle: line style, {'-', '--', '-.', ':'}.
                        '-' or 'solid': solid line
@@ -58,16 +52,14 @@ class Fillline():
                        '-.' or 'dashdot': dash-dotted line
                        ':' or 'dotted': dotted line
                        'none', 'None', ' ', or '': draw nothing
-            fillcolor: line color, eg. 'blue' or '0.75' or 'g' or '#FFDD44' or (1.0,0.2,0.3) or 'chartreuse'.
+            color: line color, eg. 'blue' or '0.75' or 'g' or '#FFDD44' or (1.0,0.2,0.3) or 'chartreuse'.
             linewidth: line width.
-            alpha:
+            alpha: float, default: None, The alpha blending value, between 0 (transparent) and 1 (opaque).
         """
-        if 'fillcolor' not in kwargs:
+        if 'color' not in kwargs:
             kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
-        elif isinstance(kwargs['fillcolor'], dict):
-            kwargs['color'] = kwargs.pop('fillcolor')['mode']
-        else:
-            kwargs['color'] = kwargs.pop('fillcolor')
+        elif isinstance(kwargs['color'], dict):
+            kwargs['color'] = kwargs.pop('color')['mode']
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
