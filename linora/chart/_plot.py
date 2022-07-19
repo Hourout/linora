@@ -57,8 +57,12 @@ class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist, Hist2d):
             ax.set_ylabel(**self._params.ylabel)
         if self._params.title['label'] is not None:
             ax.set_title(**self._params.title)
-        if self._params.axis is not None:
-            ax.axis(self._params.axis)
+        if self._params.axis['axis'] is not None:
+            ax.axis(self._params.axis['axis'])
+        if self._params.axis['xinvert']:
+            ax.invert_xaxis()
+        if self._params.axis['yinvert']:
+            ax.invert_yaxis()
         if self._params.legend['loc'] is not None:
             ax.legend(**self._params.legend)  
         return ax

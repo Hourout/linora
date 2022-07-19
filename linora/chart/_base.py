@@ -12,7 +12,7 @@ class Coordinate():
         
         self._params.figure = {'figsize':(10, 6)}
         
-        self._params.axis = None
+        self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False}
         
         self._params.xlabel = {'xlabel':None}
         self._params.ylabel = {'ylabel':None}
@@ -27,7 +27,9 @@ class Coordinate():
     def render(self):
         return self._execute().show()
     
-    def set_axis(self, axis=None, xmin=None, xmax=None, ymin=None, ymax=None):
+    def set_axis(self, axis=None, xmin=None, xmax=None, ymin=None, ymax=None,
+                 xinvert=False, yinvert=False
+                ):
         """Convenience method to get or set some axis properties.
         
         Args:
@@ -58,13 +60,15 @@ class Coordinate():
             xmax: float, The right xlim in data coordinates.
             ymin: float, The bottom ylim in data coordinates.
             ymax: float, The top ylim in data coordinates.
+            xinvert: invert x-axis.
+            yinvert: invert y-axis.
         """
         if axis is not None:
-            self._params.axis = axis
+            self._params.axis['axis'] = axis
         elif xmin is not None or xmax is not None or ymin is not None or ymax is not None:
-            self._params.axis = [xmin, xmax, ymin, ymax]
-        else:
-            raise ValueError("params is not None.")
+            self._params.axis['axis'] = [xmin, xmax, ymin, ymax]
+        self._params.axis['xinvert'] = xinvert
+        self._params.axis['yinvert'] = yinvert
         return self
         
     def set_label(self, xlabel=None, ylabel=None, xloc=None, yloc=None, xlabelpad=None, ylabelpad=None):
