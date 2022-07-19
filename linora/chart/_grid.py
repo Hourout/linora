@@ -64,10 +64,16 @@ class Grid():
                 if t[0]=='':
                     t[0] = '0'
                 if t[1]=='':
-                    t[1] = self._grid.grid['ncols']
+                    t[1] = self._grid.grid['nrows'] if i==0 else self._grid.grid['ncols']
                 grid_id[i] = [int(t[0]), int(t[1])]
             else:
-                grid_id[i] = [int(grid_id[i]), int(grid_id[i])+1]
+                if '-' in grid_id[i]:
+                    if i==0:
+                        grid_id[i] = [self._grid.grid['nrows']+int(grid_id[i]), self._grid.grid['nrows']+int(grid_id[i])+1]
+                    else:
+                        grid_id[i] = [self._grid.grid['ncols']+int(grid_id[i]), self._grid.grid['ncols']+int(grid_id[i])+1]
+                else:
+                    grid_id[i] = [int(grid_id[i]), int(grid_id[i])+1]
         
         self._grid.grid_id[len(self._grid.grid_id)] = {'grid_id':grid_id, 'plot':plot}        
         return self
