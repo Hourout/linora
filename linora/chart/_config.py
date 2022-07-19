@@ -33,7 +33,7 @@ Options.fontweight = Config(**{
     'medium': 'medium',
     'ultralight': 'ultralight',
     'heavy': 'heavy'})
-Options.marker = Config(**{
+Options.mark = Config(**{
     'point': '.',
     'pixel': ',',
     'circle': 'o',
@@ -71,7 +71,9 @@ Options.marker = Config(**{
     'caretrightbase': 9,
     'caretupbase': 10,
     'caretdownbase': 11})
-Options.markerfillstyle = Config(**{'full': 'full', 'left': 'left', 'right': 'right', 'bottom': 'bottom', 'top': 'top'})
+Options.markfill = Config(**{'full': 'full', 'left': 'left', 'right': 'right', 'bottom': 'bottom', 'top': 'top'})
+Options.solid_capstyle = Options.dash_capstyle
+Options.solid_joinstyle = Options.dash_joinstyle
 Options.xloc = Config(**{'left':'left', 'center':'center', 'right':'right'})
 
 

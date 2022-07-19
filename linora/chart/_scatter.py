@@ -9,8 +9,8 @@ class Scatter():
             name: data name.
             xdata: x-axis data.
             ydata: y-axis data.
-            size: float or array-like, shape (n, ), The marker size in points**2.
-            color: array-like or list of colors or color, optional
+            marksize: float or array-like, shape (n, ), The marker size in points**2.
+            markcolor: array-like or list of colors or color, optional
                 The marker colors. Possible values:
 
                 - A scalar or sequence of n numbers to be mapped to colors using *cmap* and *norm*.
@@ -30,7 +30,7 @@ class Scatter():
                 by the value of *color*, *facecolor* or *facecolors*. In case
                 those are not specified or `None`, the marker color is determined
                 by the next color of the ``Axes``' current "shape and fill" color cycle.
-            marker: marker style string, 
+            mark: marker style string, 
                 {'.': 'point', ',': 'pixel', 'o': 'circle', 'v': 'triangle_down', '^': 'triangle_up', 
                 '<': 'triangle_left', '>': 'triangle_right', '1': 'tri_down', '2': 'tri_up', '3': 'tri_left', 
                 '4': 'tri_right', '8': 'octagon', 's': 'square', 'p': 'pentagon', '*': 'star', 'h': 'hexagon1', 
@@ -48,9 +48,9 @@ class Scatter():
                 respective min and max of the color array is used.
                 It is deprecated to use *vmin*/*vmax* when *norm* is given.
             alpha : float, default: None, The alpha blending value, between 0 (transparent) and 1 (opaque).
-            linewidths : float or array-like, The linewidth of the marker edges. 
+            markedgewidth : float or array-like, The linewidth of the marker edges. 
                 Note: The default *edgecolors* is 'face'. You may want to change this as well.
-            edgecolors : {'face', 'none', *None*} or color or sequence of color
+            markedgecolor : {'face', 'none', *None*} or color or sequence of color
                 The edge color of the marker. Possible values:
 
                 - 'face': The edge color will always be the same as the face color.
@@ -64,21 +64,26 @@ class Scatter():
                 Whether to plot points with nonfinite *color* (i.e. ``inf``, ``-inf``
                 or ``nan``). If ``True`` the points are drawn with the *bad*
                 colormap color (see `.Colormap.set_bad`).
-
         """
 #         if 'pointcolor' in kwargs or not self._params.set_label:
 #             self._params.set_label = False
 #         self._params.colorbar.add('viridis' if 'cmap' not in kwargs else kwargs['cmap'])
         
-        if 'size' in kwargs:
-            kwargs['s'] = kwargs.pop('size')
-        if 'color' not in kwargs:
+        if 'mark' in kwargs:
+            kwargs['marker'] = kwargs.pop('mark')
+        if 'marksize' in kwargs:
+            kwargs['s'] = kwargs.pop('marksize')
+        if 'markedgewidth' in kwargs:
+            kwargs['linewidths'] = kwargs.pop('markedgewidth')
+        if 'markeredgecolor' in kwargs:
+            kwargs['edgecolors'] = kwargs.pop('markeredgecolor')
+        if 'markcolor' not in kwargs:
             kwargs['c'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
         else:
-            if isinstance(kwargs['color'], dict):
-                kwargs['c'] = kwargs.pop('color')['mode']
+            if isinstance(kwargs['markcolor'], dict):
+                kwargs['c'] = kwargs.pop('markcolor')['mode']
             else:
-                kwargs['c'] = kwargs.pop('color')
+                kwargs['c'] = kwargs.pop('markcolor')
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
