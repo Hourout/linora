@@ -80,16 +80,16 @@ Options.xloc = Config(**{'left':'left', 'center':'center', 'right':'right'})
 Options.theme = Config(**{i.replace('-', '_'):i for i in plt.style.available})
 Options.axis = Config(**{'on':'on', 'off':'off', 'equal':'equal', 'scaled':'scaled', 
                          'tight':'tight', 'auto':'auto', 'image':'image', 'square':'square'})
-Options.label = Config()
-Options.label.xloc = _xloc
-Options.label.yloc = {'bottom':'bottom', 'center':'center', 'top':'top'}
+# Options.label = Config()
+# Options.label.xloc = _xloc
+# Options.label.yloc = {'bottom':'bottom', 'center':'center', 'top':'top'}
 
-Options.title = Config()
-Options.title.titleloc = _xloc
-Options.title.titlesize = _fontsize
+# Options.title = Config()
+# Options.title.titleloc = xloc
+# Options.title.titlesize = _fontsize
 # Options.title.titlecolor = 'auto', 
 # Options.title.titlepad = 
 # Options.title.titley = None, 
-Options.title.titleweight = _fontweight
+# Options.title.titleweight = _fontweight
 
 
