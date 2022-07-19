@@ -56,7 +56,7 @@ class Grid():
             grid_id: str, grid area.
             plot: a la.chart.Plot object.
         """
-        grid_id = grid_id.split(',')
+        grid_id = [i.strip() for i in grid_id.split(',')]
         assert len(grid_id)==2, '`grid_id` value error.'
         for i in range(2):
             if ':' in grid_id[i]:
