@@ -52,14 +52,16 @@ class Fillline():
                        '-.' or 'dashdot': dash-dotted line
                        ':' or 'dotted': dotted line
                        'none', 'None', ' ', or '': draw nothing
-            color: line color, eg. 'blue' or '0.75' or 'g' or '#FFDD44' or (1.0,0.2,0.3) or 'chartreuse'.
+            linecolor: line color, eg. 'blue' or '0.75' or 'g' or '#FFDD44' or (1.0,0.2,0.3) or 'chartreuse'.
             linewidth: line width.
             alpha: float, default: None, The alpha blending value, between 0 (transparent) and 1 (opaque).
         """
-        if 'color' not in kwargs:
+        if 'linecolor' not in kwargs:
             kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
-        elif isinstance(kwargs['color'], dict):
-            kwargs['color'] = kwargs.pop('color')['mode']
+        elif isinstance(kwargs['linecolor'], dict):
+            kwargs['color'] = kwargs.pop('linecolor')['mode']
+        else:
+            kwargs['color'] = kwargs.pop('linecolor')
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata

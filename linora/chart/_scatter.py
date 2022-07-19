@@ -79,11 +79,10 @@ class Scatter():
             kwargs['edgecolors'] = kwargs.pop('markeredgecolor')
         if 'markcolor' not in kwargs:
             kwargs['c'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
+        elif isinstance(kwargs['markcolor'], dict):
+            kwargs['c'] = kwargs.pop('markcolor')['mode']
         else:
-            if isinstance(kwargs['markcolor'], dict):
-                kwargs['c'] = kwargs.pop('markcolor')['mode']
-            else:
-                kwargs['c'] = kwargs.pop('markcolor')
+            kwargs['c'] = kwargs.pop('markcolor')
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata

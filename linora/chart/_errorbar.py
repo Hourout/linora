@@ -104,11 +104,10 @@ class Errorbar():
         """
         if 'linecolor' not in kwargs:
             kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
+        elif isinstance(kwargs['linecolor'], dict):
+            kwargs['color'] = kwargs.pop('linecolor')['mode']
         else:
-            if isinstance(kwargs['linecolor'], dict):
-                kwargs['color'] = kwargs.pop('linecolor')['mode']
-            else:
-                kwargs['color'] = kwargs.pop('linecolor')
+            kwargs['color'] = kwargs.pop('linecolor')
         if 'ecolor' not in kwargs:
             kwargs['ecolor'] = 'lightgray' 
         if 'linelink' in kwargs:
