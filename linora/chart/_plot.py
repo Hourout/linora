@@ -1,18 +1,19 @@
 import matplotlib.pyplot as plt
 
 from linora.chart._base import Coordinate
-from linora.chart._line import Line
-from linora.chart._scatter import Scatter
+from linora.chart._bar import Bar
 from linora.chart._errorbar import Errorbar
+from linora.chart._line import Line
 from linora.chart._fillline import Fillline
 from linora.chart._hist import Hist
 from linora.chart._hist2d import Hist2d
+from linora.chart._scatter import Scatter
 
 
 __all__ = ['Plot']
 
 
-class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist, Hist2d):
+class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__()
         if len(args)!=0:
@@ -35,8 +36,6 @@ class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist, Hist2d):
             if j['plotmode']=='bar':
                 ax_plot = ax.bar(j['xdata'], j['ydata'], **j['kwargs'])
                 ax_plot.set_label(i)
-            elif j['plotmode']=='line':
-                ax_plot = ax.plot(j['xdata'], j['ydata'], **j['kwargs'])
             elif j['plotmode']=='errorbar':
                 ax_plot = ax.errorbar(j['xdata'], j['ydata'], **j['kwargs'])
                 ax_plot.set_label(i)
@@ -47,6 +46,8 @@ class Plot(Coordinate, Line, Scatter, Errorbar, Fillline, Hist, Hist2d):
                 ax_plot = ax.hist(j['xdata'], **j['kwargs'])
             elif j['plotmode']=='hist2d':
                 ax_plot = ax.hist(j['xdata'], j['ydata'], **j['kwargs'])
+            elif j['plotmode']=='line':
+                ax_plot = ax.plot(j['xdata'], j['ydata'], **j['kwargs'])
             elif j['plotmode']=='scatter':
                 ax_plot = ax.scatter(j['xdata'], j['ydata'], **j['kwargs'])
                 ax_plot.set_label(i)
