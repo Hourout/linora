@@ -8,7 +8,7 @@ class Coordinate():
         self._params = Config()
         self._params.ydata = defaultdict(defaultdict)
         
-        self._params.theme = 'seaborn-whitegrid'
+        self._params.theme = 'ggplot'
         
         self._params.figure = {'figsize':(10, 6)}
         
