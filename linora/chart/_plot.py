@@ -63,6 +63,10 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
             ax.set_title(**self._params.title)
         if self._params.axis['axis'] is not None:
             ax.axis(self._params.axis['axis'])
+        if self._params.axis['xtickshow']:
+            ax.tick_params(axis='x', **self._params.axis['xtick'])
+        if self._params.axis['ytickshow']:
+            ax.tick_params(axis='y', **self._params.axis['ytick'])
         if self._params.axis['xinvert']:
             ax.invert_xaxis()
         if self._params.axis['yinvert']:

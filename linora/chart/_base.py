@@ -12,7 +12,9 @@ class Coordinate():
         
         self._params.figure = {'figsize':(10, 6)}
         
-        self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False}
+        self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False, 
+                             'xtickshow':True, 'ytickshow':True,
+                             'xtick':{}, 'ytick':{}}
         
         self._params.xlabel = {'xlabel':None}
         self._params.ylabel = {'ylabel':None}
@@ -28,7 +30,22 @@ class Coordinate():
         return self._execute().show()
     
     def set_axis(self, axis=None, xmin=None, xmax=None, ymin=None, ymax=None,
-                 xinvert=False, yinvert=False
+                 invert=False, xinvert=False, yinvert=False, 
+                 tickshow=True, xtickshow=True, ytickshow=True, 
+                 tickcolor=None, xtickcolor=None, ytickcolor=None, 
+                 tickheight=None, xtickheight=None, ytickheight=None, 
+                 tickwidth=None, xtickwidth=None, ytickwidth=None, 
+                 tickpad=None, xtickpad=None, ytickpad=None, 
+                 tickloc=None, xtickloc=None, ytickloc=None,
+                 labelsize=None, xlabelsize=None, ylabelsize=None, 
+                 labelcolor=None, xlabelcolor=None, ylabelcolor=None, 
+                 labelrotate=None, xlabelrotate=None, ylabelrotate=None, 
+                 gridcolor=None, xgridcolor=None, ygridcolor=None, 
+                 gridalpha=None, xgridalpha=None, ygridalpha=None, 
+                 gridwidth=None, xgridwidth=None, ygridwidth=None, 
+                 gridstyle=None, xgridstyle=None, ygridstyle=None, 
+                 tickbottom=None, ticktop=None, tickleft=None, tickright=None,
+                 labelbottom=None, labeltop=None, labelleft=None, labelright=None
                 ):
         """Convenience method to get or set some axis properties.
         
@@ -60,16 +77,106 @@ class Coordinate():
             xmax: float, The right xlim in data coordinates.
             ymin: float, The bottom ylim in data coordinates.
             ymax: float, The top ylim in data coordinates.
+            invert: invert xy-axis.
             xinvert: invert x-axis.
             yinvert: invert y-axis.
+            labelsize: xy-axis label font size.
+            xlabelsize: x-axis label font size.
+            ylabelsize: y-axis label font size.
+            labelcolor: xy-axis label font color.
+            xlabelcolor: x-axis label font color.
+            ylabelcolor: y-axis label font color.
+            labelrotate: xy-axis label font rotate.
+            xlabelrotate: x-axis label font rotate.
+            ylabelrotate: y-axis label font rotate.
+            tickshow: show xy-axis tick.
+            xtickshow: show x-axis tick.
+            ytickshow: show y-axis tick.
+            tickcolor: xy-axis tick color.
+            xtickcolor: x-axis tick color.
+            ytickcolor: y-axis tick color.
+            tickheight: xy-axis tick height.
+            xtickheight: x-axis tick height.
+            ytickheight: y-axis tick height.
+            tickwidth: xy-axis tick width.
+            xtickwidth: x-axis tick width.
+            ytickwidth: y-axis tick width.
+            tickpad: xy-axis distance in points between tick and label.
+            xtickpad: x-axis distance in points between tick and label.
+            ytickpad: y-axis distance in points between tick and label.
+            tickloc: {'in', 'out', 'inout'}, xy-axis puts ticks position.
+            xtickloc: {'in', 'out', 'inout'}, x-axis puts ticks position.
+            ytickloc: {'in', 'out', 'inout'}, y-axis puts ticks position.
+            gridcolor: xy-axis grid line color.
+            xgridcolor: x-axis grid line color.
+            ygridcolor: y-axis grid line color.
+            gridalpha: xy-axis grid line alpha.
+            xgridalpha: x-axis grid line alpha.
+            ygridalpha: y-axis grid line alpha.
+            gridwidth: xy-axis grid line width.
+            xgridwidth: x-axis grid line width.
+            ygridwidth: y-axis grid line width.
+            gridstyle: xy-axis grid line style.
+            xgridstyle: x-axis grid line style.
+            ygridstyle: y-axis grid line style.
+            tickbottom: Whether to draw bottom ticks.
+            ticktop: Whether to draw top ticks.
+            tickleft: Whether to draw the left ticks.
+            tickright: Whether to draw the right ticks.
+            labelbottom: Whether to draw bottom tick labels.
+            labeltop: Whether to draw top tick labels.
+            labelleft: Whether to draw left tick labels.
+            labelright: Whether to draw right tick labels.
         """
         if axis is not None:
             self._params.axis['axis'] = axis
         elif xmin is not None or xmax is not None or ymin is not None or ymax is not None:
             self._params.axis['axis'] = [xmin, xmax, ymin, ymax]
-        self._params.axis['xinvert'] = xinvert
-        self._params.axis['yinvert'] = yinvert
+        self._params.axis['xinvert'] = invert or xinvert
+        self._params.axis['yinvert'] = invert or yinvert
+        
+        self._params.axis['xtickshow'] = tickshow and xtickshow
+        self._params.axis['ytickshow'] = tickshow and xtickshow
+
+        self._set_axis(xtickcolor, ytickcolor, tickcolor, 'color')
+        self._set_axis(xtickheight, ytickheight, tickheight, 'length')
+        self._set_axis(xtickwidth, ytickwidth, tickwidth, 'width')
+        self._set_axis(xtickloc, ytickloc, tickloc, 'direction')
+        self._set_axis(xtickpad, ytickpad, tickpad, 'pad')
+        self._set_axis(xlabelsize, ylabelsize, labelsize, 'labelsize')
+        self._set_axis(xlabelcolor, ylabelcolor, labelcolor, 'labelcolor')
+        self._set_axis(xlabelrotate, ylabelrotate, labelrotate, 'labelrotation')
+        self._set_axis(xgridcolor, ygridcolor, gridcolor, 'grid_color')
+        self._set_axis(xgridalpha, ygridalpha, gridalpha, 'grid_alpha')
+        self._set_axis(xgridwidth, ygridwidth, gridwidth, 'grid_linewidth')
+        self._set_axis(xgridstyle, ygridstyle, gridstyle, 'grid_linestyle')
+            
+        if tickbottom is not None:
+            self._params.axis['xtick']['bottom'] = tickbottom
+        if ticktop is not None:
+            self._params.axis['xtick']['top'] = ticktop
+        if tickleft is not None:
+            self._params.axis['ytick']['left'] = tickleft
+        if tickright is not None:
+            self._params.axis['ytick']['right'] = tickright
+        if labelbottom is not None:
+            self._params.axis['xtick']['labelbottom'] = labelbottom
+        if labeltop is not None:
+            self._params.axis['xtick']['labeltop'] = labeltop
+        if labelleft is not None:
+            self._params.axis['ytick']['labelleft'] = labelleft
+        if labelright is not None:
+            self._params.axis['ytick']['labelright'] = labelright
         return self
+    
+    def _set_axis(self, x, y, xy, s):
+        if x is not None:
+            self._params.axis['xtick'][s] = x
+        if y is not None:
+            self._params.axis['ytick'][s] = y
+        if xy is not None:
+            self._params.axis['xtick'][s] = xy
+            self._params.axis['ytick'][s] = xy
         
     def set_label(self, xlabel=None, ylabel=None, xloc=None, yloc=None, xlabelpad=None, ylabelpad=None):
         """Set the label for the x-axis and y-axis.
