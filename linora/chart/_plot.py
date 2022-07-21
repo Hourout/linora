@@ -38,7 +38,17 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
                 ax_plot = ax.bar(j['xdata'], j['ydata'], **j['kwargs'])
                 ax_plot.set_label(i)
                 if len(j['barlabel'])>0:
-                    ax.bar_label(ax_plot, **j['barlabel'])
+                    if 'label_type' in j['barlabel']:
+                        if isinstance(j['barlabel']['label_type'], str):
+                            label_type = [j['barlabel']['label_type']]
+                        else:
+                            label_type = j['barlabel']['label_type']
+                    else:
+                        label_type = ['edge']
+                    t = j['barlabel'].copy()
+                    for i in label_type:
+                        t['label_type'] = i
+                        ax.bar_label(ax_plot, **t)
             elif j['plotmode']=='errorbar':
                 ax_plot = ax.errorbar(j['xdata'], j['ydata'], **j['kwargs'])
                 ax_plot.set_label(i)
