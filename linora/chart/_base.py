@@ -12,9 +12,7 @@ class Coordinate():
         
         self._params.figure = {'figsize':(10, 6)}
         
-        self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False, 
-                             'xtickshow':True, 'ytickshow':True,
-                             'xtick':{}, 'ytick':{}}
+        self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{}}
         
         self._params.xlabel = {'xlabel':None}
         self._params.ylabel = {'ylabel':None}
@@ -164,12 +162,10 @@ class Coordinate():
             self._params.axis['ytick']['labelleft'] = labelleft
         if labelright is not None:
             self._params.axis['ytick']['labelright'] = labelright
-            
-        self._params.axis['xtickshow'] = tickshow and xtickshow
-        self._params.axis['ytickshow'] = tickshow and xtickshow
-        if not self._params.axis['xtickshow']:
+
+        if not (tickshow and xtickshow):
             self._params.axis['xtick'] = {'length':0, 'labelsize':0}
-        if not self._params.axis['ytickshow']:
+        if not (tickshow and ytickshow):
             self._params.axis['ytick'] = {'length':0, 'labelsize':0}
         return self
     
