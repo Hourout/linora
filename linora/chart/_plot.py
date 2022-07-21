@@ -87,5 +87,8 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
         if self._params.axis['yinvert']:
             ax.invert_yaxis()
         if self._params.legend['loc'] is not None:
-            ax.legend(**self._params.legend)  
+            ax.legend(**self._params.legend)
+        else:
+            if len(self._params.ydata)>1:
+                ax.legend(loc='best')
         return ax
