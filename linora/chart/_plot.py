@@ -65,13 +65,17 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
         if self._params.axis['axis'] is not None:
             ax.axis(self._params.axis['axis'])
         if self._params.axis['xlabel'] is not None:
-            if isinstance(self._params.axis['xlabel'][0], (list, tuple, np.ndarray)):
+            if len(self._params.axis['xlabel'])==0:
+                ax.set_xticks(self._params.axis['xlabel'])
+            elif isinstance(self._params.axis['xlabel'][0], (list, tuple, np.ndarray)):
                 ax.set_xticks(self._params.axis['xlabel'][0])
                 ax.set_xticklabels(self._params.axis['xlabel'][1])
             else:
                 ax.set_xticks(self._params.axis['xlabel'])
         if self._params.axis['ylabel'] is not None:
-            if isinstance(self._params.axis['ylabel'][0], (list, tuple, np.ndarray)):
+            if len(self._params.axis['ylabel'])==0:
+                ax.set_yticks(self._params.axis['ylabel'])
+            elif isinstance(self._params.axis['ylabel'][0], (list, tuple, np.ndarray)):
                 ax.set_yticks(self._params.axis['ylabel'][0])
                 ax.set_yticklabels(self._params.axis['ylabel'][1])
             else:

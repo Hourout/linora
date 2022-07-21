@@ -77,6 +77,8 @@ class Coordinate():
             xmax: float, The right xlim in data coordinates.
             ymin: float, The bottom ylim in data coordinates.
             ymax: float, The top ylim in data coordinates.
+            xlabel: list or [list, list] of x-axis tick label.
+            ylabel: list or [list, list] of y-axis tick label.
             invert: invert xy-axis.
             xinvert: invert x-axis.
             yinvert: invert y-axis.
@@ -177,12 +179,12 @@ class Coordinate():
     
     def _set_axis(self, x, y, xy, s):
         if x is not None:
-            self._params.axis['xtick'][s] = x
+            self._params.axis['xtick'][s] = x['mode'] if isinstance(x, dict) else x
         if y is not None:
-            self._params.axis['ytick'][s] = y
+            self._params.axis['ytick'][s] = y['mode'] if isinstance(y, dict) else y
         if xy is not None:
-            self._params.axis['xtick'][s] = xy
-            self._params.axis['ytick'][s] = xy
+            self._params.axis['xtick'][s] = xy['mode'] if isinstance(xy, dict) else xy
+            self._params.axis['ytick'][s] = xy['mode'] if isinstance(xy, dict) else xy
         
     def set_label(self, xlabel=None, ylabel=None, xloc=None, yloc=None, xlabelpad=None, ylabelpad=None):
         """Set the label for the x-axis and y-axis.
