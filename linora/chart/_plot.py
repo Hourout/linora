@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib.pyplot as plt
 
 from linora.chart._base import Coordinate
@@ -65,12 +66,14 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
             ax.axis(self._params.axis['axis'])
         if self._params.axis['xlabel'] is not None:
             if isinstance(self._params.axis['xlabel'][0], (list, tuple)):
-                ax.set_xticks(self._params.axis['xlabel'][0], self._params.axis['xlabel'][1])
+                ax.set_xticks(self._params.axis['xlabel'][0])
+                ax.set_xticklabels(self._params.axis['xlabel'][1])
             else:
                 ax.set_xticks(self._params.axis['xlabel'])
         if self._params.axis['ylabel'] is not None:
-            if isinstance(self._params.axis['ylabel'][0], (list, tuple)):
-                ax.set_yticks(self._params.axis['ylabel'][0], self._params.axis['ylabel'][1])
+            if isinstance(self._params.axis['ylabel'][0], (list, tuple, np.ndarray)):
+                ax.set_yticks(self._params.axis['ylabel'][0])
+                ax.set_yticklabels(self._params.axis['ylabel'][1])
             else:
                 ax.set_yticks(self._params.axis['ylabel'])
         ax.tick_params(axis='x', **self._params.axis['xtick'])
