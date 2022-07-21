@@ -12,7 +12,8 @@ class Coordinate():
         
         self._params.figure = {'figsize':(10, 6)}
         
-        self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{}}
+        self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{},
+                             'xlabel':None, 'ylabel':None}
         
         self._params.xlabel = {'xlabel':None}
         self._params.ylabel = {'ylabel':None}
@@ -28,6 +29,7 @@ class Coordinate():
         return self._execute().show()
     
     def set_axis(self, axis=None, xmin=None, xmax=None, ymin=None, ymax=None,
+                 xlabel=None, ylabel=None,
                  invert=False, xinvert=False, yinvert=False, 
                  tickshow=True, xtickshow=True, ytickshow=True, 
                  tickcolor=None, xtickcolor=None, ytickcolor=None, 
@@ -132,6 +134,10 @@ class Coordinate():
             self._params.axis['axis'] = [xmin, xmax, ymin, ymax]
         self._params.axis['xinvert'] = invert or xinvert
         self._params.axis['yinvert'] = invert or yinvert
+        if xlabel is not None:
+            self._params.axis['xlabel'] = xlabel
+        if ylabel is not None:
+            self._params.axis['ylabel'] = ylabel
         
         self._set_axis(xtickcolor, ytickcolor, tickcolor, 'color')
         self._set_axis(xtickheight, ytickheight, tickheight, 'length')
