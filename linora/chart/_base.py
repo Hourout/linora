@@ -303,7 +303,7 @@ handler_map : dict or None
         self._params.legend.update(kwargs)
         return self
         
-    def set_title(self, title, titleloc='center', titlesize='large', titlecolor='auto', 
+    def set_title(self, title, titleloc='center', titlesize='large', titlecolor='#000000', 
                   titlepad=6., titley=None, titleweight='normal'):
         """Set a title for the Axes.
         
@@ -314,6 +314,8 @@ handler_map : dict or None
             titley : float, Vertical Axes loation for the title (1.0 is the top).
                      If None (the default), titley is determined automatically to avoid decorators on the Axes.
         """
+        if isinstance(titlecolor, dict):
+            titlecolor = titlecolor['mode']
         kwargs = {'label':title, 'loc':titleloc, 'pad':titlepad, 'y':titley,
                   'fontdict':{'fontsize':titlesize, 'fontweight':titleweight, 'color':titlecolor,
                               'verticalalignment': 'baseline', 'horizontalalignment': titleloc}}
