@@ -68,6 +68,20 @@ class Bar():
                 '-.' or 'dashdot': dash-dotted line
                 ':' or 'dotted': dotted line
                 'none', 'None', ' ', or '': draw nothing
+            
+            labels: array-like, optional
+                A list of label texts, that should be displayed. 
+                If not given, the label texts will be the data values formatted with fmt.
+
+            label_type: {'edge', 'center'}, default: 'edge'
+                The label type. Possible values:
+                'edge': label placed at the end-point of the bar segment, 
+                        and the value displayed will be the position of that end-point.
+                'center': label placed in the center of the bar segment, 
+                and the value displayed will be the length of that segment. 
+
+            padding: float, default: 0
+                Distance of label from the end of the bar, in points.
         """
         if 'barcolor' not in kwargs:
             kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
@@ -76,6 +90,14 @@ class Bar():
         else:
             kwargs['color'] = kwargs.pop('barcolor')
         
+        barlabel = {}
+        if 'labels' in kwargs:
+            barlabel['labels'] = kwargs.pop('labels')
+        if 'label_type'in kwargs:
+            barlabel['label_type'] = kwargs.pop('label_type')
+        if 'padding' in kwargs:
+            barlabel['padding'] = kwargs.pop('padding')
+        self._params.ydata[name]['barlabel'] = barlabel
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
