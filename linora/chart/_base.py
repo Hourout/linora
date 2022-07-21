@@ -135,9 +135,6 @@ class Coordinate():
         self._params.axis['xinvert'] = invert or xinvert
         self._params.axis['yinvert'] = invert or yinvert
         
-        self._params.axis['xtickshow'] = tickshow and xtickshow
-        self._params.axis['ytickshow'] = tickshow and xtickshow
-
         self._set_axis(xtickcolor, ytickcolor, tickcolor, 'color')
         self._set_axis(xtickheight, ytickheight, tickheight, 'length')
         self._set_axis(xtickwidth, ytickwidth, tickwidth, 'width')
@@ -167,6 +164,13 @@ class Coordinate():
             self._params.axis['ytick']['labelleft'] = labelleft
         if labelright is not None:
             self._params.axis['ytick']['labelright'] = labelright
+            
+        self._params.axis['xtickshow'] = tickshow and xtickshow
+        self._params.axis['ytickshow'] = tickshow and xtickshow
+        if not self._params.axis['xtickshow']:
+            self._params.axis['xtick'] = {'length':0, 'labelsize':0}
+        if not self._params.axis['ytickshow']:
+            self._params.axis['ytick'] = {'length':0, 'labelsize':0}
         return self
     
     def _set_axis(self, x, y, xy, s):
