@@ -12,6 +12,8 @@ class Bar():
             width : float or array-like, default: 0.8
                 The width(s) of the bars.
 
+            vertical: bool, default: True
+            
             bottom : float or array-like, default: 0
                 The y coordinate(s) of the bars bases.
 
@@ -97,6 +99,9 @@ class Bar():
             barlabel['label_type'] = kwargs.pop('label_type')
         if 'padding' in kwargs:
             barlabel['padding'] = kwargs.pop('padding')
+        
+        
+        self._params.ydata[name]['vertical'] = kwargs.pop('vertical') if 'vertical' in kwargs else True
         self._params.ydata[name]['barlabel'] = barlabel
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata

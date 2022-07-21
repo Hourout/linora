@@ -35,7 +35,10 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
     def _execute_ax(self, ax):
         for i,j in self._params.ydata.items():
             if j['plotmode']=='bar':
-                ax_plot = ax.bar(j['xdata'], j['ydata'], **j['kwargs'])
+                if j['vertical']:
+                    ax_plot = ax.bar(j['xdata'], j['ydata'], **j['kwargs'])
+                else:
+                    ax_plot = ax.barh(j['xdata'], j['ydata'], **j['kwargs'])
                 ax_plot.set_label(i)
                 if len(j['barlabel'])>0:
                     if 'label_type' in j['barlabel']:
