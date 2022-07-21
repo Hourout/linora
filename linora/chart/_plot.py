@@ -65,7 +65,7 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
         if self._params.axis['axis'] is not None:
             ax.axis(self._params.axis['axis'])
         if self._params.axis['xlabel'] is not None:
-            if isinstance(self._params.axis['xlabel'][0], (list, tuple)):
+            if isinstance(self._params.axis['xlabel'][0], (list, tuple, np.ndarray)):
                 ax.set_xticks(self._params.axis['xlabel'][0])
                 ax.set_xticklabels(self._params.axis['xlabel'][1])
             else:
