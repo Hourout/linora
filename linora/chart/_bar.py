@@ -104,6 +104,8 @@ class Bar():
         if not self._params.ydata[name]['vertical']:
             if 'width' in kwargs:
                 kwargs['height'] = kwargs.pop('width')
+            if 'bottom' in kwargs:
+                kwargs['left'] = kwargs.pop('bottom')
         self._params.ydata[name]['barlabel'] = barlabel
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
