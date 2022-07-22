@@ -179,9 +179,9 @@ class Coordinate():
             self._params.axis['ytick']['labelright'] = labelright
 
         if not (tickshow and xtickshow):
-            self._params.axis['xtick'] = {'length':0, 'labelsize':0}
+            self._params.axis['xtick'] = {'length':0, 'labelsize':0, 'which':'both'}
         if not (tickshow and ytickshow):
-            self._params.axis['ytick'] = {'length':0, 'labelsize':0}
+            self._params.axis['ytick'] = {'length':0, 'labelsize':0, 'which':'both'}
         return self
     
     def _set_axis(self, x, y, xy, s):
@@ -344,21 +344,21 @@ handler_map : dict or None
         self._params.legend.update(kwargs)
         return self
         
-    def set_title(self, title, titleloc='center', titlesize='large', titlecolor='#000000', 
-                  titlepad=6., titley=None, titleweight='normal'):
+    def set_title(self, title, loc='center', fontsize='large', fontcolor='#000000', 
+                  titlepad=6., titley=None, fontweight='normal'):
         """Set a title for the Axes.
         
         Args:
             title: str, Text to use for the title.
-            titleloc : {'center', 'left', 'right'}, Which title to set.
+            loc : {'center', 'left', 'right'}, Which title to set.
             titlepad : float, The offset of the title from the top of the Axes, in points.
             titley : float, Vertical Axes loation for the title (1.0 is the top).
                      If None (the default), titley is determined automatically to avoid decorators on the Axes.
         """
-        if isinstance(titlecolor, dict):
-            titlecolor = titlecolor['mode']
-        kwargs = {'label':title, 'loc':titleloc, 'pad':titlepad, 'y':titley,
-                  'fontdict':{'fontsize':titlesize, 'fontweight':titleweight, 'color':titlecolor,
+        if isinstance(fontcolor, dict):
+            fontcolor = fontcolor['mode']
+        kwargs = {'label':title, 'loc':loc, 'pad':titlepad, 'y':titley,
+                  'fontdict':{'fontsize':fontsize, 'fontweight':fontweight, 'color':fontcolor,
                               'verticalalignment': 'baseline', 'horizontalalignment': titleloc}}
         self._params.title = kwargs
         return self
