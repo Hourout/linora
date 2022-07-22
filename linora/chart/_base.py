@@ -31,6 +31,7 @@ class Coordinate():
                  xlabel=None, ylabel=None,
                  invert=False, xinvert=False, yinvert=False, 
                  tickshow=True, xtickshow=True, ytickshow=True, 
+                 tickwhich=None, xtickwhich=None, ytickwhich=None, 
                  tickcolor=None, xtickcolor=None, ytickcolor=None, 
                  tickheight=None, xtickheight=None, ytickheight=None, 
                  tickwidth=None, xtickwidth=None, ytickwidth=None, 
@@ -81,18 +82,15 @@ class Coordinate():
             invert: invert xy-axis.
             xinvert: invert x-axis.
             yinvert: invert y-axis.
-            labelsize: xy-axis label font size.
-            xlabelsize: x-axis label font size.
-            ylabelsize: y-axis label font size.
-            labelcolor: xy-axis label font color.
-            xlabelcolor: x-axis label font color.
-            ylabelcolor: y-axis label font color.
-            labelrotate: xy-axis label font rotate.
-            xlabelrotate: x-axis label font rotate.
-            ylabelrotate: y-axis label font rotate.
             tickshow: show xy-axis tick.
             xtickshow: show x-axis tick.
             ytickshow: show y-axis tick.
+            tickwhich: {'major', 'minor', 'both'}, default: 'major', 
+                The group of xy-axis ticks to which the parameters are applied.
+            xtickwhich: {'major', 'minor', 'both'}, default: 'major', 
+                The group of x-axis ticks to which the parameters are applied.
+            ytickwhich: {'major', 'minor', 'both'}, default: 'major', 
+                The group of y-axis ticks to which the parameters are applied.
             tickcolor: xy-axis tick color.
             xtickcolor: x-axis tick color.
             ytickcolor: y-axis tick color.
@@ -108,6 +106,15 @@ class Coordinate():
             tickloc: {'in', 'out', 'inout'}, xy-axis puts ticks position.
             xtickloc: {'in', 'out', 'inout'}, x-axis puts ticks position.
             ytickloc: {'in', 'out', 'inout'}, y-axis puts ticks position.
+            labelsize: xy-axis label font size.
+            xlabelsize: x-axis label font size.
+            ylabelsize: y-axis label font size.
+            labelcolor: xy-axis label font color.
+            xlabelcolor: x-axis label font color.
+            ylabelcolor: y-axis label font color.
+            labelrotate: xy-axis label font rotate.
+            xlabelrotate: x-axis label font rotate.
+            ylabelrotate: y-axis label font rotate.
             gridcolor: xy-axis grid line color.
             xgridcolor: x-axis grid line color.
             ygridcolor: y-axis grid line color.
@@ -140,6 +147,7 @@ class Coordinate():
         if ylabel is not None:
             self._params.axis['ylabel'] = ylabel
         
+        self._set_axis(xtickwhich, ytickwhich, tickwhich, 'which')
         self._set_axis(xtickcolor, ytickcolor, tickcolor, 'color')
         self._set_axis(xtickheight, ytickheight, tickheight, 'length')
         self._set_axis(xtickwidth, ytickwidth, tickwidth, 'width')
