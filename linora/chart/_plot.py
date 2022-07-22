@@ -71,10 +71,11 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
 #                     if len(self._params.colorbar)>0:
 #                         fig.colorbar(ax_plot)
 #                         self._params.colorbar.remove(list(self._params.colorbar)[0])
-        if self._params.xlabel['xlabel'] is not None:
-            ax.set_xlabel(**self._params.xlabel)
-        if self._params.ylabel['ylabel'] is not None:
-            ax.set_ylabel(**self._params.ylabel)
+        
+        if self._params.label['xlabel']['xlabel'] is not None:
+            ax.set_xlabel(**self._params.label['xlabel'])
+        if self._params.label['ylabel']['ylabel'] is not None:
+            ax.set_ylabel(**self._params.label['ylabel'])
         if self._params.title['label'] is not None:
             ax.set_title(**self._params.title)
         if self._params.axis['axis'] is not None:

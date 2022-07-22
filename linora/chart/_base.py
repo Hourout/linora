@@ -15,8 +15,7 @@ class Coordinate():
         self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{},
                              'xlabel':None, 'ylabel':None}
         
-        self._params.xlabel = {'xlabel':None}
-        self._params.ylabel = {'ylabel':None}
+        self._params.label = {'xlabel':{'xlabel':None}, 'ylabel':{'ylabel':None}}
         
         self._params.legend = {'loc':None}
         
@@ -186,22 +185,56 @@ class Coordinate():
             self._params.axis['xtick'][s] = xy['mode'] if isinstance(xy, dict) else xy
             self._params.axis['ytick'][s] = xy['mode'] if isinstance(xy, dict) else xy
         
-    def set_label(self, xlabel=None, ylabel=None, xloc=None, yloc=None, xlabelpad=None, ylabelpad=None):
+    def set_label(self, xlabel=None, ylabel=None, 
+                  loc=None, xloc=None, yloc=None, 
+                  pad=None, xpad=None, ypad=None,
+                  fontsize=None, xfontsize=None, yfontsize=None, 
+                  fontcolor=None, xfontcolor=None, yfontcolor=None, 
+                  fontfamily=None, xfontfamily=None, yfontfamily=None, 
+                  fontstyle=None, xfontstyle=None, yfontstyle=None, 
+                 ):
         """Set the label for the x-axis and y-axis.
         
         Args:
-            xlabel : str, The label text.
-            ylabel : str, The label text.
-            xloc : {'left', 'center', 'right'}, The label position.
-            yloc : {'bottom', 'center', 'top'}, The label position.
-            xlabelpad : float, Spacing in points from the axes bounding box including ticks and tick labels.
-            ylabelpad : float, Spacing in points from the axes bounding box including ticks and tick labels.
+            xlabel: str, The label text.
+            ylabel: str, The label text.
+            loc: {'left', 'center', 'right'}, The xy label position.
+            xloc: {'left', 'center', 'right'}, The xlabel position.
+            yloc: {'bottom', 'center', 'top'}, The ylabel position.
+            pad: float, Spacing in points from the axes bounding box including ticks and tick xy labels.
+            xpad : float, Spacing in points from the axes bounding box including ticks and tick x labels.
+            ypad : float, Spacing in points from the axes bounding box including ticks and tick y labels.
+            fontsize: xy label font size.
+            xfontsize: x label font size.
+            yfontsize: y label font size.
+            fontcolor: xy label font color.
+            xfontcolor: x label font color.
+            yfontcolor: y label font color.
+            fontfamily:
+            xfontfamily:
+            yfontfamily:
+            fontstyle: xy label font style.
+            xfontstyle: x label font style.
+            yfontstyle: y label font style.
         """
-        if xlabel is not None:
-            self._params.xlabel.update({'xlabel':xlabel, 'loc':xloc, 'labelpad':xlabelpad})
-        if ylabel is not None:
-            self._params.ylabel.update({'ylabel':ylabel, 'loc':yloc, 'labelpad':ylabelpad})
+        self._set_label(xlabel, y=None, xy=None, xkey='xlabel')
+        self._set_label(x=None, y=ylabel, xy=None, ykey='ylabel')
+        self._set_label(x=xloc, y=yloc, xy=loc, xkey='loc', ykey='loc')
+        self._set_label(x=xpad, y=ypad, xy=pad, xkey='labelpad', ykey='labelpad')
+        self._set_label(x=xfontsize, y=yfontsize, xy=fontsize, xkey='fontsize', ykey='fontsize')
+        self._set_label(x=xfontcolor, y=yfontcolor, xy=fontcolor, xkey='color', ykey='color')
+        self._set_label(x=xfontfamily, y=yfontfamily, xy=fontfamily, xkey='fontfamily', ykey='fontfamily')
+        self._set_label(x=xfontstyle, y=yfontstyle, xy=fontstyle, xkey='fontstyle', ykey='fontstyle')
         return self
+    
+    def _set_label(self, x, y, xy, xkey=None, ykey=None):
+        if x is not None:
+            self._params.label['xlabel'][xkey] = x['mode'] if isinstance(x, dict) else x
+        if y is not None:
+            self._params.label['ylabel'][ykey] = y['mode'] if isinstance(y, dict) else y
+        if xy is not None:
+            self._params.label['xlabel'][xkey] = xy['mode'] if isinstance(xy, dict) else xy
+            self._params.label['ylabel'][ykey] = xy['mode'] if isinstance(xy, dict) else xy
     
     def set_legend(self, loc='best', **kwargs):
         """Place a legend on the Axes.
