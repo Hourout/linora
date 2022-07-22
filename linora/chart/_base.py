@@ -13,19 +13,20 @@ class Coordinate():
         self._params.figure = {'figsize':(10, 6)}
         
         self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{},
-                             'xlabel':None, 'ylabel':None}
+                             'xlabel':None, 'ylabel':None, 'xtickposition':None, 'ytickposition':None}
         
         self._params.label = {'xlabel':{'xlabel':None}, 'ylabel':{'ylabel':None}}
         
         self._params.legend = {'loc':None}
-        
+        self._params.spine = {'show':{}, 'color':{}, 'width':{}, 'style':{}, 'position':{}}
         self._params.title = {'label':None}
         
         self._params.set_label = True
         self._params.colorbar = set()
         
-    def render(self):
-        return self._execute().show()
+    def render(self, image_path=None, if_show=True):
+        if if_show:
+            return self._execute().show()
     
     def set_axis(self, axis=None, xmin=None, xmax=None, ymin=None, ymax=None,
                  xlabel=None, ylabel=None,
@@ -37,6 +38,7 @@ class Coordinate():
                  tickwidth=None, xtickwidth=None, ytickwidth=None, 
                  tickpad=None, xtickpad=None, ytickpad=None, 
                  tickloc=None, xtickloc=None, ytickloc=None,
+                 xtickposition=None, ytickposition=None,
                  labelsize=None, xlabelsize=None, ylabelsize=None, 
                  labelcolor=None, xlabelcolor=None, ylabelcolor=None, 
                  labelrotate=None, xlabelrotate=None, ylabelrotate=None, 
@@ -106,6 +108,8 @@ class Coordinate():
             tickloc: {'in', 'out', 'inout'}, xy-axis puts ticks position.
             xtickloc: {'in', 'out', 'inout'}, x-axis puts ticks position.
             ytickloc: {'in', 'out', 'inout'}, y-axis puts ticks position.
+            xtickposition: {'top', 'bottom', 'both', 'default', 'none'}, ticks position.
+            ytickposition: {'left', 'right', 'both', 'default', 'none'}, ticks position.
             labelsize: xy-axis label font size.
             xlabelsize: x-axis label font size.
             ylabelsize: y-axis label font size.
@@ -146,6 +150,10 @@ class Coordinate():
             self._params.axis['xlabel'] = xlabel
         if ylabel is not None:
             self._params.axis['ylabel'] = ylabel
+        if xtickposition is not None:
+            self._params.axis['xtickposition'] = xtickposition
+        if ytickposition is not None:
+            self._params.axis['ytickposition'] = ytickposition
         
         self._set_axis(xtickwhich, ytickwhich, tickwhich, 'which')
         self._set_axis(xtickcolor, ytickcolor, tickcolor, 'color')
@@ -344,6 +352,65 @@ handler_map : dict or None
         self._params.legend.update(kwargs)
         return self
         
+    def set_spine(self, spineshow=None, leftshow=None, rightshow=None, topshow=None, bottomshow=None,
+                  spinecolor=None, leftcolor=None, rightcolor=None, topcolor=None, bottomcolor=None,
+                  spinewidth=None, leftwidth=None, rightwidth=None, topwidth=None, bottomwidth=None,
+                  spinestyle=None, leftstyle=None, rightstyle=None, topstyle=None, bottomstyle=None,
+                  leftloc=None, rightloc=None, toploc=None, bottomloc=None,
+                 ):
+        """Set a wireframes for the Axes.
+        spineshow: bool, whether to show all wireframes.
+        leftshow: bool, whether to show left wireframes.
+        rightshow: bool, whether to show right wireframes.
+        topshow: bool, whether to show top wireframes.
+        bottomshow: bool, whether to show bottom wireframes.
+        spinecolor: all wireframes color.
+        leftcolor: left wireframes color.
+        rightcolor: right wireframes color.
+        topcolor: top wireframes color.
+        bottomcolor: bottom wireframes color.
+        spinewidth: all wireframes width.
+        leftwidth: left wireframes width.
+        rightwidth: right wireframes width.
+        topwidth: top wireframes width.
+        bottomwidth: bottom wireframes width.
+        spinestyle: all wireframes style.
+        leftstyle: left wireframes style.
+        rightstyle: right wireframes style.
+        topstyle: top wireframes style.
+        bottomstyle: bottom wireframes style.
+        leftloc: 2 tuple of (position type, amount), left wireframes position.
+            The position types are :
+            * 'outward': place the spine out from the data area by the specified number of points.
+            * 'axes': place the spine at the specified Axes coordinate (0 to 1).
+            * 'data': place the spine at the specified data coordinate.
+        rightloc: 2 tuple of (position type, amount), right wireframes position.
+        toploc: 2 tuple of (position type, amount), top wireframes position.
+        bottomloc: 2 tuple of (position type, amount), bottom wireframes position.
+        """
+        self._set_spine(spineshow, leftshow, rightshow, topshow, bottomshow, 'show')
+        self._set_spine(spinecolor, leftcolor, rightcolor, topcolor, bottomcolor, 'color')
+        self._set_spine(spinewidth, leftwidth, rightwidth, topwidth, bottomwidth, 'width')
+        self._set_spine(spinestyle, leftstyle, rightstyle, topstyle, bottomstyle, 'style')
+        self._set_spine(None, leftloc, rightloc, toploc, bottomloc, 'position')
+        return self
+    
+    def _set_spine(self, spine, left, right, top, bottom, key):
+        if left is not None:
+            self._params.spine[key]['left'] = left['mode'] if isinstance(left, dict) else left
+        if right is not None:
+            self._params.spine[key]['right'] = right['mode'] if isinstance(right, dict) else right
+        if top is not None:
+            self._params.spine[key]['top'] = top['mode'] if isinstance(top, dict) else top
+        if bottom is not None:
+            self._params.spine[key]['bottom'] = bottom['mode'] if isinstance(bottom, dict) else bottom
+        if spine is not None:
+            self._params.spine[key]['left'] = spine['mode'] if isinstance(spine, dict) else spine
+            self._params.spine[key]['right'] = spine['mode'] if isinstance(spine, dict) else spine
+            self._params.spine[key]['top'] = spine['mode'] if isinstance(spine, dict) else spine
+            self._params.spine[key]['bottom'] = spine['mode'] if isinstance(spine, dict) else spine
+        
+    
     def set_title(self, title, loc='center', fontsize='large', fontcolor='#000000', 
                   titlepad=6., titley=None, fontweight='normal'):
         """Set a title for the Axes.

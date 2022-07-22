@@ -78,6 +78,7 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
             ax.set_ylabel(**self._params.label['ylabel'])
         if self._params.title['label'] is not None:
             ax.set_title(**self._params.title)
+        
         if self._params.axis['axis'] is not None:
             ax.axis(self._params.axis['axis'])
         if self._params.axis['xlabel'] is not None:
@@ -102,9 +103,30 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
             ax.invert_xaxis()
         if self._params.axis['yinvert']:
             ax.invert_yaxis()
+        if self._params.axis['xtickposition'] is not None:
+            ax.xaxis.set_ticks_position(self._params.axis['xtickposition'])
+        if self._params.axis['ytickposition'] is not None:
+            ax.yaxis.set_ticks_position(self._params.axis['ytickposition'])
+        
         if self._params.legend['loc'] is not None:
             ax.legend(**self._params.legend)
         else:
             if len(self._params.ydata)>1:
                 ax.legend(loc='best')
+                
+        if len(self._params.spine['color'])>0:
+            for i,j in self._params.spine['color'].items():
+                ax.spines[i].set_color(j)
+        if len(self._params.spine['width'])>0:
+            for i,j in self._params.spine['width'].items():
+                ax.spines[i].set_linewidth(j)
+        if len(self._params.spine['style'])>0:
+            for i,j in self._params.spine['style'].items():
+                ax.spines[i].set_linestyle(j)
+        if len(self._params.spine['position'])>0:
+            for i,j in self._params.spine['position'].items():
+                ax.spines[i].set_position(j)
+        if len(self._params.spine['show'])>0:
+            for i,j in self._params.spine['show'].items():
+                ax.spines[i].set_visible(j)
         return ax
