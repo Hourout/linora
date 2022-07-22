@@ -426,7 +426,7 @@ handler_map : dict or None
             fontcolor = fontcolor['mode']
         kwargs = {'label':title, 'loc':loc, 'pad':titlepad, 'y':titley,
                   'fontdict':{'fontsize':fontsize, 'fontweight':fontweight, 'color':fontcolor,
-                              'verticalalignment': 'baseline', 'horizontalalignment': titleloc}}
+                              'verticalalignment': 'baseline', 'horizontalalignment': loc}}
         self._params.title = kwargs
         return self
         
