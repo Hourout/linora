@@ -42,5 +42,5 @@ class Polygon():
         return self
     
     def _execute_plot_polygon(self, ax, i, j):
-        poly = patches.Polygon(j['data'], j['kwargs'])
+        poly = patches.Polygon(j['data'], **j['kwargs'])
         ax.add_patch(poly)
