@@ -19,4 +19,8 @@ class Hist2d():
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['plotmode'] = 'hist2d'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot
         return self
+    
+    def _execute_plot(self, ax, i, j):
+        ax_plot = ax.hist2d(j['xdata'], j['ydata'], **j['kwargs'])

@@ -128,5 +128,10 @@ class Errorbar():
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['plotmode'] = 'errorbar'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot
         return self
+    
+    def _execute_plot(self, ax, i, j):
+        ax_plot = ax.errorbar(j['xdata'], j['ydata'], **j['kwargs'])
+        ax_plot.set_label(i)
     

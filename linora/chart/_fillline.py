@@ -67,4 +67,9 @@ class Fillline():
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['ydata2'] = ydata2
         self._params.ydata[name]['plotmode'] = 'fillline'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot
         return self
+    
+    def _execute_plot(self, ax, i, j):
+        ax_plot = ax.fill_between(j['xdata'], j['ydata'], y2=j['ydata2'], **j['kwargs'])
+        ax_plot.set_label(i)

@@ -134,5 +134,9 @@ class Hist():
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['plotmode'] = 'hist'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot
         return self
+    
+    def _execute_plot(self, ax, i, j):
+        ax_plot = ax.hist(j['xdata'], **j['kwargs'])
     

@@ -111,4 +111,24 @@ class Bar():
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['plotmode'] = 'bar'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot
         return self
+    
+    def _execute_plot(self, ax, i, j):
+        if j['vertical']:
+            ax_plot = ax.bar(j['xdata'], j['ydata'], **j['kwargs'])
+        else:
+            ax_plot = ax.barh(j['xdata'], j['ydata'], **j['kwargs'])
+        ax_plot.set_label(i)
+        if len(j['barlabel'])>0:
+            if 'label_type' in j['barlabel']:
+                if isinstance(j['barlabel']['label_type'], str):
+                    label_type = [j['barlabel']['label_type']]
+                else:
+                    label_type = j['barlabel']['label_type']
+            else:
+                label_type = ['edge']
+            t = j['barlabel'].copy()
+            for i in label_type:
+                t['label_type'] = i
+                ax.bar_label(ax_plot, **t)
