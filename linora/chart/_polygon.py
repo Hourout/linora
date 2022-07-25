@@ -36,7 +36,7 @@ class Polygon():
         """
         kwargs['closed'] = closed
         self._params.ydata[name]['kwargs'] = kwargs
-        self._params.ydata[name]['data'] = data
+        self._params.ydata[name]['data'] = xy
         self._params.ydata[name]['plotmode'] = 'polygon'
         self._params.ydata[name]['plotfunc'] = self._execute_plot_polygon
         return self
