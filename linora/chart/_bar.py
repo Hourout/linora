@@ -111,10 +111,10 @@ class Bar():
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['plotmode'] = 'bar'
-        self._params.ydata[name]['plotfunc'] = self._execute_plot
+        self._params.ydata[name]['plotfunc'] = self._execute_plot_bar
         return self
     
-    def _execute_plot(self, ax, i, j):
+    def _execute_plot_bar(self, ax, i, j):
         if j['vertical']:
             ax_plot = ax.bar(j['xdata'], j['ydata'], **j['kwargs'])
         else:

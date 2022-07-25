@@ -87,10 +87,10 @@ class Scatter():
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
         self._params.ydata[name]['plotmode'] = 'scatter'
-        self._params.ydata[name]['plotfunc'] = self._execute_plot
+        self._params.ydata[name]['plotfunc'] = self._execute_plot_scatter
         return self
     
-    def _execute_plot(self, ax, i, j):
+    def _execute_plot_scatter(self, ax, i, j):
         ax_plot = ax.scatter(j['xdata'], j['ydata'], **j['kwargs'])
         ax_plot.set_label(i)
         
