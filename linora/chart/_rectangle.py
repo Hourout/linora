@@ -1,14 +1,24 @@
 from matplotlib import patches
 
 
-class Polygon():
-    def add_polygon(self, name, xy, closed=True, **kwargs):
-        """Make a polygon plot.
+class Rectangle():
+    def add_rectangle(self, name, xy, width, height, angle=0.0, **kwargs):
+        """Make a rectangle plot.
         
+        The rectangle extends from ``xy[0]`` to ``xy[0] + width`` in x-direction
+        and from ``xy[1]`` to ``xy[1] + height`` in y-direction. ::
+
+          :                +------------------+
+          :                |                  |
+          :              height               |
+          :                |                  |
+          :               (xy)---- width -----+
+
         Args:
-            xy: a numpy array with shape Nx2.
-            closed: If True, the polygon will be closed so the 
-                starting and ending points are the same.
+            xy: (float, float) The anchor point.
+            width : float, Rectangle width.
+            height : float, Rectangle height.
+            angle : float, Rotation in degrees anti-clockwise about *xy*.
             alpha: scalar or None
             animated: bool
             antialiased or aa: unknown
@@ -33,13 +43,15 @@ class Polygon():
             sketch_params: (scale: float, length: float, randomness: float)
             snap: bool or None
         """
-        kwargs['closed'] = closed
+        kwargs['width'] = width
+        kwargs['height'] = height
+        kwargs['angle'] = angle
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['data'] = xy
-        self._params.ydata[name]['plotmode'] = 'polygon'
-        self._params.ydata[name]['plotfunc'] = self._execute_plot_polygon
+        self._params.ydata[name]['plotmode'] = 'rectangle'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot_rectangle
         return self
     
-    def _execute_plot_polygon(self, ax, i, j):
-        poly = patches.Polygon(j['data'], **j['kwargs'])
+    def _execute_plot_rectangle(self, ax, i, j):
+        poly = patches.Rectangle(j['data'], **j['kwargs'])
         ax.add_patch(poly)

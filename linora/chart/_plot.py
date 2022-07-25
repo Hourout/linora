@@ -3,19 +3,24 @@ import matplotlib.pyplot as plt
 
 from linora.chart._base import Coordinate
 from linora.chart._bar import Bar
+from linora.chart._circle import Circle
+from linora.chart._ellipse import Ellipse
 from linora.chart._errorbar import Errorbar
 from linora.chart._fillline import Fillline
 from linora.chart._hist import Hist
 from linora.chart._hist2d import Hist2d
 from linora.chart._line import Line
 from linora.chart._polygon import Polygon
+from linora.chart._rectangle import Rectangle
+from linora.chart._regularpolygon import RegularPolygon
 from linora.chart._scatter import Scatter
 
 
 __all__ = ['Plot']
 
 
-class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Polygon, Scatter):
+class Plot(Coordinate, Bar, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Line, 
+           Polygon, Rectangle, RegularPolygon, Scatter):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__()
         if len(args)!=0:

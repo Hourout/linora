@@ -1,14 +1,15 @@
 from matplotlib import patches
 
 
-class Polygon():
-    def add_polygon(self, name, xy, closed=True, **kwargs):
-        """Make a polygon plot.
+class RegularPolygon():
+    def add_regularpolygon(self, name, xy, num_vertices, radius=5, orientation=0, **kwargs):
+        """Make a regular polygon plot.
         
         Args:
-            xy: a numpy array with shape Nx2.
-            closed: If True, the polygon will be closed so the 
-                starting and ending points are the same.
+            xy: (float, float) The anchor point.
+            num_vertices : int, The number of vertices.
+            radius : float, The distance from the center to each of the vertices.
+            orientation : float, The polygon rotation angle (in radians).
             alpha: scalar or None
             animated: bool
             antialiased or aa: unknown
@@ -33,13 +34,15 @@ class Polygon():
             sketch_params: (scale: float, length: float, randomness: float)
             snap: bool or None
         """
-        kwargs['closed'] = closed
+        kwargs['numVertices'] = kwargs.pop('num_vertices')
+        kwargs['radius'] = radius
+        kwargs['orientation'] = orientation
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['data'] = xy
-        self._params.ydata[name]['plotmode'] = 'polygon'
-        self._params.ydata[name]['plotfunc'] = self._execute_plot_polygon
+        self._params.ydata[name]['plotmode'] = 'regularpolygon'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot_regularpolygon
         return self
     
-    def _execute_plot_polygon(self, ax, i, j):
-        poly = patches.Polygon(j['data'], **j['kwargs'])
+    def _execute_plot_regularpolygon(self, ax, i, j):
+        poly = patches.RegularPolygon(j['data'], **j['kwargs'])
         ax.add_patch(poly)

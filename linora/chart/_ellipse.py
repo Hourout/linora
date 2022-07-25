@@ -1,14 +1,15 @@
 from matplotlib import patches
 
 
-class Polygon():
-    def add_polygon(self, name, xy, closed=True, **kwargs):
-        """Make a polygon plot.
+class Ellipse():
+    def add_ellipse(self, name, xy, width, height, angle=0, **kwargs):
+        """Make a ellipse plot.
         
         Args:
-            xy: a numpy array with shape Nx2.
-            closed: If True, the polygon will be closed so the 
-                starting and ending points are the same.
+            xy: (float, float) xy coordinates of ellipse centre.
+            width : float, Total length (diameter) of horizontal axis.
+            height : float, Total length (diameter) of vertical axis.
+            angle : float, Rotation in degrees anti-clockwise.
             alpha: scalar or None
             animated: bool
             antialiased or aa: unknown
@@ -33,13 +34,15 @@ class Polygon():
             sketch_params: (scale: float, length: float, randomness: float)
             snap: bool or None
         """
-        kwargs['closed'] = closed
+        kwargs['width'] = width
+        kwargs['height'] = height
+        kwargs['angle'] = angle
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['data'] = xy
-        self._params.ydata[name]['plotmode'] = 'polygon'
-        self._params.ydata[name]['plotfunc'] = self._execute_plot_polygon
+        self._params.ydata[name]['plotmode'] = 'ellipse'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot_ellipse
         return self
     
-    def _execute_plot_polygon(self, ax, i, j):
-        poly = patches.Polygon(j['data'], **j['kwargs'])
+    def _execute_plot_ellipse(self, ax, i, j):
+        poly = patches.Ellipse(j['data'], **j['kwargs'])
         ax.add_patch(poly)

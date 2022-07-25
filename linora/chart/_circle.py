@@ -1,14 +1,14 @@
+import numpy as np
 from matplotlib import patches
 
 
-class Polygon():
-    def add_polygon(self, name, xy, closed=True, **kwargs):
-        """Make a polygon plot.
+class Circle():
+    def add_circle(self, name, xy, radius=5, **kwargs):
+        """Make a circle plot.
         
         Args:
-            xy: a numpy array with shape Nx2.
-            closed: If True, the polygon will be closed so the 
-                starting and ending points are the same.
+            xy: Create a true circle at center (x, y) with given *radius*.
+            radius: circle radius.
             alpha: scalar or None
             animated: bool
             antialiased or aa: unknown
@@ -33,13 +33,13 @@ class Polygon():
             sketch_params: (scale: float, length: float, randomness: float)
             snap: bool or None
         """
-        kwargs['closed'] = closed
+        kwargs['radius'] = radius
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['data'] = xy
-        self._params.ydata[name]['plotmode'] = 'polygon'
-        self._params.ydata[name]['plotfunc'] = self._execute_plot_polygon
+        self._params.ydata[name]['plotmode'] = 'circle'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot_circle
         return self
     
-    def _execute_plot_polygon(self, ax, i, j):
-        poly = patches.Polygon(j['data'], **j['kwargs'])
+    def _execute_plot_circle(self, ax, i, j):
+        poly = patches.Circle(j['data'], **j['kwargs'])
         ax.add_patch(poly)
