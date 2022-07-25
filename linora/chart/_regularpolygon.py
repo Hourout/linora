@@ -34,7 +34,7 @@ class RegularPolygon():
             sketch_params: (scale: float, length: float, randomness: float)
             snap: bool or None
         """
-        kwargs['numVertices'] = kwargs.pop('num_vertices')
+        kwargs['numVertices'] = num_vertices
         kwargs['radius'] = radius
         kwargs['orientation'] = orientation
         self._params.ydata[name]['kwargs'] = kwargs
