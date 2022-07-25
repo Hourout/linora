@@ -64,13 +64,14 @@ class Plot(Coordinate, Bar, Errorbar, Fillline, Hist, Hist2d, Line, Scatter):
                 ax_plot = ax.hist(j['xdata'], j['ydata'], **j['kwargs'])
             elif j['plotmode']=='line':
                 ax_plot = ax.plot(j['xdata'], j['ydata'], **j['kwargs'])
-            elif j['plotmode']=='scatter':
-                ax_plot = ax.scatter(j['xdata'], j['ydata'], **j['kwargs'])
-                ax_plot.set_label(i)
+#             elif j['plotmode']=='scatter':
+#                 ax_plot = ax.scatter(j['xdata'], j['ydata'], **j['kwargs'])
+#                 ax_plot.set_label(i)
 #                 if not self._params.set_label:
 #                     if len(self._params.colorbar)>0:
 #                         fig.colorbar(ax_plot)
 #                         self._params.colorbar.remove(list(self._params.colorbar)[0])
+            j['plotfunc'](ax, j['xdata'], j['ydata'], i, **j['kwargs'])
         
         if self._params.label['xlabel']['xlabel'] is not None:
             ax.set_xlabel(**self._params.label['xlabel'])

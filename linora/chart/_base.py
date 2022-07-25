@@ -359,34 +359,36 @@ handler_map : dict or None
                   leftloc=None, rightloc=None, toploc=None, bottomloc=None,
                  ):
         """Set a wireframes for the Axes.
-        spineshow: bool, whether to show all wireframes.
-        leftshow: bool, whether to show left wireframes.
-        rightshow: bool, whether to show right wireframes.
-        topshow: bool, whether to show top wireframes.
-        bottomshow: bool, whether to show bottom wireframes.
-        spinecolor: all wireframes color.
-        leftcolor: left wireframes color.
-        rightcolor: right wireframes color.
-        topcolor: top wireframes color.
-        bottomcolor: bottom wireframes color.
-        spinewidth: all wireframes width.
-        leftwidth: left wireframes width.
-        rightwidth: right wireframes width.
-        topwidth: top wireframes width.
-        bottomwidth: bottom wireframes width.
-        spinestyle: all wireframes style.
-        leftstyle: left wireframes style.
-        rightstyle: right wireframes style.
-        topstyle: top wireframes style.
-        bottomstyle: bottom wireframes style.
-        leftloc: 2 tuple of (position type, amount), left wireframes position.
-            The position types are :
-            * 'outward': place the spine out from the data area by the specified number of points.
-            * 'axes': place the spine at the specified Axes coordinate (0 to 1).
-            * 'data': place the spine at the specified data coordinate.
-        rightloc: 2 tuple of (position type, amount), right wireframes position.
-        toploc: 2 tuple of (position type, amount), top wireframes position.
-        bottomloc: 2 tuple of (position type, amount), bottom wireframes position.
+        
+        Args:
+            spineshow: bool, whether to show all wireframes.
+            leftshow: bool, whether to show left wireframes.
+            rightshow: bool, whether to show right wireframes.
+            topshow: bool, whether to show top wireframes.
+            bottomshow: bool, whether to show bottom wireframes.
+            spinecolor: all wireframes color.
+            leftcolor: left wireframes color.
+            rightcolor: right wireframes color.
+            topcolor: top wireframes color.
+            bottomcolor: bottom wireframes color.
+            spinewidth: all wireframes width.
+            leftwidth: left wireframes width.
+            rightwidth: right wireframes width.
+            topwidth: top wireframes width.
+            bottomwidth: bottom wireframes width.
+            spinestyle: all wireframes style.
+            leftstyle: left wireframes style.
+            rightstyle: right wireframes style.
+            topstyle: top wireframes style.
+            bottomstyle: bottom wireframes style.
+            leftloc: 2 tuple of (position type, amount), left wireframes position.
+                The position types are :
+                * 'outward': place the spine out from the data area by the specified number of points.
+                * 'axes': place the spine at the specified Axes coordinate (0 to 1).
+                * 'data': place the spine at the specified data coordinate.
+            rightloc: 2 tuple of (position type, amount), right wireframes position.
+            toploc: 2 tuple of (position type, amount), top wireframes position.
+            bottomloc: 2 tuple of (position type, amount), bottom wireframes position.
         """
         self._set_spine(spineshow, leftshow, rightshow, topshow, bottomshow, 'show')
         self._set_spine(spinecolor, leftcolor, rightcolor, topcolor, bottomcolor, 'color')
@@ -431,7 +433,8 @@ handler_map : dict or None
         return self
         
     def set_theme(self, theme):
-        """
+        """Set a theme for the Axes.
+        
         Args:
             theme: str, figure theme.
         """
