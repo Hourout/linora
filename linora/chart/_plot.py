@@ -118,7 +118,8 @@ class Plot(Coordinate, Bar, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, L
         if self._params.legend['loc'] is not None:
             ax.legend(**self._params.legend)
         else:
-            if len(self._params.ydata)>1:
+            t = ['ellipse', 'regularpolygon', 'rectangle', 'circle', 'polygon']
+            if len([1 for i,j in self._params.ydata.items() if j['plotmode'] not in t])>1:
                 ax.legend(loc='best')
                 
         if len(self._params.spine['color'])>0:
