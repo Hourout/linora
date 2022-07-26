@@ -93,4 +93,7 @@ class Scatter():
     def _execute_plot_scatter(self, ax, i, j):
         ax_plot = ax.scatter(j['xdata'], j['ydata'], **j['kwargs'])
         ax_plot.set_label(i)
-        
+#         if not self._params.set_label:
+#             if len(self._params.colorbar)>0:
+#                 fig.colorbar(ax_plot)
+#                 self._params.colorbar.remove(list(self._params.colorbar)[0])

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 from linora.chart._base import Coordinate
 from linora.chart._bar import Bar
+from linora.chart._boxplot import Boxplot
 from linora.chart._circle import Circle
 from linora.chart._ellipse import Ellipse
 from linora.chart._errorbar import Errorbar
@@ -15,11 +16,10 @@ from linora.chart._rectangle import Rectangle
 from linora.chart._regularpolygon import RegularPolygon
 from linora.chart._scatter import Scatter
 
-
 __all__ = ['Plot']
 
 
-class Plot(Coordinate, Bar, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Line, 
+class Plot(Coordinate, Bar, Boxplot, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Line, 
            Polygon, Rectangle, RegularPolygon, Scatter):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__()
@@ -41,44 +41,7 @@ class Plot(Coordinate, Bar, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, L
     def _execute_ax(self, ax):
         for i,j in self._params.ydata.items():
             j['plotfunc'](ax, i, j)
-#             if j['plotmode']=='bar':
-#                 if j['vertical']:
-#                     ax_plot = ax.bar(j['xdata'], j['ydata'], **j['kwargs'])
-#                 else:
-#                     ax_plot = ax.barh(j['xdata'], j['ydata'], **j['kwargs'])
-#                 ax_plot.set_label(i)
-#                 if len(j['barlabel'])>0:
-#                     if 'label_type' in j['barlabel']:
-#                         if isinstance(j['barlabel']['label_type'], str):
-#                             label_type = [j['barlabel']['label_type']]
-#                         else:
-#                             label_type = j['barlabel']['label_type']
-#                     else:
-#                         label_type = ['edge']
-#                     t = j['barlabel'].copy()
-#                     for i in label_type:
-#                         t['label_type'] = i
-#                         ax.bar_label(ax_plot, **t)
-#             elif j['plotmode']=='errorbar':
-#                 ax_plot = ax.errorbar(j['xdata'], j['ydata'], **j['kwargs'])
-#                 ax_plot.set_label(i)
-#             elif j['plotmode']=='fillline':
-#                 ax_plot = ax.fill_between(j['xdata'], j['ydata'], y2=j['ydata2'], **j['kwargs'])
-#                 ax_plot.set_label(i)
-#             elif j['plotmode']=='hist':
-#                 ax_plot = ax.hist(j['xdata'], **j['kwargs'])
-#             elif j['plotmode']=='hist2d':
-#                 ax_plot = ax.hist2d(j['xdata'], j['ydata'], **j['kwargs'])
-#             elif j['plotmode']=='line':
-#                 ax_plot = ax.plot(j['xdata'], j['ydata'], **j['kwargs'])
-#             elif j['plotmode']=='scatter':
-#                 ax_plot = ax.scatter(j['xdata'], j['ydata'], **j['kwargs'])
-#                 ax_plot.set_label(i)
-#                 if not self._params.set_label:
-#                     if len(self._params.colorbar)>0:
-#                         fig.colorbar(ax_plot)
-#                         self._params.colorbar.remove(list(self._params.colorbar)[0])
-        
+            
         if self._params.label['xlabel']['xlabel'] is not None:
             ax.set_xlabel(**self._params.label['xlabel'])
         if self._params.label['ylabel']['ylabel'] is not None:
@@ -118,7 +81,7 @@ class Plot(Coordinate, Bar, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, L
         if self._params.legend['loc'] is not None:
             ax.legend(**self._params.legend)
         else:
-            t = ['ellipse', 'regularpolygon', 'rectangle', 'circle', 'polygon']
+            t = ['ellipse', 'regularpolygon', 'rectangle', 'circle', 'polygon', 'boxplot']
             if len([1 for i,j in self._params.ydata.items() if j['plotmode'] not in t])>1:
                 ax.legend(loc='best')
                 
