@@ -70,12 +70,14 @@ class Radar():
         if 'marksize' in kwargs:
             kwargs['markersize'] = kwargs.pop('marksize')
         self._params.ydata[name]['kwargs'] = kwargs
-        self._params.ydata[name]['xdata'] = xdata
-        self._params.ydata[name]['ydata'] = ydata
+        angles = np.linspace(0, 2*np.pi, len(xdata), endpoint=False)
+        self._params.ydata[name]['xdata'] = np.concatenate((angles,[angles[0]]))
+        self._params.ydata[name]['ydata'] = np.concatenate((ydata,[ydata[0]]))
+        self._params.ydata[name]['label'] = np.concatenate((xdata,[xdata[0]]))
         self._params.ydata[name]['plotmode'] = 'radar'
         self._params.ydata[name]['plotfunc'] = self._execute_plot_radar
         return self
     
     def _execute_plot_radar(self, ax, i, j):
         ax_plot = ax.plot(j['xdata'], j['ydata'], **j['kwargs'])
-    
+        ax.set_thetagrids(j['xdata'] * 180/np.pi, j['label'])
