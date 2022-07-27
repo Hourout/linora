@@ -9,6 +9,8 @@ class Radar():
             name: data name.
             xdata: x-axis data.
             ydata: y-axis data.
+            fillcolor: fill color, eg. 'blue' or '0.75' or 'g' or '#FFDD44' or (1.0,0.2,0.3) or 'chartreuse'.
+            alpha: fill color alpha.
             linestyle: line style, {'-', '--', '-.', ':'}.
                 '-' or 'solid': solid line
                 '--' or 'dashed': dashed line
@@ -74,10 +76,16 @@ class Radar():
         self._params.ydata[name]['xdata'] = np.concatenate((angles,[angles[0]]))
         self._params.ydata[name]['ydata'] = np.concatenate((ydata,[ydata[0]]))
         self._params.ydata[name]['label'] = np.concatenate((xdata,[xdata[0]]))
+        self._params.ydata[name]['fillcolor'] = kwargs.pop('fillcolor') if 'fillcolor' in kwargs else None
+        self._params.ydata[name]['alpha'] = kwargs.pop('alpha') if 'alpha' in kwargs else 1
         self._params.ydata[name]['plotmode'] = 'radar'
         self._params.ydata[name]['plotfunc'] = self._execute_plot_radar
         return self
     
     def _execute_plot_radar(self, ax, i, j):
         ax_plot = ax.plot(j['xdata'], j['ydata'], **j['kwargs'])
+        if j['fillcolor'] is not None:
+            ax_plot = ax.fill(j['xdata'], j['ydata'], facecolor=j['fillcolor'], alpha=j['alpha'])
         ax.set_thetagrids(j['xdata'] * 180/np.pi, j['label'])
+        
+        
