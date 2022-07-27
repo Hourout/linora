@@ -13,6 +13,7 @@ from linora.chart._hist2d import Hist2d
 from linora.chart._line import Line
 from linora.chart._pie import Pie
 from linora.chart._polygon import Polygon
+from linora.chart._radar import Radar
 from linora.chart._rectangle import Rectangle
 from linora.chart._regularpolygon import RegularPolygon
 from linora.chart._scatter import Scatter
@@ -23,7 +24,7 @@ __all__ = ['Plot']
 
 classlist = [
     Coordinate, Bar, Boxplot, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Line, 
-    Pie, Polygon, Rectangle, RegularPolygon, Scatter
+    Pie, Polygon, Radar, Rectangle, RegularPolygon, Scatter
 ]
 
 class Plot(*classlist):
@@ -40,7 +41,10 @@ class Plot(*classlist):
     def _execute(self):
         fig = plt.figure(**self._params.figure)
         with plt.style.context(self._params.theme):
-            ax = fig.add_subplot()
+            if len([1 for i,j in self._params.ydata.items() if j['plotmode']=='radar'])>0:
+                ax = fig.add_subplot(polar=True)
+            else:
+                ax = fig.add_subplot()
         ax = self._execute_ax(ax)
         return fig
             
