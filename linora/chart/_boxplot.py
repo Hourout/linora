@@ -107,4 +107,4 @@ class Boxplot():
         return self
     
     def _execute_plot_boxplot(self, ax, i, j):
-        boxdata = ax.boxplot(j['xdata'], **j['kwargs'])
+        axplot = ax.boxplot(j['xdata'], **j['kwargs'])

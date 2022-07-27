@@ -11,6 +11,7 @@ from linora.chart._fillline import Fillline
 from linora.chart._hist import Hist
 from linora.chart._hist2d import Hist2d
 from linora.chart._line import Line
+from linora.chart._pie import Pie
 from linora.chart._polygon import Polygon
 from linora.chart._rectangle import Rectangle
 from linora.chart._regularpolygon import RegularPolygon
@@ -19,8 +20,13 @@ from linora.chart._scatter import Scatter
 __all__ = ['Plot']
 
 
-class Plot(Coordinate, Bar, Boxplot, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Line, 
-           Polygon, Rectangle, RegularPolygon, Scatter):
+
+classlist = [
+    Coordinate, Bar, Boxplot, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Line, 
+    Pie, Polygon, Rectangle, RegularPolygon, Scatter
+]
+
+class Plot(*classlist):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__()
         if len(args)!=0:
