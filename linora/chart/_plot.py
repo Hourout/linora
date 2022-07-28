@@ -30,13 +30,13 @@ classlist = [
 class Plot(*classlist):
     def __init__(self, *args, **kwargs):
         super(Plot, self).__init__()
-        if len(args)!=0:
-            if isinstance(args[0], dict):
-                for i,j in args[0].items():
-                    setattr(self._params, i, j)
-        if kwargs:
-            for i,j in kwargs.items():
-                setattr(self._params, i, j)
+#         if len(args)!=0:
+#             if isinstance(args[0], dict):
+#                 for i,j in args[0].items():
+#                     setattr(self._params, i, j)
+#         if kwargs:
+#             for i,j in kwargs.items():
+#                 setattr(self._params, i, j)
                 
     def _execute(self):
         fig = plt.figure(**self._params.figure)
