@@ -24,9 +24,12 @@ class Coordinate():
         self._params.set_label = True
         self._params.colorbar = set()
         
-    def render(self, image_path=None, if_show=True):
+    def render(self, image_path=None, if_show=True, **kwargs):
+        fig = self._execute()
+        if image_path is not None:
+            fig.savefig(image_path, **kwargs)
         if if_show:
-            return self._execute().show()
+            return fig.show()
     
     def set_axis(self, axis=None, xmin=None, xmax=None, ymin=None, ymax=None,
                  xlabel=None, ylabel=None,
