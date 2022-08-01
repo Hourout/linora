@@ -28,8 +28,10 @@ classlist = [
 ]
 
 class Plot(*classlist):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, config=None):
         super(Plot, self).__init__()
+        if config is not None:
+            self.set_config(config)
 #         if len(args)!=0:
 #             if isinstance(args[0], dict):
 #                 for i,j in args[0].items():

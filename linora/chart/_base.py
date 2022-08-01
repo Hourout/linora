@@ -24,6 +24,42 @@ class Coordinate():
         self._params.set_label = True
         self._params.colorbar = set()
         
+    def get_config(self, json_path=None):
+        config = {
+            'ydata': self._params.ydata,
+            'theme': self._params.theme,
+            'figure': self._params.figure,
+            'axis': self._params.axis,
+            'label': self._params.label,
+            'legend': self._params.legend,
+            'spine': self._params.spine,
+            'title': self._params.title,
+            'set_label': self._params.set_label,
+            'colorbar': self._params.colorbar,
+        }
+        if json_path is not None:
+            with open(json_path, 'w') as f:
+                json.dump(config, f)
+        return config
+    
+    def set_config(self, config):
+        if isinstance(config, str):
+            assert config.endswith('.json'), f'{config} not a json file.'
+            with open(config) as f:
+                config = json.load(f)
+        assert isinstance(config, dict), f'{config} not a dict.'
+        self._params.ydata = config['ydata']
+        self._params.theme = config['theme']
+        self._params.figure = config['figure']
+        self._params.axis = config['axis']
+        self._params.label = config['label']
+        self._params.legend = config['legend']
+        self._params.spine = config['spine']
+        self._params.title = config['title']
+        self._params.set_label = config['set_label']
+        self._params.colorbar = config['colorbar']
+        return self
+            
     def render(self, image_path=None, if_show=True, **kwargs):
         fig = self._execute()
         if image_path is not None:
