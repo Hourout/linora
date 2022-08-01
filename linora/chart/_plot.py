@@ -17,13 +17,14 @@ from linora.chart._radar import Radar
 from linora.chart._rectangle import Rectangle
 from linora.chart._regularpolygon import RegularPolygon
 from linora.chart._scatter import Scatter
+from linora.chart._scatter import scatter3D
 
 __all__ = ['Plot']
 
 
 classlist = [
     Coordinate, Bar, Boxplot, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Line, 
-    Pie, Polygon, Radar, Rectangle, RegularPolygon, Scatter
+    Pie, Polygon, Radar, Rectangle, RegularPolygon, Scatter, scatter3D,
 ]
 
 class Plot(*classlist):
