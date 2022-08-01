@@ -1,3 +1,4 @@
+import json
 import matplotlib.pyplot as plt
 
 from linora.utils._config import Config
@@ -77,10 +78,38 @@ class Grid():
         
         self._grid.grid_id[len(self._grid.grid_id)] = {'grid_id':grid_id, 'plot':plot}        
         return self
+    
+    def get_config(self, json_path=None):
+        config = {
+            'mode': 'grid',
+            'grid': self._grid.grid,
+            'grid_id': self._grid.grid_id,
+            'figure': self._grid.figure,
+        }
+        if json_path is not None:
+            with open(json_path, 'w') as f:
+                json.dump(config, f)
+        return config
+    
+    def set_config(self, config):
+        if isinstance(config, str):
+            assert config.endswith('.json'), f'{config} not a json file.'
+            with open(config) as f:
+                config = json.load(f)
+        assert isinstance(config, dict), f'{config} not a dict.'
+        assert config['mode']=='grid', 'config info not match.'
+        self._grid.figure = config['figure']
+        self._grid.grid = config['grid']
+        self._grid.grid_id = config['grid_id']
+        return self
         
-    def render(self):
-        """show plot."""
-        return self._execute().show()
+    def render(self, image_path=None, if_show=True, **kwargs):
+        """show and save plot."""
+        fig = self._execute()
+        if image_path is not None:
+            fig.savefig(image_path, **kwargs)
+        if if_show:
+            return fig.show()
     
     def set_figure(self, width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
         """Add figure config.

@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 
 from linora.utils._config import Config
@@ -26,6 +27,7 @@ class Coordinate():
         
     def get_config(self, json_path=None):
         config = {
+            'mode': 'plot',
             'ydata': self._params.ydata,
             'theme': self._params.theme,
             'figure': self._params.figure,
@@ -48,6 +50,7 @@ class Coordinate():
             with open(config) as f:
                 config = json.load(f)
         assert isinstance(config, dict), f'{config} not a dict.'
+        assert config['mode']=='plot', 'config info not match.'
         self._params.ydata = config['ydata']
         self._params.theme = config['theme']
         self._params.figure = config['figure']
@@ -61,6 +64,7 @@ class Coordinate():
         return self
             
     def render(self, image_path=None, if_show=True, **kwargs):
+        """show and save plot."""
         fig = self._execute()
         if image_path is not None:
             fig.savefig(image_path, **kwargs)
