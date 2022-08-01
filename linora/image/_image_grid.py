@@ -77,7 +77,7 @@ def grid(image, mode, size=None, **kwargs):
         
         for r, i in enumerate(image):
             img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)))
-            textsize = draw.textlength(text[r])
+            textsize = draw.textbbox([0,0], text[r])[2:]
             t = min(yspace/2/textsize[1], size[0]/min(textsize[0], textsize[1]*len(text[r])))
             xoffset = int((size[0]-t*min(textsize[0], textsize[1]*len(text[r])))/2)
             font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
@@ -96,7 +96,7 @@ def grid(image, mode, size=None, **kwargs):
         
         for r, i in enumerate(image):
             img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)+yspace))
-            textsize = draw.textsize(text[r])
+            textsize = draw.textbbox([0,0], text[r])[2:]
             t = min(yspace/2/textsize[1], size[0]/min(textsize[0], textsize[1]*len(text[r])))
             xoffset = int((size[0]-t*min(textsize[0], textsize[1]*len(text[r])))/2)
             font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
@@ -115,7 +115,7 @@ def grid(image, mode, size=None, **kwargs):
         
         for r, i in enumerate(image):
             img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)))
-            textsize = draw.textsize(text[r])
+            textsize = draw.textbbox([0,0], text[r])[2:]
             t = min(xspace/2/textsize[1], size[1]/textsize[1]/len(text[r]))
             yoffset = int((size[1]-t*textsize[1]*len(text[r]))/2)
             font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
@@ -134,7 +134,7 @@ def grid(image, mode, size=None, **kwargs):
         
         for r, i in enumerate(image):
             img.paste(i, (r%shape[0]*(size[0]+xspace)+xspace, r//shape[0]*(size[1]+yspace)))
-            textsize = draw.textsize(text[r])
+            textsize = draw.textbbox([0,0], text[r])[2:]
             t = min(xspace/2/textsize[1], size[1]/textsize[1]/len(text[r]))
             yoffset = int((size[1]-t*textsize[1]*len(text[r]))/2)
             font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
