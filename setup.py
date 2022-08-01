@@ -9,7 +9,7 @@ setup(name='linora',
       version='1.5.0rc0',
       install_requires=[
           'pandas>=1.3.0', 
-          'pillow>=9.2.0',
+          'Pillow>=9.2.0',
           'joblib>=1.0.1',
           'requests>=2.26.0',
           'rarfile'

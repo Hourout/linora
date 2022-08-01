@@ -77,7 +77,7 @@ def grid(image, mode, size=None, **kwargs):
         
         for r, i in enumerate(image):
             img.paste(i, (r%shape[0]*(size[0]+xspace), r//shape[0]*(size[1]+yspace)))
-            textsize = draw.textsize(text[r])
+            textsize = draw.textlength(text[r])
             t = min(yspace/2/textsize[1], size[0]/min(textsize[0], textsize[1]*len(text[r])))
             xoffset = int((size[0]-t*min(textsize[0], textsize[1]*len(text[r])))/2)
             font = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf",size=int(t*min(textsize)))
