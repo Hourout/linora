@@ -78,7 +78,7 @@ class Radar():
         self._params.ydata[name]['label'] = np.concatenate((xdata,[xdata[0]]))
         self._params.ydata[name]['fillcolor'] = kwargs.pop('fillcolor') if 'fillcolor' in kwargs else None
         self._params.ydata[name]['alpha'] = kwargs.pop('alpha') if 'alpha' in kwargs else 1
-        self._params.ydata[name]['plotmode'] = 'radar'
+        self._params.ydata[name]['plotmode'] = 'radar_polar'
         self._params.ydata[name]['plotfunc'] = self._execute_plot_radar
         return self
     

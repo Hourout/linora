@@ -21,7 +21,6 @@ from linora.chart._scatter import Scatter
 __all__ = ['Plot']
 
 
-
 classlist = [
     Coordinate, Bar, Boxplot, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Line, 
     Pie, Polygon, Radar, Rectangle, RegularPolygon, Scatter
@@ -43,10 +42,14 @@ class Plot(*classlist):
     def _execute(self):
         fig = plt.figure(**self._params.figure)
         with plt.style.context(self._params.theme):
-            if len([1 for i,j in self._params.ydata.items() if j['plotmode']=='radar'])>0:
-                ax = fig.add_subplot(polar=True)
+            mode = set([j['plotmode'].split('_')[-1] if '_' in j['plotmode'] else 'rectilinear' for i,j in self._params.ydata.items()])
+            if len(mode)==1:
+                projection = list(mode)[0]
+            elif len(mode)==2 and 'rectilinear' in mode and '3d' in mode:
+                projection = '3d'
             else:
-                ax = fig.add_subplot()
+                raise ValueError('There are two different coordinate systems.')
+            ax = fig.add_subplot(projection=projection)
         ax = self._execute_ax(ax)
         return fig
             
