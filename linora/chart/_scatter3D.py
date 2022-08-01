@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class scatter3D():
+class Scatter3D():
     def add_scatter3D(self, name, xdata, ydata, zdata=0, **kwargs):
         """A scatter plot of *y* vs. *x* with varying marker size and/or color.
         
