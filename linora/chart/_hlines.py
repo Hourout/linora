@@ -1,3 +1,5 @@
+import numpy as np
+
 class Hlines():
     def add_hlines(self, name, ydata, xmin, xmax, **kwargs):
         """Plot y versus x as lines and/or markers.
@@ -12,6 +14,8 @@ class Hlines():
             linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
             label : str, default: ''
         """
+        if 'colors' not in kwargs and 'colors' not in kwargs and 'linecolor' not in kwargs:
+            kwargs['colors'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xmin'] = xmin
         self._params.ydata[name]['xmax'] = xmax
