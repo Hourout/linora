@@ -116,4 +116,8 @@ class Plot(*classlist):
         if len(self._params.spine['show'])>0:
             for i,j in self._params.spine['show'].items():
                 ax.spines[i].set_visible(j)
+                
+        if len(self._params.text)>0:
+            for i in self._params.text:
+                ax.text(**self._params.text[i])
         return ax
