@@ -97,7 +97,8 @@ class Plot(*classlist):
             ax.yaxis.set_ticks_position(self._params.axis['ytickposition'])
         
         if self._params.legend['loc'] is not None:
-            ax.legend(**self._params.legend)
+            if self._params.legend['loc'] not in ['None', 'none']:
+                ax.legend(**self._params.legend)
         else:
             t = ['ellipse', 'regularpolygon', 'rectangle', 'circle', 'polygon', 'boxplot']
             if len([1 for i,j in self._params.ydata.items() if j['plotmode'] not in t])>1:
