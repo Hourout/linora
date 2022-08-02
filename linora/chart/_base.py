@@ -503,59 +503,56 @@ class Coordinate():
             fontsize: int or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
                       The font size of the legend. If the value is numeric the size will be the absolute 
                       font size in points. String values are relative to the current default font size.
-
             
 
-numpoints: int, The number of marker points in the legend when creating a legend.
-markerscale: float, The relative size of legend markers compared with the originally drawn ones.
-markerfirst: bool, default: True
-            If *True*, legend marker is placed to the left of the legend label.
-            If *False*, legend marker is placed to the right of the legend label.
+            numpoints: int, The number of marker points in the legend when creating a legend.
+            markerscale: float, The relative size of legend markers compared with the originally drawn ones.
+            markerfirst: bool, default: True
+                        If *True*, legend marker is placed to the left of the legend label.
+                        If *False*, legend marker is placed to the right of the legend label.
 
-frameon : bool, Whether the legend should be drawn on a patch (frame).
+            frameon : bool, Whether the legend should be drawn on a patch (frame).
 
-fancybox : bool, Whether round edges should be enabled around the `~.FancyBboxPatch` which
-    makes up the legend's background.
+            fancybox : bool, Whether round edges should be enabled around the `~.FancyBboxPatch` which
+                makes up the legend's background.
 
-shadow : bool, Whether to draw a shadow behind the legend.
+            shadow : bool, Whether to draw a shadow behind the legend.
 
-framealpha : float, The alpha transparency of the legend's background.
-             If *shadow* is activated and *framealpha* is ``None``, the default value is ignored.
+            framealpha : float, The alpha transparency of the legend's background.
+                         If *shadow* is activated and *framealpha* is ``None``, the default value is ignored.
 
-facecolor : "inherit" or color, default: :rc:`legend.facecolor`
-    The legend's background color.
-    If ``"inherit"``, use :rc:`axes.facecolor`.
+            facecolor : "inherit" or color, default: :rc:`legend.facecolor`
+                The legend's background color.
+                If ``"inherit"``, use :rc:`axes.facecolor`.
 
-edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
-    The legend's background patch edge color.
-    If ``"inherit"``, use take :rc:`axes.edgecolor`.
+            edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
+                The legend's background patch edge color.
+                If ``"inherit"``, use take :rc:`axes.edgecolor`.
 
-mode : {"expand", None}
-    If *mode* is set to ``"expand"`` the legend will be horizontally
-    expanded to fill the axes area (or *bbox_to_anchor* if defines
-    the legend's size).
+            mode : {"expand", None}
+                If *mode* is set to ``"expand"`` the legend will be horizontally
+                expanded to fill the axes area (or *bbox_to_anchor* if defines
+                the legend's size).
 
-bbox_transform : None or `matplotlib.transforms.Transform`
-    The transform for the bounding box (*bbox_to_anchor*). For a value
-    of ``None`` (default) the Axes'
-    :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
+            bbox_transform : None or `matplotlib.transforms.Transform`
+                The transform for the bounding box (*bbox_to_anchor*). For a value
+                of ``None`` (default) the Axes'
+                :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
 
-title : str or None, The legend's title. Default is no title (``None``).
-title_fontsize: int or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
-                The font size of the legend's title.
-borderpad : float, The fractional whitespace inside the legend border, in font-size units.
-labelspacing : float, The vertical space between the legend entries, in font-size units.
-handlelength : float, The length of the legend handles, in font-size units.
-handletextpad : float, The pad between the legend handle and text, in font-size units.
-borderaxespad : float, The pad between the axes and legend border, in font-size units.
-columnspacing : float, The spacing between columns, in font-size units.
+            title : str or None, The legend's title. Default is no title (``None``).
+            title_fontsize: int or {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
+                            The font size of the legend's title.
+            borderpad : float, The fractional whitespace inside the legend border, in font-size units.
+            labelspacing : float, The vertical space between the legend entries, in font-size units.
+            handlelength : float, The length of the legend handles, in font-size units.
+            handletextpad : float, The pad between the legend handle and text, in font-size units.
+            borderaxespad : float, The pad between the axes and legend border, in font-size units.
+            columnspacing : float, The spacing between columns, in font-size units.
 
-handler_map : dict or None
-    The custom dictionary mapping instances or types to a legend
-    handler. This *handler_map* updates the default handler map
-    found at `matplotlib.legend.Legend.get_legend_handler_map`.
-
-                      
+            handler_map : dict or None
+                The custom dictionary mapping instances or types to a legend
+                handler. This *handler_map* updates the default handler map
+                found at `matplotlib.legend.Legend.get_legend_handler_map`.
         """
 #         'legend.borderaxespad': 0.5,
 # 'legend.borderpad': 0.4,
