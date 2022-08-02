@@ -120,4 +120,7 @@ class Plot(*classlist):
         if len(self._params.text)>0:
             for i in self._params.text:
                 ax.text(**self._params.text[i])
+        if len(self._params.annotate)>0:
+            for i in self._params.annotate:
+                ax.annotate(**self._params.annotate[i])
         return ax

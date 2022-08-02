@@ -8,7 +8,7 @@ class Coordinate():
     def __init__(self):
         self._params = Config()
         self._params.ydata = defaultdict(defaultdict)
-
+        self._params.annotate = dict()
         self._params.figure = {'figsize':(10, 6)}
         
         self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{},
@@ -28,6 +28,7 @@ class Coordinate():
     def get_config(self, json_path=None):
         config = {
             'mode': 'plot',
+            'annotate': self._params.annotate,
             'ydata': self._params.ydata,
             'theme': self._params.theme,
             'figure': self._params.figure,
@@ -53,6 +54,7 @@ class Coordinate():
         assert isinstance(config, dict), f'{config} not a dict.'
         assert config['mode']=='plot', 'config info not match.'
         self._params.ydata = config['ydata']
+        self._params.annotate = config['annotate']
         self._params.theme = config['theme']
         self._params.figure = config['figure']
         self._params.axis = config['axis']
@@ -73,6 +75,170 @@ class Coordinate():
         if if_show:
             return fig.show()
     
+    def set_annotate(self, text, xy, xytext=None, xycoords=None, textcoords=None, 
+                     arrowprops=None, annotation_clip=None, **kwargs):
+        """Annotate the point *xy* with text *text*.
+        
+        Args:
+            text : str, The text of the annotation.
+
+            xy : (float, float)
+                The point *(x, y)* to annotate. The coordinate system is determined
+                by *xycoords*.
+
+            xytext : (float, float), default: *xy*
+                The position *(x, y)* to place the text at. The coordinate system
+                is determined by *textcoords*.
+
+            xycoords : str or `.Artist` or `.Transform` or callable or (float, float), default: 'data'
+
+                The coordinate system that *xy* is given in. The following types
+                of values are supported:
+
+                - One of the following strings:
+
+                  ==================== ============================================
+                  Value                Description
+                  ==================== ============================================
+                  'figure points'      Points from the lower left of the figure
+                  'figure pixels'      Pixels from the lower left of the figure
+                  'figure fraction'    Fraction of figure from lower left
+                  'subfigure points'   Points from the lower left of the subfigure
+                  'subfigure pixels'   Pixels from the lower left of the subfigure
+                  'subfigure fraction' Fraction of subfigure from lower left
+                  'axes points'        Points from lower left corner of axes
+                  'axes pixels'        Pixels from lower left corner of axes
+                  'axes fraction'      Fraction of axes from lower left
+                  'data'               Use the coordinate system of the object
+                                       being annotated (default)
+                  'polar'              *(theta, r)* if not native 'data'
+                                       coordinates
+                  ==================== ============================================
+
+                  Note that 'subfigure pixels' and 'figure pixels' are the same
+                  for the parent figure, so users who want code that is usable in
+                  a subfigure can use 'subfigure pixels'.
+
+                - An `.Artist`: *xy* is interpreted as a fraction of the artist's
+                  `~matplotlib.transforms.Bbox`. E.g. *(0, 0)* would be the lower
+                  left corner of the bounding box and *(0.5, 1)* would be the
+                  center top of the bounding box.
+
+                - A `.Transform` to transform *xy* to screen coordinates.
+
+                - A function with one of the following signatures::
+
+                    def transform(renderer) -> Bbox
+                    def transform(renderer) -> Transform
+
+                  where *renderer* is a `.RendererBase` subclass.
+
+                  The result of the function is interpreted like the `.Artist` and
+                  `.Transform` cases above.
+
+                - A tuple *(xcoords, ycoords)* specifying separate coordinate
+                  systems for *x* and *y*. *xcoords* and *ycoords* must each be
+                  of one of the above described types.
+
+                See :ref:`plotting-guide-annotation` for more details.
+
+            textcoords : str or `.Artist` or `.Transform` or callable or (float, float), default: value of *xycoords*
+                The coordinate system that *xytext* is given in.
+
+                All *xycoords* values are valid as well as the following
+                strings:
+
+                =================   =========================================
+                Value               Description
+                =================   =========================================
+                'offset points'     Offset (in points) from the *xy* value
+                'offset pixels'     Offset (in pixels) from the *xy* value
+                =================   =========================================
+
+            arrowprops : dict, optional
+                The properties used to draw a `.FancyArrowPatch` arrow between the
+                positions *xy* and *xytext*. Note that the edge of the arrow
+                pointing to *xytext* will be centered on the text itself and may
+                not point directly to the coordinates given in *xytext*.
+
+                If *arrowprops* does not contain the key 'arrowstyle' the
+                allowed keys are:
+
+                ==========   ======================================================
+                Key          Description
+                ==========   ======================================================
+                width        The width of the arrow in points
+                headwidth    The width of the base of the arrow head in points
+                headlength   The length of the arrow head in points
+                shrink       Fraction of total length to shrink from both ends
+                ?            Any key to :class:`matplotlib.patches.FancyArrowPatch`
+                ==========   ======================================================
+
+                If *arrowprops* contains the key 'arrowstyle' the
+                above keys are forbidden.  The allowed values of
+                ``'arrowstyle'`` are:
+
+                ============   =============================================
+                Name           Attrs
+                ============   =============================================
+                ``'-'``        None
+                ``'->'``       head_length=0.4,head_width=0.2
+                ``'-['``       widthB=1.0,lengthB=0.2,angleB=None
+                ``'|-|'``      widthA=1.0,widthB=1.0
+                ``'-|>'``      head_length=0.4,head_width=0.2
+                ``'<-'``       head_length=0.4,head_width=0.2
+                ``'<->'``      head_length=0.4,head_width=0.2
+                ``'<|-'``      head_length=0.4,head_width=0.2
+                ``'<|-|>'``    head_length=0.4,head_width=0.2
+                ``'fancy'``    head_length=0.4,head_width=0.4,tail_width=0.4
+                ``'simple'``   head_length=0.5,head_width=0.5,tail_width=0.2
+                ``'wedge'``    tail_width=0.3,shrink_factor=0.5
+                ============   =============================================
+
+                Valid keys for `~matplotlib.patches.FancyArrowPatch` are:
+
+                ===============  ==================================================
+                Key              Description
+                ===============  ==================================================
+                arrowstyle       the arrow style
+                connectionstyle  the connection style
+                relpos           default is (0.5, 0.5)
+                patchA           default is bounding box of the text
+                patchB           default is None
+                shrinkA          default is 2 points
+                shrinkB          default is 2 points
+                mutation_scale   default is text size (in points)
+                mutation_aspect  default is 1.
+                ?                any key for :class:`matplotlib.patches.PathPatch`
+                ===============  ==================================================
+
+                Defaults to None, i.e. no arrow is drawn.
+
+            annotation_clip : bool or None, default: None
+                Whether to draw the annotation when the annotation point *xy* is
+                outside the axes area.
+
+                - If *True*, the annotation will only be drawn when *xy* is
+                  within the axes.
+                - If *False*, the annotation will always be drawn.
+                - If *None*, the annotation will only be drawn when *xy* is
+                  within the axes and *xycoords* is 'data'.
+        """
+        if xytext is not None:
+            kwargs['xytext'] = xytext
+        if xycoords is not None:
+            kwargs['xycoords'] = xycoords
+        if textcoords is not None:
+            kwargs['textcoords'] = textcoords
+        if arrowprops is not None:
+            kwargs['arrowprops'] = arrowprops
+        if annotation_clip is not None:
+            kwargs['annotation_clip'] = annotation_clip
+        kwargs['text'] = text
+        kwargs['xy'] = xy
+        self._params.annotate[len(self._params.annotate)] = kwargs
+        return self
+        
     def set_axis(self, axis=None, xmin=None, xmax=None, ymin=None, ymax=None,
                  xlabel=None, ylabel=None,
                  invert=False, xinvert=False, yinvert=False, 
@@ -474,7 +640,7 @@ handler_map : dict or None
             self._params.spine[key]['top'] = spine['mode'] if isinstance(spine, dict) else spine
             self._params.spine[key]['bottom'] = spine['mode'] if isinstance(spine, dict) else spine
         
-    def set_text(self, x, y, text):
+    def set_text(self, x, y, text, **kwargs):
         """Add text to the Axes.
         
         Args:
@@ -482,7 +648,9 @@ handler_map : dict or None
             text : str, The text.
 
         """
-        kwargs = {'x':x, 'y':y, 's':text}
+        kwargs['x'] = x
+        kwargs['y'] = y
+        kwargs['s'] = text
         self._params.text[len(self._params.text)] = kwargs
         return self
         
