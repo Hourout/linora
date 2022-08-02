@@ -573,7 +573,7 @@ class Coordinate():
 # 'legend.scatterpoints': 1,
 # 'legend.shadow': False,
 # 'legend.title_fontsize': None,
-        kwargs['loc'] = legendloc
+        kwargs['loc'] = loc
         self._params.legend.update(kwargs)
         return self
         
