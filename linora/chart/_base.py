@@ -8,9 +8,7 @@ class Coordinate():
     def __init__(self):
         self._params = Config()
         self._params.ydata = defaultdict(defaultdict)
-        
-        self._params.theme = 'ggplot'
-        
+
         self._params.figure = {'figsize':(10, 6)}
         
         self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{},
@@ -20,6 +18,8 @@ class Coordinate():
         
         self._params.legend = {'loc':None}
         self._params.spine = {'show':{}, 'color':{}, 'width':{}, 'style':{}, 'position':{}}
+        self._params.text = dict()
+        self._params.theme = 'ggplot'
         self._params.title = {'label':None}
         
         self._params.set_label = True
@@ -35,6 +35,7 @@ class Coordinate():
             'label': self._params.label,
             'legend': self._params.legend,
             'spine': self._params.spine,
+            'text': self._params.text,
             'title': self._params.title,
             'set_label': self._params.set_label,
             'colorbar': self._params.colorbar,
@@ -58,6 +59,7 @@ class Coordinate():
         self._params.label = config['label']
         self._params.legend = config['legend']
         self._params.spine = config['spine']
+        self._params.text = config['text']
         self._params.title = config['title']
         self._params.set_label = config['set_label']
         self._params.colorbar = config['colorbar']
@@ -244,6 +246,23 @@ class Coordinate():
             self._params.axis['xtick'][s] = xy['mode'] if isinstance(xy, dict) else xy
             self._params.axis['ytick'][s] = xy['mode'] if isinstance(xy, dict) else xy
         
+    def set_figure(self, width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
+        """Add figure config.
+        
+        Args:
+            width: float, figure size width in inches.
+            height: float, figure size height in inches.
+            dpi: float, The resolution of the figure in dots-per-inch.
+            facecolor: color, The background color.
+            edgecolor: color, The border color.
+            frameon: bool, default: True, If False, suppress drawing the figure frame.
+            clear: bool, default: False, If True and the figure already exists, then it is cleared.
+        """
+        kwargs = {'figsize':(width, height), 'dpi':dpi, 'facecolor':facecolor, 
+                  'edgecolor':edgecolor, 'frameon':frameon, 'clear':clear}
+        self._params.figure.update(kwargs)
+        return self
+    
     def set_label(self, xlabel=None, ylabel=None, 
                   loc=None, xloc=None, yloc=None, 
                   pad=None, xpad=None, ypad=None,
@@ -455,6 +474,26 @@ handler_map : dict or None
             self._params.spine[key]['top'] = spine['mode'] if isinstance(spine, dict) else spine
             self._params.spine[key]['bottom'] = spine['mode'] if isinstance(spine, dict) else spine
         
+    def set_text(self, x, y, text):
+        """Add text to the Axes.
+        
+        Args:
+            x, y : float, The position to place the text. 
+            text : str, The text.
+
+        """
+        kwargs = {'x':x, 'y':y, 's':text}
+        self._params.text[len(self._params.text)] = kwargs
+        return self
+        
+    def set_theme(self, theme):
+        """Set a theme for the Axes.
+        
+        Args:
+            theme: str, figure theme.
+        """
+        self._params.theme = theme
+        return self
     
     def set_title(self, title, loc='center', fontsize='large', fontcolor='#000000', 
                   titlepad=6., titley=None, fontweight='normal'):
@@ -475,32 +514,3 @@ handler_map : dict or None
         self._params.title = kwargs
         return self
         
-    def set_theme(self, theme):
-        """Set a theme for the Axes.
-        
-        Args:
-            theme: str, figure theme.
-        """
-        self._params.theme = theme
-        return self
-    
-    def set_figure(self, width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
-        """Add figure config.
-        
-        Args:
-            width: float, figure size width in inches.
-            height: float, figure size height in inches.
-            dpi: float, The resolution of the figure in dots-per-inch.
-            facecolor: color, The background color.
-            edgecolor: color, The border color.
-            frameon: bool, default: True, If False, suppress drawing the figure frame.
-            clear: bool, default: False, If True and the figure already exists, then it is cleared.
-        """
-        kwargs = {'figsize':(width, height), 'dpi':dpi, 'facecolor':facecolor, 
-                  'edgecolor':edgecolor, 'frameon':frameon, 'clear':clear}
-        self._params.figure.update(kwargs)
-        return self
-    
-
-    
-    

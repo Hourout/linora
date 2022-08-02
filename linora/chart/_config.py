@@ -5,7 +5,7 @@ from linora.utils._config import Config
 __all__ = ['Options']
 
 Options = Config()
-Options.cmap = Config(**{'viridis':'viridis', 'jet':'jet'})
+Options.cmap = Config(**{'viridis':'viridis', 'jet':'jet', 'cubehelix':'cubehelix', 'rdbu':'RdBu', 'binary':'binary'})
 Options.dash_capstyle = Config(**{'butt': 'butt', 'projecting': 'projecting', 'round': 'round'})
 Options.dash_joinstyle = Config(**{'miter': 'miter', 'round': 'round', 'bevel': 'bevel'})
 Options.linelink = Config(**{'steps':'steps', 'steps_pre':'steps-pre', 'steps_mid':'steps-mid', 'steps_post':'steps-post'})
