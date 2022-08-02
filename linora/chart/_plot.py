@@ -8,9 +8,9 @@ from linora.chart._circle import Circle
 from linora.chart._ellipse import Ellipse
 from linora.chart._errorbar import Errorbar
 from linora.chart._fillline import Fillline
-from linora.chart._hlines import Hlines
 from linora.chart._hist import Hist
 from linora.chart._hist2d import Hist2d
+from linora.chart._hlines import Hlines
 from linora.chart._line import Line
 from linora.chart._line3D import Line3D
 from linora.chart._pie import Pie
@@ -25,7 +25,7 @@ __all__ = ['Plot']
 
 
 classlist = [
-    Coordinate, Bar, Boxplot, Circle, Ellipse, Errorbar, Fillline, Hlines, Hist, Hist2d, Line, Line3D,
+    Coordinate, Bar, Boxplot, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Hlines, Line, Line3D,
     Pie, Polygon, Radar, Rectangle, RegularPolygon, Scatter, Scatter3D,
 ]
 

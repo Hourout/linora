@@ -21,4 +21,4 @@ class Hlines():
         return self
     
     def _execute_plot_hlines(self, ax, i, j):
-        ax_plot = ax.hlines(j['ydata'], j['xin'], j['xmax'], **j['kwargs'])
+        ax_plot = ax.hlines(j['ydata'], j['xmin'], j['xmax'], **j['kwargs'])
