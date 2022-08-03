@@ -43,7 +43,7 @@ class Polygon():
     
     def _execute_plot_polygon(self, fig, ax, i, j):
         poly = patches.Polygon(j['data'], **j['kwargs'])
-        if j['transform']=='ax'
+        if j['transform']=='ax':
             ax.add_patch(poly)
         else:
             fig.add_artist(poly)

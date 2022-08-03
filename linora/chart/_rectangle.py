@@ -55,7 +55,7 @@ class Rectangle():
     
     def _execute_plot_rectangle(self, fig, ax, i, j):
         poly = patches.Rectangle(j['data'], **j['kwargs'])
-        if j['transform']=='ax'
+        if j['transform']=='ax':
             ax.add_patch(poly)
         else:
             fig.add_artist(poly)

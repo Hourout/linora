@@ -46,7 +46,7 @@ class RegularPolygon():
     
     def _execute_plot_regularpolygon(self, fig, ax, i, j):
         poly = patches.RegularPolygon(j['data'], **j['kwargs'])
-        if j['transform']=='ax'
+        if j['transform']=='ax':
             ax.add_patch(poly)
         else:
             fig.add_artist(poly)

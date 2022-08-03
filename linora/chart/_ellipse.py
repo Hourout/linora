@@ -46,7 +46,7 @@ class Ellipse():
     
     def _execute_plot_ellipse(self, fig, ax, i, j):
         poly = patches.Ellipse(j['data'], **j['kwargs'])
-        if j['transform']=='ax'
+        if j['transform']=='ax':
             ax.add_patch(poly)
         else:
             fig.add_artist(poly)
