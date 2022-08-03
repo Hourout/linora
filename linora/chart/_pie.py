@@ -82,5 +82,5 @@ class Pie():
         self._params.ydata[name]['plotfunc'] = self._execute_plot_pie
         return self
     
-    def _execute_plot_pie(self, ax, i, j):
+    def _execute_plot_pie(self, fig, ax, i, j):
         axplot = ax.pie(j['xdata'], **j['kwargs'])

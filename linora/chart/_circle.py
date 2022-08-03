@@ -36,10 +36,14 @@ class Circle():
         kwargs['radius'] = radius
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['data'] = xy
+        self._params.ydata[name]['transform'] = 'ax'
         self._params.ydata[name]['plotmode'] = 'circle'
         self._params.ydata[name]['plotfunc'] = self._execute_plot_circle
         return self
     
-    def _execute_plot_circle(self, ax, i, j):
+    def _execute_plot_circle(self, fig, ax, i, j):
         poly = patches.Circle(j['data'], **j['kwargs'])
-        ax.add_patch(poly)
+        if j['transform']=='ax'
+            ax.add_patch(poly)
+        else:
+            fig.add_artist(poly)

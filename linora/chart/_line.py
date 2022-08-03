@@ -76,6 +76,6 @@ class Line():
         self._params.ydata[name]['plotfunc'] = self._execute_plot_line
         return self
     
-    def _execute_plot_line(self, ax, i, j):
+    def _execute_plot_line(self, fig, ax, i, j):
         ax_plot = ax.plot(j['xdata'], j['ydata'], **j['kwargs'])
     

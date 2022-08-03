@@ -135,5 +135,5 @@ class Grid():
             with plt.style.context(grid_id['plot']._params.theme):
                 ax = fig.add_subplot(grid[grid_id['grid_id'][0][0]:grid_id['grid_id'][0][1], 
                                           grid_id['grid_id'][1][0]:grid_id['grid_id'][1][1]])
-                ax = grid_id['plot']._execute_ax(ax)
+                ax = grid_id['plot']._execute_ax(fig, ax)
         return fig

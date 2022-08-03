@@ -63,13 +63,14 @@ class Plot(*classlist):
                         j['kwargs']['transform'] = ax.transAxes
                     elif j['kwargs']['transform'] in ['transFigure', 'Figure']:
                         j['kwargs']['transform'] = fig.transFigure
+                        j['transform'] = 'fig'
             
-        ax = self._execute_ax(ax)
+        ax = self._execute_ax(fig, ax)
         return fig
             
-    def _execute_ax(self, ax):
+    def _execute_ax(self, fig, ax):
         for i,j in self._params.ydata.items():
-            j['plotfunc'](ax, i, j)
+            j['plotfunc'](fig, ax, i, j)
             
         if self._params.label['xlabel']['xlabel'] is not None:
             ax.set_xlabel(**self._params.label['xlabel'])

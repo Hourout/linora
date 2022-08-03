@@ -36,10 +36,14 @@ class Polygon():
         kwargs['closed'] = closed
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['data'] = xy
+        self._params.ydata[name]['transform'] = 'ax'
         self._params.ydata[name]['plotmode'] = 'polygon'
         self._params.ydata[name]['plotfunc'] = self._execute_plot_polygon
         return self
     
-    def _execute_plot_polygon(self, ax, i, j):
+    def _execute_plot_polygon(self, fig, ax, i, j):
         poly = patches.Polygon(j['data'], **j['kwargs'])
-        ax.add_patch(poly)
+        if j['transform']=='ax'
+            ax.add_patch(poly)
+        else:
+            fig.add_artist(poly)

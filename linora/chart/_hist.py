@@ -137,6 +137,6 @@ class Hist():
         self._params.ydata[name]['plotfunc'] = self._execute_plot_hist
         return self
     
-    def _execute_plot_hist(self, ax, i, j):
+    def _execute_plot_hist(self, fig, ax, i, j):
         ax_plot = ax.hist(j['xdata'], **j['kwargs'])
     

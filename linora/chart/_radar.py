@@ -82,7 +82,7 @@ class Radar():
         self._params.ydata[name]['plotfunc'] = self._execute_plot_radar
         return self
     
-    def _execute_plot_radar(self, ax, i, j):
+    def _execute_plot_radar(self, fig, ax, i, j):
         ax_plot = ax.plot(j['xdata'], j['ydata'], **j['kwargs'])
         if j['fillcolor'] is not None:
             ax_plot = ax.fill(j['xdata'], j['ydata'], facecolor=j['fillcolor'], alpha=j['alpha'])

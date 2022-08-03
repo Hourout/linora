@@ -80,6 +80,6 @@ class Line3D():
         self._params.ydata[name]['plotfunc'] = self._execute_plot_line3D
         return self
     
-    def _execute_plot_line3D(self, ax, i, j):
+    def _execute_plot_line3D(self, fig, ax, i, j):
         ax_plot = ax.plot3D(j['xdata'], j['ydata'], j['zdata'], **j['kwargs'])
     

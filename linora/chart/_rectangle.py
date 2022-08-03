@@ -48,10 +48,14 @@ class Rectangle():
         kwargs['angle'] = angle
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['data'] = xy
+        self._params.ydata[name]['transform'] = 'ax'
         self._params.ydata[name]['plotmode'] = 'rectangle'
         self._params.ydata[name]['plotfunc'] = self._execute_plot_rectangle
         return self
     
-    def _execute_plot_rectangle(self, ax, i, j):
+    def _execute_plot_rectangle(self, fig, ax, i, j):
         poly = patches.Rectangle(j['data'], **j['kwargs'])
-        ax.add_patch(poly)
+        if j['transform']=='ax'
+            ax.add_patch(poly)
+        else:
+            fig.add_artist(poly)

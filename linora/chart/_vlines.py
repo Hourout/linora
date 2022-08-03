@@ -24,5 +24,5 @@ class Vlines():
         self._params.ydata[name]['plotfunc'] = self._execute_plot_vlines
         return self
     
-    def _execute_plot_vlines(self, ax, i, j):
+    def _execute_plot_vlines(self, fig, ax, i, j):
         ax_plot = ax.vlines(j['xdata'], j['ymin'], j['ymax'], **j['kwargs'])

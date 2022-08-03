@@ -39,10 +39,14 @@ class Ellipse():
         kwargs['angle'] = angle
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['data'] = xy
+        self._params.ydata[name]['transform'] = 'ax'
         self._params.ydata[name]['plotmode'] = 'ellipse'
         self._params.ydata[name]['plotfunc'] = self._execute_plot_ellipse
         return self
     
-    def _execute_plot_ellipse(self, ax, i, j):
+    def _execute_plot_ellipse(self, fig, ax, i, j):
         poly = patches.Ellipse(j['data'], **j['kwargs'])
-        ax.add_patch(poly)
+        if j['transform']=='ax'
+            ax.add_patch(poly)
+        else:
+            fig.add_artist(poly)

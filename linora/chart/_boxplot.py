@@ -106,5 +106,5 @@ class Boxplot():
         self._params.ydata[name]['plotfunc'] = self._execute_plot_boxplot
         return self
     
-    def _execute_plot_boxplot(self, ax, i, j):
+    def _execute_plot_boxplot(self, fig, ax, i, j):
         axplot = ax.boxplot(j['xdata'], **j['kwargs'])

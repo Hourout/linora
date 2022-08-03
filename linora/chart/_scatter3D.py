@@ -100,7 +100,7 @@ class Scatter3D():
         self._params.ydata[name]['plotfunc'] = self._execute_plot_scatter3d
         return self
     
-    def _execute_plot_scatter3d(self, ax, i, j):
+    def _execute_plot_scatter3d(self, fig, ax, i, j):
         ax_plot = ax.scatter3D(j['xdata'], j['ydata'], j['zdata'], **j['kwargs'])
         ax_plot.set_label(i)
 #         if not self._params.set_label:
