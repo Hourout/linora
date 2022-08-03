@@ -2,7 +2,7 @@ import numpy as np
 
 class Hlines():
     def add_hlines(self, name, ydata, xmin, xmax, **kwargs):
-        """Plot y versus x as lines and/or markers.
+        """Plot horizontal lines at each *y* from *xmin* to *xmax*.
         
         Args:
             name: data name.

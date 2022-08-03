@@ -20,13 +20,14 @@ from linora.chart._rectangle import Rectangle
 from linora.chart._regularpolygon import RegularPolygon
 from linora.chart._scatter import Scatter
 from linora.chart._scatter3D import Scatter3D
+from linora.chart._vlines import Vlines
 
 __all__ = ['Plot']
 
 
 classlist = [
     Coordinate, Bar, Boxplot, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Hlines, Line, Line3D,
-    Pie, Polygon, Radar, Rectangle, RegularPolygon, Scatter, Scatter3D,
+    Pie, Polygon, Radar, Rectangle, RegularPolygon, Scatter, Scatter3D, Vlines,
 ]
 
 class Plot(*classlist):
