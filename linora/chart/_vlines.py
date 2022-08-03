@@ -6,7 +6,7 @@ class Vlines():
         
         Args:
             name: data name.
-            xdata: y-axis data, float or array-like.
+            xdata: x-axis data, float or array-like.
             ymin, ymax : float or array-like
                 Respective beginning and end of each line. If scalars are
                 provided, all lines will have same length.
@@ -14,7 +14,9 @@ class Vlines():
             linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
             label : str, default: ''
         """
-        if 'colors' not in kwargs and 'colors' not in kwargs and 'linecolor' not in kwargs:
+        if isinstance(xdata, (int, float)):
+            xdata = [xdata]
+        if 'color' not in kwargs and 'colors' not in kwargs and 'linecolor' not in kwargs:
             kwargs['colors'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(xdata)
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['ymin'] = ymin

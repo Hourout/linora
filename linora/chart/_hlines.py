@@ -14,6 +14,8 @@ class Hlines():
             linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
             label : str, default: ''
         """
+        if isinstance(ydata, (int, float)):
+            ydata = [ydata]
         if 'colors' not in kwargs and 'colors' not in kwargs and 'linecolor' not in kwargs:
             kwargs['colors'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
         self._params.ydata[name]['kwargs'] = kwargs
