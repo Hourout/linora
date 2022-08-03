@@ -54,6 +54,16 @@ class Plot(*classlist):
             else:
                 raise ValueError('There are two different coordinate systems.')
             ax = fig.add_subplot(projection=projection)
+            
+            for i,j in self._params.ydata.items():
+                if 'transform' in j['kwargs']:
+                    if j['kwargs']['transform'] in ['transData', 'Data']:
+                        j['kwargs']['transform'] = ax.transData
+                    elif j['kwargs']['transform'] in ['transAxes', 'Axes']:
+                        j['kwargs']['transform'] = ax.transAxes
+                    elif j['kwargs']['transform'] in ['transFigure', 'Figure']:
+                        j['kwargs']['transform'] = fig.transFigure
+            
         ax = self._execute_ax(ax)
         return fig
             
