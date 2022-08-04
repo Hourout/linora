@@ -102,18 +102,20 @@ def install(name, mirror=mirror.aliyun, py=''):
         if name.startswith('https://github.com/'):
             cmd = f"pip{py} install git+{name}.git"
             s = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
-            name = s.decode('utf-8').strip().split('\n')[-1].split(' ')[2:]
-            return freeze(name=name, py=py)
+            s = s.decode('utf-8').strip().split('\n')[-1].split(' ')[2:]
+            if len(s)>1:
+                return 'Install Failed'
+            return freeze(name=s, py=py)
         elif name.endswith('.whl'):
             cmd = f"pip{py} install {name}"
             s = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
-            name = s.decode('utf-8').strip().split('\n')[-1].split(' ')[2:]
-            return freeze(name=name, py=py)
+            s = s.decode('utf-8').strip().split('\n')[-1].split(' ')[2:]
+            return freeze(name=s, py=py)
         elif name.endswith('.txt'):
             cmd = f"pip{py} install -r {name}"
             s = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
-            name = s.decode('utf-8').strip().split('\n')[-1].split(' ')[2:]
-            return freeze(name=name, py=py)
+            s = s.decode('utf-8').strip().split('\n')[-1].split(' ')[2:]
+            return freeze(name=s, py=py)
         name = [name]
     name = [libraries_name(i) for i in name]
     name1 = [i[0] for i in name]
