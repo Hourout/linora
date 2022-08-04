@@ -5,7 +5,7 @@ from linora.utils._config import Config
 
 __all__ = ['freeze', 'upgrade', 'upgradeable', 'install', 'uninstall', 
            'mirror', 'download', 'show', 'set_mirror', 'get_mirror',
-           'view_env', 'create_env', 'remove_env']
+           'env_view', 'env_create', 'env_remove']
 
 
 mirror = Config()
@@ -285,7 +285,7 @@ def upgradeable(mirror=mirror.aliyun, py=''):
     s = {i[0]:{'version':i[1], 'latest':i[2], 'type':i[-1]} for i in s}
     return s
 
-def view_env():
+def env_view():
     """Get virtual environment info."""
     cmd = f"conda info -e"
     s = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
@@ -293,7 +293,7 @@ def view_env():
     s = [i.split(' ') for i in s]
     return {i[0]:i[-1] for i in s}
 
-def create_env(name, version):
+def env_create(name, version):
     """Create virtual environment.
     
     Args:
@@ -314,7 +314,7 @@ def create_env(name, version):
         return 'Virtual environment successfully created.'
     return 'Virtual environment failed created.'
 
-def remove_env(name):
+def env_remove(name):
     """Remove virtual environment.
     
     Args:
