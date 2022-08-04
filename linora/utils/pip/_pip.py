@@ -1,11 +1,11 @@
 import itertools
 import subprocess
-import warnings
 
 from linora.utils._config import Config
 
 __all__ = ['freeze', 'upgrade', 'upgradeable', 'install', 'uninstall', 
-           'mirror', 'download', 'show', 'set_mirror', 'get_mirror']
+           'mirror', 'download', 'show', 'set_mirror', 'get_mirror',
+           'view_env', 'create_env', 'remove_env']
 
 
 mirror = Config()
@@ -101,7 +101,6 @@ def install(name, mirror=mirror.aliyun, py=''):
     """
     if isinstance(name, str):
         if name.startswith('https://github.com/'):
-            warnings.filterwarnings("ignore")
             cmd = f"pip{py} install git+{name}.git"
             s = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
             s = s.decode('utf-8').strip().split('\n')[-1].split(' ')[2:]
@@ -285,3 +284,50 @@ def upgradeable(mirror=mirror.aliyun, py=''):
     s = [list(filter(lambda x:len(x)>0, i)) for i in s]
     s = {i[0]:{'version':i[1], 'latest':i[2], 'type':i[-1]} for i in s}
     return s
+
+def view_env():
+    """Get virtual environment info."""
+    cmd = f"conda info -e"
+    s = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
+    s = s.decode('utf-8').strip().split('\n')[2:]
+    s = [i.split(' ') for i in s]
+    return {i[0]:i[-1] for i in s}
+
+def create_env(name, version):
+    """Create virtual environment.
+    
+    Args:
+        name: virtual environment.
+        version: python version.
+    Return:
+        log info.
+    """
+    cmd = 'conda update -n base -c defaults conda'
+    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
+    s = view_env()
+    if name in s:
+        return 'Virtual environment already exists.'
+    cmd = f"conda create -n {name} python={version} -y"
+    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
+    s = view_env()
+    if name in s:
+        return 'Virtual environment successfully created.'
+    return 'Virtual environment failed created.'
+
+def remove_env(name):
+    """Remove virtual environment.
+    
+    Args:
+        name: virtual environment.
+    Return:
+        log info.
+    """
+    s = view_env()
+    if name not in s:
+        return 'Virtual environment not exists.'
+    cmd = f'conda remove -n {name} --all'
+    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
+    s = view_env()
+    if name not in s:
+        return 'Virtual environment successfully removed.'
+    return 'Virtual environment failed removed.'
