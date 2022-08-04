@@ -1,5 +1,6 @@
 import itertools
 import subprocess
+import warnings
 
 from linora.utils._config import Config
 
@@ -100,6 +101,7 @@ def install(name, mirror=mirror.aliyun, py=''):
     """
     if isinstance(name, str):
         if name.startswith('https://github.com/'):
+            warnings.filterwarnings("ignore")
             cmd = f"pip{py} install git+{name}.git"
             s = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
             s = s.decode('utf-8').strip().split('\n')[-1].split(' ')[2:]
