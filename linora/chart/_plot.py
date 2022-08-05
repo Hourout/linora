@@ -73,17 +73,18 @@ class Plot(*classlist):
             if i in self._params.twin:
                 if self._params.twin[i]=='x':
                     ax_new = ax.twinx()
+                    j['plotfunc'](fig, ax_new, i, j)
                     if 'x' in self._params.label:
                         self._execute_label(ax_new, 'x')
                     if 'x' in self._params.axis:
                         self._execute_axis(ax_new, 'x')
                 else:
                     ax_new = ax.twiny()
+                    j['plotfunc'](fig, ax_new, i, j)
                     if 'y' in self._params.label:
                         self._execute_label(ax_new, 'y')
                     if 'y' in self._params.axis:
                         self._execute_axis(ax_new, 'y')
-                j['plotfunc'](fig, ax_new, i, j)
             else:
                 j['plotfunc'](fig, ax, i, j)
                 self._execute_label(ax, 'normal')
