@@ -9,7 +9,7 @@ class Coordinate():
         self._params = Config()
         self._params.ydata = defaultdict(defaultdict)
         self._params.annotate = dict()
-        self._params.figure = {'figsize':(10, 6)}
+        self._params.figure = {'figsize':(12.8, 7.2)}
         
         self._params.axis = {'normal':{'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{},
                              'xlabel':None, 'ylabel':None, 'xtickposition':None, 'ytickposition':None}}
@@ -421,7 +421,7 @@ class Coordinate():
             self._params.axis[mode]['xtick'][s] = xy['mode'] if isinstance(xy, dict) else xy
             self._params.axis[mode]['ytick'][s] = xy['mode'] if isinstance(xy, dict) else xy
         
-    def set_figure(self, width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
+    def set_figure(self, width=12.8, height=7.2, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
         """Add figure config.
         
         Args:
