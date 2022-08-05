@@ -11,16 +11,17 @@ class Coordinate():
         self._params.annotate = dict()
         self._params.figure = {'figsize':(10, 6)}
         
-        self._params.axis = {'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{},
-                             'xlabel':None, 'ylabel':None, 'xtickposition':None, 'ytickposition':None}
+        self._params.axis = {'normal':{'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{},
+                             'xlabel':None, 'ylabel':None, 'xtickposition':None, 'ytickposition':None}}
         
-        self._params.label = {'xlabel':{'xlabel':None}, 'ylabel':{'ylabel':None}}
+        self._params.label = {'normal':{'xlabel':{'xlabel':None}, 'ylabel':{'ylabel':None}}}
         
         self._params.legend = dict()
         self._params.spine = {'show':{}, 'color':{}, 'width':{}, 'style':{}, 'position':{}}
         self._params.text = dict()
         self._params.theme = 'ggplot'
         self._params.title = {'label':None}
+        self._params.twin = dict()
         
         self._params.set_label = True
         self._params.colorbar = set()
@@ -38,6 +39,7 @@ class Coordinate():
             'spine': self._params.spine,
             'text': self._params.text,
             'title': self._params.title,
+            'twin': self._params.twin,
             'set_label': self._params.set_label,
             'colorbar': self._params.colorbar,
         }
@@ -63,6 +65,7 @@ class Coordinate():
         self._params.spine = config['spine']
         self._params.text = config['text']
         self._params.title = config['title']
+        self._params.twin = config['twin']
         self._params.set_label = config['set_label']
         self._params.colorbar = config['colorbar']
         return self
@@ -258,7 +261,8 @@ class Coordinate():
                  gridwidth=None, xgridwidth=None, ygridwidth=None, 
                  gridstyle=None, xgridstyle=None, ygridstyle=None, 
                  tickbottom=None, ticktop=None, tickleft=None, tickright=None,
-                 labelbottom=None, labeltop=None, labelleft=None, labelright=None
+                 labelbottom=None, labeltop=None, labelleft=None, labelright=None,
+                 twin=None,
                 ):
         """Convenience method to get or set some axis properties.
         
@@ -350,67 +354,72 @@ class Coordinate():
             labeltop: Whether to draw top tick labels.
             labelleft: Whether to draw left tick labels.
             labelright: Whether to draw right tick labels.
+            twin: twin Axes, 'x' or 'y'.
         """
+        if twin is not None:
+            self._params.axis[twin] = {'axis':None, 'xinvert':False, 'yinvert':False, 'xtick':{}, 'ytick':{},
+                                       'xlabel':None, 'ylabel':None, 'xtickposition':None, 'ytickposition':None}
+        mode = twin if twin is not None else 'normal'
         if axis is not None:
-            self._params.axis['axis'] = axis
+            self._params.axis[mode]['axis'] = axis
         elif xmin is not None or xmax is not None or ymin is not None or ymax is not None:
-            self._params.axis['axis'] = [xmin, xmax, ymin, ymax]
-        self._params.axis['xinvert'] = invert or xinvert
-        self._params.axis['yinvert'] = invert or yinvert
+            self._params.axis[mode]['axis'] = [xmin, xmax, ymin, ymax]
+        self._params.axis[mode]['xinvert'] = invert or xinvert
+        self._params.axis[mode]['yinvert'] = invert or yinvert
         if xlabel is not None:
-            self._params.axis['xlabel'] = xlabel
+            self._params.axis[mode]['xlabel'] = xlabel
         if ylabel is not None:
-            self._params.axis['ylabel'] = ylabel
+            self._params.axis[mode]['ylabel'] = ylabel
         if xtickposition is not None:
-            self._params.axis['xtickposition'] = xtickposition
+            self._params.axis[mode]['xtickposition'] = xtickposition
         if ytickposition is not None:
-            self._params.axis['ytickposition'] = ytickposition
+            self._params.axis[mode]['ytickposition'] = ytickposition
         
-        self._set_axis(xtickwhich, ytickwhich, tickwhich, 'which')
-        self._set_axis(xtickcolor, ytickcolor, tickcolor, 'color')
-        self._set_axis(xtickheight, ytickheight, tickheight, 'length')
-        self._set_axis(xtickwidth, ytickwidth, tickwidth, 'width')
-        self._set_axis(xtickloc, ytickloc, tickloc, 'direction')
-        self._set_axis(xtickpad, ytickpad, tickpad, 'pad')
-        self._set_axis(xlabelsize, ylabelsize, labelsize, 'labelsize')
-        self._set_axis(xlabelcolor, ylabelcolor, labelcolor, 'labelcolor')
-        self._set_axis(xlabelrotate, ylabelrotate, labelrotate, 'labelrotation')
-        self._set_axis(xgridcolor, ygridcolor, gridcolor, 'grid_color')
-        self._set_axis(xgridalpha, ygridalpha, gridalpha, 'grid_alpha')
-        self._set_axis(xgridwidth, ygridwidth, gridwidth, 'grid_linewidth')
-        self._set_axis(xgridstyle, ygridstyle, gridstyle, 'grid_linestyle')
+        self._set_axis(xtickwhich, ytickwhich, tickwhich, 'which', mode)
+        self._set_axis(xtickcolor, ytickcolor, tickcolor, 'color', mode)
+        self._set_axis(xtickheight, ytickheight, tickheight, 'length', mode)
+        self._set_axis(xtickwidth, ytickwidth, tickwidth, 'width', mode)
+        self._set_axis(xtickloc, ytickloc, tickloc, 'direction', mode)
+        self._set_axis(xtickpad, ytickpad, tickpad, 'pad', mode)
+        self._set_axis(xlabelsize, ylabelsize, labelsize, 'labelsize', mode)
+        self._set_axis(xlabelcolor, ylabelcolor, labelcolor, 'labelcolor', mode)
+        self._set_axis(xlabelrotate, ylabelrotate, labelrotate, 'labelrotation', mode)
+        self._set_axis(xgridcolor, ygridcolor, gridcolor, 'grid_color', mode)
+        self._set_axis(xgridalpha, ygridalpha, gridalpha, 'grid_alpha', mode)
+        self._set_axis(xgridwidth, ygridwidth, gridwidth, 'grid_linewidth', mode)
+        self._set_axis(xgridstyle, ygridstyle, gridstyle, 'grid_linestyle', mode)
             
         if tickbottom is not None:
-            self._params.axis['xtick']['bottom'] = tickbottom
+            self._params.axis[mode]['xtick']['bottom'] = tickbottom
         if ticktop is not None:
-            self._params.axis['xtick']['top'] = ticktop
+            self._params.axis[mode]['xtick']['top'] = ticktop
         if tickleft is not None:
-            self._params.axis['ytick']['left'] = tickleft
+            self._params.axis[mode]['ytick']['left'] = tickleft
         if tickright is not None:
-            self._params.axis['ytick']['right'] = tickright
+            self._params.axis[mode]['ytick']['right'] = tickright
         if labelbottom is not None:
-            self._params.axis['xtick']['labelbottom'] = labelbottom
+            self._params.axis[mode]['xtick']['labelbottom'] = labelbottom
         if labeltop is not None:
-            self._params.axis['xtick']['labeltop'] = labeltop
+            self._params.axis[mode]['xtick']['labeltop'] = labeltop
         if labelleft is not None:
-            self._params.axis['ytick']['labelleft'] = labelleft
+            self._params.axis[mode]['ytick']['labelleft'] = labelleft
         if labelright is not None:
-            self._params.axis['ytick']['labelright'] = labelright
+            self._params.axis[mode]['ytick']['labelright'] = labelright
 
         if not (tickshow and xtickshow):
-            self._params.axis['xtick'] = {'length':0, 'labelsize':0, 'which':'both'}
+            self._params.axis[mode]['xtick'] = {'length':0, 'labelsize':0, 'which':'both'}
         if not (tickshow and ytickshow):
-            self._params.axis['ytick'] = {'length':0, 'labelsize':0, 'which':'both'}
+            self._params.axis[mode]['ytick'] = {'length':0, 'labelsize':0, 'which':'both'}
         return self
     
-    def _set_axis(self, x, y, xy, s):
+    def _set_axis(self, x, y, xy, s, mode):
         if x is not None:
-            self._params.axis['xtick'][s] = x['mode'] if isinstance(x, dict) else x
+            self._params.axis[mode]['xtick'][s] = x['mode'] if isinstance(x, dict) else x
         if y is not None:
-            self._params.axis['ytick'][s] = y['mode'] if isinstance(y, dict) else y
+            self._params.axis[mode]['ytick'][s] = y['mode'] if isinstance(y, dict) else y
         if xy is not None:
-            self._params.axis['xtick'][s] = xy['mode'] if isinstance(xy, dict) else xy
-            self._params.axis['ytick'][s] = xy['mode'] if isinstance(xy, dict) else xy
+            self._params.axis[mode]['xtick'][s] = xy['mode'] if isinstance(xy, dict) else xy
+            self._params.axis[mode]['ytick'][s] = xy['mode'] if isinstance(xy, dict) else xy
         
     def set_figure(self, width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
         """Add figure config.
@@ -436,6 +445,7 @@ class Coordinate():
                   fontcolor=None, xfontcolor=None, yfontcolor=None, 
                   fontfamily=None, xfontfamily=None, yfontfamily=None, 
                   fontstyle=None, xfontstyle=None, yfontstyle=None, 
+                  twin=None,
                  ):
         """Set the label for the x-axis and y-axis.
         
@@ -460,25 +470,29 @@ class Coordinate():
             fontstyle: xy label font style.
             xfontstyle: x label font style.
             yfontstyle: y label font style.
+            twin: twin Axes, 'x' or 'y'.
         """
-        self._set_label(xlabel, y=None, xy=None, xkey='xlabel')
-        self._set_label(x=None, y=ylabel, xy=None, ykey='ylabel')
-        self._set_label(x=xloc, y=yloc, xy=loc, xkey='loc', ykey='loc')
-        self._set_label(x=xpad, y=ypad, xy=pad, xkey='labelpad', ykey='labelpad')
-        self._set_label(x=xfontsize, y=yfontsize, xy=fontsize, xkey='fontsize', ykey='fontsize')
-        self._set_label(x=xfontcolor, y=yfontcolor, xy=fontcolor, xkey='color', ykey='color')
-        self._set_label(x=xfontfamily, y=yfontfamily, xy=fontfamily, xkey='fontfamily', ykey='fontfamily')
-        self._set_label(x=xfontstyle, y=yfontstyle, xy=fontstyle, xkey='fontstyle', ykey='fontstyle')
+        if twin is not None:
+            self._params.label[twin] = {'xlabel':{'xlabel':None}, 'ylabel':{'ylabel':None}}
+        mode = twin if twin is not None else 'normal'
+        self._set_label(xlabel, y=None, xy=None, xkey='xlabel', mode=mode)
+        self._set_label(x=None, y=ylabel, xy=None, ykey='ylabel', mode=mode)
+        self._set_label(x=xloc, y=yloc, xy=loc, xkey='loc', ykey='loc', mode=mode)
+        self._set_label(x=xpad, y=ypad, xy=pad, xkey='labelpad', ykey='labelpad', mode=mode)
+        self._set_label(x=xfontsize, y=yfontsize, xy=fontsize, xkey='fontsize', ykey='fontsize', mode=mode)
+        self._set_label(x=xfontcolor, y=yfontcolor, xy=fontcolor, xkey='color', ykey='color', mode=mode)
+        self._set_label(x=xfontfamily, y=yfontfamily, xy=fontfamily, xkey='fontfamily', ykey='fontfamily', mode=mode)
+        self._set_label(x=xfontstyle, y=yfontstyle, xy=fontstyle, xkey='fontstyle', ykey='fontstyle', mode=mode)
         return self
     
-    def _set_label(self, x, y, xy, xkey=None, ykey=None):
+    def _set_label(self, x, y, xy, xkey=None, ykey=None, mode='normal'):
         if x is not None:
-            self._params.label['xlabel'][xkey] = x['mode'] if isinstance(x, dict) else x
+            self._params.label[mode]['xlabel'][xkey] = x['mode'] if isinstance(x, dict) else x
         if y is not None:
-            self._params.label['ylabel'][ykey] = y['mode'] if isinstance(y, dict) else y
+            self._params.label[mode]['ylabel'][ykey] = y['mode'] if isinstance(y, dict) else y
         if xy is not None:
-            self._params.label['xlabel'][xkey] = xy['mode'] if isinstance(xy, dict) else xy
-            self._params.label['ylabel'][ykey] = xy['mode'] if isinstance(xy, dict) else xy
+            self._params.label[mode]['xlabel'][xkey] = xy['mode'] if isinstance(xy, dict) else xy
+            self._params.label[mode]['ylabel'][ykey] = xy['mode'] if isinstance(xy, dict) else xy
     
     def set_legend(self, loc='best', **kwargs):
         """Place a legend on the Axes.
@@ -679,3 +693,13 @@ class Coordinate():
         self._params.title = kwargs
         return self
         
+    def set_twin(self, name, axis='x'):
+        """Create a twin Axes sharing the x-y axis.
+        
+        Args:
+            name: data name.
+            axis: 'x' or 'y'.
+        """
+        self._params.twin[name] = axis
+        return self
+    

@@ -70,44 +70,60 @@ class Plot(*classlist):
             
     def _execute_ax(self, fig, ax):
         for i,j in self._params.ydata.items():
-            j['plotfunc'](fig, ax, i, j)
+            if i in self._params.twin:
+                if self._params.twin[i]=='x':
+                    ax_new = ax.twinx()
+                    if 'x' in self._params.label:
+                        self._execute_label(ax_new, 'x')
+                    if 'x' in self._params.axis:
+                        self._execute_axis(ax_new, 'x')
+                else:
+                    ax_new = ax.twiny()
+                    if 'y' in self._params.label:
+                        self._execute_label(ax_new, 'y')
+                    if 'y' in self._params.axis:
+                        self._execute_axis(ax_new, 'y')
+                j['plotfunc'](fig, ax_new, i, j)
+            else:
+                j['plotfunc'](fig, ax, i, j)
+                self._execute_label(ax, 'normal')
+                self._execute_axis(ax, 'normal')
             
-        if self._params.label['xlabel']['xlabel'] is not None:
-            ax.set_xlabel(**self._params.label['xlabel'])
-        if self._params.label['ylabel']['ylabel'] is not None:
-            ax.set_ylabel(**self._params.label['ylabel'])
-        if self._params.title['label'] is not None:
-            ax.set_title(**self._params.title)
+#         if self._params.label['xlabel']['xlabel'] is not None:
+#             ax.set_xlabel(**self._params.label['xlabel'])
+#         if self._params.label['ylabel']['ylabel'] is not None:
+#             ax.set_ylabel(**self._params.label['ylabel'])
         
-        if self._params.axis['axis'] is not None:
-            ax.axis(self._params.axis['axis'])
-        if self._params.axis['xlabel'] is not None:
-            if len(self._params.axis['xlabel'])==0:
-                ax.set_xticks(self._params.axis['xlabel'])
-            elif isinstance(self._params.axis['xlabel'][0], (list, tuple, np.ndarray)):
-                ax.set_xticks(self._params.axis['xlabel'][0])
-                ax.set_xticklabels(self._params.axis['xlabel'][1])
-            else:
-                ax.set_xticks(self._params.axis['xlabel'])
-        if self._params.axis['ylabel'] is not None:
-            if len(self._params.axis['ylabel'])==0:
-                ax.set_yticks(self._params.axis['ylabel'])
-            elif isinstance(self._params.axis['ylabel'][0], (list, tuple, np.ndarray)):
-                ax.set_yticks(self._params.axis['ylabel'][0])
-                ax.set_yticklabels(self._params.axis['ylabel'][1])
-            else:
-                ax.set_yticks(self._params.axis['ylabel'])
-        ax.tick_params(axis='x', **self._params.axis['xtick'])
-        ax.tick_params(axis='y', **self._params.axis['ytick'])
-        if self._params.axis['xinvert']:
-            ax.invert_xaxis()
-        if self._params.axis['yinvert']:
-            ax.invert_yaxis()
-        if self._params.axis['xtickposition'] is not None:
-            ax.xaxis.set_ticks_position(self._params.axis['xtickposition'])
-        if self._params.axis['ytickposition'] is not None:
-            ax.yaxis.set_ticks_position(self._params.axis['ytickposition'])
         
+#         if self._params.axis['axis'] is not None:
+#             ax.axis(self._params.axis['axis'])
+#         if self._params.axis['xlabel'] is not None:
+#             if len(self._params.axis['xlabel'])==0:
+#                 ax.set_xticks(self._params.axis['xlabel'])
+#             elif isinstance(self._params.axis['xlabel'][0], (list, tuple, np.ndarray)):
+#                 ax.set_xticks(self._params.axis['xlabel'][0])
+#                 ax.set_xticklabels(self._params.axis['xlabel'][1])
+#             else:
+#                 ax.set_xticks(self._params.axis['xlabel'])
+#         if self._params.axis['ylabel'] is not None:
+#             if len(self._params.axis['ylabel'])==0:
+#                 ax.set_yticks(self._params.axis['ylabel'])
+#             elif isinstance(self._params.axis['ylabel'][0], (list, tuple, np.ndarray)):
+#                 ax.set_yticks(self._params.axis['ylabel'][0])
+#                 ax.set_yticklabels(self._params.axis['ylabel'][1])
+#             else:
+#                 ax.set_yticks(self._params.axis['ylabel'])
+#         ax.tick_params(axis='x', **self._params.axis['xtick'])
+#         ax.tick_params(axis='y', **self._params.axis['ytick'])
+#         if self._params.axis['xinvert']:
+#             ax.invert_xaxis()
+#         if self._params.axis['yinvert']:
+#             ax.invert_yaxis()
+#         if self._params.axis['xtickposition'] is not None:
+#             ax.xaxis.set_ticks_position(self._params.axis['xtickposition'])
+#         if self._params.axis['ytickposition'] is not None:
+#             ax.yaxis.set_ticks_position(self._params.axis['ytickposition'])
+        #legend
         if len(self._params.legend)>0:
             if self._params.legend['loc'] not in [None, 'None', 'none']:
                 ax.legend(**self._params.legend)
@@ -115,7 +131,7 @@ class Plot(*classlist):
             t = ['ellipse', 'regularpolygon', 'rectangle', 'circle', 'polygon', 'boxplot']
             if len([1 for i,j in self._params.ydata.items() if j['plotmode'] not in t])>1:
                 ax.legend(loc='best')
-                
+        #spines
         if len(self._params.spine['color'])>0:
             for i,j in self._params.spine['color'].items():
                 ax.spines[i].set_color(j)
@@ -131,11 +147,51 @@ class Plot(*classlist):
         if len(self._params.spine['show'])>0:
             for i,j in self._params.spine['show'].items():
                 ax.spines[i].set_visible(j)
-                
+        #title
+        if self._params.title['label'] is not None:
+            ax.set_title(**self._params.title)
+        #text
         if len(self._params.text)>0:
             for i in self._params.text:
                 ax.text(**self._params.text[i])
+        #annotate
         if len(self._params.annotate)>0:
             for i in self._params.annotate:
                 ax.annotate(**self._params.annotate[i])
         return ax
+    
+    def _execute_label(self, ax, mode):
+        if self._params.label[mode]['xlabel']['xlabel'] is not None:
+            ax.set_xlabel(**self._params.label[mode]['xlabel'])
+        if self._params.label[mode]['ylabel']['ylabel'] is not None:
+            ax.set_ylabel(**self._params.label[mode]['ylabel'])
+            
+    def _execute_axis(self, ax, mode):
+        if self._params.axis[mode]['axis'] is not None:
+            ax.axis(self._params.axis[mode]['axis'])
+        if self._params.axis[mode]['xlabel'] is not None:
+            if len(self._params.axis[mode]['xlabel'])==0:
+                ax.set_xticks(self._params.axis[mode]['xlabel'])
+            elif isinstance(self._params.axis[mode]['xlabel'][0], (list, tuple, np.ndarray)):
+                ax.set_xticks(self._params.axis[mode]['xlabel'][0])
+                ax.set_xticklabels(self._params.axis[mode]['xlabel'][1])
+            else:
+                ax.set_xticks(self._params.axis[mode]['xlabel'])
+        if self._params.axis[mode]['ylabel'] is not None:
+            if len(self._params.axis[mode]['ylabel'])==0:
+                ax.set_yticks(self._params.axis[mode]['ylabel'])
+            elif isinstance(self._params.axis[mode]['ylabel'][0], (list, tuple, np.ndarray)):
+                ax.set_yticks(self._params.axis[mode]['ylabel'][0])
+                ax.set_yticklabels(self._params.axis[mode]['ylabel'][1])
+            else:
+                ax.set_yticks(self._params.axis[mode]['ylabel'])
+        ax.tick_params(axis='x', **self._params.axis[mode]['xtick'])
+        ax.tick_params(axis='y', **self._params.axis[mode]['ytick'])
+        if self._params.axis[mode]['xinvert']:
+            ax.invert_xaxis()
+        if self._params.axis[mode]['yinvert']:
+            ax.invert_yaxis()
+        if self._params.axis[mode]['xtickposition'] is not None:
+            ax.xaxis.set_ticks_position(self._params.axis[mode]['xtickposition'])
+        if self._params.axis[mode]['ytickposition'] is not None:
+            ax.yaxis.set_ticks_position(self._params.axis[mode]['ytickposition'])
