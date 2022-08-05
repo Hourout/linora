@@ -4,8 +4,8 @@ import subprocess
 from linora.utils._config import Config
 
 __all__ = ['freeze', 'upgrade', 'upgradeable', 'install', 'uninstall', 
-           'mirror', 'download', 'show', 'set_mirror', 'get_mirror',
-           'env_view', 'env_create', 'env_remove']
+           'mirror', 'download', 'show', 'mirror_set', 'mirror_get',
+           'env_view', 'env_clone', 'env_create', 'env_export', 'env_import', 'env_remove']
 
 
 mirror = Config()
@@ -27,6 +27,7 @@ def libraries_name(name):
 
 def download(root, name, mirror=mirror.aliyun, py=''):
     """Download python libraries to the specified folder.
+    
     Args:
         root: str, dirs.
         name: str or list. libraries name.
@@ -73,7 +74,7 @@ def freeze(name=None, py=''):
     s = {i:s.get(i, '') for i in name}
     return s
 
-def get_mirror(py=''):
+def mirror_get(py=''):
     """Get up pip mirrors on your machine.
     
     Args:
@@ -158,7 +159,7 @@ def search(name, mirror=mirror.aliyun, py=''):
             result[t]['description'] += ' '+i[3]
     return result
 
-def set_mirror(mirror, py=''):
+def mirror_set(mirror, py=''):
     """Set up pip mirrors on your machine.
     
     Args:
@@ -293,6 +294,27 @@ def env_view():
     s = [i.split(' ') for i in s]
     return {i[0]:i[-1] for i in s}
 
+def env_clone(new_name, old_name):
+    """copy already exists virtual environment.
+    
+    Args:
+        new_name: new virtual environment.
+        old_name: already exists virtual environment.
+    Return:
+        log info.
+    """
+    cmd = 'conda update -n base -c defaults conda'
+    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
+    s = view_env()
+    if old_name not in s:
+        return f'Virtual environment {old_name} not exists.'
+    cmd = f"conda create -n {new_name} --clone {old_name}"
+    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
+    s = view_env()
+    if new_name in s:
+        return 'Virtual environment successfully created.'
+    return 'Virtual environment failed created.'
+
 def env_create(name, version):
     """Create virtual environment.
     
@@ -311,6 +333,38 @@ def env_create(name, version):
     subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
     s = view_env()
     if name in s:
+        return 'Virtual environment successfully created.'
+    return 'Virtual environment failed created.'
+
+def env_export(yml):
+    """Export virtual environment to `.yml` format file.
+    
+    Args:
+        yml: `.yml` format file.
+    Return:
+        log info.
+    """
+    cmd = 'conda update -n base -c defaults conda'
+    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
+    cmd = f"conda env export > {yml}"
+    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
+    return yml
+
+def env_import(yml):
+    """Import virtual environment from `.yml` format file.
+    
+    Args:
+        yml: `.yml` format file.
+    Return:
+        log info.
+    """
+    cmd = 'conda update -n base -c defaults conda'
+    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
+    s = view_env()
+    cmd = f"conda env create -f {yml}"
+    subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True).communicate()[0]
+    s1 = view_env()
+    if len(s1)>len(s):
         return 'Virtual environment successfully created.'
     return 'Virtual environment failed created.'
 
