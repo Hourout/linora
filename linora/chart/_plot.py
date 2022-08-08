@@ -5,6 +5,7 @@ from linora.chart._base import Coordinate
 from linora.chart._bar import Bar
 from linora.chart._boxplot import Boxplot
 from linora.chart._circle import Circle
+from linora.chart._coherence import Coherence
 from linora.chart._ellipse import Ellipse
 from linora.chart._errorbar import Errorbar
 from linora.chart._fillline import Fillline
@@ -26,7 +27,8 @@ __all__ = ['Plot']
 
 
 classlist = [
-    Coordinate, Bar, Boxplot, Circle, Ellipse, Errorbar, Fillline, Hist, Hist2d, Hlines, Line, Line3D,
+    Coordinate, Bar, Boxplot, Circle, Coherence, Ellipse, Errorbar, Fillline, 
+    Hist, Hist2d, Hlines, Line, Line3D,
     Pie, Polygon, Radar, Rectangle, RegularPolygon, Scatter, Scatter3D, Vlines,
 ]
 
@@ -90,40 +92,6 @@ class Plot(*classlist):
                 self._execute_label(ax, 'normal')
                 self._execute_axis(ax, 'normal')
             
-#         if self._params.label['xlabel']['xlabel'] is not None:
-#             ax.set_xlabel(**self._params.label['xlabel'])
-#         if self._params.label['ylabel']['ylabel'] is not None:
-#             ax.set_ylabel(**self._params.label['ylabel'])
-        
-        
-#         if self._params.axis['axis'] is not None:
-#             ax.axis(self._params.axis['axis'])
-#         if self._params.axis['xlabel'] is not None:
-#             if len(self._params.axis['xlabel'])==0:
-#                 ax.set_xticks(self._params.axis['xlabel'])
-#             elif isinstance(self._params.axis['xlabel'][0], (list, tuple, np.ndarray)):
-#                 ax.set_xticks(self._params.axis['xlabel'][0])
-#                 ax.set_xticklabels(self._params.axis['xlabel'][1])
-#             else:
-#                 ax.set_xticks(self._params.axis['xlabel'])
-#         if self._params.axis['ylabel'] is not None:
-#             if len(self._params.axis['ylabel'])==0:
-#                 ax.set_yticks(self._params.axis['ylabel'])
-#             elif isinstance(self._params.axis['ylabel'][0], (list, tuple, np.ndarray)):
-#                 ax.set_yticks(self._params.axis['ylabel'][0])
-#                 ax.set_yticklabels(self._params.axis['ylabel'][1])
-#             else:
-#                 ax.set_yticks(self._params.axis['ylabel'])
-#         ax.tick_params(axis='x', **self._params.axis['xtick'])
-#         ax.tick_params(axis='y', **self._params.axis['ytick'])
-#         if self._params.axis['xinvert']:
-#             ax.invert_xaxis()
-#         if self._params.axis['yinvert']:
-#             ax.invert_yaxis()
-#         if self._params.axis['xtickposition'] is not None:
-#             ax.xaxis.set_ticks_position(self._params.axis['xtickposition'])
-#         if self._params.axis['ytickposition'] is not None:
-#             ax.yaxis.set_ticks_position(self._params.axis['ytickposition'])
         #legend
         if len(self._params.legend)>0:
             if self._params.legend['loc'] not in [None, 'None', 'none']:
