@@ -595,6 +595,7 @@ class Coordinate():
                   spinecolor=None, leftcolor=None, rightcolor=None, topcolor=None, bottomcolor=None,
                   spinewidth=None, leftwidth=None, rightwidth=None, topwidth=None, bottomwidth=None,
                   spinestyle=None, leftstyle=None, rightstyle=None, topstyle=None, bottomstyle=None,
+                  spinealpha=None, leftalpha=None, rightalpha=None, topalpha=None, bottomalpha=None,
                   leftloc=None, rightloc=None, toploc=None, bottomloc=None,
                  ):
         """Set a wireframes for the Axes.
@@ -620,6 +621,11 @@ class Coordinate():
             rightstyle: right wireframes style.
             topstyle: top wireframes style.
             bottomstyle: bottom wireframes style.
+            spinealpha: all wireframes alpha.
+            leftalpha: left wireframes alpha.
+            rightalpha: right wireframes alpha.
+            topalpha: top wireframes alpha.
+            bottomalpha: bottom wireframes alpha.
             leftloc: 2 tuple of (position type, amount), left wireframes position.
                 The position types are :
                 * 'outward': place the spine out from the data area by the specified number of points.
@@ -633,6 +639,7 @@ class Coordinate():
         self._set_spine(spinecolor, leftcolor, rightcolor, topcolor, bottomcolor, 'color')
         self._set_spine(spinewidth, leftwidth, rightwidth, topwidth, bottomwidth, 'width')
         self._set_spine(spinestyle, leftstyle, rightstyle, topstyle, bottomstyle, 'style')
+        self._set_spine(spinealpha, leftalpha, rightalpha, topalpha, bottomalpha, 'alpha')
         self._set_spine(None, leftloc, rightloc, toploc, bottomloc, 'position')
         return self
     

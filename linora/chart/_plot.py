@@ -133,6 +133,9 @@ class Plot(*classlist):
             if len([1 for i,j in self._params.ydata.items() if j['plotmode'] not in t])>1:
                 ax.legend(loc='best')
         #spines
+        if len(self._params.spine['alpha'])>0:
+            for i,j in self._params.spine['alpha'].items():
+                ax.spines[i].set_alpha(j)
         if len(self._params.spine['color'])>0:
             for i,j in self._params.spine['color'].items():
                 ax.spines[i].set_color(j)
