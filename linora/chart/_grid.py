@@ -44,7 +44,7 @@ class Grid():
                 If not given, all rows will have the same height.
         """
         self._grid = Config()
-        self._grid.figure = {'figsize':(10, 6)}
+        self._grid.figure = {'figsize':(12.8, 7.2)}
         self._grid.grid = {'nrows':nrows, 'ncols':ncols, 'left':left, 'bottom':bottom, 
                            'right':right, 'top':top, 'wspace':wspace, 'hspace':hspace, 
                            'width_ratios':width_ratios, 'height_ratios':height_ratios}
@@ -111,7 +111,7 @@ class Grid():
         if if_show:
             return fig.show()
     
-    def set_figure(self, width=10, height=6, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
+    def set_figure(self, width=12.8, height=7.2, dpi=None, facecolor=None, edgecolor=None, frameon=True, clear=False):
         """Add figure config.
         
         Args:
