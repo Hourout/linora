@@ -1,15 +1,19 @@
-class Coherence():
-    def add_coherence(self, name, xdata, ydata, **kwargs):
-        """Plot the coherence between *x* and *y*.
+class Csd():
+    def add_csd(self, name, xdata, ydata, **kwargs):
+        """Plot the cross-spectral density.
 
-        Plot the coherence between *x* and *y*.  Coherence is the
-        normalized cross spectral density:
+        The cross spectral density :math:`P_{xy}` by Welch's average
+        periodogram method.  The vectors *x* and *y* are divided into
+        *NFFT* length segments.  Each segment is detrended by function
+        *detrend* and windowed by function *window*.  *noverlap* gives
+        the length of the overlap between segments.  The product of
+        the direct FFTs of *x* and *y* are averaged over each segment
+        to compute :math:`P_{xy}`, with a scaling to correct for power
+        loss due to windowing.
 
-        .. math::
+        If len(*x*) < *NFFT* or len(*y*) < *NFFT*, they will be zero
+        padded to *NFFT*.
 
-          C_{xy} = \frac{|P_{xy}|^2}{P_{xx}P_{yy}}
-
-        
         Args:
             name: data name.
             xdata: x-axis data.
@@ -60,15 +64,18 @@ class Coherence():
                 MATLAB compatibility.
 
             noverlap : int, default: 0 (no overlap)
-                The number of points of overlap between blocks.
+                The number of points of overlap between segments.
 
             Fc : int, default: 0
                 The center frequency of *x*, which offsets the x extents of the
                 plot to reflect the frequency range used when a signal is acquired
                 and then filtered and downsampled to baseband.
+
+            return_line : bool, default: False
+                Whether to include the line object plotted in the returned values.
         """
         if 'color' not in kwargs:
-            kwargs['color'] = self._params.color.pop(0)[1]#tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
+            kwargs['color'] = self._params.color.pop(0)[1]
         elif isinstance(kwargs['color'], dict):
             kwargs['color'] = kwargs.pop('color')['mode']
         kwargs['label'] = name
@@ -76,9 +83,9 @@ class Coherence():
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xdata'] = xdata
         self._params.ydata[name]['ydata'] = ydata
-        self._params.ydata[name]['plotmode'] = 'coherence'
-        self._params.ydata[name]['plotfunc'] = self._execute_plot_coherence
+        self._params.ydata[name]['plotmode'] = 'csd'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot_csd
         return self
     
-    def _execute_plot_coherence(self, fig, ax, i, j):
-        ax_plot = ax.cohere(j['xdata'], j['ydata'], **j['kwargs'])
+    def _execute_plot_csd(self, fig, ax, i, j):
+        ax_plot = ax.csd(j['xdata'], j['ydata'], **j['kwargs'])
