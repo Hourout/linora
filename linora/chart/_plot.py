@@ -22,6 +22,7 @@ from linora.chart._regularpolygon import RegularPolygon
 from linora.chart._scatter import Scatter
 from linora.chart._scatter3D import Scatter3D
 from linora.chart._vlines import Vlines
+from linora.chart._config import Options
 
 __all__ = ['Plot']
 
@@ -37,6 +38,9 @@ class Plot(*classlist):
         super(Plot, self).__init__()
         if config is not None:
             self.set_config(config)
+        key = np.random.choice(list(Options.color), size=len(t), replace=False)
+        t = np.random.choice(Options.color[i], size=len(Options.color[i]), replace=False)
+        self._params.color = sorted([[r+k*7, j, i] for r, i in enumerate(key) for k, j in enumerate(t)])
 #         if len(args)!=0:
 #             if isinstance(args[0], dict):
 #                 for i,j in args[0].items():

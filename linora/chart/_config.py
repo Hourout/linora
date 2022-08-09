@@ -84,6 +84,8 @@ Options.axis = Config(**{'on':'on', 'off':'off', 'equal':'equal', 'scaled':'scal
 Options.color = {'green':['#9eccab', '#8cc269', '#68b88e', '#5dbe8a', '#5bae23', '#41b349', '#20894d',
                           '#1a6840', '#69a794', '#2c9678', '#12aa9c', '#57c3c2'],
                  'pink':['#eeb8c3', '#f0ala8', '#ec8aa4', '#ec7696', '#ef82a0', '#de7897', '#e77c8e',
-                         '#ed9db2', '#f07c82', '#ea517f', '#eb507e', '#ce5777',]
+                         '#ed9db2', '#f07c82', '#ea517f', '#eb507e', '#ce5777',],
+                 'blue':['#b4d9ef', '#78bbdd', '#6f94cd', '#63bbd0', '#158bb8', '#2775b6', '#0d67bf', 
+                         '#1661ab', '#11659a', '#4656b7', '#2e317c', '#144a74', ]
                 }
 

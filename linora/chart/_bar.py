@@ -86,7 +86,7 @@ class Bar():
                 Distance of label from the end of the bar, in points.
         """
         if 'barcolor' not in kwargs:
-            kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
+            kwargs['color'] = self._params.color.pop(0)#tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
         elif isinstance(kwargs['barcolor'], dict):
             kwargs['color'] = kwargs.pop('barcolor')['mode']
         else:
