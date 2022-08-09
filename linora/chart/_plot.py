@@ -39,8 +39,8 @@ class Plot(*classlist):
         if config is not None:
             self.set_config(config)
         key = np.random.choice(list(Options.color), size=len(Options.color), replace=False)
-        t = np.random.choice(Options.color[i], size=len(Options.color[i]), replace=False)
-        self._params.color = sorted([[r+k*7, j, i] for r, i in enumerate(key) for k, j in enumerate(t)])
+        t = {i:np.random.choice(Options.color[i], size=len(Options.color[i]), replace=False) for i in key}
+        self._params.color = sorted([[r+k*7, j, i] for r, i in enumerate(key) for k, j in enumerate(t[i])])
 #         if len(args)!=0:
 #             if isinstance(args[0], dict):
 #                 for i,j in args[0].items():
