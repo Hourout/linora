@@ -1,15 +1,16 @@
 from matplotlib import patches
 
 
-class Ellipse():
-    def add_ellipse(self, name, xy, width, height, angle=0, **kwargs):
-        """Make a ellipse plot.
+class Wedge():
+    def add_wedge(self, name, center, r, theta1, theta2, width=None, **kwargs):
+        """Wedge shaped patch.
+        
+        A wedge centered at *x*, *y* center with radius *r* that
+        sweeps *theta1* to *theta2* (in degrees).  If *width* is given,
+        then a partial wedge is drawn from inner radius *r* - *width*
+        to outer radius *r*.
         
         Args:
-            xy: (float, float) xy coordinates of ellipse centre.
-            width : float, Total length (diameter) of horizontal axis.
-            height : float, Total length (diameter) of vertical axis.
-            angle : float, Rotation in degrees anti-clockwise.
             alpha: scalar or None
             animated: bool
             antialiased or aa: unknown
@@ -36,18 +37,19 @@ class Ellipse():
         """
         if 'color' not in kwargs:
             kwargs['color'] = self._params.color.pop(0)[1]
+        kwargs['center'] = center
+        kwargs['r'] = r
+        kwargs['theta1'] = theta1
+        kwargs['theta2'] = theta2
         kwargs['width'] = width
-        kwargs['height'] = height
-        kwargs['angle'] = angle
         self._params.ydata[name]['kwargs'] = kwargs
-        self._params.ydata[name]['data'] = xy
         self._params.ydata[name]['transform'] = 'ax'
-        self._params.ydata[name]['plotmode'] = 'ellipse'
-        self._params.ydata[name]['plotfunc'] = self._execute_plot_ellipse
+        self._params.ydata[name]['plotmode'] = 'wedge'
+        self._params.ydata[name]['plotfunc'] = self._execute_plot_wedge
         return self
     
-    def _execute_plot_ellipse(self, fig, ax, i, j):
-        poly = patches.Ellipse(j['data'], **j['kwargs'])
+    def _execute_plot_wedge(self, fig, ax, i, j):
+        poly = patches.Wedge(**j['kwargs'])
         if j['transform']=='ax':
             ax.add_patch(poly)
         else:

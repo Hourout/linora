@@ -1,4 +1,3 @@
-import numpy as np
 from matplotlib import patches
 
 
@@ -33,6 +32,8 @@ class Circle():
             sketch_params: (scale: float, length: float, randomness: float)
             snap: bool or None
         """
+        if 'color' not in kwargs:
+            kwargs['color'] = self._params.color.pop(0)[1]
         kwargs['radius'] = radius
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['data'] = xy

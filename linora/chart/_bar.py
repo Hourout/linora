@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Bar():
     def add_bar(self, name, xdata, ydata, **kwargs):
         """Make a bar plot.
@@ -86,7 +83,7 @@ class Bar():
                 Distance of label from the end of the bar, in points.
         """
         if 'barcolor' not in kwargs:
-            kwargs['color'] = self._params.color.pop(0)[1]#tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
+            kwargs['color'] = self._params.color.pop(0)[1]
         elif isinstance(kwargs['barcolor'], dict):
             kwargs['color'] = kwargs.pop('barcolor')['mode']
         else:

@@ -43,6 +43,8 @@ class Rectangle():
             sketch_params: (scale: float, length: float, randomness: float)
             snap: bool or None
         """
+        if 'color' not in kwargs:
+            kwargs['color'] = self._params.color.pop(0)[1]
         kwargs['width'] = width
         kwargs['height'] = height
         kwargs['angle'] = angle
