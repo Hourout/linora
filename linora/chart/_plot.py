@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from linora.chart._config import Options
 from linora.chart._base import Coordinate
+from linora.chart._arrow import Arrow
 from linora.chart._bar import Bar
 from linora.chart._boxplot import Boxplot
 from linora.chart._circle import Circle
@@ -24,13 +26,13 @@ from linora.chart._scatter import Scatter
 from linora.chart._scatter3D import Scatter3D
 from linora.chart._vlines import Vlines
 from linora.chart._wedge import Wedge
-from linora.chart._config import Options
+
 
 __all__ = ['Plot']
 
 
 classlist = [
-    Coordinate, Bar, Boxplot, Circle, Coherence, Csd, Ellipse, Errorbar, Fillline, 
+    Coordinate, Arrow, Bar, Boxplot, Circle, Coherence, Csd, Ellipse, Errorbar, Fillline, 
     Hist, Hist2d, Hlines, Line, Line3D,
     Pie, Polygon, Radar, Rectangle, RegularPolygon, Scatter, Scatter3D, Vlines, Wedge
 ]
@@ -103,7 +105,7 @@ class Plot(*classlist):
             if self._params.legend['loc'] not in [None, 'None', 'none']:
                 ax.legend(**self._params.legend)
         else:
-            t = ['ellipse', 'regularpolygon', 'rectangle', 'circle', 'polygon', 'boxplot', 'wedge']
+            t = ['ellipse', 'regularpolygon', 'rectangle', 'circle', 'polygon', 'boxplot', 'wedge', 'arrow']
             if len([1 for i,j in self._params.ydata.items() if j['plotmode'] not in t])>1:
                 ax.legend(loc='best')
         #spines
