@@ -17,7 +17,7 @@ class Coordinate():
         self._params.label = {'normal':{'xlabel':{'xlabel':None}, 'ylabel':{'ylabel':None}}}
         
         self._params.legend = dict()
-        self._params.spine = {'show':{}, 'color':{}, 'width':{}, 'style':{}, 'position':{}}
+        self._params.spine = {'show':{}, 'alpha':{}, 'color':{}, 'width':{}, 'style':{}, 'position':{}}
         self._params.text = dict()
         self._params.theme = 'ggplot'
         self._params.title = {'label':None}
