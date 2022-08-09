@@ -17,7 +17,7 @@ class Hlines():
         if isinstance(ydata, (int, float)):
             ydata = [ydata]
         if 'colors' not in kwargs and 'colors' not in kwargs and 'linecolor' not in kwargs:
-            kwargs['colors'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
+            kwargs['colors'] = [self._params.color.pop(0)[1]]*len(ydata)
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['xmin'] = xmin
         self._params.ydata[name]['xmax'] = xmax

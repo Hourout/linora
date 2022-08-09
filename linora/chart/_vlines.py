@@ -17,7 +17,7 @@ class Vlines():
         if isinstance(xdata, (int, float)):
             xdata = [xdata]
         if 'color' not in kwargs and 'colors' not in kwargs and 'linecolor' not in kwargs:
-            kwargs['colors'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(xdata)
+            kwargs['colors'] = [self._params.color.pop(0)[1]]*len(xdata)
         self._params.ydata[name]['kwargs'] = kwargs
         self._params.ydata[name]['ymin'] = ymin
         self._params.ydata[name]['ymax'] = ymax

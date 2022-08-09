@@ -87,7 +87,7 @@ class Scatter3D():
         if 'markeredgecolor' in kwargs:
             kwargs['edgecolors'] = kwargs.pop('markeredgecolor')
         if 'markcolor' not in kwargs:
-            kwargs['c'] = [tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])]*len(ydata)
+            kwargs['c'] = [self._params.color.pop(0)[1]]*len(ydata)
         elif isinstance(kwargs['markcolor'], dict):
             kwargs['c'] = kwargs.pop('markcolor')['mode']
         else:

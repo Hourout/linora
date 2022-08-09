@@ -11,7 +11,7 @@ class Hist2d():
             ydata: y-axis data.
         """
         if 'color' not in kwargs:
-            kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
+            kwargs['color'] = self._params.color.pop(0)[1]#tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
         else:
             if isinstance(kwargs['color'], dict):
                 kwargs['color'] = kwargs.pop('color')['mode']

@@ -128,7 +128,7 @@ class Hist():
                 'bar' or on top of each other if histtype is 'step'
         """
         if 'color' not in kwargs:
-            kwargs['color'] = tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
+            kwargs['color'] = self._params.color.pop(0)[1]#tuple([round(np.random.uniform(0, 1),1) for _ in range(3)])
         elif isinstance(kwargs['color'], dict):
             kwargs['color'] = kwargs.pop('color')['mode']
         self._params.ydata[name]['kwargs'] = kwargs
