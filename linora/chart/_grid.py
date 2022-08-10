@@ -49,6 +49,7 @@ class Grid():
                            'right':right, 'top':top, 'wspace':wspace, 'hspace':hspace, 
                            'width_ratios':width_ratios, 'height_ratios':height_ratios}
         self._grid.grid_id = dict()
+        self._grid.title = {'title':None}
         
     def add_plot(self, grid_id, plot):
         """Add la.chart.Plot object in designated area.
@@ -85,6 +86,7 @@ class Grid():
             'grid': self._grid.grid,
             'grid_id': self._grid.grid_id,
             'figure': self._grid.figure,
+            'title': self._grid.title
         }
         if json_path is not None:
             with open(json_path, 'w') as f:
@@ -101,6 +103,7 @@ class Grid():
         self._grid.figure = config['figure']
         self._grid.grid = config['grid']
         self._grid.grid_id = config['grid_id']
+        self._grid.title = config['title']
         return self
         
     def render(self, image_path=None, if_show=True, **kwargs):
@@ -128,6 +131,36 @@ class Grid():
         self._grid.figure.update(kwargs)
         return self
     
+    def set_title(self, title, x=0.5, y=0.98, horizontalalignment='center', 
+                  verticalalignment='top', fontsize='large', fontweight='normal', **kwargs):
+        """Add a centered suptitle to the figure.
+        
+        Args:
+            title : str
+                The suptitle text.
+            x : float, default: 0.5
+                The x location of the text in figure coordinates.
+            y : float, default: 0.98
+                The y location of the text in figure coordinates.
+            horizontalalignment, ha : {'center', 'left', 'right'}, default: center
+                The horizontal alignment of the text relative to (*x*, *y*).
+            verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, default: top
+                The vertical alignment of the text relative to (*x*, *y*).
+            fontsize, size : default: 'large'
+                The font size of the text. 
+            fontweight, weight : default: 'normal'
+                The font weight of the text. 
+        """
+        kwargs['t'] = title
+        kwargs['x'] = x
+        kwargs['y'] = y
+        kwargs['horizontalalignment'] = horizontalalignment
+        kwargs['verticalalignment'] = verticalalignment
+        kwargs['fontsize'] = fontsize
+        kwargs['fontweight'] = fontweight
+        self._grid.title.update(kwargs)
+        return self
+    
     def _execute(self):
         fig = plt.figure(**self._grid.figure)
         grid = plt.GridSpec(**self._grid.grid)
@@ -136,4 +169,6 @@ class Grid():
                 ax = fig.add_subplot(grid[grid_id['grid_id'][0][0]:grid_id['grid_id'][0][1], 
                                           grid_id['grid_id'][1][0]:grid_id['grid_id'][1][1]])
                 ax = grid_id['plot']._execute_ax(fig, ax)
+        if self._grid.title['title'] is not None:
+            fig.suptitle(**self._grid.title)
         return fig
