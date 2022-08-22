@@ -10,8 +10,9 @@ from linora import image
 from linora import utils
 from linora import gfile
 from linora import data
+from linora import train
 
-__version__ = '1.5.0rc0'
+__version__ = '1.5.0rc1'
 __author__ = 'JinQing Lee'
 
 def _version():
