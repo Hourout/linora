@@ -66,11 +66,11 @@ class Visual():
                 if self._params.iter_num is not None:
                     plt.xlim(1, self._params.iter_num)
                 plt.plot(range(1, len(self._params.logs[metric])+1), self._params.logs[metric], label="train",
-                         color=self._params.color.pop(0)[1])
+                         color=self._params.color[metric_id*2])
                 if self._params.valid_fmt.format(metric) in self._params.logs:
                     plt.plot(range(1, len(self._params.logs[metric])+1),
                              self._params.logs[self._params.valid_fmt.format(metric)],
-                             label=self._params.valid_fmt.split('_')[0], color=self._params.color.pop(0)[1])
+                             label=self._params.valid_fmt.split('_')[0], color=self._params.color[metric_id*2+1])
                 plt.title(metric)
                 plt.xlabel(self._params.xlabel[self._params.mode])
                 plt.legend(loc='best')
