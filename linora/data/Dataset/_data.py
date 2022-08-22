@@ -440,17 +440,31 @@ class DataSet():
         assert 'to_tensor' not in self._params.options, '`to_tensor` already exists.'
         assert 'take_while' not in self._params.options, '`take` must be placed in `take_while` front.'
         if mode in ['tf', 'tensorflow']:
-            from tensorflow import convert_to_tensor
-            self._params.framework = convert_to_tensor
+            if 'tf' in globals():
+                self._params.framework = tf.convert_to_tensor
+            else:
+                from tensorflow import convert_to_tensor
+                self._params.framework = convert_to_tensor
         elif mode in ['pytorch', 'torch']:
-            from torch import as_tensor
-            self._params.framework = as_tensor
+            if 'torch' in globals():
+                self._params.framework = torch.as_tensor
+            else:
+                from torch import as_tensor
+                self._params.framework = as_tensor
         elif mode in ['paddle', 'paddlepaddle']:
-            from paddle import to_tensor
-            self._params.framework = to_tensor
+            if 'paddle' in globals():
+                self._params.framework = paddle.to_tensor
+            else:
+                from paddle import to_tensor
+                self._params.framework = to_tensor
         elif mode in ['mx', 'mxnet']:
-            from mxnet.ndarray import array
-            self._params.framework = array
+            if 'mx' in globals():
+                self._params.framework = mx.ndarray.array
+            elif 'mxnet' in globals():
+                self._params.framework = mxnet.ndarray.array
+            else:
+                from mxnet.ndarray import array
+                self._params.framework = array
         elif mode in ['mindspore']:
             from mindspore.numpy import array
             self._params.framework = array
