@@ -59,7 +59,7 @@ class Visual():
         """plot metrics."""
         if self._params.polt_num%self._params.wait_num==0:
             clear_output(wait=True)
-            with plt.style.context(la.chart.Options.theme.ggplot):
+            with plt.style.context('ggplot'):
                 self._params.figure = plt.figure(figsize=self._params.figsize)
                 for metric_id, metric in enumerate(self._params.metrics):
                     plt.subplot((len(self._params.metrics)+1)//self._params.ncols+1, self._params.ncols, metric_id+1)
