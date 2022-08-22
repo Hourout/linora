@@ -38,7 +38,6 @@ class Visual():
         self._params.xlabel = {0:'epoch', 1:'batch'}
         self._params.polt_num = 0
         self._params.frames = []
-        self._params.fig = None
         key = np.random.choice(list(Options.color), size=len(Options.color), replace=False)
         t = {i:np.random.choice(Options.color[i], size=len(Options.color[i]), replace=False) for i in key}
         self._params.color = sorted([[r+k*7, j, i] for r, i in enumerate(key) for k, j in enumerate(t[i])])
@@ -55,33 +54,33 @@ class Visual():
         for metric in log:
             self._params.logs[metric] += [log[metric]]
         self._params.polt_num += 1
-
+            
     def draw(self):
         """plot metrics."""
         if self._params.polt_num%self._params.wait_num==0:
             clear_output(wait=True)
-            self._params.figure = plt.figure(figsize=self._params.figsize)
-            for metric_id, metric in enumerate(self._params.metrics):
-                plt.subplot((len(self._params.metrics)+1)//self._params.ncols+1, self._params.ncols, metric_id+1)
-                if self._params.iter_num is not None:
-                    plt.xlim(1, self._params.iter_num)
-                plt.plot(range(1, len(self._params.logs[metric])+1), self._params.logs[metric], label="train",
-                         color=self._params.color[metric_id*2][1])
-                if self._params.valid_fmt.format(metric) in self._params.logs:
-                    plt.plot(range(1, len(self._params.logs[metric])+1),
-                             self._params.logs[self._params.valid_fmt.format(metric)],
-                             label=self._params.valid_fmt.split('_')[0], color=self._params.color[metric_id*2+1][1])
-                plt.title(metric)
-                plt.xlabel(self._params.xlabel[self._params.mode])
-                plt.legend(loc='best')
+            with plt.style.context(la.chart.Options.theme.ggplot):
+                self._params.figure = plt.figure(figsize=self._params.figsize)
+                for metric_id, metric in enumerate(self._params.metrics):
+                    plt.subplot((len(self._params.metrics)+1)//self._params.ncols+1, self._params.ncols, metric_id+1)
+                    if self._params.iter_num is not None:
+                        plt.xlim(1, self._params.iter_num)
+                    plt.plot(range(1, len(self._params.logs[metric])+1), self._params.logs[metric], label="train",
+                             color=self._params.color[metric_id*2][1])
+                    if self._params.valid_fmt.format(metric) in self._params.logs:
+                        plt.plot(range(1, len(self._params.logs[metric])+1),
+                                 self._params.logs[self._params.valid_fmt.format(metric)],
+                                 label=self._params.valid_fmt.split('_')[0], color=self._params.color[metric_id*2+1][1])
+                    plt.title(metric)
+                    plt.xlabel(self._params.xlabel[self._params.mode])
+                    plt.legend(loc='best')
             plt.tight_layout()
             plt.show()
     
-    def save(image_path, **kwargs):
+    def save(self, image_path, **kwargs):
         """save plot.
         
         Args:
             image_path: str, train end save last image.
         """
         self._params.figure.savefig(image_path, **kwargs)
-    
