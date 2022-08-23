@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 
 import numpy as np
@@ -34,11 +35,10 @@ class Visual():
         self._params.wait_num = wait_num
         self._params.figsize = figsize
         self._params.valid_fmt = valid_fmt
-        self._params.logs = defaultdict(list)
-        self._params.index = defaultdict(list)
         self._params.xlabel = {0:'epoch', 1:'batch'}
         self._params.polt_num = 0
-        self._params.frames = []
+        self._params.figure = None
+        self.history = defaultdict(lambda: defaultdict(list))
         key = np.random.choice(list(Options.color), size=len(Options.color), replace=False)
         t = {i:np.random.choice(Options.color[i], size=len(Options.color[i]), replace=False) for i in key}
         self._params.color = sorted([[r+k*7, j, i] for r, i in enumerate(key) for k, j in enumerate(t[i])])
@@ -51,39 +51,56 @@ class Visual():
             log: dict, name and value of loss or metrics;
         """
         self._params.metrics = list(filter(lambda x: self._params.valid_fmt.split('_')[0] not in x.lower(), log))
-        if self._params.figsize is None:
-            self._params.figsize = (self._params.ncols*6, ((len(self._params.metrics)+1)//self._params.ncols+1)*4)
         for metric in log:
-            self._params.logs[metric] += [log[metric]]
-            self._params.index[metric] += [batch]
+            self.history[metric]['values'] += [log[metric]]
+            self.history[metric]['index'] += [batch]
         self._params.polt_num += 1
             
     def draw(self):
         """plot metrics."""
         if self._params.polt_num%self._params.wait_num==0:
             clear_output(wait=True)
-            with plt.style.context('ggplot'):
-                self._params.figure = plt.figure(figsize=self._params.figsize)
-                for metric_id, metric in enumerate(self._params.metrics):
-                    plt.subplot((len(self._params.metrics)+1)//self._params.ncols+1, self._params.ncols, metric_id+1)
-                    if self._params.iter_num is not None:
-                        plt.xlim(1, self._params.iter_num)
-                    plt.plot(self._params.index[metric], self._params.logs[metric], label="train",
-                             color=self._params.color[metric_id*2][1])
-                    if self._params.valid_fmt.format(metric) in self._params.logs:
-                        plt.plot(self._params.index[self._params.valid_fmt.format(metric)],
-                                 self._params.logs[self._params.valid_fmt.format(metric)],
-                                 label=self._params.valid_fmt.split('_')[0], color=self._params.color[metric_id*2+1][1])
-                    plt.title(metric)
-                    plt.xlabel(self._params.xlabel[self._params.mode])
-                    plt.legend(loc='best')
-            plt.tight_layout()
+            self._excute()
             plt.show()
     
-    def save(self, image_path, **kwargs):
+    def save_image(self, image_path, **kwargs):
         """save plot.
         
         Args:
             image_path: str, train end save last image.
         """
+        if self._params.figure is None:
+            self._excute()
         self._params.figure.savefig(image_path, **kwargs)
+
+    def save_logs(self, filename):
+        """save logs.
+        
+        Args:
+            filename: Filename of the json file, e.g. 'run/log.json'.
+        """
+        with open(filename, 'w') as f:
+            json.dump(self.history, f)
+    
+    def _excute(self):
+        with plt.style.context('ggplot'):
+            if self._params.figsize is None:
+                figsize = (self._params.ncols*6, ((len(self._params.metrics)+1)//self._params.ncols+1)*4)
+                self._params.figure = plt.figure(figsize=figsize)
+            else:
+                self._params.figure = plt.figure(figsize=self._params.figsize)
+            for metric_id, metric in enumerate(self._params.metrics):
+                plt.subplot((len(self._params.metrics)+1)//self._params.ncols+1, self._params.ncols, metric_id+1)
+                if self._params.iter_num is not None:
+                    plt.xlim(1, self._params.iter_num)
+                plt.plot(self.history[metric]['index'], self.history[metric]['values'], label="train",
+                         color=self._params.color[metric_id*2][1])
+                if self._params.valid_fmt.format(metric) in self.history:
+                    plt.plot(self.history[self._params.valid_fmt.format(metric)]['index'],
+                             self.history[self._params.valid_fmt.format(metric)]['values'],
+                             label=self._params.valid_fmt.split('_')[0], color=self._params.color[metric_id*2+1][1])
+                plt.title(metric)
+                plt.xlabel(self._params.xlabel[self._params.mode])
+                plt.legend(loc='best')
+        plt.tight_layout()
+        
