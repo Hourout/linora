@@ -35,6 +35,7 @@ class Visual():
         self._params.figsize = figsize
         self._params.valid_fmt = valid_fmt
         self._params.logs = defaultdict(list)
+        self._params.index = defaultdict(list)
         self._params.xlabel = {0:'epoch', 1:'batch'}
         self._params.polt_num = 0
         self._params.frames = []
@@ -42,10 +43,11 @@ class Visual():
         t = {i:np.random.choice(Options.color[i], size=len(Options.color[i]), replace=False) for i in key}
         self._params.color = sorted([[r+k*7, j, i] for r, i in enumerate(key) for k, j in enumerate(t[i])])
 
-    def update(self, log):
+    def update(self, batch, log):
         """update log
         
         Args:
+            batch: Integer, index of batch.
             log: dict, name and value of loss or metrics;
         """
         self._params.metrics = list(filter(lambda x: self._params.valid_fmt.split('_')[0] not in x.lower(), log))
@@ -53,6 +55,7 @@ class Visual():
             self._params.figsize = (self._params.ncols*6, ((len(self._params.metrics)+1)//self._params.ncols+1)*4)
         for metric in log:
             self._params.logs[metric] += [log[metric]]
+            self._params.index[metric] += [batch]
         self._params.polt_num += 1
             
     def draw(self):
@@ -65,10 +68,10 @@ class Visual():
                     plt.subplot((len(self._params.metrics)+1)//self._params.ncols+1, self._params.ncols, metric_id+1)
                     if self._params.iter_num is not None:
                         plt.xlim(1, self._params.iter_num)
-                    plt.plot(range(1, len(self._params.logs[metric])+1), self._params.logs[metric], label="train",
+                    plt.plot(self._params.index[metric], self._params.logs[metric], label="train",
                              color=self._params.color[metric_id*2][1])
                     if self._params.valid_fmt.format(metric) in self._params.logs:
-                        plt.plot(range(1, len(self._params.logs[metric])+1),
+                        plt.plot(self._params.index[self._params.valid_fmt.format(metric)],
                                  self._params.logs[self._params.valid_fmt.format(metric)],
                                  label=self._params.valid_fmt.split('_')[0], color=self._params.color[metric_id*2+1][1])
                     plt.title(metric)
