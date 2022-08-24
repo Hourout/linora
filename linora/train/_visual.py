@@ -27,8 +27,9 @@ class Visual():
                    instruction the training and validation is displayed together in the
                    same sub graph. The training indicator is not required to have a prefix.
                    The validation indicator prefix is 'val' in the "val_{}";
+        avg_num: int, default 1, move aveage.
     """
-    def __init__(self, ncols=2, iter_num=None, mode=1, wait_num=5, figsize=None, valid_fmt="test_{}"):
+    def __init__(self, ncols=2, iter_num=None, mode=1, wait_num=5, figsize=None, valid_fmt="test_{}", avg_num=1):
         self._params = Config()
         self._params.ncols = ncols
         self._params.iter_num = iter_num
@@ -39,6 +40,7 @@ class Visual():
         self._params.xlabel = {0:'epoch', 1:'batch'}
         self._params.polt_num = 0
         self._params.figure = None
+        self._params.avg_num = avg_num if avg_num>=0 else 1
         self.history = defaultdict(lambda: defaultdict(list))
         key = np.random.choice(list(Options.color), size=len(Options.color), replace=False)
         t = {i:np.random.choice(Options.color[i], size=len(Options.color[i]), replace=False) for i in key}
@@ -56,6 +58,7 @@ class Visual():
         for metric in log:
             self.history[metric]['values'] += [log[metric]]
             self.history[metric]['index'] += [batch]
+            self.history[metric]['move_avg'] += [np.mean(self.history[metric]['values'][-self._params.avg_num:]).item()]
         self._params.polt_num += 1
         
     def draw(self):
@@ -95,11 +98,11 @@ class Visual():
                 plt.subplot((len(self._params.metrics)+1)//self._params.ncols+1, self._params.ncols, metric_id+1)
                 if self._params.iter_num is not None:
                     plt.xlim(1, self._params.iter_num)
-                plt.plot(self.history[metric]['index'], self.history[metric]['values'], label="train",
+                plt.plot(self.history[metric]['index'], self.history[metric]['move_avg'], label="train",
                          color=self._params.color[metric_id*2][1])
                 if self._params.valid_fmt.format(metric) in self.history:
                     plt.plot(self.history[self._params.valid_fmt.format(metric)]['index'],
-                             self.history[self._params.valid_fmt.format(metric)]['values'],
+                             self.history[self._params.valid_fmt.format(metric)]['move_avg'],
                              label=self._params.valid_fmt.split('_')[0], color=self._params.color[metric_id*2+1][1])
                 plt.title(metric)
                 plt.xlabel(self._params.xlabel[self._params.mode])
