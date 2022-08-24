@@ -1,3 +1,5 @@
+from linora.utils._config import Config
+
 __all__ = ['CallbackList']
 
 
@@ -8,9 +10,13 @@ class CallbackList():
         callback: List of Callback instances.
     """
     def __init__(self, callbacks=None):
-        self._callbacks = []
+        self._params = Config()
+        self._params.callbacks = []
         if callbacks is not None:
-            self._callbacks += callbacks if isinstance(callbacks, list) else [callbacks]
+            self._params.callbacks += callbacks if isinstance(callbacks, list) else [callbacks]
+        self.state = False
+        self.checkpoint = False
+        self._params.name_list = ['EarlyStopping', 'TerminateOnNaN']
         
     def append(self, callback):
         """append callback.
@@ -18,7 +24,7 @@ class CallbackList():
         Args:
             callback: Callback instances.
         """
-        self._callbacks.append(callback)
+        self._params.callbacks.append(callback)
         
     def update(self, batch, log):
         """update log.
@@ -27,5 +33,9 @@ class CallbackList():
             batch: Integer, index of batch.
             log: dict, name and value of loss or metrics;
         """
-        for callback in self._callbacks:
-            callback.update(batch, log)
+        for callback in self._params.callbacks:
+            callback._update(batch, log)
+            if callback._params.name in self._params.name_list:
+                self.state = self.state or callback._params.state
+            elif callback._params.name=='ModelCheckpoint':
+                self.checkpoint = self.checkpoint or callback._params.checkpoint

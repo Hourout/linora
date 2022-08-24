@@ -14,9 +14,10 @@ class TerminateOnNaN():
     def __init__(self, monitor):
         self._params = Config()
         self._params.monitor = monitor
-        self.state = False
+        self._params.state = False
+        self._params.name = 'TerminateOnNaN'
         
-    def update(self, batch, log):
+    def _update(self, batch, log):
         """update log.
         
         Args:
@@ -25,4 +26,4 @@ class TerminateOnNaN():
         """
         if self._params.monitor in log:
             if np.isnan(log[self._params.monitor]).any():
-                self.state = True
+                self._params.state = True

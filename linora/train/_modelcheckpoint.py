@@ -18,11 +18,12 @@ class ModelCheckpoint():
         self._params.patience = patience
         self._params.mode = mode
         self._params.history = []
-        self.state = False
+        self._params.checkpoint = False
         self._params.polt_num = 0
         self._params.best = None
+        self._params.name = 'ModelCheckpoint'
         
-    def update(self, batch, log):
+    def _update(self, batch, log):
         """update log.
         
         Args:
@@ -33,13 +34,13 @@ class ModelCheckpoint():
             self._params.history += [log[self._params.monitor]]
             if self._params.polt_num%self._params.patience==0:
                 if self._params.best is None:
-                    self.state = True
+                    self._params.checkpoint = True
                     self._params.best = self._params.history[0]
                 elif self._params.mode=='min':
-                    self.state = min(self._params.history)<self._params.best
+                    self._params.checkpoint = min(self._params.history)<self._params.best
                 else:
-                    self.state = max(self._params.history)>self._params.best
+                    self._params.checkpoint = max(self._params.history)>self._params.best
                 self._params.history = []
             else:
-                self.state = False
+                self._params.checkpoint = False
             self._params.polt_num += 1

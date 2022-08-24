@@ -42,8 +42,9 @@ class Visual():
         key = np.random.choice(list(Options.color), size=len(Options.color), replace=False)
         t = {i:np.random.choice(Options.color[i], size=len(Options.color[i]), replace=False) for i in key}
         self._params.color = sorted([[r+k*7, j, i] for r, i in enumerate(key) for k, j in enumerate(t[i])])
+        self._params.name = 'Visual'
 
-    def update(self, batch, log):
+    def _update(self, batch, log):
         """update log
         
         Args:
@@ -55,7 +56,7 @@ class Visual():
             self.history[metric]['values'] += [log[metric]]
             self.history[metric]['index'] += [batch]
         self._params.polt_num += 1
-            
+        
     def draw(self):
         """plot metrics."""
         if self._params.polt_num%self._params.wait_num==0:

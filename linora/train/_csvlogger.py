@@ -26,8 +26,9 @@ class CSVLogger():
             if not append:
                 remove(filename)
         self._params.polt_num = 0
+        self._params.name = 'CSVLogger'
         
-    def update(self, batch, log):
+    def _update(self, batch, log):
         """update log.
         
         Args:
