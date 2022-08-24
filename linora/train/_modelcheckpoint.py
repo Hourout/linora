@@ -8,11 +8,11 @@ class ModelCheckpoint():
     
     Args:
         monitor: Quantity to be monitored.
-        patience: Number of epochs with no improvement after which training will be stopped.
-        mode: One of {"min", "max"}. In min mode, training will stop when the quantity monitored has stopped decreasing; 
-            in "max" mode it will stop when the quantity monitored has stopped increasing.
+        patience: The number of batches for the training monitoring interval.
+        mode: One of {"min", "max"}. the current save file is made based on either the 
+            maximization or the minimization of the monitored quantity.
     """
-    def __init__(self, monitor, patience=0, mode='min'):
+    def __init__(self, monitor, patience=10, mode='min'):
         self._params = Config()
         self._params.monitor = monitor
         self._params.patience = patience

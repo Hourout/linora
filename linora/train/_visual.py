@@ -12,14 +12,15 @@ __all__ = ['Visual']
 
 
 class Visual():
-    """
+    """Real-time dynamic training visualization callback.
+    
     Args:
         ncols : int, default 2, The number of sub graphs that the width of metrics
                  visualiztion image to accommodate at most;
         iter_num : int, default None, Pre-specify the maximum value of x-axis in each
                   sub-picture to indicate the maximum number of batch or epoch training;
         mode : int, default 1, 1 means the x-axis name is 'batch', 0 means the x-axis name is 'epoch';
-        wait_num : int, default 1, Indicates how many batches or epochs are drawn
+        wait_num : int, default 5, Indicates how many batches or epochs are drawn
                   each time a graph is drawn;
         figsize : tuple, default None，Represents the customize image size;
         valid_fmt : str, default "val_{}",The string preceding the underscore is used to
@@ -27,7 +28,7 @@ class Visual():
                    same sub graph. The training indicator is not required to have a prefix.
                    The validation indicator prefix is 'val' in the "val_{}";
     """
-    def __init__(self, ncols=2, iter_num=None, mode=1, wait_num=1, figsize=None, valid_fmt="test_{}"):
+    def __init__(self, ncols=2, iter_num=None, mode=1, wait_num=5, figsize=None, valid_fmt="test_{}"):
         self._params = Config()
         self._params.ncols = ncols
         self._params.iter_num = iter_num

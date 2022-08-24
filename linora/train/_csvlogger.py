@@ -14,6 +14,7 @@ class CSVLogger():
         filename: Filename of the CSV file, e.g. 'run/log.csv'.
         sep: String used to separate elements in the CSV file.
         append: Boolean. True: append if file exists (useful for continuing training). False: overwrite existing file.
+        wait_num: int, default 10, How many batches to store at intervals.
     """
     def __init__(self, filename, sep=',', append=False, wait_num=10):
         self._params = Config()

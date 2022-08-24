@@ -10,7 +10,7 @@ class EarlyStopping():
         monitor: Quantity to be monitored.
         min_delta: Minimum change in the monitored quantity to qualify as an improvement, 
             i.e. an absolute change of less than min_delta, will count as no improvement.
-        patience: Number of epochs with no improvement after which training will be stopped.
+        patience: Number of batch with no improvement after which training will be stopped.
         mode: One of {"min", "max"}. In min mode, training will stop when the quantity monitored has stopped decreasing; 
             in "max" mode it will stop when the quantity monitored has stopped increasing.
         baseline: Baseline value for the monitored quantity. 
