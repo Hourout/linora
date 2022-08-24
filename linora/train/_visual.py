@@ -27,7 +27,7 @@ class Visual():
                    instruction the training and validation is displayed together in the
                    same sub graph. The training indicator is not required to have a prefix.
                    The validation indicator prefix is 'val' in the "val_{}";
-        avg_num: int, default 1, move aveage.
+        avg_num: int, default 1, mertics move aveage.
     """
     def __init__(self, ncols=2, iter_num=None, mode=1, wait_num=5, figsize=None, valid_fmt="test_{}", avg_num=1):
         self._params = Config()

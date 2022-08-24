@@ -5,3 +5,4 @@ from linora.train._earlystopping import *
 from linora.train._modelcheckpoint import *
 from linora.train._remotemonitor import *
 from linora.train._terminateonnan import *
+from linora.train import lr
