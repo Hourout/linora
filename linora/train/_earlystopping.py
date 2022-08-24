@@ -38,10 +38,10 @@ class EarlyStopping():
             self._params.history += [log[self._params.monitor]]
             if self._params.mode=='min':
                 self._params.state = min(self._params.history[-self._params.patience:])+self._params.min_delta>self._params.history[-self._params.patience-1:][0]
-                if not self.state and self._params.baseline is not None:
+                if not self._params.state and self._params.baseline is not None:
                     self._params.state = min(self._params.history[-self._params.patience:])>self._params.baseline
             else:
                 self._params.state = max(self._params.history[-self._params.patience:])-self._params.min_delta<self._params.history[-self._params.patience-1:][0]
-                if not self.state and self._params.baseline is not None:
+                if not self._params.state and self._params.baseline is not None:
                     self._params.state = max(self._params.history[-self._params.patience:])<self._params.baseline
         
