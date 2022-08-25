@@ -493,7 +493,7 @@ class DataSet():
     def _to_tensor(self, data):
         if self._params.tensor=='numpy':
             return data
-        return self._params.framework(data)
+        return [self._params.framework(i) for i in data] if 'list' in self._params.data_mode else self._params.framework(data)
     
     def _data_mode(self):
         self._params.data_mode = 'list_array' if isinstance(self._params.data[self._params.mode1], list) else 'array'
