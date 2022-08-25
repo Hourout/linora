@@ -35,13 +35,13 @@ class EarlyStopping():
             log: dict, name and value of loss or metrics;
         """
         if self._params.monitor in log:
-            self._params.history += [log[self._params.monitor]]
+            self._params.history = self._params.history[-self._params.patience:]+[log[self._params.monitor]]
             if self._params.mode=='min':
-                self._params.state = min(self._params.history[-self._params.patience:])+self._params.min_delta>self._params.history[-self._params.patience-1:][0]
+                self._params.state = min(self._params.history[-self._params.patience:])+self._params.min_delta>self._params.history[0]
                 if not self._params.state and self._params.baseline is not None:
                     self._params.state = min(self._params.history[-self._params.patience:])>self._params.baseline
             else:
-                self._params.state = max(self._params.history[-self._params.patience:])-self._params.min_delta<self._params.history[-self._params.patience-1:][0]
+                self._params.state = max(self._params.history[-self._params.patience:])-self._params.min_delta<self._params.history[0]
                 if not self._params.state and self._params.baseline is not None:
                     self._params.state = max(self._params.history[-self._params.patience:])<self._params.baseline
         

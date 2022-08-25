@@ -1,6 +1,6 @@
 from linora.utils._config import Config
 
-__all__ = ['LRStep', 'LRConstant', 'LRStepMulti']
+__all__ = ['LRStep', 'LRConstant', 'LRStepMulti', 'LRScheduler', 'LRReduceOnPlateau']
 
 
 class LRConstant():
@@ -37,6 +37,77 @@ class LRConstant():
             self._params.lr = self._params.factor
 
 
+class LRReduceOnPlateau():
+    """Reduce learning rate when a metric has stopped improving.
+
+    Args:
+        lr_initial: lr initial value.
+        scheduler: a function that takes current learning rate (float)  
+            and an batch index (integer, indexed from 0) and log (dict) 
+            as inputs and returns a new learning rate as output (float).
+        monitor: quantity to be monitored.
+        patience: number of batch with no improvement after which learning rate will be reduced.
+        mode: one of {'min', 'max'}. 
+            In 'min' mode, the learning rate will be reduced when the quantity monitored has stopped decreasing; 
+            in 'max' mode it will be reduced when the quantity monitored has stopped increasing; 
+        min_delta: Minimum change in the monitored quantity to qualify as an improvement, 
+            i.e. an absolute change of less than min_delta, will count as no improvement.
+        lr_min: lower bound on the learning rate.
+    """
+    def __init__(self, lr_initial, scheduler, monitor, patience=10, mode='min', min_delta=0.0001, lr_min=0):
+        self._params = Config()
+        self._params.lr = lr_initial
+        self._params.scheduler = scheduler
+        self._params.monitor = monitor
+        self._params.patience = patience
+        self._params.mode = mode
+        self._params.min_delta = min_delta
+        self._params.lr_min = lr_min
+        self._params.history = []
+        self._params.name = 'LRReduceOnPlateau'
+    
+    def _update(self, batch, log):
+        """update log.
+        
+        Args:
+            batch: Integer, index of batch.
+            log: dict, name and value of loss or metrics;
+        """
+        if self._params.monitor in log:
+            self._params.history = self._params.history[-self._params.patience:]+[log[self._params.monitor]]
+            if self._params.mode=='min':
+                if min(self._params.history[-self._params.patience:])+self._params.min_delta>self._params.history[0]:
+                    self._params.lr = max(self._params.lr_min, self._params.scheduler(self._params.lr, batch, log))
+            else:
+                if max(self._params.history[-self._params.patience:])-self._params.min_delta<self._params.history[0]:
+                    self._params.lr = max(self._params.lr_min, self._params.scheduler(self._params.lr, batch, log))
+
+
+class LRScheduler():
+    """Custom learning rate scheduler.
+
+    Args:
+        lr_initial: lr initial value.
+        scheduler: a function that takes current learning rate (float)  
+            and an batch index (integer, indexed from 0) and log (dict) 
+            as inputs and returns a new learning rate as output (float).
+    """
+    def __init__(self, lr_initial, scheduler):
+        self._params = Config()
+        self._params.lr = lr_initial
+        self._params.scheduler = scheduler
+        self._params.name = 'LRScheduler'
+    
+    def _update(self, batch, log):
+        """update log.
+        
+        Args:
+            batch: Integer, index of batch.
+            log: dict, name and value of loss or metrics;
+        """
+        self._params.lr = self._params.scheduler(self._params.lr, batch, log)
+        
+        
 class LRStep():
     """Decays the learning rate of each parameter group by gamma every step_size batch. 
     
