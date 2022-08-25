@@ -5,7 +5,7 @@ __all__ = ['LRStep', 'LRConstant', 'LRStepMulti']
 
 class LRConstant():
     """Decays the learning rate of each parameter group by a small constant 
-    factor until the number of epoch reaches a pre-defined milestone: total_iters. 
+    factor until the number of epoch reaches a pre-defined batch. 
     
     >>> # Assuming optimizer uses lr = 0.05
     >>> # lr = 0.025   if batch == 0
@@ -84,7 +84,7 @@ class LRStepMulti():
 
     Args:
         lr_initial: lr initial value.
-        batch_list: list, List of epoch indices. Must be increasing.
+        batch_list: list, List of batch indices.
         gamma: float, Multiplicative factor of learning rate decay. Default: 0.1.
     """
     def __init__(self, lr_initial, batch_list, gamma=0.1):
