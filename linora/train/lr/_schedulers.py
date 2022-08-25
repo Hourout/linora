@@ -1,3 +1,4 @@
+import numpy as np
 from linora.utils._config import Config
 
 __all__ = ['Chain', 'Sequential']
