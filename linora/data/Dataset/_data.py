@@ -437,8 +437,9 @@ class DataSet():
         Args:
             mode: Deep learning framework name, one of ['tf', 'pytorch', 'paddle', 'mxnet', 'mindspore'].
         """
-        assert 'to_tensor' not in self._params.options, '`to_tensor` already exists.'
-        assert 'take_while' not in self._params.options, '`take` must be placed in `take_while` front.'
+        assert 'take_while' not in self._params.options, '`to_tensor` must be placed in `take_while` front.'
+        if self._params.tensor==mode:
+            return self
         if mode in ['tf', 'tensorflow']:
             if 'tf' in globals():
                 self._params.framework = tf.convert_to_tensor
