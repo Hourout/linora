@@ -5,7 +5,7 @@ __all__ = ['LRStep', 'LRConstant', 'LRStepMulti']
 
 class LRConstant():
     """Decays the learning rate of each parameter group by a small constant 
-    factor until the number of epoch reaches a pre-defined batch. 
+    factor until the number of batch reaches a pre-defined batch. 
     
     >>> # Assuming optimizer uses lr = 0.05
     >>> # lr = 0.025   if batch == 0
@@ -38,7 +38,7 @@ class LRConstant():
 
 
 class LRStep():
-    """Decays the learning rate of each parameter group by gamma every step_size epochs. 
+    """Decays the learning rate of each parameter group by gamma every step_size batch. 
     
     >>> # Assuming optimizer uses lr = 0.05 
     >>> # lr = 0.05     if batch < 30
@@ -75,7 +75,7 @@ class LRStep():
 
 class LRStepMulti():
     """Decays the learning rate of each parameter group by 
-    gamma once the number of epoch reaches one of the batch_list.  
+    gamma once the number of batch reaches one of the batch_list.  
     
     >>> # Assuming optimizer uses lr = 0.05
     >>> # lr = 0.05     if batch < 30
@@ -93,8 +93,6 @@ class LRStepMulti():
         self._params.batch_list = sorted(batch_list)
         self._params.gamma = gamma
         self._params.name = 'LRStepMulti'
-        self._params.step_num = 0
-        self._params.batch = -1
     
     def _update(self, batch, log):
         """update log.

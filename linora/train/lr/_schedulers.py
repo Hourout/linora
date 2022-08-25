@@ -15,8 +15,6 @@ class Chain():
         self._params.lr = schedulers[0]._params.lr
         self._params.schedulers = schedulers
         self._params.name = 'LRChain'
-        self._params.step_num = 0
-        self._params.batch = -1
     
     def _update(self, batch, log):
         """update log.
