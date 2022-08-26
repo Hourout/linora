@@ -1,8 +1,30 @@
 from linora.utils._config import Config
 
-__all__ = ['CallbackList']
+__all__ = ['Callback', 'CallbackList']
 
 
+class Callback():
+    """Abstract base class used to build new callbacks."""
+    def __init__(self):
+        self._params = Config()
+        self.state = False
+        self.checkpoint = False
+        self.lr = None
+        self._params.name = 'Callback'
+        
+    def update(self, batch, log=None):
+        """update log.
+        
+        Args:
+            batch: Integer, index of batch.
+            log: dict, name and value of loss or metrics;
+        """
+        pass
+    
+    def _update(self, batch, log):
+        self.update(batch, log)
+        
+        
 class CallbackList():
     """Container abstracting a list of callbacks.
     
@@ -20,7 +42,8 @@ class CallbackList():
         for callback in self._params.callbacks:
             if 'LR' in callback._params.name:
                 self.lr = callback._params.lr
-        self._params.name_list = ['EarlyStopping', 'TerminateOnNaN']
+        self._params.name_list_state = ['EarlyStopping', 'TerminateOnNaN']
+        self._params.name_list_checkpoint = ['ModelCheckpoint']
         
     def append(self, callback):
         """append callback.
@@ -41,9 +64,15 @@ class CallbackList():
         """
         for callback in self._params.callbacks:
             callback._update(batch, log)
-            if callback._params.name in self._params.name_list:
+            if callback._params.name in self._params.name_list_state:
                 self.state = self.state or callback._params.state
-            elif callback._params.name=='ModelCheckpoint':
+            elif callback._params.name in self._params.name_list_checkpoint:
                 self.checkpoint = self.checkpoint or callback._params.checkpoint
             elif 'LR' in callback._params.name:
                 self.lr = callback._params.lr
+            elif callback._params.name=='Callback':
+                self.state = self.state or callback.state
+                self.checkpoint = self.checkpoint or callback.checkpoint
+                if self.lr is not None:
+                    self.lr = callback.lr
+                
