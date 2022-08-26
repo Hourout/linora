@@ -42,6 +42,11 @@ class CallbackList():
         for callback in self._params.callbacks:
             if 'LR' in callback._params.name:
                 self.lr = callback._params.lr
+            elif callback._params.name=='Callback':
+                self.state = self.state or callback.state
+                self.checkpoint = self.checkpoint or callback.checkpoint
+                if callback.lr is not None:
+                    self.lr = callback.lr
         self._params.name_list_state = ['EarlyStopping', 'TerminateOnNaN']
         self._params.name_list_checkpoint = ['ModelCheckpoint']
         
@@ -73,6 +78,6 @@ class CallbackList():
             elif callback._params.name=='Callback':
                 self.state = self.state or callback.state
                 self.checkpoint = self.checkpoint or callback.checkpoint
-                if self.lr is not None:
+                if callback.lr is not None:
                     self.lr = callback.lr
                 
