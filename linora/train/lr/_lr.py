@@ -1,6 +1,92 @@
+import numpy as np
 from linora.utils._config import Config
 
-__all__ = ['LRStep', 'LRConstant', 'LRStepMulti', 'LRScheduler', 'LRReduceOnPlateau']
+__all__ = ['LRStep', 'LRConstant', 'LRCyclic', 'LRSGDR', 'LRStepMulti', 'LRScheduler', 'LRReduceOnPlateau']
+
+
+class LRCyclic():
+    """
+    https://www.kaggle.com/hireme/fun-api-keras-f1-metric-cyclical-learning-rate/code
+    
+    This callback implements a cyclical learning rate policy (CLR).
+    The method cycles the learning rate between two boundaries with
+    some constant frequency, as detailed in this paper (https://arxiv.org/abs/1506.01186).
+    The amplitude of the cycle can be scaled on a per-iteration or 
+    per-cycle basis.
+    This class has three built-in policies, as put forth in the paper.
+    "triangular":
+        A basic triangular cycle w/ no amplitude scaling.
+    "triangular2":
+        A basic triangular cycle that scales initial amplitude by half each cycle.
+    "exp_range":
+        A cycle that scales initial amplitude by gamma**(cycle iterations) at each 
+        cycle iteration.
+    For more detail, please see paper.
+    
+    Args:
+        lr_min: initial learning rate which is the
+            lower boundary in the cycle.
+        lr_max: upper boundary in the cycle. Functionally,
+            it defines the cycle amplitude (lr_max - lr_min).
+            The lr at any cycle is the sum of lr_min
+            and some scaling of the amplitude; therefore 
+            lr_max may not actually be reached depending on
+            scaling function.
+        step_size: number of training iterations per
+            half cycle. Authors suggest setting step_size
+            2-8 x training iterations in epoch.
+        mode: one of {triangular, triangular2, exp_range}.
+            Default 'triangular'.
+            Values correspond to policies detailed above.
+            If scale_fn is not None, this argument is ignored.
+        gamma: constant in 'exp_range' scaling function:
+            gamma**(cycle iterations)
+        scale_fn: Custom scaling policy defined by a single
+            argument lambda function, where 
+            0 <= scale_fn(x) <= 1 for all x >= 0.
+            mode paramater is ignored 
+        scale_mode: {'cycle', 'iterations'}.
+            Defines whether scale_fn is evaluated on 
+            cycle number or cycle iterations (training
+            iterations since start of cycle). Default is 'cycle'.
+    """
+    def __init__(self, lr_min=0.001, lr_max=0.006, step_size=2000., mode='triangular',
+                 gamma=1., scale_fn=None, scale_mode='cycle'):
+        self._params = Config()
+        self._params.lr = lr_min
+        self._params.lr_min = lr_min
+        self._params.lr_diff = lr_max-lr_min
+        self._params.step_size = step_size
+        self._params.mode = mode
+        self._params.gamma = gamma
+        if scale_fn is None:
+            if self._params.mode == 'triangular':
+                self._params.scale_fn = lambda x: 1.
+                self._params.scale_mode = 'cycle'
+            elif self._params.mode == 'triangular2':
+                self._params.scale_fn = lambda x: 1/(2.**(x-1))
+                self._params.scale_mode = 'cycle'
+            elif self._params.mode == 'exp_range':
+                self._params.scale_fn = lambda x: gamma**(x)
+                self._params.scale_mode = 'iterations'
+        else:
+            self._params.scale_fn = scale_fn
+            self._params.scale_mode = scale_mode
+        self._params.name = 'LRCyclic'
+        
+    def _update(self, batch, log):
+        """update log.
+        
+        Args:
+            batch: Integer, index of batch.
+            log: dict, name and value of loss or metrics;
+        """
+        cycle = np.floor(1+batch/(2*self._params.step_size))
+        x = np.abs(batch/self._params.step_size - 2*cycle + 1)
+        if self._params.scale_mode == 'cycle':
+            self._params.lr = self._params.lr_min + self._params.lr_diff*np.maximum(0, (1-x))*self.scale_fn(cycle)
+        else:
+            self._params.lr = self._params.lr_min + self._params.lr_diff*np.maximum(0, (1-x))*self.scale_fn(batch)
 
 
 class LRConstant():
@@ -106,8 +192,58 @@ class LRScheduler():
             log: dict, name and value of loss or metrics;
         """
         self._params.lr = self._params.scheduler(self._params.lr, batch, log)
+
+
+class LRSGDR():
+    """Cosine annealing learning rate scheduler with periodic restarts.
+
+    Args:
+        min_lr: The lower bound of the learning rate range for the experiment.
+        max_lr: The upper bound of the learning rate range for the experiment.
+        steps_per_epoch: The number of batches per epoch
+        lr_decay: Reduce the max_lr after the completion of each cycle.
+                  Ex. To reduce the max_lr by 20% after each cycle, set this value to 0.8.
+        cycle_length: Initial number of epochs in a cycle.
+        mult_factor: Scale epochs_to_restart after each full cycle completion.
         
+    References
+        Original paper: http://arxiv.org/abs/1608.03983
+    """
+    def __init__(self, lr_min, lr_max, steps_per_epoch, lr_decay=1, cycle_length=10, mult_factor=2):
+        self._params = Config()
+        self._params.lr = lr_max
+        self._params.lr_min = lr_min
+        self._params.lr_max = lr_max
         
+        self._params.lr_decay = lr_decay
+
+        self._params.batch_since_restart = 0
+        self._params.next_restart = cycle_length
+
+        self._params.steps_per_epoch = steps_per_epoch
+
+        self._params.cycle_length = cycle_length
+        self._params.mult_factor = mult_factor
+        self._params.name = 'LRSGDR'
+
+    def _update(self, batch, log):
+        """update log.
+        
+        Args:
+            batch: Integer, index of batch.
+            log: dict, name and value of loss or metrics;
+        """
+        self._params.batch_since_restart += 1
+        restart = self._params.batch_since_restart / (self._params.steps_per_epoch * self._params.cycle_length)
+        self._params.lr = self._params.lr_min+0.5*(self._params.lr_max-self._params.lr_min)*(1+np.cos(restart*np.pi))
+
+        if np.ceil(batch/self._params.steps_per_epoch) + 1 == self._params.next_restart:
+            self._params.batch_since_restart = 0
+            self._params.cycle_length = np.ceil(self._params.cycle_length * self._params.mult_factor)
+            self._params.next_restart += self._params.cycle_length
+            self._params.lr_max *= self._params.lr_decay
+
+
 class LRStep():
     """Decays the learning rate of each parameter group by gamma every step_size batch. 
     
