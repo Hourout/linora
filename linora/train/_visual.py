@@ -17,10 +17,10 @@ class Visual():
     Args:
         ncols : int, default 2, The number of sub graphs that the width of metrics
                  visualiztion image to accommodate at most;
-        iter_num : int, default None, Pre-specify the maximum value of x-axis in each
+        iter_batch : int, default None, Pre-specify the maximum value of x-axis in each
                   sub-picture to indicate the maximum number of batch or epoch training;
         mode : int, default 1, 1 means the x-axis name is 'batch', 0 means the x-axis name is 'epoch';
-        wait_num : int, default 5, Indicates how many batches or epochs are drawn
+        wait_batch : int, default 5, Indicates how many batches or epochs are drawn
                   each time a graph is drawn;
         figsize : tuple, default None，Represents the customize image size;
         valid_fmt : str, default "val_{}",The string preceding the underscore is used to
@@ -29,19 +29,21 @@ class Visual():
                    The validation indicator prefix is 'val' in the "val_{}";
         avg_num: int, default 1, mertics move aveage.
     """
-    def __init__(self, ncols=2, iter_num=None, mode=1, wait_num=5, figsize=None, valid_fmt="test_{}", avg_num=1):
+    def __init__(self, ncols=2, batch_total=None, batch_wait=20, batch_max_draw=100, avg_num=5,
+                 mode=1, figsize=None, valid_fmt="test_{}"):
         self._params = Config()
         self._params.ncols = ncols
-        self._params.iter_num = iter_num
         self._params.mode = mode
-        self._params.wait_num = wait_num
+        self._params.batch_total = batch_total
+        self._params.batch_wait = batch_wait
+        self._params.batch_max_draw = batch_max_draw+1
         self._params.figsize = figsize
         self._params.valid_fmt = valid_fmt
         self._params.xlabel = {0:'epoch', 1:'batch'}
-        self._params.polt_num = 0
         self._params.figure = None
         self._params.avg_num = avg_num if avg_num>=0 else 1
         self.history = defaultdict(lambda: defaultdict(list))
+        self._params.history = defaultdict(lambda: defaultdict(list))
         key = np.random.choice(list(Options.color), size=len(Options.color), replace=False)
         t = {i:np.random.choice(Options.color[i], size=len(Options.color[i]), replace=False) for i in key}
         self._params.color = sorted([[r+k*7, j, i] for r, i in enumerate(key) for k, j in enumerate(t[i])])
@@ -57,13 +59,12 @@ class Visual():
         self._params.metrics = list(filter(lambda x: self._params.valid_fmt.split('_')[0] not in x.lower(), log))
         for metric in log:
             self.history[metric]['values'] += [log[metric]]
-            self.history[metric]['index'] += [batch]
-            self.history[metric]['move_avg'] += [np.mean(self.history[metric]['values'][-self._params.avg_num:]).item()]
-        self._params.polt_num += 1
+            self.history[metric]['index'] += [batch]            
+        self._params.batch = batch
         
     def draw(self):
         """plot metrics."""
-        if self._params.polt_num%self._params.wait_num==0:
+        if self._params.batch%self._params.batch_wait==0:
             clear_output(wait=True)
             self._excute()
             plt.show()
@@ -95,17 +96,34 @@ class Visual():
             else:
                 self._params.figure = plt.figure(figsize=self._params.figsize)
             for metric_id, metric in enumerate(self._params.metrics):
+                if self._params.batch>self._params.avg_num:
+                    value = np.convolve(self.history[metric]['values'], np.ones(self._params.avg_num), mode='valid')/self._params.avg_num
+                    index = np.array(self.history[metric]['index'][-len(value)-2:])
+                else:
+                    value = np.array(self.history[metric]['values'])
+                    index = np.array(self.history[metric]['index'])
+                if len(value)>self._params.batch_max_draw:
+                    idx = np.linspace(0., len(value)-1, self._params.batch_max_draw, dtype=int)[1:]
+                else:
+                    idx = np.arange(len(value))
                 plt.subplot((len(self._params.metrics)+1)//self._params.ncols+1, self._params.ncols, metric_id+1)
-                if self._params.iter_num is not None:
-                    plt.xlim(1, self._params.iter_num)
-                plt.plot(self.history[metric]['index'], self.history[metric]['move_avg'], label="train",
-                         color=self._params.color[metric_id*2][1])
+                if self._params.batch_total is not None:
+                    plt.xlim(1, self._params.batch_total)
+                plt.plot(index[idx], value[idx], label="train", color=self._params.color[metric_id*2][1])
                 if self._params.valid_fmt.format(metric) in self.history:
-                    plt.plot(self.history[self._params.valid_fmt.format(metric)]['index'],
-                             self.history[self._params.valid_fmt.format(metric)]['move_avg'],
-                             label=self._params.valid_fmt.split('_')[0], color=self._params.color[metric_id*2+1][1])
+                    if self._params.batch>self._params.avg_num:
+                        value = np.convolve(self.history[self._params.valid_fmt.format(metric)]['values'], np.ones(self._params.avg_num), mode='valid')/self._params.avg_num
+                        index = np.array(self.history[self._params.valid_fmt.format(metric)]['index'][-len(value)-2:])
+                    else:
+                        value = np.array(self.history[self._params.valid_fmt.format(metric)]['values'])
+                        index = np.array(self.history[self._params.valid_fmt.format(metric)]['index'])
+                    if len(value)>self._params.batch_max_draw:
+                        idx = np.linspace(0., len(value)-1, self._params.batch_max_draw, dtype=int)[1:]
+                    else:
+                        idx = np.arange(len(value))
+                    plt.plot(index[idx], value[idx], label=self._params.valid_fmt.split('_')[0], color=self._params.color[metric_id*2+1][1])
                 plt.title(metric)
                 plt.xlabel(self._params.xlabel[self._params.mode])
                 plt.legend(loc='best')
+                plt.axis('tight')
         plt.tight_layout()
-        
