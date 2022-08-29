@@ -90,7 +90,7 @@ class DataSet():
         if isinstance(names, str):
             names = [names]
         for name in names:
-            assert name!='total', "`name` can't be 'total'."
+            assert name!='total', "`names` can't be 'total'."
         for name in names:
             if name in self._params.index_data:
                 self._params.index_data.pop(name)
@@ -295,6 +295,23 @@ class DataSet():
         self._params.step += 1
         return self
     
+    def sample(self, sample_size):
+        """Sample data from Dataset.
+        
+        Args:
+            sample_size: sample size.
+        """
+        loc = np.random.choice(self._params.index[self._params.mode], size=sample_size).tolist()
+        if 'list' in self._params.data_mode:
+            if self._params.mode in self._params.map:
+                return self._to_tensor(self._batch_list_map(loc))
+            else:
+                return self._to_tensor(self._batch_list(loc))
+        elif self._params.mode in self._params.map:
+            return self._to_tensor(self._batch_map(loc))
+        else:
+            return self._to_tensor(self._batch(loc))
+    
     def shard(self, shard_size, shard_index):
         """Creates a Dataset that includes only 1/num_shards of this dataset.
         
@@ -494,7 +511,10 @@ class DataSet():
     def _to_tensor(self, data):
         if self._params.tensor=='numpy':
             return data
-        return [self._params.framework(i) for i in data] if 'list' in self._params.data_mode else self._params.framework(data)
+        if 'list' in self._params.data_mode:
+            return [self._params.framework(i) for i in data]
+        else:
+            return self._params.framework(data)
     
     def _data_mode(self):
         self._params.data_mode = 'list_array' if isinstance(self._params.data[self._params.mode1], list) else 'array'
