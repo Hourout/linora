@@ -1,7 +1,10 @@
 import io
 import base64
 
+import requests
 from PIL import Image
+
+from linora.gfile._gfile import exists
 
 __all__ = ['read_image', 'save_image', 'encode_base64', 'decode_base64']
 
@@ -15,8 +18,11 @@ def read_image(filename):
         a PIL instance.
     """
     if isinstance(filename, str):
-        with open(filename, 'rb') as f:
-            image = Image.open(io.BytesIO(f.read()))
+        if exists(filename):
+            with open(filename, 'rb') as f:
+                image = Image.open(io.BytesIO(f.read()))
+        else:
+            image = Image.open(io.BytesIO(requests.get(filename).content), 'r')
     elif isinstance(filename, io.BytesIO):
         image = Image.open(filename)
     else:
