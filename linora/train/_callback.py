@@ -47,7 +47,7 @@ class CallbackList():
                 self.checkpoint = self.checkpoint or callback.checkpoint
                 if callback.lr is not None:
                     self.lr = callback.lr
-        self._params.name_list_state = ['EarlyStopping', 'TerminateOnNaN']
+        self._params.name_list_state = ['EarlyStopping', 'TerminateOnNaN', 'TerminateOverfitted']
         self._params.name_list_checkpoint = ['ModelCheckpoint']
         
     def append(self, callback):
