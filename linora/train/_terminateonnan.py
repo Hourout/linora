@@ -35,7 +35,7 @@ class TerminateOverfitted():
     
     Args:
         monitor: Quantity to be monitored.
-        theory_best : float, The theoretical-smallest loss achievable without overfiting
+        theory_best : float, The theoretical-smallest loss achievable without overfiting.
         mode: One of {"min", "max"}. In min mode, training will stop when the quantity monitored has stopped decreasing; 
             in "max" mode it will stop when the quantity monitored has stopped increasing.
     '''
