@@ -1,7 +1,9 @@
+import itertools
+
 import numpy as np
 import pandas as pd
 
-__all__ = ['sampling_random', 'sampling_systematic']
+__all__ = ['sampling_random', 'sampling_systematic', 'sampling_stratify']
 
 
 def sampling_random(feature, n=None, frac=None, replace=False, weights=None, seed=None):
@@ -39,7 +41,7 @@ def sampling_systematic(feature, n=None, frac=None, seed=None):
         frac: float, optional, Fraction of axis items to return. Cannot be used with `n`.
         seed: int, random seed.
     Returns:
-        a feature index list of simple random sampling.
+        a feature index list of simple systematic sampling.
     """
     if not isinstance(feature, (pd.DataFrame, pd.Series)):
         t = np.array(range(len(feature)))
@@ -70,3 +72,79 @@ def sampling_systematic(feature, n=None, frac=None, seed=None):
         else:
             index.append(s.pop(int(len(s)*(seed%10/10))))
     return t[sorted(index)]
+
+
+def _sampling_stratify(feature, n=None, frac=None, seed=None):
+    var_numerical = [i for i in feature.columns if feature[i].nunique()>len(feature)*0.6 and feature[i].dtype.name[:3] in ['int', 'flo']]
+    var_categorical = [i for i in feature.columns if i not in var_numerical]
+    if len(var_categorical)>0:
+        var_categorical = [j[0] for j in sorted([(i, feature[i].nunique()) for i in var_categorical], key=lambda x:x[1])]
+    
+    for r, i in enumerate(var_numerical):
+        feature.loc[feature[i]<feature[i].median(), f'la_fea_{r}'] = 0
+        feature.loc[feature[i]>=feature[i].median(), f'la_fea_{r}'] = 1
+    var_categorical += [i for i in feature.columns if 'la_fea_' in i]
+    
+    sample = []
+    group = feature[var_categorical].value_counts()
+    if group[group>1].count()>0:
+        for i in group[group>1].index:
+            sample.append(feature.query('&'.join([str(m)+'=='+str(n) for m,n in zip(var_categorical, i)])).index.tolist())
+    
+    if group[group==1].count()>0:
+        t = feature.query('('+')|('.join(['&'.join([str(m)+'=='+str(n) for m,n in zip(var_categorical, i)]) for i in group[group==1].index])+')')
+        while len(t)>0:
+            var_categorical = var_categorical[:-1]
+            if len(var_categorical)==0:
+                sample.append(t.index.tolist())
+                break
+            group = t[var_categorical].value_counts()
+            if group[group>1].count()>0:
+                for i in group[group>1].index:
+                    sample.append(t.query('&'.join([str(m)+'=='+str(n) for m,n in zip(var_categorical, i)])).index.tolist())
+            if group[group==1].count()==0:
+                break
+            t = t.query('('+')|('.join(['&'.join([str(m)+'=='+str(n) for m,n in zip(var_categorical, i)]) for i in group[group==1].index])+')')
+    if n is not None:
+        frac = n/len(feature)
+    sample = [pd.Series(i).sample(n=max(1, int(np.ceil(len(i)*frac))), random_state=seed).to_list() for i in sample]
+    sample = list(itertools.chain.from_iterable(sample))
+    return sample[:n] if n is not None else sample[:int(np.ceil(len(feature)*frac))]
+
+
+def sampling_stratify(feature, stratify=None, n=None, frac=None, seed=None):
+    """stratify sampling.
+    
+    Args:
+        feature: pd.DataFrame or pd.Series.
+        stratify: pd.Series, shape (n_samples,), The target variable for supervised learning problems.
+        n: int, optional, Number of items from axis to return. 
+           Cannot be used with `frac`. Default = 1 if `frac` = None.
+        frac: float, optional, Fraction of axis items to return. Cannot be used with `n`.
+        seed: int, random seed.
+    Returns:
+        a feature index list of stratified stratify sampling.
+    """
+    if n is None and frac is None:
+        raise ValueError('Only one of `n` and `frac` can be None.')
+    elif n is not None and frac is not None:
+        raise ValueError('Only one of `n` and `frac` can be None.')
+    elif n is not None:
+        frac = min(1, n/len(feature))
+    else:
+        frac = max(0, min(1, frac))
+    
+    if not isinstance(feature, pd.DataFrame):
+        raise ValueError('feature type must be pd.DataFrame.')
+    if stratify is not None:
+        if not isinstance(stratify, pd.Series):
+            raise ValueError('stratify type must be pd.Series.')
+        if stratify.nunique()>len(stratify)*0.6 and stratify.dtype.name[:3] in ['int', 'flo']:
+            return stratify.sample(frac=frac, random_state=seed).index.to_list()
+        else:
+            index = [_sampling_stratify(feature[stratify==i], frac=frac, seed=seed) for i in stratify.unique()]
+            index = list(itertools.chain.from_iterable(index))
+            return sample[:n] if n is not None else sample[:int(np.ceil(len(feature)*frac))]
+    else:
+        index = _sampling_stratify(feature, frac=frac, seed=seed)
+        return index[:n] if n is not None else index
