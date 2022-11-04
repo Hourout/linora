@@ -12,7 +12,7 @@ from linora import gfile
 from linora import data
 from linora import train
 
-__version__ = '1.5.0'
+__version__ = '1.6.0'
 __author__ = 'JinQing Lee'
 
 def _version():
