@@ -142,7 +142,7 @@ def sampling_stratify(feature, stratify=None, n=None, frac=None, seed=None):
         if stratify.nunique()>len(stratify)*0.6 and stratify.dtype.name[:3] in ['int', 'flo']:
             return _sampling_stratify(feature, n=n, seed=seed)
         else:
-            index = [_sampling_stratify(feature[stratify==i], frac=frac, seed=seed) for i in stratify.unique()]
+            index = [_sampling_stratify(feature.loc[stratify==i].copy(), frac=frac, seed=seed) for i in stratify.unique()]
             index = list(itertools.chain.from_iterable(index))
             return index[:n] if n is not None else index[:int(np.ceil(len(feature)*frac))]
     else:

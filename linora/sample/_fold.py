@@ -1,4 +1,5 @@
 import random
+import itertools
 from functools import reduce
 
 import numpy as np
@@ -28,29 +29,45 @@ def kfold(df, stratify=None, n_splits=3, shuffle=True, seed=None):
     Returns:
         list, length=n_splits, List each list containing train-test split of inputs.
     """
-    t = df.sample(frac=1, random_state=seed).index if shuffle else df.index
-    if stratify is None:
-        m = int(np.floor(len(t)/n_splits))
-        fold = [t[i*m:(i+1)*m].tolist() for i in range(n_splits-1)]+[t[(n_splits-1)*m:].tolist()]
+    fold = []
+    for i in range(n_splits-1):
+        index = list(itertools.chain.from_iterable(fold))
+        fold.append(sampling_stratify(df.drop(index), stratify=stratify, frac=1/(n_splits-i), seed=seed))
+        
+    fold_end_train = list(itertools.chain.from_iterable(fold))
+    fold_end_test = df.drop(fold_end_train).index.tolist()
+    
+    if shuffle:
+        fold = [[pd.Series(df.drop(i).index.tolist()).sample(frac=1, random_state=seed).tolist(), i] for i in fold]
+        fold.append([fold_end_train, pd.Series(fold_end_test).sample(frac=1, random_state=seed).tolist()])
     else:
-        t = stratify[t]
-        fold = []
-        for label in t.unique():
-            a = t[t==label].index
-            m = int(np.floor(len(a)/n_splits))
-            fold.append([a[i*m:(i+1)*m].tolist() for i in range(n_splits-1)]+[a[(n_splits-1)*m:].tolist()])
-        t = [[] for i in range(n_splits)]
-        for i in fold:
-            for j in range(n_splits):
-                t[j] = t[j]+i[j]
-        fold = t.copy()
-    t = [[] for i in range(n_splits)]
-    for i in range(n_splits):
-        j = fold.copy()
-        j.pop(i)
-        j = reduce(lambda x,y:x+y, j)
-        t[i] = t[i]+[j, fold[i]]
-    return t
+        fold = [df.drop(i).index.tolist() for i in fold]
+        fold = [[i, df.drop(i).index.tolist()] for i in fold]
+        fold.append([df.drop(fold_end_test).index.tolist(), fold_end_test])
+    return fold
+#     t = df.sample(frac=1, random_state=seed).index if shuffle else df.index
+#     if stratify is None:
+#         m = int(np.floor(len(t)/n_splits))
+#         fold = [t[i*m:(i+1)*m].tolist() for i in range(n_splits-1)]+[t[(n_splits-1)*m:].tolist()]
+#     else:
+#         t = stratify[t]
+#         fold = []
+#         for label in t.unique():
+#             a = t[t==label].index
+#             m = int(np.floor(len(a)/n_splits))
+#             fold.append([a[i*m:(i+1)*m].tolist() for i in range(n_splits-1)]+[a[(n_splits-1)*m:].tolist()])
+#         t = [[] for i in range(n_splits)]
+#         for i in fold:
+#             for j in range(n_splits):
+#                 t[j] = t[j]+i[j]
+#         fold = t.copy()
+#     t = [[] for i in range(n_splits)]
+#     for i in range(n_splits):
+#         j = fold.copy()
+#         j.pop(i)
+#         j = reduce(lambda x,y:x+y, j)
+#         t[i] = t[i]+[j, fold[i]]
+#     return t
 
 
 def train_test_split(df, stratify=None, test_size=0.2, shuffle=True, seed=None):
