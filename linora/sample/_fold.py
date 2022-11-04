@@ -3,6 +3,8 @@ from functools import reduce
 
 import numpy as np
 
+from linora.sample._sampling import sampling_stratify
+
 __all__ = ['kfold', 'train_test_split']
 
 
@@ -68,20 +70,28 @@ def train_test_split(df, stratify=None, test_size=0.2, shuffle=True, seed=None):
     Returns:
         list, length=2, List containing train-test split of inputs.
     """
-    t = df.sample(frac=1, random_state=seed).index if shuffle else df.index
-    if stratify is None:
-        t = [t[0:round(len(t)*(1-test_size))].tolist(), t[round(len(t)*(1-test_size)):].tolist()]
-    else:
-        t = stratify[t]
-        fold = []
-        for label in t.unique():
-            a = t[t==label].index
-            fold.append([a[0:round(len(a)*(1-test_size))].tolist(), a[round(len(a)*(1-test_size)):].tolist()])
-        t = [[], []]
-        for i in fold:
-            for j in range(2):
-                t[j] = t[j]+i[j]
+    test = sampling_stratify(df, stratify=stratify, frac=test_size, seed=seed)
+    train = df.drop(test).index.tolist()
     if shuffle:
-        random.shuffle(t[0], lambda :0.5)
-        random.shuffle(t[1], lambda :0.5)
-    return t
+        train = pd.Series(train).sample(frac=1, random_state=seed).tolist()
+    else:
+        test = df.drop(train).index.tolist()
+    return [train, test]
+    
+#     t = df.sample(frac=1, random_state=seed).index if shuffle else df.index
+#     if stratify is None:
+#         t = [t[0:round(len(t)*(1-test_size))].tolist(), t[round(len(t)*(1-test_size)):].tolist()]
+#     else:
+#         t = stratify[t]
+#         fold = []
+#         for label in t.unique():
+#             a = t[t==label].index
+#             fold.append([a[0:round(len(a)*(1-test_size))].tolist(), a[round(len(a)*(1-test_size)):].tolist()])
+#         t = [[], []]
+#         for i in fold:
+#             for j in range(2):
+#                 t[j] = t[j]+i[j]
+#     if shuffle:
+#         random.shuffle(t[0], lambda :0.5)
+#         random.shuffle(t[1], lambda :0.5)
+#     return t
