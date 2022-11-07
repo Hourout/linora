@@ -9,7 +9,7 @@ setup(name='linora',
       version='1.6.0',
       install_requires=[
           'pandas>=1.3.0', 
-          'Pillow>=9.2.0',
+          'Pillow>=9.3.0',
           'joblib>=1.0.1',
           'requests>=2.26.0',
           'rarfile'
@@ -35,7 +35,8 @@ setup(name='linora',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
           'Programming Language :: Python :: 3.9',
-          'Programming Language :: Python :: 3.10'
+          'Programming Language :: Python :: 3.10',
+          'Programming Language :: Python :: 3.11'
       ],
       packages=find_packages(),
       zip_safe=False)
