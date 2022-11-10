@@ -8,7 +8,7 @@ __all__ = ['mean_normal_error', 'mean_absolute_error', 'mean_squared_error',
            'mean_relative_error', 'poisson', 'log_cosh_error', 'max_error',
            'mean_tweedie_deviance', 'mean_poisson_deviance', 'mean_gamma_deviance',
            'mean_pinball_error', 'relative_absolute_error', 'relative_squared_error',
-           'relative_normal_loss'
+           'relative_normal_loss', 'relative_root_mean_squared_error', 'huber_error'
           ]
 
 
@@ -208,11 +208,27 @@ def mean_relative_error(y_true, y_pred, normalizer, sample_weight=None):
     return (np.abs(y_true-y_pred)/np.array(normalizer)*sample_weight).mean()
 
 
-def relative_root_mean_squared_error(y_true, y_pred, sample_weight=None):
-    """Computes the relative squared error between y_true and y_pred.
+def huber_error(y_true, y_pred, delta, sample_weight=None):
+    """Computes the huber error between y_true and y_pred.
     
-    The relative square error needs to use the mean square error and 
-    divide it by the square of the difference between the actual data and the data average.
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
+        delta: int or float, Conditional parameter.
+        sample_weight: list or array of sample weight.
+    Returns:
+        regression loss values.
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    sample_weight = _sample_weight(y_true, sample_weight)
+    huber_mse = 0.5 * np.square(y_true - y_pred)
+    huber_mae = delta * np.abs(y_true - y_pred) - 0.5 * np.square(delta)
+    return np.sum(np.where(np.abs(y_true - y_pred) <= delta, huber_mse, huber_mae)*sample_weight)
+
+
+def relative_root_mean_squared_error(y_true, y_pred, sample_weight=None):
+    """Computes the relative root mean squared error between y_true and y_pred.
     
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
@@ -224,7 +240,7 @@ def relative_root_mean_squared_error(y_true, y_pred, sample_weight=None):
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
     sample_weight = _sample_weight(y_true, sample_weight)
-    return np.sqrt(np.mean(np.square(y_true - y_pred))/np.sum(np.square(y_pred)))
+    return np.sqrt(np.mean(np.square(y_true - y_pred)*sample_weight)/np.sum(np.square(y_pred)))
 
 
 def relative_absolute_error(y_true, y_pred, sample_weight=None):
