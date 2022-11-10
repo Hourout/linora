@@ -2,16 +2,17 @@ import numpy as np
 
 from linora.metrics._utils import _sample_weight
 
-__all__ = ['normal_loss', 'mean_absolute_error', 'mean_squared_error',
+__all__ = ['mean_normal_error', 'mean_absolute_error', 'mean_squared_error',
            'mean_absolute_percentage_error', 'hinge', 'explained_variance_score',
            'median_absolute_error', 'r2_score', 'report_regression',
            'mean_relative_error', 'poisson', 'log_cosh_error', 'max_error',
            'mean_tweedie_deviance', 'mean_poisson_deviance', 'mean_gamma_deviance',
-           'mean_pinball_error', 'relative_absolute_error', 'relative_squared_error'
+           'mean_pinball_error', 'relative_absolute_error', 'relative_squared_error',
+           'relative_normal_loss'
           ]
 
 
-def normal_loss(y_true, y_pred, k, log=False, root=False, sample_weight=None):
+def mean_normal_error(y_true, y_pred, k, log=False, root=False, sample_weight=None):
     """Mean normal error regression loss.
     
     Args:
@@ -47,7 +48,7 @@ def mean_absolute_error(y_true, y_pred, log=False, sample_weight=None):
     Returns:
         regression loss values.
     """
-    return normal_loss(y_true, y_pred, k=1, log=log, root=False, sample_weight=sample_weight)
+    return mean_normal_error(y_true, y_pred, k=1, log=log, root=False, sample_weight=sample_weight)
 
 
 def mean_squared_error(y_true, y_pred, log=False, root=False, sample_weight=None):
@@ -62,7 +63,7 @@ def mean_squared_error(y_true, y_pred, log=False, root=False, sample_weight=None
     Returns:
         regression loss values.
     """
-    return normal_loss(y_true, y_pred, k=2, log=log, root=root, sample_weight=sample_weight)
+    return mean_normal_error(y_true, y_pred, k=2, log=log, root=root, sample_weight=sample_weight)
 
 
 def mean_absolute_percentage_error(y_true, y_pred, sample_weight=None):
@@ -220,10 +221,7 @@ def relative_absolute_error(y_true, y_pred, sample_weight=None):
     Returns:
         regression loss values.
     """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    sample_weight = _sample_weight(y_true, sample_weight)
-    return np.sum(np.abs(y_true - y_pred)*sample_weight)/np.sum(np.abs(y_true - y_true.mean()))
+    return relative_normal_error(y_true, y_pred, k=1, log=False, root=False, sample_weight=sample_weight)
 
 
 def relative_squared_error(y_true, y_pred, sample_weight=None):
@@ -239,10 +237,34 @@ def relative_squared_error(y_true, y_pred, sample_weight=None):
     Returns:
         regression loss values.
     """
+    return relative_normal_error(y_true, y_pred, k=2, log=False, root=False, sample_weight=sample_weight)
+
+
+def relative_normal_error(y_true, y_pred, k, log=False, root=False, sample_weight=None):
+    """Rrelative normal error regression loss.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
+        k: int, loss = np.sqrt(loss, 1/k).
+        log: default False, whether to log the variable.
+        root: default False, whether to sqrt the variable, if True, return rmse loss.
+        sample_weight: list or array of sample weight.
+    Returns:
+        regression loss values.
+    """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
     sample_weight = _sample_weight(y_true, sample_weight)
-    return np.sum(np.square(y_true - y_pred)*sample_weight)/np.sum(np.square(y_true - y_true.mean()))
+    if log:
+        loss1 = (np.power(np.abs(np.log1p(y_true)-np.log1p(y_pred))*sample_weight, k)).sum()
+        loss2 = (np.power(np.abs(np.log1p(y_true)-np.log1p(y_true.mean())), k)).sum()
+        loss = loss1/loss2
+    else:
+        loss = (np.power(np.abs(y_true-y_pred)*sample_weight, k)).sum()/(np.power(np.abs(y_true-y_true.mean()), k)).sum()
+    if root:
+        loss = np.power(loss, 1/k)
+    return loss
 
 
 def poisson(y_true, y_pred, sample_weight=None):
