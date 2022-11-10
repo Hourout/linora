@@ -208,6 +208,25 @@ def mean_relative_error(y_true, y_pred, normalizer, sample_weight=None):
     return (np.abs(y_true-y_pred)/np.array(normalizer)*sample_weight).mean()
 
 
+def relative_root_mean_squared_error(y_true, y_pred, sample_weight=None):
+    """Computes the relative squared error between y_true and y_pred.
+    
+    The relative square error needs to use the mean square error and 
+    divide it by the square of the difference between the actual data and the data average.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
+        sample_weight: list or array of sample weight.
+    Returns:
+        regression loss values.
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    sample_weight = _sample_weight(y_true, sample_weight)
+    return np.sqrt(np.mean(np.square(y_true - y_pred))/np.sum(np.square(y_pred)))
+
+
 def relative_absolute_error(y_true, y_pred, sample_weight=None):
     """Computes the relative absolute error between y_true and y_pred.
     
