@@ -5,10 +5,41 @@ from collections import defaultdict
 import pandas as pd
 import numpy as np
 
-__all__ = ['categorical_encoder', 'categorical_hash', 'categorical_crossed',
+__all__ = ['categorical_count', 'categorical_crossed','categorical_encoder', 
+           'categorical_hash', 'categorical_hist',
            'categorical_onehot_binarizer', 'categorical_onehot_multiple',
-           'categorical_count', 'categorical_regress', 'categorical_hist'
+           'categorical_regress', 
           ]
+
+
+def categorical_count(feature, feature_scale=None, abnormal_value=0, normalize=True):
+    """Count labels with value counts.
+    
+    if feature values not in feature_scale dict, return `abnormal_value`.
+    
+    Args:
+        feature: pd.Series, sample feature.
+        feature_scale: dict, label parameters dict for this estimator.
+        abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
+        normalize: bool, If True then the object returned will contain the relative frequencies of the unique values.
+    Returns:
+        return count labels and label parameters dict.
+    """
+    scale = feature_scale if feature_scale is not None else feature.value_counts(normalize).to_dict()
+    t = pd.Series([scale.get(i, abnormal_value) for i in feature], index=feature.index)
+    return t, scale
+
+
+def categorical_crossed(feature_list, hash_bucket_size):
+    """Crossed categories and hash labels with value between 0 and hash_bucket_size-1.
+    
+    Args:
+        feature_list: pd.Series list, sample feature list.
+        hash_bucket_size: int, number of categories that need hash.
+    Returns:
+        return hash labels.
+    """
+    return reduce(lambda x,y:x+y, [i.fillna('').astype(str) for i in feature_list]).map(lambda x:hash(x))%hash_bucket_size
 
 
 def categorical_encoder(feature, feature_scale=None, abnormal_value=-1):
@@ -40,16 +71,24 @@ def categorical_hash(feature, hash_bucket_size):
     return feature.fillna('').astype(str).map(lambda x:hash(x))%hash_bucket_size
 
 
-def categorical_crossed(feature_list, hash_bucket_size):
-    """Crossed categories and hash labels with value between 0 and hash_bucket_size-1.
-    
+def categorical_hist(feature, label, feature_scale=None):
+    """Hist labels with value counts prob.
+           
     Args:
-        feature_list: pd.Series list, sample feature list.
-        hash_bucket_size: int, number of categories that need hash.
+        feature: pd.Series, sample feature.
+        label: pd.Series, sample categorical label.
+        feature_scale: pd.DataFrame, label parameters DataFrame for this estimator.
     Returns:
-        return hash labels.
+        return hist labels and label parameters DataFrame.
     """
-    return reduce(lambda x,y:x+y, [i.fillna('').astype(str) for i in feature_list]).map(lambda x:hash(x))%hash_bucket_size
+    if feature_scale is not None:
+        scale = feature_scale
+    else:
+        t = pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].value_counts(normalize=True).unstack()
+        t.columns = [t.columns.name+'_'+str(i) for i in t.columns]
+        scale = t.reset_index().fillna(0)
+    t = feature.to_frame().merge(scale, on=feature.name, how='left')
+    return t, scale
 
 
 def categorical_onehot_binarizer(feature, feature_scale=None, prefix='columns', dtype='int8'):
@@ -106,24 +145,6 @@ def categorical_onehot_multiple(feature, feature_scale=None, prefix='columns', d
     return t, scale
 
 
-def categorical_count(feature, feature_scale=None, abnormal_value=0, normalize=True):
-    """Count labels with value counts.
-    
-    if feature values not in feature_scale dict, return `abnormal_value`.
-    
-    Args:
-        feature: pd.Series, sample feature.
-        feature_scale: dict, label parameters dict for this estimator.
-        abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
-        normalize: bool, If True then the object returned will contain the relative frequencies of the unique values.
-    Returns:
-        return count labels and label parameters dict.
-    """
-    scale = feature_scale if feature_scale is not None else feature.value_counts(normalize).to_dict()
-    t = pd.Series([scale.get(i, abnormal_value) for i in feature], index=feature.index)
-    return t, scale
-
-
 def categorical_regress(feature, label, feature_scale=None, mode='mean'):
     """Regress labels with value counts prob.
     
@@ -141,24 +162,4 @@ def categorical_regress(feature, label, feature_scale=None, mode='mean'):
         scale = pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].agg(mode).to_dict()
     abnormal_value = label.mean() if mode=='mean' else label.median()
     t = pd.Series([scale.get(i, abnormal_value) for i in feature], index=feature.index)
-    return t, scale
-
-
-def categorical_hist(feature, label, feature_scale=None):
-    """Hist labels with value counts prob.
-           
-    Args:
-        feature: pd.Series, sample feature.
-        label: pd.Series, sample categorical label.
-        feature_scale: pd.DataFrame, label parameters DataFrame for this estimator.
-    Returns:
-        return hist labels and label parameters DataFrame.
-    """
-    if feature_scale is not None:
-        scale = feature_scale
-    else:
-        t = pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].value_counts(normalize=True).unstack()
-        t.columns = [t.columns.name+'_'+str(i) for i in t.columns]
-        scale = t.reset_index().fillna(0)
-    t = feature.to_frame().merge(scale, on=feature.name, how='left')
     return t, scale
