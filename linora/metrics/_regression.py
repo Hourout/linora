@@ -7,7 +7,7 @@ __all__ = ['normal_loss', 'mean_absolute_error', 'mean_squared_error',
            'median_absolute_error', 'r2_score', 'report_regression',
            'mean_relative_error', 'poisson', 'log_cosh_error', 'max_error',
            'mean_tweedie_deviance', 'mean_poisson_deviance', 'mean_gamma_deviance',
-           'mean_pinball_error', 'relative_absolute_error'
+           'mean_pinball_error', 'relative_absolute_error', 'relative_squared_error'
           ]
 
 
@@ -222,9 +222,27 @@ def relative_absolute_error(y_true, y_pred, sample_weight=None):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    true_mean = np.mean(y_true)
     sample_weight = _sample_weight(y_true, sample_weight)
-    return np.sum(np.abs(y_true - y_pred)*sample_weight)/np.sum(np.abs(y_true - true_mean))
+    return np.sum(np.abs(y_true - y_pred)*sample_weight)/np.sum(np.abs(y_true - y_true.mean()))
+
+
+def relative_squared_error(y_true, y_pred, sample_weight=None):
+    """Computes the relative squared error between y_true and y_pred.
+    
+    The relative square error needs to use the mean square error and 
+    divide it by the square of the difference between the actual data and the data average.
+    
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted values, as returned by a regression.
+        sample_weight: list or array of sample weight.
+    Returns:
+        regression loss values.
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    sample_weight = _sample_weight(y_true, sample_weight)
+    return np.sum(np.square(y_true - y_pred)*sample_weight)/np.sum(np.square(y_true - y_true.mean()))
 
 
 def poisson(y_true, y_pred, sample_weight=None):
