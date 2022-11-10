@@ -330,8 +330,8 @@ def log_cosh_error(y_true, y_pred, sample_weight=None):
     """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-    x = (y_pred-y_true)*sample_weight
     sample_weight = _sample_weight(y_true, sample_weight)
+    x = (y_pred-y_true)*sample_weight
     return np.mean(x + np.log(np.exp(-2. * x) + 1.) - np.log(2.))
 
 
