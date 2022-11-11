@@ -12,7 +12,7 @@ __all__ = ['categorical_count', 'categorical_crossed','categorical_encoder',
           ]
 
 
-def categorical_count(feature, config=None, abnormal_value=0, miss_value=0, normalize=True):
+def categorical_count(feature, config=None, abnormal_value=0, miss_value=0, normalize=True, name=None, mode=0):
     """Count or frequency of conversion category variables.
     
     Args:
@@ -22,16 +22,22 @@ def categorical_count(feature, config=None, abnormal_value=0, miss_value=0, norm
         abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
         miss_value: int or float, if feature values are missing, return `miss_value`.
         normalize: bool, If True then the object returned will contain the relative frequencies of the unique values.
+        name: str, output feature name, if None, name is feature.name .
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
     Returns:
         return count labels and label parameters dict.
     """
     if config is None:
         config = {'feature_scale':feature.value_counts(normalize).to_dict(),
-                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 'name':feature.name}
-    {i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}
-    scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
-    t = feature.replace(scale).fillna(config['miss_value'])
-    return t, config
+                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                  'type':'categorical_count', 'name_input':feature.name, 
+                  'name_output':feature.name if name is None else name}
+    if mode==2:
+        return config
+    else:
+        scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
+        t = feature.replace(scale).fillna(config['miss_value']).rename(config['name_output'])
+        return t if mode else (t, config)
 
 
 def categorical_crossed(feature_list, hash_bucket_size):
