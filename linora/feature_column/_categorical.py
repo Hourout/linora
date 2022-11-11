@@ -89,16 +89,28 @@ def categorical_encoder(feature, abnormal_value=-1, miss_value=-1, config=None, 
         return t if mode else (t, config)
 
 
-def categorical_hash(feature, hash_bucket_size):
+def categorical_hash(feature, hash_bucket_size=3, config=None, name=None, mode=0):
     """Hash labels with value between 0 and hash_bucket_size-1.
     
     Args:
         feature: pd.Series, sample feature.
         hash_bucket_size: int, number of categories that need hash.
+        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
+        name: str, output feature name, if None, name is feature.name .
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
     Returns:
         return hash labels.
     """
-    return feature.fillna('').astype(str).map(lambda x:hash(x))%hash_bucket_size
+    if config is None:
+        config = {'hash_bucket_size':hash_bucket_size, 'type':'categorical_hash', 
+                  'name_input':feature.name, 'name_output':feature.name if name is None else name}
+    if mode==2:
+        return config
+    else:
+        t = feature.fillna('').astype(str).map(lambda x:hash(x))%config['hash_bucket_size']
+        if config['name_output'] is not None:
+            t = t.rename(config['name_output'])
+        return t if mode else (t, config)
 
 
 def categorical_hist(feature, label, feature_scale=None):
