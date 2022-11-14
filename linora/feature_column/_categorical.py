@@ -198,21 +198,30 @@ def categorical_onehot_multiple(feature, feature_scale=None, prefix='columns', d
     return t, scale
 
 
-def categorical_regress(feature, label, feature_scale=None, mode='mean'):
+def categorical_regress(feature, label, method='mean', abnormal_value='mean', miss_value='mean', config=None, name=None, mode=0):
     """Regress labels with value counts prob.
     
     Args:
         feature: pd.Series, sample feature.
         label: pd.Series, sample regress label.
-        feature_scale: dict, label parameters dict for this estimator.
         mode: 'mean' or 'median'
+        abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
+        miss_value: int or float, if feature values are missing, return `miss_value`.
+        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
+        name: str, output feature name, if None, name is feature.name .
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
     Returns:
         return Regress labels and label parameters dict.
     """
-    if feature_scale is not None:
-        scale = feature_scale
+    if config is None:
+        config = {'feature_scale':pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].agg(mode).to_dict(),
+                  'abnormal_value':label.mean() if mode=='mean' else label.median(), 
+                  'miss_value':label.mean() if mode=='mean' else label.median(), 
+                  'type':'categorical_hist', 'name_input':[feature.name, label.name], 
+                  'name_output':feature.name if name is None else name}
+    if mode==2:
+        return config
     else:
-        scale = pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].agg(mode).to_dict()
-    abnormal_value = label.mean() if mode=='mean' else label.median()
-    t = pd.Series([scale.get(i, abnormal_value) for i in feature], index=feature.index)
-    return t, scale
+        scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
+        t = feature.replace(scale).fillna(config['miss_value']).rename(config['name_output'])
+        return t if mode else (t, config)
