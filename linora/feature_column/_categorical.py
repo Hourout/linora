@@ -113,24 +113,35 @@ def categorical_hash(feature, hash_bucket_size=3, config=None, name=None, mode=0
         return t if mode else (t, config)
 
 
-def categorical_hist(feature, label, feature_scale=None):
+def categorical_hist(feature, label, abnormal_value=0, miss_value=0, config=None, name=None, mode=0):
     """Hist labels with value counts prob.
            
     Args:
         feature: pd.Series, sample feature.
         label: pd.Series, sample categorical label.
-        feature_scale: pd.DataFrame, label parameters DataFrame for this estimator.
+        abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
+        miss_value: int or float, if feature values are missing, return `miss_value`.
+        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
+        name: str, output feature name, if None, name is feature.name .
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
     Returns:
         return hist labels and label parameters DataFrame.
     """
-    if feature_scale is not None:
-        scale = feature_scale
-    else:
+    if config is None:
+        config = {'feature_scale':None,
+                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                  'type':'categorical_hist', 'name_input':[feature.name, label.name], 
+                  'name_output':feature.name if name is None else name}
         t = pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].value_counts(normalize=True).unstack()
-        t.columns = [t.columns.name+'_'+str(i) for i in t.columns]
-        scale = t.reset_index().fillna(0)
-    t = feature.to_frame().merge(scale, on=feature.name, how='left')
-    return t, scale
+        t.columns = [config['name_output']+'_'+str(i) for i in t.columns]
+        config['feature_scale'] = t.reset_index().to_dict()
+        
+    if mode==2:
+        return config
+    else:
+        t = (feature.to_frame().merge(pd.DataFrame(config['feature_scale']).fillna(config['miss_value']), on=feature.name, how='left')
+             .drop([feature.name], axis=1).fillna(config['abnormal_value']))
+        return t if mode else (t, config)
 
 
 def categorical_onehot_binarizer(feature, feature_scale=None, prefix='columns', dtype='int8'):
