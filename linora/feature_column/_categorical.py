@@ -184,30 +184,47 @@ def categorical_onehot_binarizer(feature, abnormal_value=0, miss_value=0, config
         return t if mode else (t, config)
 
 
-def categorical_onehot_multiple(feature, feature_scale=None, prefix='columns', dtype='int8'):
+def categorical_onehot_multiple(feature, abnormal_value=0, miss_value=0, config=None, name=None, mode=0):
     """Transform between iterable of iterables and a multilabel format, sample is multiple categories.
     
     Args:
         feature: pd.Series, sample feature.
-        feature_scale: list, feature categories list.
-        prefix: str, String to append DataFrame column names.
-        dtype: str, default int8. Data type for new columns.
+        abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
+        miss_value: int or float, if feature values are missing, return `miss_value`.
+        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
+        name: str, output feature name, if None, name is feature.name .
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
     Returns:
         Dataframe for onehot binarizer and feature parameters list.
     """
-    assert not any(feature.isnull()), "`feature' should be not contains NaN."
-    scale = feature_scale if feature_scale is not None else list(set(itertools.chain.from_iterable(feature)))
-    class_mapping = defaultdict(int)
-    class_mapping.default_factory = class_mapping.__len__
-    [class_mapping[i] for i in scale]
-    col = [class_mapping[i] for i in itertools.chain.from_iterable(feature)]
-    row = [i for i in itertools.chain.from_iterable(map(lambda x,y:[x]*len(y), range(len(feature)), feature))]
-    t = np.zeros([max(row)+1, len(class_mapping)], dtype=dtype)
-    t[row, col] = 1
-    if feature_scale is not None:
-        t = t[:, :len(feature_scale)]
-    t = pd.DataFrame(t, columns=[prefix+'_'+str(i) for i in scale])
-    return t, scale
+    if config is None:
+        config = {'feature_scale':list(set(itertools.chain.from_iterable(feature.dropna()))),
+                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                  'type':'categorical_onehot_multiple', 'name_input':feature.name, 
+                  'name_output':feature.name if name is None else name}
+    if mode==2:
+        return config
+    else:
+        scale = list(set(itertools.chain.from_iterable(feature.fillna('_'))))        
+        class_mapping = defaultdict(int)
+        class_mapping.default_factory = class_mapping.__len__
+        [class_mapping[i] for i in scale]
+        col = [class_mapping[i] for i in itertools.chain.from_iterable(feature.fillna('_'))]
+        row = [i for i in itertools.chain.from_iterable(map(lambda x,y:[x]*len(y), range(len(feature)), feature.fillna('_')))]
+        t = np.zeros([max(row)+1, len(class_mapping)], dtype='int8')
+        t[row, col] = 1
+        t = pd.DataFrame(t, columns=[config['name_output']+'_'+str(i) for i in scale], index=feature.index)
+    
+        for i in set.difference(set(config['feature_scale']), set(scale)):
+            if config['name_output']+'_'+str(i) not in t.columns:
+                t[config['name_output']+'_'+str(i)] = 0
+
+        if f"{config['name_output']}__" in t.columns:
+            t.loc[t[f"{config['name_output']}__"]==1, :] = config['miss_value']
+            t = t.drop([f"{config['name_output']}__"], axis=1)
+        
+        t = t[[config['name_output']+'_'+str(i) for i in config['feature_scale']]]
+        return t if mode else (t, config)
 
 
 def categorical_regress(feature, label, method='mean', abnormal_value='mean', miss_value='mean', config=None, name=None, mode=0):
@@ -216,7 +233,7 @@ def categorical_regress(feature, label, method='mean', abnormal_value='mean', mi
     Args:
         feature: pd.Series, sample feature.
         label: pd.Series, sample regress label.
-        mode: 'mean' or 'median'
+        method: 'mean' or 'median'
         abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
         miss_value: int or float, if feature values are missing, return `miss_value`.
         config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
@@ -229,7 +246,7 @@ def categorical_regress(feature, label, method='mean', abnormal_value='mean', mi
         config = {'feature_scale':pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].agg(mode).to_dict(),
                   'abnormal_value':label.mean() if mode=='mean' else label.median(), 
                   'miss_value':label.mean() if mode=='mean' else label.median(), 
-                  'type':'categorical_hist', 'name_input':[feature.name, label.name], 
+                  'type':'categorical_regress', 'name_input':[feature.name, label.name], 
                   'name_output':feature.name if name is None else name}
     if mode==2:
         return config
