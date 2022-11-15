@@ -144,32 +144,44 @@ def categorical_hist(feature, label, abnormal_value=0, miss_value=0, config=None
         return t if mode else (t, config)
 
 
-def categorical_onehot_binarizer(feature, feature_scale=None, prefix='columns', dtype='int8'):
+def categorical_onehot_binarizer(feature, abnormal_value=0, miss_value=0, config=None, name=None, mode=0):
     """Transform between iterable of iterables and a multilabel format, sample is simple categories.
     
     Args:
         feature: pd.Series, sample feature.
-        feature_scale: list, feature categories list.
-        prefix: str, String to append DataFrame column names.
-        dtype: str, default int8. Data type for new columns.
+        abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
+        miss_value: int or float, if feature values are missing, return `miss_value`.
+        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
+        name: str, output feature name, if None, name is feature.name .
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
     Returns:
         Dataframe for onehot binarizer and feature parameters list.
     """
-    assert not any(feature.isnull()), "`feature' should be not contains NaN"
-    scale = feature.drop_duplicates().tolist()
-    if feature_scale is not None:
-        t = pd.get_dummies(feature.replace({i:'temp_str' for i in set.difference(set(scale), set(feature_scale))}), prefix=prefix, dtype=dtype)
-        if prefix+'_temp_str' in t.columns:
-            t = t.drop([prefix+'_temp_str'], axis=1)
-        for i in set.difference(set(feature_scale), set(scale)):
-            if prefix+'_'+str(i) not in t.columns:
-                t[prefix+'_'+str(i)] = 0
-        scale = feature_scale
-        t = t[[prefix+'_'+str(i) for i in feature_scale]]
+    if config is None:
+        config = {'feature_scale':feature.dropna().drop_duplicates().tolist(),
+                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                  'type':'categorical_onehot_binarizer', 'name_input':feature.name, 
+                  'name_output':feature.name if name is None else name}
+    if mode==2:
+        return config
     else:
-        t = pd.get_dummies(feature, prefix=prefix, dtype=dtype)
-        t = t[[prefix+'_'+str(i) for i in scale]]
-    return t, scale
+        scale = feature.dropna().drop_duplicates().tolist()
+        scale_dict = {i:'temp_str' for i in set.difference(set(scale), set(config['feature_scale']))}
+        t = pd.get_dummies(feature.replace(scale_dict), prefix=config['name_output'], dtype='int8', dummy_na=True)
+        
+        for i in set.difference(set(config['feature_scale']), set(scale)):
+            if config['name_output']+'_'+str(i) not in t.columns:
+                t[config['name_output']+'_'+str(i)] = 0
+                
+        if f"{config['name_output']}_temp_str" in t.columns:
+            t.loc[t[f"{config['name_output']}_temp_str"]==1, :] = config['abnormal_value']
+            t = t.drop([f"{config['name_output']}_temp_str"], axis=1)
+            
+        if f"{config['name_output']}_nan" in t.columns:
+            t.loc[t[f"{config['name_output']}_nan"]==1, :] = config['miss_value']
+            t = t.drop([f"{config['name_output']}_nan"], axis=1)
+        t = t[[config['name_output']+'_'+str(i) for i in config['feature_scale']]]#.drop([config['name_input']], axis=1)
+        return t if mode else (t, config)
 
 
 def categorical_onehot_multiple(feature, feature_scale=None, prefix='columns', dtype='int8'):
