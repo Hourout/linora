@@ -12,14 +12,14 @@ __all__ = ['categorical_count', 'categorical_crossed','categorical_encoder',
           ]
 
 
-def categorical_count(feature, abnormal_value=0, miss_value=0, normalize=True, config=None, name=None, mode=0):
+def categorical_count(feature, normalize=True, abnormal_value=0, miss_value=0, config=None, name=None, mode=0):
     """Count or frequency of conversion category variables.
     
     Args:
         feature: pd.Series, sample feature.
+        normalize: bool, If True then the object returned will contain the relative frequencies of the unique values.
         abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
         miss_value: int or float, if feature values are missing, return `miss_value`.
-        normalize: bool, If True then the object returned will contain the relative frequencies of the unique values.
         config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
         name: str, output feature name, if None, name is feature.name .
         mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
