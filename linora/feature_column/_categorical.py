@@ -180,7 +180,7 @@ def categorical_onehot_binarizer(feature, abnormal_value=0, miss_value=0, config
         if f"{config['name_output']}_nan" in t.columns:
             t.loc[t[f"{config['name_output']}_nan"]==1, :] = config['miss_value']
             t = t.drop([f"{config['name_output']}_nan"], axis=1)
-        t = t[[config['name_output']+'_'+str(i) for i in config['feature_scale']]]#.drop([config['name_input']], axis=1)
+        t = t[[config['name_output']+'_'+str(i) for i in config['feature_scale']]]
         return t if mode else (t, config)
 
 
