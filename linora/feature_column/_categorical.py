@@ -12,17 +12,18 @@ __all__ = ['categorical_count', 'categorical_crossed','categorical_encoder',
           ]
 
 
-def categorical_count(feature, normalize=True, abnormal_value=0, miss_value=0, config=None, name=None, mode=0):
+def categorical_count(feature, mode=0, normalize=True, abnormal_value=0, miss_value=0, name=None, config=None):
     """Count or frequency of conversion category variables.
     
     Args:
         feature: pd.Series, sample feature.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
         normalize: bool, If True then the object returned will contain the relative frequencies of the unique values.
         abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
         miss_value: int or float, if feature values are missing, return `miss_value`.
-        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
         name: str, output feature name, if None, name is feature.name .
-        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
         return count labels and label parameters dict.
     """
@@ -39,15 +40,16 @@ def categorical_count(feature, normalize=True, abnormal_value=0, miss_value=0, c
         return t if mode else (t, config)
 
 
-def categorical_crossed(feature_list, hash_bucket_size=3, config=None, name=None, mode=0):
+def categorical_crossed(feature_list, mode=0, hash_bucket_size=3, name=None, config=None):
     """Crossed categories and hash labels with value between 0 and hash_bucket_size-1.
     
     Args:
         feature_list: pd.Series list, sample feature list.
-        hash_bucket_size: int, number of categories that need hash.
-        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
-        name: str, output feature name, if None, name is feature.name .
         mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        hash_bucket_size: int, number of categories that need hash.
+        name: str, output feature name, if None, name is feature.name .
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature_list` and `mode` is invalid.
     Returns:
         return hash labels.
     """
@@ -57,22 +59,21 @@ def categorical_crossed(feature_list, hash_bucket_size=3, config=None, name=None
     if mode==2:
         return config
     else:
-        t = reduce(lambda x,y:x+y, [i.fillna('').astype(str) for i in feature_list]).map(lambda x:hash(x))%config['hash_bucket_size']
-        if config['name_output'] is not None:
-            t = t.rename(config['name_output'])
+        t = reduce(lambda x,y:x+y, [i.fillna('').astype(str) for i in feature_list]).map(lambda x:hash(x)).rename(config['name_output'])%config['hash_bucket_size']
         return t if mode else (t, config)
 
 
-def categorical_encoder(feature, abnormal_value=-1, miss_value=-1, config=None, name=None, mode=0):
+def categorical_encoder(feature, mode=0, abnormal_value=-1, miss_value=-1, name=None, config=None):
     """Encode labels with value between 0 and n_classes-1.
     
     Args:
         feature: pd.Series, sample feature.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
         abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
         miss_value: int or float, if feature values are missing, return `miss_value`.
-        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
         name: str, output feature name, if None, name is feature.name .
-        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
         return encoded labels and label parameters dict.
     """
@@ -89,15 +90,16 @@ def categorical_encoder(feature, abnormal_value=-1, miss_value=-1, config=None, 
         return t if mode else (t, config)
 
 
-def categorical_hash(feature, hash_bucket_size=3, config=None, name=None, mode=0):
+def categorical_hash(feature, mode=0, hash_bucket_size=3, name=None, config=None):
     """Hash labels with value between 0 and hash_bucket_size-1.
     
     Args:
         feature: pd.Series, sample feature.
-        hash_bucket_size: int, number of categories that need hash.
-        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
-        name: str, output feature name, if None, name is feature.name .
         mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        hash_bucket_size: int, number of categories that need hash.
+        name: str, output feature name, if None, name is feature.name .
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
         return hash labels.
     """
@@ -107,23 +109,22 @@ def categorical_hash(feature, hash_bucket_size=3, config=None, name=None, mode=0
     if mode==2:
         return config
     else:
-        t = feature.fillna('').astype(str).map(lambda x:hash(x))%config['hash_bucket_size']
-        if config['name_output'] is not None:
-            t = t.rename(config['name_output'])
+        t = feature.fillna('').astype(str).map(lambda x:hash(x)).rename(config['name_output'])%config['hash_bucket_size']
         return t if mode else (t, config)
 
 
-def categorical_hist(feature, label, abnormal_value=0, miss_value=0, config=None, name=None, mode=0):
+def categorical_hist(feature, label, mode=0, abnormal_value=0, miss_value=0, name=None, config=None):
     """Hist labels with value counts prob.
            
     Args:
         feature: pd.Series, sample feature.
         label: pd.Series, sample categorical label.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
         abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
         miss_value: int or float, if feature values are missing, return `miss_value`.
-        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
         name: str, output feature name, if None, name is feature.name .
-        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid, but `label` must be passed in.
     Returns:
         return hist labels and label parameters DataFrame.
     """
@@ -140,20 +141,21 @@ def categorical_hist(feature, label, abnormal_value=0, miss_value=0, config=None
         return config
     else:
         t = (feature.to_frame().merge(pd.DataFrame(config['feature_scale']).fillna(config['miss_value']), on=feature.name, how='left')
-             .drop([feature.name], axis=1).fillna(config['abnormal_value']))
+             .drop([feature.name], axis=1).fillna(config['abnormal_value']).rename(config['name_output']))
         return t if mode else (t, config)
 
 
-def categorical_onehot_binarizer(feature, abnormal_value=0, miss_value=0, config=None, name=None, mode=0):
+def categorical_onehot_binarizer(feature, mode=0, abnormal_value=0, miss_value=0, name=None, config=None):
     """Transform between iterable of iterables and a multilabel format, sample is simple categories.
     
     Args:
         feature: pd.Series, sample feature.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
         abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
         miss_value: int or float, if feature values are missing, return `miss_value`.
-        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
         name: str, output feature name, if None, name is feature.name .
-        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
         Dataframe for onehot binarizer and feature parameters list.
     """
@@ -184,16 +186,17 @@ def categorical_onehot_binarizer(feature, abnormal_value=0, miss_value=0, config
         return t if mode else (t, config)
 
 
-def categorical_onehot_multiple(feature, abnormal_value=0, miss_value=0, config=None, name=None, mode=0):
+def categorical_onehot_multiple(feature, mode=0, abnormal_value=0, miss_value=0, name=None, config=None):
     """Transform between iterable of iterables and a multilabel format, sample is multiple categories.
     
     Args:
         feature: pd.Series, sample feature.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
         abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
         miss_value: int or float, if feature values are missing, return `miss_value`.
-        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
         name: str, output feature name, if None, name is feature.name .
-        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
         Dataframe for onehot binarizer and feature parameters list.
     """
@@ -227,25 +230,26 @@ def categorical_onehot_multiple(feature, abnormal_value=0, miss_value=0, config=
         return t if mode else (t, config)
 
 
-def categorical_regress(feature, label, method='mean', abnormal_value='mean', miss_value='mean', config=None, name=None, mode=0):
+def categorical_regress(feature, label, mode=0, method='mean', abnormal_value='mean', miss_value='mean', name=None, config=None):
     """Regress labels with value counts prob.
     
     Args:
         feature: pd.Series, sample feature.
         label: pd.Series, sample regress label.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
         method: 'mean' or 'median'
         abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
         miss_value: int or float, if feature values are missing, return `miss_value`.
-        config: dict, label parameters dict for this estimator. if config is not None,  other parameter is invalid.
         name: str, output feature name, if None, name is feature.name .
-        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid, but `label` must be passed in.
     Returns:
         return Regress labels and label parameters dict.
     """
     if config is None:
-        config = {'feature_scale':pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].agg(mode).to_dict(),
-                  'abnormal_value':label.mean() if mode=='mean' else label.median(), 
-                  'miss_value':label.mean() if mode=='mean' else label.median(), 
+        config = {'feature_scale':pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].agg(method).to_dict(),
+                  'abnormal_value':label.mean() if abnormal_value=='mean' else label.median(), 
+                  'miss_value':label.mean() if miss_value=='mean' else label.median(), 
                   'type':'categorical_regress', 'name_input':[feature.name, label.name], 
                   'name_output':feature.name if name is None else name}
     if mode==2:
