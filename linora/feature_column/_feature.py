@@ -16,7 +16,13 @@ class Feature():
             ('categorical_encoder', categorical_encoder), ('categorical_hash', categorical_hash), 
             ('categorical_hist', categorical_hist), ('categorical_regress', categorical_regress),
             ('categorical_onehot_binarizer', categorical_onehot_binarizer),
-            ('categorical_onehot_multiple', categorical_onehot_multiple)
+            ('categorical_onehot_multiple', categorical_onehot_multiple),
+            ('numerical_binarizer', numerical_binarizer), ('numerical_bucketized', numerical_bucketized),
+            ('numerical_padding', numerical_padding), ('numerical_outlier', numerical_outlier),
+            ('normalize_max', normalize_max), ('normalize_maxabs', normalize_maxabs), 
+            ('normalize_l1', normalize_l1), ('normalize_l2', normalize_l2),
+            ('normalize_meanminmax', normalize_meanminmax), ('normalize_minmax', normalize_minmax),
+            ('normalize_norm', normalize_norm), ('normalize_robust', normalize_robust)
            ]
         self.pipe = {}
         
