@@ -2,7 +2,7 @@ import wave
 
 import numpy as np
 
-__all__ = ['read_audio']
+__all__ = ['read_audio', 'save_audio']
 
 
 def read_audio(filename):
@@ -13,13 +13,40 @@ def read_audio(filename):
         Returns:
             a Audio instance.
         """
-    if filename.endswith('.wav'):
-        return AudioWAV(filename)
-#     elif filename.endswith('.mp3'):
-        
+    if filename[-4:] in ['.WAV', '.wav']:
+        return AudioWAV(filename)        
     else:
         raise ValueError(f'Not support audio file format with {filename}')
 
+        
+def save_audio(filename, audio, params=None):
+    """Saves an audio stored as a Numpy array to a path or file object.
+    
+    Args
+        filename: Path or file object.
+        audio: a numpy array.
+        params: {'audio_channel':None, 'audio_width': 2, 'audio_framerate': 44100, 'audio_frame':None}
+    """
+    param = {'audio_channel':None, 'audio_width': 2, 'audio_framerate': 44100, 'audio_frame':None}
+    if params is not None:
+        for i in params:
+            param[i] = params[i]
+    if param['audio_channel'] is None:
+        param['audio_channel'] = len(audio.shape)
+    if param['audio_frame'] is None:
+        param['audio_frame'] = max(audio.shape)
+    param['audio_frame'] = min(param['audio_frame'], max(audio.shape))
+    if filename[-4:] in ['.WAV', '.wav']:
+        f = wave.open(filename, "wb")
+        f.setnchannels(param['audio_channel'])
+        f.setsampwidth(param['audio_width'])
+        f.setframerate(param['audio_framerate'])
+        f.setnframes(param['audio_frame'])
+        f.writeframes(audio.T.astype(np.int16)[:param['audio_frame']].flat[:].tobytes())
+        f.close()
+    else:
+        raise ValueError(f'Not support audio file format with {filename}')
+        
 
 class AudioWAV():
     def __init__(self, filename):
@@ -45,21 +72,19 @@ class AudioWAV():
         if self.audio_width not in (1, 2, 3, 4):
             self.close()
             raise ValueError('The file uses an unsupported bit width.')
-        if self.audio_channel not in (1, 2):
-            self.close()
-            raise ValueError('The file uses an unsupported channel.')
 
     def close(self):
         """Close the underlying file."""
         self._file.close()
         
-    def read_data(self):
+    @property
+    def audio_data(self):
         """Reads and returns all frames of audio"""
         data = self._get_data(self.audio_frame)
         self._file.rewind()
         return data
     
-    def read_stream(self, nframes=1024):
+    def stream(self, nframes=1024):
         """Generates blocks of PCM data found in the file."""
         while True:
             data = self._get_data(nframes)
@@ -69,13 +94,7 @@ class AudioWAV():
     
     def _get_data(self, n):
         str_data  = self._file.readframes(n)
-        wave_data = np.frombuffer(str_data, dtype=np.short)
-        if self.audio_channel==1:
-            wave_data.shape = -1,1
-        else:
-            wave_data.shape = -1,2
-        wave_data = wave_data.T
-        return wave_data
+        return np.frombuffer(str_data, dtype=np.int16).reshape(-1,self.audio_channel).T
 
     def __enter__(self):
         return self
@@ -85,4 +104,4 @@ class AudioWAV():
         return False
 
     def __iter__(self):
-        return self.read_stream()
+        return self.stream()
