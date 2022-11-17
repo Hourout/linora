@@ -67,7 +67,8 @@ class AudioWAV():
         self.audio_duration = self.audio_frame / self.audio_framerate
         self.audio_params = {'audio_channel':self.audio_channel, 'audio_width':self.audio_width,
                              'audio_framerate':self.audio_framerate, 'audio_frame':self.audio_frame,
-                             'audio_duration':self.audio_duration}
+                             'audio_duration':self.audio_duration,
+                             'audio_type':'wav', 'audio_name':filename[:-4]}
         
         if self.audio_width not in (1, 2, 3, 4):
             self.close()
