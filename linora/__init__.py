@@ -1,16 +1,17 @@
+from linora import audio
 from linora import chart
+from linora import data
+from linora import feature_column
+from linora import feature_selection
+from linora import gfile
+from linora import image
 from linora import metrics
 from linora import parallel
 from linora import param_search
-from linora import feature_column
-from linora import feature_selection
 from linora import sample
 from linora import text
-from linora import image
-from linora import utils
-from linora import gfile
-from linora import data
 from linora import train
+from linora import utils
 
 __version__ = '1.6.0'
 __author__ = 'JinQing Lee'
