@@ -104,6 +104,11 @@ def compress(files, file):
                 for i in files:
                     with open(i, 'rb') as f:
                         b.write(f.read())
+        elif mat in ['xz']:
+            with open(file, 'wb') as fw:
+                for i in files:
+                    with open(i, 'rb') as fr:
+                        fw.write(lzma.compress(fr.read()))
         else:
-            raise ValueError("`file` should be type of ['.tar', '.zip', '.bz2'].")
+            raise ValueError("`file` should be type of ['.tar', '.zip', '.bz2', '.xz'].")
     return file
