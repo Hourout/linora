@@ -1,14 +1,17 @@
 import os
+import math
 from math import ceil
 from itertools import product
+from PIL import Image, ImageOps, ImageFont, ImageEnhance, ImageDraw, ImageChops
 
 import numpy as np
 
 from linora.parallel import ProcessLoom
 from linora.image._image_util import *
 from linora.image._image_io import read_image
+from linora.image._image_rgb import _fill_color
 
-__all__ = ['mean_std', 'lego', 'pencil_sketch', 'histogram', 'flow_to_image']
+__all__ = ['mean_std', 'lego', 'pencil_sketch', 'histogram', 'flow_to_image', 'watermark']
 
 
 def mean_std(image_file, mode=True):
@@ -271,3 +274,53 @@ def _make_colorwheel():
     colorwheel[col : col + MR, 2] = 255 - np.floor(255 * np.arange(MR) / MR)
     colorwheel[col : col + MR, 0] = 255
     return colorwheel
+
+
+def watermark(image, text, size=50, angle=30, space=20, opacity=0.2, color='#8B8B1B', font_file=None):
+    """Add image with watermark.
+    
+    Args:
+        image: PIL instance.
+        text: watermark text.
+        size: watermark size.
+        angle: watermark rotate angle.
+        space: Watermark interval distance.
+        opacity: Watermark transparency
+        color: watermark color.
+        font_file: Watermark font file.
+    Returns:
+        a PIL instance.
+    """
+    image = ImageOps.exif_transpose(image)
+    mark = Image.new(mode='RGBA', size=(len(text) * size, size))
+
+    draw_table = ImageDraw.Draw(mark)
+    color1 = _fill_color(image, color)
+    if font_file is None:
+        font_file = "Pillow/Tests/fonts/FreeMono.ttf"
+    draw_table.text(xy=(0, 0), text=text, fill=color1, font=ImageFont.truetype(font_file, size=size, encoding="utf-8"))
+
+    bbox = ImageChops.difference(mark, Image.new(mode='RGBA', size=mark.size)).getbbox()
+    if bbox:
+        mark.crop(bbox)
+
+    alpha = mark.split()[3]
+    alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
+    mark.putalpha(alpha)
+
+    c = int(math.sqrt(image.size[0] * image.size[0] + image.size[1] * image.size[1]))
+    mark2 = Image.new(mode='RGBA', size=(c, c))
+    y, idx = 0, 0
+    while y < c:
+        x = -int((mark.size[0] + space) * 0.5 * idx)
+        idx = (idx + 1) % 2
+        while x < c:
+            mark2.paste(mark, (x, y))
+            x = x + mark.size[0] + space
+        y = y + mark.size[1] + space
+    mark2 = mark2.rotate(angle)
+
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+    image.paste(mark2,  (int((image.size[0] - c) / 2), int((image.size[1] - c) / 2)), mask=mark2.split()[3])
+    return image
