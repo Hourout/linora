@@ -185,7 +185,7 @@ class EMail():
             pop_port: email pop port.
             pop_ssl: email pop ssl.
             pop_tls: email pop tls.
-            enterprise: Shortcut for use enterprise mail,if specified, enterprise mail configs will replace all inner auto-generate configs.
+            enterprise: Shortcut for use enterprise mail,if specified, enterprise mail configs will replace all inner auto-generate configs. support ['qq', 'ali', '163', 'google']
         """
         self._params = Config()
         self._params.mail_personal = mail_personal
@@ -215,6 +215,7 @@ class EMail():
         Args:
             recipients: recipient user email, can either be str or a list of str.
             mail: can either be dict or CaseInsensitiveDict(Mail).
+            cc: Mail cc object.
             timeout: if is not None, it will replace server's timeout.
             auto_add_from: If set to True, when the key ' 'from' (case-insensitive) not in mail(For send), the default 'from' will automatically added to mail.
             auto_add_to: If set to True, when the key 'to' (case-insensitive) not in mail(For send), the default 'to' will automatically added to mail.
@@ -260,7 +261,9 @@ class EMail():
         return True
 
     def stat(self):
-        """Get mailbox status."""
+        """Get mailbox status.
+        The result is a tuple of 2 integers: (message count, mailbox size).
+        """
         self._login(send=False)
         status = self._params.server.stat()
         self._logout(send=False)
