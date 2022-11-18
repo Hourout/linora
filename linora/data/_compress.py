@@ -1,9 +1,10 @@
 import os
 import bz2
 import gzip
-import zipfile
-import tarfile
+import lzma
 import rarfile
+import tarfile
+import zipfile
 
 import linora.gfile as gfile
 
@@ -45,8 +46,12 @@ def decompress(file, folder=None):
         with bz2.BZ2File(file, 'r') as g:
             with open(folder, 'w') as f:
                 f.write(g.read())
+    elif mat in ['xz']:
+        with lzma.open(file) as g:
+            with open(folder, 'wb') as f:
+                f.write(g.read())
     else:
-        raise ValueError("`file` should be type of ['.gz', '.tar', '.tgz', '.zip', '.rar', '.bz2'].")
+        raise ValueError("`file` should be type of ['.gz', '.tar', '.tgz', '.zip', '.rar', '.bz2', '.xz'].")
     return folder
 
 
