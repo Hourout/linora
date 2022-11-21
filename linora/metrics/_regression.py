@@ -8,7 +8,7 @@ __all__ = ['mean_normal_error', 'mean_absolute_error', 'mean_squared_error',
            'mean_relative_error', 'poisson', 'log_cosh_error', 'max_error',
            'mean_tweedie_deviance', 'mean_poisson_deviance', 'mean_gamma_deviance',
            'mean_pinball_error', 'relative_absolute_error', 'relative_squared_error',
-           'relative_normal_loss', 'relative_root_mean_squared_error', 'huber_error'
+           'relative_normal_error', 'relative_root_mean_squared_error', 'huber_error'
           ]
 
 
