@@ -214,7 +214,7 @@ class EMail():
         
         Args:
             recipients: recipient user email, can either be str or a list of str.
-            mail: can either be dict or CaseInsensitiveDict(Mail).
+            mail: dict, mail content.
             cc: Mail cc object.
             timeout: if is not None, it will replace server's timeout.
             auto_add_from: If set to True, when the key ' 'from' (case-insensitive) not in mail(For send), the default 'from' will automatically added to mail.
@@ -269,78 +269,65 @@ class EMail():
         self._logout(send=False)
         return status
 
-#     def get_mail(self, which):
-#         """Get a mail from mailbox.
-#         which: int
-#         """
-#         self._login(send=False)
-#         mail = self._params.pop_server.retr(which)[1]
-#         self._logout(send=False)
-#         with self.pop_server as server:
-#             mail = server.get_mail(which)
-#             return parse_mail(mail, which, self.debug, self.log)
+    def get_mail(self, which=None, subject=None, sender=None, start_time=None, end_time=None, 
+                  start_index=None, end_index=None):
+        """Get a list of mails from mailbox."""
+        if which is not None:
+            if not isinstance(which, (list, tuple)):
+                which = [which]
+        elif subject or sender or start_time or end_time or start_index or end_index:
+            headers = self.get_headers(start_index, end_index)
 
-#     def get_mails(self, subject=None, start_time=None, end_time=None, sender=None,
-#                   start_index: Optional[int] = None, end_index: Optional[int] = None) -> list:
-#         """Get a list of mails from mailbox."""
-#         headers = self.get_headers(start_index, end_index)
-#         mail_id = []
+            which = []
+            for header in headers:
+                mail_subject = header.get('Subject')
+                mail_sender = header.get('From')
+                mail_date = header.get('date')
+                ok = True
+                if subject is not None:
+                    if mail_subject is None or subject not in mail_subject:
+                        ok = False
+                if sender is not None:
+                    if mail_sender is None or sender not in mail_sender:
+                        ok = False
+                if start_time is not None:
+                    if mail_date is None or start_time > mail_date:
+                        ok = False
+                if end_time is not None:
+                    if mail_date is None or end_time < mail_date:
+                        ok = False
+                if ok:
+                    which.append(header['id'])
+            which.sort()
+        else:
+            which = [self.stat()[0]]
+        self._login(send=False)
+        mail = [parse_mail(self._params.server.retr(i)[1], i) for i in which]
+        self._logout(send=False)
+        return mail
 
-#         if start_time is not None:
-#             if isinstance(start_time, (datetime.datetime, str)):
-#                 start_time = convert_date_to_datetime(start_time)
-#             else:
-#                 raise InvalidArguments(
-#                     'start_time excepted type str or datetime.datetime, got {} instead.'.format(type(start_time)))
 
-#         if end_time is not None:
-#             if isinstance(end_time, (datetime.datetime, str)):
-#                 end_time = convert_date_to_datetime(end_time)
-#             else:
-#                 raise InvalidArguments(
-#                     'end_time excepted type str or datetime.datetime, got {} instead.'.format(type(end_time)))
 
-#         for header in headers:
-#             if match_conditions(header, subject, start_time, end_time, sender):
-#                 mail_id.append(header['id'])
-
-#         with self.pop_server as server:
-#             mail_id.sort()
-#             mail_as_bytes_list = server.get_mails(mail_id)
-#             return [parse_mail(mail_as_bytes, mail_id[index], self.debug, self.log)
-#                     for index, mail_as_bytes in enumerate(mail_as_bytes_list)]
-
-#     def get_latest(self) -> CaseInsensitiveDict:
-#         """Get latest mail in mailbox."""
-#         with self.pop_server as server:
-#             latest_num = server.stat()[0]
-#             mail = server.get_mail(latest_num)
-#             return parse_mail(mail, latest_num, self.debug, self.log)
-
-#     def get_info(self) -> List[List[bytes]]:
-#         warnings.warn("server.get_info is deprecated, if you want to access mail headers,"
-#                       "use server.get_headers instead",
-#                       DeprecationWarning,
-#                       stacklevel=2)
-#         with self.pop_server as server:
-#             return server.get_headers()
-
-#     def get_headers(self, start_index: Optional[int] = None, end_index: Optional[int] = None) \
-#             -> List[CaseInsensitiveDict]:
-#         """Get mails headers."""
-#         headers = []
-
-#         with self.pop_server as server:
-#             end = server.stat()[0]
-#             intersection = get_intersection((1, end), (start_index, end_index))  # type:List[int]
-#             mail_hdrs = server.get_headers(intersection)
-
-#         for index, mail_header in enumerate(mail_hdrs):
-#             _, _headers, *__ = parse_headers(mail_header)
-#             _headers.update(id=intersection[index])
-#             headers.append(_headers)
-
-#         return headers
+    def get_headers(self, start_index=None, end_index=None):
+        """Get mails headers."""
+        self._login(send=False)
+        end = self._params.server.stat()[0]
+        if start_index is None:
+            start_index = 1
+        if end_index is None:
+            end_index = end
+        index = range(min(start_index, end_index), max(start_index, end_index)+1)
+        header = [self._params.server.top(i, 0)[1] for i in index]
+        headers = []
+        for i, mail_header in enumerate(header):
+            _, _headers, *__ = parse_headers(mail_header)
+            _headers.update(id=index[i])
+            try:
+                headers.append({j:_headers[j] for j in {'date', 'Subject','From', 'id'}})
+            except:
+                print(_headers)
+        self._logout(send=False)
+        return headers
 
     def check_available(self):
         """check email connection status."""
