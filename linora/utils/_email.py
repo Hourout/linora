@@ -8,6 +8,8 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import pandas as pd
+
 from linora.utils._config import Config
 from linora.utils._email_utils import parse_mail, parse_headers
 
@@ -218,8 +220,8 @@ class EMail():
             mail: dict, mail content.
             cc: Mail cc object.
             timeout: if is not None, it will replace server's timeout.
-            auto_add_from: If set to True, when the key ' 'from' (case-insensitive) not in mail(For send), the default 'from' will automatically added to mail.
-            auto_add_to: If set to True, when the key 'to' (case-insensitive) not in mail(For send), the default 'to' will automatically added to mail.
+            auto_add_from: If set to True, when the key ' 'from' not in mail, the default 'from' will automatically added to mail.
+            auto_add_to: If set to True, when the key 'to' not in mail, the default 'to' will automatically added to mail.
         """
         if timeout is not None:
             self._params.timeout = timeout
@@ -272,7 +274,22 @@ class EMail():
 
     def get_mail(self, which=None, subject=None, sender=None, start_time=None, end_time=None, 
                   start_index=None, end_index=None):
-        """Get a list of mails from mailbox."""
+        """Get a list of mails from mailbox.
+        
+        Args:
+            which:int or list, which is a int number that represent mail's position in mailbox.
+                The which must between 1 and message count(return from Mail.stat())
+            subject: email subject
+            sender: email sender
+            start_time: email start time
+            end_time: email end time
+            start_index: email start index
+            end_index: email end index
+        """
+        if start_time is not None:
+            start_time = pd.to_datetime(start_time)
+        if end_time is not None:
+            end_time = pd.to_datetime(end_time)
         if which is not None:
             if not isinstance(which, (list, tuple)):
                 which = [which]
@@ -307,10 +324,13 @@ class EMail():
         self._logout(send=False)
         return mail
 
-
-
     def get_headers(self, start_index=None, end_index=None):
-        """Get mails headers."""
+        """Get mails headers.
+        
+        Args:
+            start_index: email start index
+            end_index: email end index
+        """
         self._login(send=False)
         end = self._params.server.stat()[0]
         if start_index is None:
