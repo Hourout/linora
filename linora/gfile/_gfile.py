@@ -1,7 +1,9 @@
 import os
+import glob as glob1
 import shutil
 
-__all__ = ['copy', 'exists', 'isdir', 'isfile', 'listdir', 'makedirs', 'path_join', 'remove', 'rename', 'stat', 'walk',
+__all__ = ['copy', 'exists', 'isdir', 'isfile', 'listdir', 'makedirs', 
+           'path_join', 'remove', 'rename', 'stat', 'walk', 'glob'
            ]
 
 
@@ -168,3 +170,21 @@ def path_join(path, *paths):
         a new path
     """
     return eval(repr(os.path.join(path, *paths)).replace("\\", '/').replace("//", '/'))
+
+
+def glob(pathname, *, iterable=False):
+    """Returns a list of files that match the given pathname(s).
+    
+    The pathname are defined as strings. 
+    Supported patterns are defined here. 
+    Note that the pattern can be a Python iteratable of string patterns.
+    
+    Args:
+        pathname: The glob pattern(s).
+        iterable: Returns an iterable object.
+    Return:
+        A list of strings containing filenames that match the given pattern(s).
+    """
+    if iterable:
+        return glob1.iglob(pathname, *)
+    return glob1.glob(pathname, *)
