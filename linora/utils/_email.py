@@ -9,6 +9,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from linora.utils._config import Config
+from linora.utils._email_utils import parse_mail, parse_headers
 
 __all__ = ['EMail']
 
