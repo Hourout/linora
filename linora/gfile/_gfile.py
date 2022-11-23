@@ -172,7 +172,7 @@ def path_join(path, *paths):
     return eval(repr(os.path.join(path, *paths)).replace("\\", '/').replace("//", '/'))
 
 
-def glob(pathname, *, iterable=False):
+def glob(pathname, iterable=False):
     """Returns a list of files that match the given pathname(s).
     
     The pathname are defined as strings. 
@@ -186,5 +186,5 @@ def glob(pathname, *, iterable=False):
         A list of strings containing filenames that match the given pattern(s).
     """
     if iterable:
-        return glob1.iglob(pathname, *)
-    return glob1.glob(pathname, *)
+        return glob1.iglob(pathname)
+    return glob1.glob(pathname)
