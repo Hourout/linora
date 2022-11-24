@@ -59,7 +59,6 @@ def sampling_systematic(feature, n=None, frac=None, seed=None):
     interval = max(2, int(np.floor(1/frac)))
     seed = np.random.choice(range(interval), 1)[0] if seed is None else seed%interval
     index = list(range(seed, len(feature), interval))
-    print(index)
     while len(index)>n:
         if (len(index)-n)%2:
             index.pop(int(len(index)*(seed%100/100)))
@@ -71,7 +70,7 @@ def sampling_systematic(feature, n=None, frac=None, seed=None):
             index.append(s.pop(int(len(s)*(seed%100/100))))
         else:
             index.append(s.pop(int(len(s)*(seed%10/10))))
-    return t[sorted(index)]
+    return t[sorted(index)].tolist()
 
 
 def _sampling_stratify(feature, n=None, frac=None, seed=None):
@@ -116,7 +115,7 @@ def sampling_stratify(feature, stratify=None, n=None, frac=None, seed=None):
     """stratify sampling.
     
     Args:
-        feature: pd.DataFrame or pd.Series.
+        feature: pd.DataFrame.
         stratify: pd.Series, shape (n_samples,), The target variable for supervised learning problems.
         n: int, optional, Number of items from axis to return. 
            Cannot be used with `frac`. Default = 1 if `frac` = None.
