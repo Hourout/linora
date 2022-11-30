@@ -8,7 +8,8 @@ __all__ = ['enhance_saturation', 'enhance_brightness', 'enhance_sharpness', 'enh
            'enhance_hue', 'color_invert', 'color_clip', 'equalize', 'rgb_hex',
            'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
            'rgb_to_yuv', 'yuv_to_rgb', 'dropout', 'ydbdr_to_rgb', 'rgb_to_ydbdr', 'ycbcr_to_rgb', 
-           'rgb_to_ycbcr', 'rgb_to_ypbpr', 'ypbpr_to_rgb', 'bgr_to_rgb', 'rgb_to_bgr'
+           'rgb_to_ycbcr', 'rgb_to_ypbpr', 'ypbpr_to_rgb', 'bgr_to_rgb', 'rgb_to_bgr',
+           'rgb_to_grayscale', 'lab_to_rgb', 'rgb_to_lab', 'rgb_to_xyz', 'xyz_to_rgb'
           ]
 
 
@@ -561,7 +562,7 @@ def rgb_to_ypbpr(image):
     kernel = np.array([[0.299, 0.587, 0.114],
                        [-0.168736, -0.331264, 0.5],
                        [0.5, -0.418688, -0.081312]])
-    return np.dot(image, kernel.transpose())
+    return np.tensordot(image, kernel.transpose(), axes=((-1,), (0,)))
 
 
 def ypbpr_to_rgb(image, normalize=False, dtype='float32'):
@@ -578,7 +579,7 @@ def ypbpr_to_rgb(image, normalize=False, dtype='float32'):
     kernel = np.array([[1.00000000e00, -1.21889419e-06, 1.40199959e00],
                        [1.00000000e00, -3.44135678e-01, -7.14136156e-01],
                        [1.00000000e00, 1.77200007e00, 4.06298063e-07]])
-    return (np.dot(image, kernel.transpose())*norm).astype(dtype)
+    return (np.tensordot(image, kernel.transpose(), axes=((-1,), (0,)))*norm).astype(dtype)
 
 
 def rgb_to_ycbcr(image):
@@ -620,7 +621,7 @@ def rgb_to_ydbdr(image):
         a numpy array, NumPy YDbDr image with same shape of image.
     """
     kernel = np.array([[0.299, 0.587, 0.114], [-0.45, -0.883, 1.333], [-1.333, 1.116, 0.217]])
-    return np.dot(image, kernel.transpose())
+    return np.tensordot(image, kernel.transpose(), axes=((-1,), (0,)))
 
 
 def ydbdr_to_rgb(image, normalize=False, dtype='float32'):
@@ -636,5 +637,144 @@ def ydbdr_to_rgb(image, normalize=False, dtype='float32'):
     kernel = np.array([[1.00000000e00, 9.23037161e-05, -5.25912631e-01],
                        [1.00000000e00, -1.29132899e-01, 2.67899328e-01],
                        [1.00000000e00, 6.64679060e-01, -7.92025435e-05]])
-    return np.dot(image, kernel.transpose())
+    return np.tensordot(image, kernel.transpose(), axes=((-1,), (0,)))
 
+
+def rgb_to_xyz(image):
+    """Convert a RGB image to CIE XYZ image.
+    
+    Args:
+        image: NumPy RGB image array of shape (H, W, C) to be converted.
+    Returns:
+        a numpy array, NumPy CIE XYZ image with same shape of image.
+    """
+    kernel = np.array([[0.412453, 0.357580, 0.180423],
+                       [0.212671, 0.715160, 0.072169],
+                       [0.019334, 0.119193, 0.950227]])
+    image = np.where(np.greater(image, 0.04045), np.power((image+0.055)/1.055, 2.4), image/12.92)
+    return np.tensordot(image, kernel.transpose(), axes=((-1,), (0,)))
+
+
+def xyz_to_rgb(image, normalize=False, dtype='float32'):
+    """Convert a CIE XYZ image to RGB image.
+    
+    Args:
+        image: NumPy CIE XYZ image array of shape (H, W, C) to be converted.
+        normalize: if True, rgb numpy array is [0,255], if False, rgb numpy array is [0,1]
+        dtype: rgb numpy array dtype.
+    Returns:
+        a numpy array, NumPy RGB image with same shape of image.
+    """
+    norm = 255. if normalize else 1.
+    kernel = np.array([[3.24048134, -1.53715152, -0.49853633],
+                       [-0.96925495, 1.87599, 0.04155593],
+                       [0.05564664, -0.20404134, 1.05731107]])
+    image = np.tensordot(image, kernel.transpose(), axes=((-1,), (0,)))
+    image = np.where(np.greater(image, 0.0031308), np.power(image, 1.0/2.4)*1.055-0.055, image*12.92)
+    return (np.clip(image, 0, 1)*norm).astype(dtype)
+
+
+def rgb_to_lab(image, illuminant="D65", observer="2"):
+    """Convert a RGB image to CIE LAB image.
+    
+    Args:
+        image: NumPy RGB image array of shape (H, W, C) to be converted.
+        illuminant : {"A", "D50", "D55", "D65", "D75", "E"}, the name of the illuminant.
+        observer : {"2", "10"}, the aperture angle of the observer.
+    Returns:
+        a numpy array, NumPy CIE LAB image with same shape of image.
+    """
+    illuminants = {
+        "A": {
+            "2": (1.098466069456375, 1, 0.3558228003436005),
+            "10": (1.111420406956693, 1, 0.3519978321919493),
+        },
+        "D50": {
+            "2": (0.9642119944211994, 1, 0.8251882845188288),
+            "10": (0.9672062750333777, 1, 0.8142801513128616),
+        },
+        "D55": {
+            "2": (0.956797052643698, 1, 0.9214805860173273),
+            "10": (0.9579665682254781, 1, 0.9092525159847462),
+        },
+        "D65": {
+            "2": (0.95047, 1.0, 1.08883),
+            "10": (0.94809667673716, 1, 1.0730513595166162),
+        },
+        "D75": {
+            "2": (0.9497220898840717, 1, 1.226393520724154),
+            "10": (0.9441713925645873, 1, 1.2064272211720228),
+        },
+        "E": {"2": (1.0, 1.0, 1.0), "10": (1.0, 1.0, 1.0)},
+    }
+    coords = np.array(illuminants[illuminant.upper()][observer])
+    xyz = rgb_to_xyz(image)
+    xyz = xyz / coords
+    xyz = np.where(np.greater(xyz, 0.008856), np.power(xyz, 1.0 / 3.0), xyz * 7.787 + 16.0 / 116.0)
+    x, y, z = xyz[:,:,0], xyz[:,:,1], xyz[:,:,2]
+    l = (y * 116.0) - 16.0
+    a = (x - y) * 500.0
+    b = (y - z) * 200.0
+    return np.stack([l, a, b], axis=2)
+
+
+def lab_to_rgb(image, illuminant="D65", observer="2", normalize=False, dtype='float32'):
+    """Convert a CIE LAB image to RGB image.
+    
+    Args:
+        image: NumPy CIE LAB image array of shape (H, W, C) to be converted.
+        illuminant : {"A", "D50", "D55", "D65", "D75", "E"}, the name of the illuminant.
+        observer : {"2", "10"}, the aperture angle of the observer.
+        normalize: if True, rgb numpy array is [0,255], if False, rgb numpy array is [0,1]
+        dtype: rgb numpy array dtype.
+    Returns:
+        a numpy array, NumPy RGB image with same shape of image.
+    """
+    norm = 255. if normalize else 1.
+    l, a, b = image[:,:,0], image[:,:,1], image[:,:,2]
+
+    y = (l + 16.0) / 116.0
+    x = (a / 500.0) + y
+    z = y - (b / 200.0)
+
+    z = np.maximum(z, 0)
+
+    xyz = np.stack([x, y, z], axis=2)
+    xyz = np.where(np.greater(xyz, 0.2068966), np.power(xyz, 3.0), (xyz - 16.0 / 116.0) / 7.787)
+
+    illuminants = {
+        "A": {
+            "2": (1.098466069456375, 1, 0.3558228003436005),
+            "10": (1.111420406956693, 1, 0.3519978321919493),
+        },
+        "D50": {
+            "2": (0.9642119944211994, 1, 0.8251882845188288),
+            "10": (0.9672062750333777, 1, 0.8142801513128616),
+        },
+        "D55": {
+            "2": (0.956797052643698, 1, 0.9214805860173273),
+            "10": (0.9579665682254781, 1, 0.9092525159847462),
+        },
+        "D65": {
+            "2": (0.95047, 1.0, 1.08883),
+            "10": (0.94809667673716, 1, 1.0730513595166162),
+        },
+        "D75": {
+            "2": (0.9497220898840717, 1, 1.226393520724154),
+            "10": (0.9441713925645873, 1, 1.2064272211720228),
+        },
+        "E": {"2": (1.0, 1.0, 1.0), "10": (1.0, 1.0, 1.0)},
+    }
+    coords = np.array(illuminants[illuminant.upper()][observer])
+    return (xyz_to_rgb(xyz * coords)*norm).astype(dtype)
+
+
+def rgb_to_grayscale(image):
+    """Convert a RGB image to grayscale image.
+    
+    Args:
+        image: NumPy RGB image array of shape (H, W, C) to be converted.
+    Returns:
+        a numpy array, NumPy grayscale image with same shape of image.
+    """
+    return np.expand_dims(np.tensordot(image, np.array([0.2125, 0.7154, 0.0721]), (-1, -1)), -1)
