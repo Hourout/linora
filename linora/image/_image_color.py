@@ -7,7 +7,8 @@ __all__ = ['enhance_saturation', 'enhance_brightness', 'enhance_sharpness', 'enh
            'enhance_contrast_log', 'enhance_contrast_linear', 'enhance_contrast_gamma',
            'enhance_hue', 'color_invert', 'color_clip', 'equalize', 'rgb_hex',
            'hls_to_rgb', 'rgb_to_hls', 'hsv_to_rgb', 'rgb_to_hsv', 'rgb_to_yiq', 'yiq_to_rgb',
-           'rgb_to_yuv', 'yuv_to_rgb', 'dropout'
+           'rgb_to_yuv', 'yuv_to_rgb', 'dropout', 'ydbdr_to_rgb', 'rgb_to_ydbdr', 'ycbcr_to_rgb', 
+           'rgb_to_ycbcr', 'rgb_to_ypbpr', 'ypbpr_to_rgb', 'bgr_to_rgb', 'rgb_to_bgr'
           ]
 
 
@@ -525,3 +526,115 @@ def dropout(image, value=0, wise='pixel', prob=0.1, p=1):
         return Image.merge(image.mode, split)
     else:
         raise ValueError("`wise` value error.")
+
+
+def rgb_to_bgr(image):
+    """Convert RGB image to BGR image.
+
+    Args:
+        image: NumPy RGB image array of shape (H, W, C) to be converted.
+    Returns:
+        a numpy array, NumPy BGR image with same type of image.
+    """
+    return np.stack((image[:,:,2], image[:,:,1], image[:,:,0]), axis=2)
+
+
+def bgr_to_rgb(image):
+    """Convert BGR image to RGB image.
+
+    Args:
+        image: NumPy BGR image array of shape (H, W, C) to be converted.
+    Returns:
+        a numpy array, NumPy BGR image with same shape of image.
+    """
+    return rgb_to_bgr(image)
+
+
+def rgb_to_ypbpr(image):
+    """Convert BGR image to YPbPr image.
+
+    Args:
+        image: NumPy RGB image array of shape (H, W, C) to be converted.
+    Returns:
+        a numpy array, NumPy YPbPr image with same shape of image.
+    """
+    kernel = np.array([[0.299, 0.587, 0.114],
+                       [-0.168736, -0.331264, 0.5],
+                       [0.5, -0.418688, -0.081312]])
+    return np.dot(image, kernel.transpose())
+
+
+def ypbpr_to_rgb(image, normalize=False, dtype='float32'):
+    """Convert a YPbPr image to RGB image.
+    
+    Args:
+        image: NumPy YPbPr image array of shape (H, W, C) to be converted.
+        normalize: if True, rgb numpy array is [0,255], if False, rgb numpy array is [0,1]
+        dtype: rgb numpy array dtype.
+    Returns:
+        a numpy array, NumPy RGB image with same shape of image.
+    """
+    norm = 255. if normalize else 1.
+    kernel = np.array([[1.00000000e00, -1.21889419e-06, 1.40199959e00],
+                       [1.00000000e00, -3.44135678e-01, -7.14136156e-01],
+                       [1.00000000e00, 1.77200007e00, 4.06298063e-07]])
+    return (np.dot(image, kernel.transpose())*norm).astype(dtype)
+
+
+def rgb_to_ycbcr(image):
+    """Convert a RGB image to YCbCr image.
+    
+    Args:
+        image: NumPy RGB image array of shape (H, W, C) to be converted.
+    Returns:
+        a numpy array, NumPy YCbCr image with same shape of image.
+    """
+    if image.max()>1:
+        image = image/255.
+    image = rgb_to_ypbpr(image)
+    return image*np.array([219, 224, 224], dtype=image.dtype)+np.array([16, 128, 128], dtype=image.dtype)
+
+
+def ycbcr_to_rgb(image, normalize=False, dtype='float32'):
+    """Convert a YCbCr image to RGB image.
+    
+    Args:
+        image: NumPy YCbCr image array of shape (H, W, C) to be converted.
+        normalize: if True, rgb numpy array is [0,255], if False, rgb numpy array is [0,1]
+        dtype: rgb numpy array dtype.
+    Returns:
+        a numpy array, NumPy RGB image with same shape of image.
+    """
+    norm = 255. if normalize else 1.
+    image = image-np.array([16, 128, 128], dtype=image.dtype)
+    image = image/np.array([219, 224, 224], dtype=image.dtype)
+    return (ypbpr_to_rgb(image)*norm).astype(dtype)
+
+
+def rgb_to_ydbdr(image):
+    """Convert BGR image to YDbDr image.
+
+    Args:
+        image: NumPy RGB image array of shape (H, W, C) to be converted.
+    Returns:
+        a numpy array, NumPy YDbDr image with same shape of image.
+    """
+    kernel = np.array([[0.299, 0.587, 0.114], [-0.45, -0.883, 1.333], [-1.333, 1.116, 0.217]])
+    return np.dot(image, kernel.transpose())
+
+
+def ydbdr_to_rgb(image, normalize=False, dtype='float32'):
+    """Convert a YDbDr image to RGB image.
+    
+    Args:
+        image: NumPy YDbDr image array of shape (H, W, C) to be converted.
+        normalize: if True, rgb numpy array is [0,255], if False, rgb numpy array is [0,1]
+        dtype: rgb numpy array dtype.
+    Returns:
+        a numpy array, NumPy RGB image with same shape of image.
+    """
+    kernel = np.array([[1.00000000e00, 9.23037161e-05, -5.25912631e-01],
+                       [1.00000000e00, -1.29132899e-01, 2.67899328e-01],
+                       [1.00000000e00, 6.64679060e-01, -7.92025435e-05]])
+    return np.dot(image, kernel.transpose())
+
