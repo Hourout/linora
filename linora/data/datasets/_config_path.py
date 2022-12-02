@@ -42,3 +42,12 @@ Param.mnist_tibetan = [
     'https://raw.githubusercontent.com/Hourout/datasets/master/TibetanMNIST/TibetanMNIST_28_28_01.csv',
     'https://raw.githubusercontent.com/Hourout/datasets/master/TibetanMNIST/TibetanMNIST_28_28_02.csv',
 ]
+
+Param.lfw = [
+    "http://vis-www.cs.umass.edu/lfw/lfw.tgz"
+]
+
+
+
+
+

@@ -20,8 +20,6 @@ def download(data_id, folder=None):
     Returns:
         Store the absolute path of the data directory, example: `folder/mnist`.
     """
-    if folder is None:
-        folder = './'
     task_path = assert_dirs(folder, data_id)
     try:
         data_list = Param.__getattribute__(data_id)
