@@ -6,7 +6,7 @@ import pandas as pd
 from linora.utils._config import Config
 from linora.utils.pip._pip import install
 
-__all__ = ['MysqlIoDataset']
+__all__ = ['MysqlIoDataset', 'HiveIoDataset']
 
 
 class DataSet():
@@ -242,4 +242,34 @@ class MysqlIoDataset(DataSet):
         self._params.engine = sa.create_engine(url, **kwargs)
         
 
+class HiveIoDataset(DataSet):
+    """Create a data set composed of hive database.
 
+    Args:
+        host: hive database host.
+        port: hive database port.
+        user: hive database user.
+        password: hive database password.
+    """
+    def __init__(self, host, port=10000, user=None, password=None, **kwargs):
+        super(HiveIoDataset, self).__init__()
+        try:
+            import pyhive
+        except:
+            install('pyhive')
+        try:
+            import sqlalchemy as sa
+        except:
+            install('SQLAlchemy')
+            import sqlalchemy as sa
+        if user is not None and password is None:
+            url = f"hive://{user}@{host}:{port}"
+        elif user is None and password is None:
+            url = f"hive://{host}:{port}"
+        elif user is not None and password is not None:
+            url = f"hive://{user}:{password}@{host}:{port}"
+        else:
+            raise ValueError('hive database address error.')
+        self._params.engine = sa.create_engine(url, **kwargs)
+        
+        
