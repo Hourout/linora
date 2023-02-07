@@ -7,20 +7,24 @@ __all__ = ['read_audio', 'save_audio']
 
 def read_audio(filename):
     """Reads the contents of file to a Audio instance.
-        
-        Args:
-            filename: str, audio absolute path.
-        Returns:
-            a Audio instance.
-        """
+    
+    Now only support audio file format with '.wav'.
+    
+    Args:
+        filename: str, audio absolute path.
+    Returns:
+        a Audio instance.
+    """
     if filename[-4:] in ['.WAV', '.wav']:
-        return AudioWAV(filename)        
+        return AudioWAV(filename)
     else:
         raise ValueError(f'Not support audio file format with {filename}')
 
-        
+
 def save_audio(filename, audio, params=None):
     """Saves an audio stored as a Numpy array to a path or file object.
+    
+    Now only support audio file format with '.wav'.
     
     Args
         filename: Path or file object.
