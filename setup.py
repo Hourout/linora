@@ -8,10 +8,10 @@ def readme():
 setup(name='linora',
       version='1.6.0',
       install_requires=[
-          'pandas>=1.5.0', 
+          'pandas>=1.5.2', 
           'Pillow>=9.3.0',
-          'joblib>=1.0.1',
-          'requests>=2.26.0',
+          'joblib>=1.2.0',
+          'requests>=2.28.0',
           'rarfile'
       ],
       description='Simple and efficient tools for data mining and data analysis.',
