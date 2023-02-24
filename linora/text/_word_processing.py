@@ -2,7 +2,7 @@ from itertools import chain
 from collections import Counter
 
 __all__ = ['sequence_preprocess', 'word_count', 'word_low_freq', 'word_high_freq', 'filter_word',
-           'filter_punctuation']
+           'filter_punctuation', 'ngrams_iterator']
 
 
 def sequence_preprocess(sequence):
@@ -81,3 +81,17 @@ def filter_punctuation(sequence, punctuation=None):
     if isinstance(sequence, str):
         return sequence.translate(table)
     return [s.translate(table) for s in sequence]
+
+
+def ngrams_iterator(token_list, ngrams, join=' '):
+    """Return an iterator that yields the given tokens and their ngrams.
+
+    Args:
+        token_list: A list of tokens
+        ngrams: the number of ngrams.
+    """
+    for x in token_list:
+        yield x
+    for n in range(2, ngrams + 1):
+        for x in zip(*[token_list[i:] for i in range(n)]):
+            yield join.join(x)
