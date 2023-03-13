@@ -8,7 +8,7 @@ import numpy as np
 __all__ = ['categorical_count', 'categorical_crossed','categorical_encoder', 
            'categorical_hash', 'categorical_hist',
            'categorical_onehot_binarizer', 'categorical_onehot_multiple',
-           'categorical_regress', 
+           'categorical_regress', 'categorical_woe'
           ]
 
 
@@ -258,3 +258,41 @@ def categorical_regress(feature, label, mode=0, method='mean', abnormal_value='m
         scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
         t = feature.replace(scale).fillna(config['miss_value']).rename(config['name_output'])
         return t if mode else (t, config)
+
+    
+def categorical_woe(feature, label, mode=0, pos_label=1, abnormal_value=-1, miss_value=-1, name=None, config=None):
+    """Calculate series woe value
+    
+    Args:
+        feature: pd.Series, shape (n_samples,) x variable, model feature.
+        label: pd.Series, sample categorical label.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        pos_label: int, default=1, positive label value.
+        abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
+        miss_value: int or float, if feature values are missing, return `miss_value`.
+        name: str, output feature name, if None, name is feature.name .
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid, but `label` must be passed in.
+    Return:
+        return series woe value and label parameters DataFrame.
+    """
+    if config is None:
+        t = pd.DataFrame({'label':label, 'feature':feature})
+        assert t.label.nunique()==2, "`y_true` should be binary classification."
+        label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
+        t['label'] = t.label.replace(label_dict)
+        corr = t.label.sum()/(t.label.count()-t.label.sum())
+        t = t.groupby(['feature']).label.apply(lambda x:np.log(x.sum()/(x.count()-x.sum())/corr))
+        
+        config = {'feature_scale':t.to_dict(),
+                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                  'type':'categorical_woe', 'name_input':[feature.name, label.name], 
+                  'name_output':feature.name if name is None else name}
+    if mode==2:
+        return config
+    else:
+        scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
+        t = feature.replace(scale).fillna(config['miss_value']).rename(config['name_output'])
+        return t if mode else (t, config)
+    
+
