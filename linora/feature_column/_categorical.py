@@ -8,7 +8,7 @@ import numpy as np
 __all__ = ['categorical_count', 'categorical_crossed','categorical_encoder', 
            'categorical_hash', 'categorical_hist',
            'categorical_onehot_binarizer', 'categorical_onehot_multiple',
-           'categorical_regress', 'categorical_woe'
+           'categorical_rare', 'categorical_regress', 'categorical_woe'
           ]
 
 
@@ -227,6 +227,57 @@ def categorical_onehot_multiple(feature, mode=0, abnormal_value=0, miss_value=0,
             t = t.drop([f"{config['name_output']}__"], axis=1)
         
         t = t[[config['name_output']+'_'+str(i) for i in config['feature_scale']]]
+        return t if mode else (t, config)
+
+
+def categorical_rare(feature, mode=0, p=0.05, min_num=None, max_num=None, abnormal_value=-1, miss_value=-1, name=None, config=None):
+    """Groups rare or infrequent categories in a new category called “Rare”, or any other name entered by the user.
+    
+    Args:
+        feature: pd.Series, sample feature.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        p: The minimum frequency a label should have to be considered frequent. Categories with frequencies lower than tol will be grouped.
+        min_num: The minimum number of categories a variable should have for the encoder to find frequent labels. 
+            If the variable contains less categories, all of them will be considered frequent.
+        max_num: The maximum number of categories that should be considered frequent. 
+            If None, all categories with frequency above the tolerance (tol) will be considered frequent. 
+            If you enter 5, only the 4 most frequent categories will be retained and the rest grouped.
+        abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
+        miss_value: int or float, if feature values are missing, return `miss_value`.
+        name: str, output feature name, if None, name is feature.name .
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid.
+    Returns:
+        return count labels and label parameters dict.
+    """
+    if config is None:
+        t = feature.value_counts(True)
+        if min_num is None:
+            min_num = len(t[t>p])
+        if max_num is None:
+            max_num = max(min_num, len(t[t>p])+1)
+        k = 1 if len(t[t<=p])>0 else 0
+        if len(t)<min_num:
+            feature_scale = {i:r for r, i in enumerate(t.index)}
+        elif len(t[t>p])+k<min_num:
+            feature_scale = {**{i:r for r, i in enumerate(t.iloc[:min_num-1].index)},
+                             **{i:min_num-1 for i in t.iloc[min_num-1:].index}}
+        elif len(t[t>p])+k>max_num:
+            feature_scale = {**{i:r for r, i in enumerate(t.iloc[:max_num-1].index)},
+                             **{i:max_num-1 for i in t.iloc[max_num-1:].index}}
+        else:
+            feature_scale = {**{i:r for r, i in enumerate(t[t>p].index)},
+                             **{i:len(t[t>p]) for i in t[t<=p].index}}
+            
+        config = {'feature_scale':feature_scale,
+                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                  'type':'categorical_rare', 'name_input':feature.name, 
+                  'name_output':feature.name if name is None else name}
+    if mode==2:
+        return config
+    else:
+        scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
+        t = feature.replace(scale).fillna(config['miss_value']).rename(config['name_output'])
         return t if mode else (t, config)
 
 
