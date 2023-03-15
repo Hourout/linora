@@ -118,37 +118,115 @@ def numerical_padding(feature, mode=0, method='mean', name=None, config=None):
         return t if mode else (t, config)
 
 
-def numerical_outlier(feature, mode=0, keep_rate=0.9545, method='right', name=None, config=None):
+def numerical_outlier(feature, mode=0, method='norm', delta=0.9545, tail='right', name=None, config=None):
     """feature clip outlier.
     
+    Caps maximum and/or minimum values of a variable at automatically determined values, and optionally adds indicators
+    The extreme values beyond which an observation is considered an outlier are determined 
+    
+    using:
+    - norm
+    - a Gaussian approximation
+    - the inter-quantile range proximity rule (IQR)
+    - MAD-median rule (MAD)
+    - percentiles
+
+    norm limits:
+        right tail: mean + ppf((1-delta)/2)* std
+        left tail: mean - ppf(delta+(1-delta)/2)* std
+    
+    Gaussian limits(Delta is recommended to be 3):
+        right tail: mean + 3* std
+        left tail: mean - 3* std
+
+    IQR limits(Delta is recommended to be 3):
+        right tail: 75th quantile + 3* IQR
+        left tail: 25th quantile - 3* IQR
+    where IQR is the inter-quartile range: 75th quantile - 25th quantile.
+
+    MAD limits(Delta is recommended to be 3):
+        right tail: median + 3* MAD
+        left tail: median - 3* MAD
+    where MAD is the median absoulte deviation from the median.
+
+    percentiles:
+        right tail: 95th percentile
+        left tail: 5th percentile
+
+    You can select how far out to cap the maximum or minimum values with the parameter 'delta'.
+    If capping_method='gaussian' delta gives the value to multiply the std.
+    If capping_method='iqr' delta is the value to multiply the IQR.
+    If capping_method='mad' delta is the value to multiply the MAD.
+    If capping_method='quantiles', delta is the percentile on each tail that should be censored. 
+        For example, if delta=0.05, the limits will be the 5th and 95th percentiles. 
+        If delta=0.1, the limits will be the 10th and 90th percentiles.
     Args:
         feature: pd.Series, sample feature.
         mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
-        keep_rate: float, default 0.9545, 
-        method: str, default 'right', one of ['left', 'right', 'both'], statistical distribution boundary.
+        method: must be one of ['norm', 'gaussian', 'iqr', 'mad', 'quantiles']
+        delta: float, default 0.9545
+        tail: str, default 'right', one of ['left', 'right', 'both'], statistical distribution boundary.
         name: str, output feature name, if None, name is feature.name .
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
         normalize feature and feature_scale.
     """
-    from scipy.stats import norm
-    
     if config is None:
-        config = {'feature_scale':[feature.mean(), feature.std()], 
-                  'method':method, 'keep_rate':keep_rate,
+        config = {'method':method, 'tail':tail, 'delta':delta,
                   'type':'numerical_outlier', 'name_input':feature.name, 
                   'name_output':feature.name if name is None else name}
+        if method =='norm':
+            if not 0<delta<1:
+                raise ValueError("`delta` must be 0<delta<1")
+            from scipy.stats import norm
+            config['feature_scale'] = [feature.mean(), feature.std()]
+        elif method=='gaussian':
+            config['feature_scale'] = [feature.mean(), feature.std()]
+        elif method=='iqr':
+            config['feature_scale'] = [feature.quantile(0.25), feature.quantile(0.75)]
+        elif method=='mad':
+            config['feature_scale'] = [feature.median(), (feature-feature.median()).abs().median()]
+        elif method=='quantiles':
+            if not 0<delta<0.5:
+                raise ValueError("`delta` must be 0<delta<0.5")
+            config['feature_scale'] = [feature.quantile(delta), feature.quantile(1-delta)]
+        else:
+            raise ValueError("`method` must be one of ['norm', 'gaussian', 'iqr', 'mad', 'quantiles']")
     if mode==2:
         return config
     else:
         scale = config['feature_scale']
-        if config['method']=='both':
-            clip_dict = (scale[0]+norm.ppf((1-config['keep_rate'])/2)*scale[1], scale[0]+norm.ppf(config['keep_rate']+(1-config['keep_rate'])/2)*scale[1])
-        elif config['method']=='right':
-            clip_dict = (feature.min(), scale[0]+norm.ppf(config['keep_rate'])*scale[1])
+        delta = config['delta']
+        if method =='norm':
+            if config['tail']=='both':
+                clip = (scale[0]+norm.ppf((1-delta)/2)*scale[1], scale[0]+norm.ppf(delta+(1-delta)/2)*scale[1])
+            elif config['tail']=='right':
+                clip = (feature.min(), scale[0]+norm.ppf(delta)*scale[1])
+            else:
+                clip = (scale[0]+norm.ppf(1-delta)*scale[1], feature.max())
+        elif method in ['gaussian', 'mad']:
+            if config['tail']=='both':
+                clip = (scale[0]-delta*scale[1], scale[0]+delta*scale[1])
+            elif config['tail']=='right':
+                clip = (feature.min(), scale[0]+delta*scale[1])
+            else:
+                clip = (scale[0]-delta*scale[1], feature.max())
+        elif method =='iqr':
+            if config['tail']=='both':
+                clip = (scale[0]-delta*(scale[1]-scale[0]), scale[1]+delta*(scale[1]-scale[0]))
+            elif config['tail']=='right':
+                clip = (feature.min(), scale[1]+delta*(scale[1]-scale[0]))
+            else:
+                clip = (scale[0]-delta*(scale[1]-scale[0]), feature.max())
+        elif method =='quantiles':
+            if config['tail']=='both':
+                clip = (scale[0], scale[1])
+            elif config['tail']=='right':
+                clip = (feature.min(), scale[1])
+            else:
+                clip = (scale[0], feature.max())
         else:
-            clip_dict = (scale[0]+norm.ppf(1-config['keep_rate'])*scale[1], feature.max())
-        t = feature.clip(clip_dict[0], clip_dict[1]).rename(config['name_output'])
+            raise ValueError("`method` must be one of ['norm', 'gaussian', 'iqr', 'mad', 'quantiles']")
+        t = feature.clip(clip[0], clip[1]).rename(config['name_output'])
         return t if mode else (t, config)
-
