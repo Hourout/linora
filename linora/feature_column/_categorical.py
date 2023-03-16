@@ -31,7 +31,7 @@ def categorical_count(feature, mode=0, normalize=True, abnormal_value=0, miss_va
         config = {'param':{'feature_scale':feature.value_counts(normalize).to_dict(),
                            'normalize':normalize, 'abnormal_value':abnormal_value, 
                            'miss_value':miss_value, 'name':feature.name if name is None else name},
-                  'type':'categorical_count', 'variable':feature.name, 'keep':keep}
+                  'type':'categorical_count', 'variable':feature.name}
     if mode==2:
         return config
     else:

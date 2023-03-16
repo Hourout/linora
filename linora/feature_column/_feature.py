@@ -26,23 +26,54 @@ class Feature():
            ]
         self.pipe = {}
         
+    def categorical_count(self, variable, normalize=True, abnormal_value=0, miss_value=0, name=None, keep=False):
+        """Count or frequency of conversion category variables.
+    
+        Args:
+            variable: str, feature variable name.
+            normalize: bool, If True then the object returned will contain the relative frequencies of the unique values.
+            abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
+            miss_value: int or float, if feature values are missing, return `miss_value`.
+            name: str, output feature name, if None, name is variable.
+            keep: if name is not None, name whether to keep in the final output.
+        Returns:
+            return count labels and label parameters dict.
+        """
+        config = {'param':{'normalize':normalize, 'abnormal_value':abnormal_value, 
+                           'miss_value':miss_value, 'name':variable if name is None else name},
+                  'type':'categorical_count', 'variable':variable, 'keep':keep}
+        self.pipe[len(self.pipe)] = config
+        return self
+        
     def add_pipe(self, config):
         self.pipe[len(self.pipe)] = config[0] if isinstance(config, tuple) else config
         
+    def fit(self, df):
+        for r in range(len(self.pipe)):
+            config = self.pipe[r]
+            for i in self._params.function:
+                if config['type']==i[0]:
+                    self.pipe[r] = i[1](df[config['variable']], mode=2, **config['param'])
+                    break
+        return self
+        
     def transform(self, df, keep_columns=None):
-        keep_columns = keep_columns if isinstance(keep_columns, list) else [keep_columns]
+        if isinstance(keep_columns, str):
+            keep_columns = [keep_columns]
         self._params.data = pd.DataFrame() if keep_columns is None else df[keep_columns].copy()
-        for r, config in self.pipe.items():
-            for i in function:
+        for r in range(len(self.pipe)):
+            config = self.pipe[r]
+            for i in self._params.function:
                 if config['type']==i[0]:
                     self._run_function(i[1], config, df)
                     break
         return self._params.data
                     
     def _run_function(self, function, config, df):
-        if config['name_input'] in df.colomns:
-            self._params.data[config['name_output']] = function(df[config['name_input']], config=config, mode=1)
-        elif config['name_input'] in self._params.data.columns:
-            self._params.data[config['name_output']] = function(self._params.data[config['name_input']], config=config, mode=1)
+        print(config['variable'])
+        if config['variable'] in df.columns:
+            self._params.data[config['param']['name']] = function(df[config['variable']], config=config, mode=1)
+        elif config['variable'] in self._params.data.columns:
+            self._params.data[config['param']['name']] = function(self._params.data[config['variable']], config=config, mode=1)
         else:
             raise ValueError(f"variable `{config['type']}` not exist.")
