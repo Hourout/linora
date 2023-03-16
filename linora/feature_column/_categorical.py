@@ -28,15 +28,15 @@ def categorical_count(feature, mode=0, normalize=True, abnormal_value=0, miss_va
         return count labels and label parameters dict.
     """
     if config is None:
-        config = {'feature_scale':feature.value_counts(normalize).to_dict(),
-                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
-                  'type':'categorical_count', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':feature.value_counts(normalize).to_dict(),
+                           'normalize':normalize, 'abnormal_value':abnormal_value, 
+                           'miss_value':miss_value, 'name':feature.name if name is None else name},
+                  'type':'categorical_count', 'variable':feature.name, 'keep':keep}
     if mode==2:
         return config
     else:
-        scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
-        t = feature.replace(scale).fillna(config['miss_value']).rename(config['name_output'])
+        scale = {**config['param']['feature_scale'], **{i:config['param']['abnormal_value'] for i in feature.unique().tolist() if i not in config['param']['feature_scale']}}
+        t = feature.replace(scale).fillna(config['param']['miss_value']).rename(config['param']['name'])
         return t if mode else (t, config)
 
 
