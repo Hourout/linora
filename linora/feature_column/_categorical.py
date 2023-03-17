@@ -47,19 +47,20 @@ def categorical_crossed(feature_list, mode=0, hash_bucket_size=3, name=None, con
         feature_list: pd.Series list, sample feature list.
         mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
         hash_bucket_size: int, number of categories that need hash.
-        name: str, output feature name, if None, name is feature.name .
+        name: str, output feature name.
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature_list` and `mode` is invalid.
     Returns:
         return hash labels.
     """
     if config is None:
-        config = {'hash_bucket_size':hash_bucket_size, 'type':'categorical_crossed', 
-                  'name_input':[i.name for i in feature_list], 'name_output':name}
+        config = {'param':{'hash_bucket_size':hash_bucket_size, 
+                           'name':'_'.join(name)+'_crossed' if name is None else name}, 
+                  'type':'categorical_crossed', 'variable':[i.name for i in feature_list], 'keep':keep}
     if mode==2:
         return config
     else:
-        t = reduce(lambda x,y:x+y, [i.fillna('').astype(str) for i in feature_list]).map(lambda x:hash(x)).rename(config['name_output'])%config['hash_bucket_size']
+        t = reduce(lambda x,y:x+y, [i.fillna('').astype(str) for i in feature_list]).map(lambda x:hash(x)).rename(config['param']['name'])%config['param']['hash_bucket_size']
         return t if mode else (t, config)
 
 

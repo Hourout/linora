@@ -4,12 +4,14 @@ from linora.utils._config import Config
 from linora.feature_column._categorical import *
 from linora.feature_column._normalize import *
 from linora.feature_column._numerical import *
+from linora.feature_column._feature_categorical import FeatureCategorical
 
 __all__ = ['Feature']
 
 
-class Feature():
+class Feature(FeatureCategorical):
     def __init__(self):
+        super(Feature, self).__init__()
         self._params = Config()
         self._params.function = [
             ('categorical_count', categorical_count), ('categorical_crossed', categorical_crossed), 
@@ -26,27 +28,27 @@ class Feature():
            ]
         self.pipe = {}
         
-    def categorical_count(self, variable, normalize=True, abnormal_value=0, miss_value=0, name=None, keep=False):
-        """Count or frequency of conversion category variables.
+#     def categorical_count(self, variable, normalize=True, abnormal_value=0, miss_value=0, name=None, keep=False):
+#         """Count or frequency of conversion category variables.
     
-        Args:
-            variable: str, feature variable name.
-            normalize: bool, If True then the object returned will contain the relative frequencies of the unique values.
-            abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
-            miss_value: int or float, if feature values are missing, return `miss_value`.
-            name: str, output feature name, if None, name is variable.
-            keep: if name is not None, name whether to keep in the final output.
-        Returns:
-            return count labels and label parameters dict.
-        """
-        config = {'param':{'normalize':normalize, 'abnormal_value':abnormal_value, 
-                           'miss_value':miss_value, 'name':variable if name is None else name},
-                  'type':'categorical_count', 'variable':variable, 'keep':keep}
-        self.pipe[len(self.pipe)] = config
-        return self
+#         Args:
+#             variable: str, feature variable name.
+#             normalize: bool, If True then the object returned will contain the relative frequencies of the unique values.
+#             abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
+#             miss_value: int or float, if feature values are missing, return `miss_value`.
+#             name: str, output feature name, if None, name is variable.
+#             keep: if name is not None, name whether to keep in the final output.
+#         Returns:
+#             return count labels and label parameters dict.
+#         """
+#         config = {'param':{'normalize':normalize, 'abnormal_value':abnormal_value, 
+#                            'miss_value':miss_value, 'name':variable if name is None else name},
+#                   'type':'categorical_count', 'variable':variable, 'keep':keep}
+#         self.pipe[len(self.pipe)] = config
+#         return self
         
-    def add_pipe(self, config):
-        self.pipe[len(self.pipe)] = config[0] if isinstance(config, tuple) else config
+#     def add_pipe(self, config):
+#         self.pipe[len(self.pipe)] = config[0] if isinstance(config, tuple) else config
         
     def fit(self, df):
         for r in range(len(self.pipe)):
