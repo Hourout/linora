@@ -56,7 +56,7 @@ def categorical_crossed(feature_list, mode=0, hash_bucket_size=3, name=None, con
     if config is None:
         config = {'param':{'hash_bucket_size':hash_bucket_size, 
                            'name':'_'.join(name)+'_crossed' if name is None else name}, 
-                  'type':'categorical_crossed', 'variable':[i.name for i in feature_list], 'keep':keep}
+                  'type':'categorical_crossed', 'variable':[i.name for i in feature_list]}
     if mode==2:
         return config
     else:
@@ -79,15 +79,15 @@ def categorical_encoder(feature, mode=0, abnormal_value=-1, miss_value=-1, name=
         return encoded labels and label parameters dict.
     """
     if config is None:
-        config = {'feature_scale':{j:i for i,j in feature.drop_duplicates().reset_index(drop=True).to_dict().items()},
-                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
-                  'type':'categorical_encoder', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':{j:i for i,j in feature.drop_duplicates().reset_index(drop=True).to_dict().items()},
+                           'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                           'name':feature.name if name is None else name},
+                  'type':'categorical_encoder', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
-        t = feature.replace(scale).fillna(config['miss_value']).rename(config['name_output'])
+        scale = {**config['param']['feature_scale'], **{i:config['param']['abnormal_value'] for i in feature.unique().tolist() if i not in config['param']['feature_scale']}}
+        t = feature.replace(scale).fillna(config['param']['miss_value']).rename(config['param']['name'])
         return t if mode else (t, config)
 
 
@@ -105,12 +105,13 @@ def categorical_hash(feature, mode=0, hash_bucket_size=3, name=None, config=None
         return hash labels.
     """
     if config is None:
-        config = {'hash_bucket_size':hash_bucket_size, 'type':'categorical_hash', 
-                  'name_input':feature.name, 'name_output':feature.name if name is None else name}
+        config = {'param':{'hash_bucket_size':hash_bucket_size, 
+                           'name':feature.name if name is None else name},
+                  'type':'categorical_hash', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        t = feature.fillna('').astype(str).map(lambda x:hash(x)).rename(config['name_output'])%config['hash_bucket_size']
+        t = feature.fillna('').astype(str).map(lambda x:hash(x)).rename(config['param']['name'])%config['param']['hash_bucket_size']
         return t if mode else (t, config)
 
 
@@ -130,19 +131,21 @@ def categorical_hist(feature, label, mode=0, abnormal_value=0, miss_value=0, nam
         return hist labels and label parameters DataFrame.
     """
     if config is None:
-        config = {'feature_scale':None,
-                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
-                  'type':'categorical_hist', 'name_input':[feature.name, label.name], 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':None,
+                           'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                           'name':feature.name if name is None else name, 'label':label.name},
+                  'type':'categorical_hist', 'variable':feature.name}
         t = pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].value_counts(normalize=True).unstack()
-        t.columns = [config['name_output']+'_'+str(i) for i in t.columns]
-        config['feature_scale'] = t.reset_index().to_dict()
+        t.columns = [config['param']['name']+'_'+str(i) for i in t.columns]
+        config['param']['feature_scale'] = t.reset_index().to_dict()
         
     if mode==2:
         return config
     else:
-        t = (feature.to_frame().merge(pd.DataFrame(config['feature_scale']).fillna(config['miss_value']), on=feature.name, how='left')
-             .drop([feature.name], axis=1).fillna(config['abnormal_value']).rename(config['name_output']))
+        t = (feature.to_frame()
+             .merge(pd.DataFrame(config['param']['feature_scale'])
+                    .fillna(config['param']['miss_value']), on=feature.name, how='left')
+             .drop([feature.name], axis=1).fillna(config['param']['abnormal_value']).rename(config['param']['name']))
         return t if mode else (t, config)
 
 
