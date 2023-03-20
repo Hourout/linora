@@ -5,11 +5,14 @@ from linora.feature_column._categorical import *
 from linora.feature_column._normalize import *
 from linora.feature_column._numerical import *
 from linora.feature_column._feature_categorical import FeatureCategorical
+from linora.feature_column._feature_numerical import FeatureNumerical
+from linora.feature_column._feature_normalize import FeatureNormalize
+
 
 __all__ = ['Feature']
 
 
-class Feature(FeatureCategorical):
+class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
     def __init__(self):
         super(Feature, self).__init__()
         self._params = Config()

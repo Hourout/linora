@@ -17,14 +17,13 @@ def normalize_max(feature, mode=0, name=None, config=None):
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'feature_scale':feature.max(),
-                  'type':'normalize_max', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':feature.max(), 'name':feature.name if name is None else name},
+                  'type':'normalize_max', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
-        t = (feature/scale).rename(config['name_output'])
+        scale = config['param']['feature_scale']
+        t = (feature/scale).rename(config['param']['name'])
         return t if mode else (t, config)
     
 
@@ -41,14 +40,13 @@ def normalize_maxabs(feature, mode=0, name=None, config=None):
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'feature_scale':feature.abs().max(),
-                  'type':'normalize_maxabs', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':feature.abs().max(), 'name':feature.name if name is None else name},
+                  'type':'normalize_maxabs', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
-        t = (feature/scale).rename(config['name_output'])
+        scale = config['param']['feature_scale']
+        t = (feature/scale).rename(config['param']['name'])
         return t if mode else (t, config)
 
 
@@ -65,14 +63,13 @@ def normalize_l1(feature, mode=0, name=None, config=None):
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'feature_scale':feature.abs().sum(),
-                  'type':'normalize_l1', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':feature.abs().sum(), 'name':feature.name if name is None else name},
+                  'type':'normalize_l1', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
-        t = (feature/scale).rename(config['name_output'])
+        scale = config['param']['feature_scale']
+        t = (feature/scale).rename(config['param']['name'])
         return t if mode else (t, config)
 
 
@@ -89,14 +86,14 @@ def normalize_l2(feature, mode=0, name=None, config=None):
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'feature_scale':np.sqrt(np.sum(np.square(feature))),
-                  'type':'normalize_l2', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':np.sqrt(np.sum(np.square(feature))), 
+                           'name':feature.name if name is None else name},
+                  'type':'normalize_l2', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
-        t = (feature/scale).rename(config['name_output'])
+        scale = config['param']['feature_scale']
+        t = (feature/scale).rename(config['param']['name_output'])
         return t if mode else (t, config)
 
 
@@ -113,14 +110,14 @@ def normalize_meanminmax(feature, mode=0, name=None, config=None):
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'feature_scale':[feature.mean(), feature.min(), feature.max()],
-                  'type':'normalize_meanminmax', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':[feature.mean(), feature.min(), feature.max()],
+                           'name':feature.name if name is None else name},
+                  'type':'normalize_meanminmax', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
-        t = ((feature-scale[0])/(scale[2]-scale[1])).rename(config['name_output'])
+        scale = config['param']['feature_scale']
+        t = ((feature-scale[0])/(scale[2]-scale[1])).rename(config['param']['name'])
         return t if mode else (t, config)
 
 
@@ -138,16 +135,15 @@ def normalize_minmax(feature, mode=0, feature_range=(0, 1), name=None, config=No
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'feature_scale':[feature.min(), feature.max()],
-                  'feature_range':feature_range,
-                  'type':'normalize_minmax', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':[feature.min(), feature.max()], 
+                           'feature_range':feature_range, 'name':feature.name if name is None else name},
+                  'type':'normalize_minmax', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
-        ran = config['feature_range']
-        t = ((feature-scale[0])/(scale[1]-scale[0])*(ran[1]-ran[0])+ran[0]).rename(config['name_output'])
+        scale = config['param']['feature_scale']
+        ran = config['param']['feature_range']
+        t = ((feature-scale[0])/(scale[1]-scale[0])*(ran[1]-ran[0])+ran[0]).rename(config['param']['name'])
         return t if mode else (t, config)
 
 
@@ -164,14 +160,14 @@ def normalize_norm(feature, mode=0, name=None, config=None):
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'feature_scale':[feature.mean(), feature.std()],
-                  'type':'normalize_norm', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':[feature.mean(), feature.std()],
+                           'name':feature.name if name is None else name},
+                  'type':'normalize_norm', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
-        t = ((feature-scale[0])/scale[1]).rename(config['name_output'])
+        scale = config['param']['feature_scale']
+        t = ((feature-scale[0])/scale[1]).rename(config['param']['name'])
         return t if mode else (t, config)
 
 
@@ -190,12 +186,12 @@ def normalize_robust(feature, mode=0, feature_scale=(0.5, 0.5), name=None, confi
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'feature_scale':[feature.quantile(feature_scale[0]), feature.quantile(0.5+feature_scale[1]/2)-feature.quantile(0.5-feature_scale[1]/2)],
-                  'type':'normalize_robust', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':[feature.quantile(feature_scale[0]), feature.quantile(0.5+feature_scale[1]/2)-feature.quantile(0.5-feature_scale[1]/2)], 
+                           'name':feature.name if name is None else name},
+                  'type':'normalize_robust', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
-        t = ((feature-scale[0])/scale[1]).rename(config['name_output'])
+        scale = config['param']['feature_scale']
+        t = ((feature-scale[0])/scale[1]).rename(config['param']['name'])
         return t if mode else (t, config)
