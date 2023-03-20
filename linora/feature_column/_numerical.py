@@ -16,21 +16,20 @@ def numerical_binarizer(feature, mode=0, method='mean', name=None, config=None):
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'feature_scale':None,
-                  'type':'numerical_binarizer', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'method':method, 'name':feature.name if name is None else name},
+                  'type':'numerical_binarizer', 'variable':feature.name, 'keep':keep}
         if method=='mean':
-            config['feature_scale'] = feature.mean()
+            config['param']['feature_scale'] = feature.mean()
         elif method=='median':
-            config['feature_scale'] = feature.median()
+            config['param']['feature_scale'] = feature.median()
         else:
-            config['feature_scale'] = method
+            config['param']['feature_scale'] = method
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
+        scale = config['param']['feature_scale']
         t = (feature.clip(upper=scale).replace({scale:scale+0.1}).clip(scale)
-             .replace({scale:0, scale+0.1:1}).astype('int8').rename(config['name_output']))
+             .replace({scale:0, scale+0.1:1}).astype('int8').rename(config['param']['name']))
         return t if mode else (t, config)
 
 
@@ -59,16 +58,16 @@ def numerical_bucketized(feature, boundaries, mode=0, miss_pad=-1, score=None, m
         normalize feature.
     """
     if config is None:
-        config = {'feature_scale':boundaries, 'miss_pad':miss_pad, 'score':score, 
-                  'miss_score':miss_score, 'method':method, 
-                  'type':'numerical_bucketized', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'boundaries':boundaries, 'miss_pad':miss_pad,
+                           'score':score, 'miss_score':miss_score, 'method':method,
+                           'name':feature.name if name is None else name},
+                  'type':'numerical_bucketized', 'variable':feature.name}
     if mode==2:
         return config
     else:
         t = feature.copy()
-        bound = sorted(config['boundaries'])
-        if config['method']:
+        bound = sorted(config['param']['boundaries'])
+        if config['param']['method']:
             for i in range(len(bound)):
                 if i==0:
                     t[feature<=bound[i]] = i
@@ -79,11 +78,11 @@ def numerical_bucketized(feature, boundaries, mode=0, miss_pad=-1, score=None, m
             t[feature<bound[0]] = 0
             for r, i in enumerate(bound):
                 t[feature>=i] = r+1
-        t = t.fillna(config['miss_pad']).astype('int64').rename(config['name_output'])
-        if isinstance(config['score'], (tuple, list)):
-            t = t.replace({i:j for i,j in enumerate(config['score'])})
-            if config['miss_score'] is not None:
-                t = t.replace({config['miss_pad']:config['miss_score']})
+        t = t.fillna(config['param']['miss_pad']).astype('int64').rename(config['param']['name'])
+        if isinstance(config['param']['score'], (tuple, list)):
+            t = t.replace({i:j for i,j in enumerate(config['param']['score'])})
+            if config['param']['miss_score'] is not None:
+                t = t.replace({config['param']['miss_pad']:config['param']['miss_score']})
         return t if mode else (t, config)
 
 
@@ -101,20 +100,19 @@ def numerical_padding(feature, mode=0, method='mean', name=None, config=None):
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'feature_scale':None,
-                  'type':'numerical_padding', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'method':method, 'name':feature.name if name is None else name},
+                  'type':'numerical_padding', 'variable':feature.name}
         if method=='mean':
-            config['feature_scale'] = feature.mean()
+            config['param']['feature_scale'] = feature.mean()
         elif method=='median':
-            config['feature_scale'] = feature.median()
+            config['param']['feature_scale'] = feature.median()
         else:
-            config['feature_scale'] = method
+            config['param']['feature_scale'] = method
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
-        t = feature.fillna(scale).rename(config['name_output'])
+        scale = config['param']['feature_scale']
+        t = feature.fillna(scale).rename(config['param']['name'])
         return t if mode else (t, config)
 
 
@@ -173,60 +171,60 @@ def numerical_outlier(feature, mode=0, method='norm', delta=0.9545, tail='right'
         normalize feature and feature_scale.
     """
     if config is None:
-        config = {'method':method, 'tail':tail, 'delta':delta,
-                  'type':'numerical_outlier', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'method':method, 'delta':delta, 'tail':tail,
+                           'name':feature.name if name is None else name},
+                  'type':'numerical_outlier', 'variable':feature.name}
         if method =='norm':
             if not 0<delta<1:
                 raise ValueError("`delta` must be 0<delta<1")
             from scipy.stats import norm
-            config['feature_scale'] = [feature.mean(), feature.std()]
+            config['param']['feature_scale'] = [feature.mean(), feature.std()]
         elif method=='gaussian':
-            config['feature_scale'] = [feature.mean(), feature.std()]
+            config['param']['feature_scale'] = [feature.mean(), feature.std()]
         elif method=='iqr':
-            config['feature_scale'] = [feature.quantile(0.25), feature.quantile(0.75)]
+            config['param']['feature_scale'] = [feature.quantile(0.25), feature.quantile(0.75)]
         elif method=='mad':
-            config['feature_scale'] = [feature.median(), (feature-feature.median()).abs().median()]
+            config['param']['feature_scale'] = [feature.median(), (feature-feature.median()).abs().median()]
         elif method=='quantiles':
             if not 0<delta<0.5:
                 raise ValueError("`delta` must be 0<delta<0.5")
-            config['feature_scale'] = [feature.quantile(delta), feature.quantile(1-delta)]
+            config['param']['feature_scale'] = [feature.quantile(delta), feature.quantile(1-delta)]
         else:
             raise ValueError("`method` must be one of ['norm', 'gaussian', 'iqr', 'mad', 'quantiles']")
     if mode==2:
         return config
     else:
-        scale = config['feature_scale']
-        delta = config['delta']
+        scale = config['param']['feature_scale']
+        delta = config['param']['delta']
         if method =='norm':
-            if config['tail']=='both':
+            if config['param']['tail']=='both':
                 clip = (scale[0]+norm.ppf((1-delta)/2)*scale[1], scale[0]+norm.ppf(delta+(1-delta)/2)*scale[1])
-            elif config['tail']=='right':
+            elif config['param']['tail']=='right':
                 clip = (feature.min(), scale[0]+norm.ppf(delta)*scale[1])
             else:
                 clip = (scale[0]+norm.ppf(1-delta)*scale[1], feature.max())
         elif method in ['gaussian', 'mad']:
-            if config['tail']=='both':
+            if config['param']['tail']=='both':
                 clip = (scale[0]-delta*scale[1], scale[0]+delta*scale[1])
-            elif config['tail']=='right':
+            elif config['param']['tail']=='right':
                 clip = (feature.min(), scale[0]+delta*scale[1])
             else:
                 clip = (scale[0]-delta*scale[1], feature.max())
         elif method =='iqr':
-            if config['tail']=='both':
+            if config['param']['tail']=='both':
                 clip = (scale[0]-delta*(scale[1]-scale[0]), scale[1]+delta*(scale[1]-scale[0]))
-            elif config['tail']=='right':
+            elif config['param']['tail']=='right':
                 clip = (feature.min(), scale[1]+delta*(scale[1]-scale[0]))
             else:
                 clip = (scale[0]-delta*(scale[1]-scale[0]), feature.max())
         elif method =='quantiles':
-            if config['tail']=='both':
+            if config['param']['tail']=='both':
                 clip = (scale[0], scale[1])
-            elif config['tail']=='right':
+            elif config['param']['tail']=='right':
                 clip = (feature.min(), scale[1])
             else:
                 clip = (scale[0], feature.max())
         else:
             raise ValueError("`method` must be one of ['norm', 'gaussian', 'iqr', 'mad', 'quantiles']")
-        t = feature.clip(clip[0], clip[1]).rename(config['name_output'])
+        t = feature.clip(clip[0], clip[1]).rename(config['param']['name'])
         return t if mode else (t, config)
