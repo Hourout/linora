@@ -133,8 +133,8 @@ def categorical_hist(feature, label, mode=0, abnormal_value=0, miss_value=0, nam
     if config is None:
         config = {'param':{'feature_scale':None,
                            'abnormal_value':abnormal_value, 'miss_value':miss_value, 
-                           'name':feature.name if name is None else name, 'label':label.name},
-                  'type':'categorical_hist', 'variable':feature.name}
+                           'name':feature.name if name is None else name},
+                  'type':'categorical_hist', 'variable':feature.name, 'label':label.name}
         t = pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].value_counts(normalize=True).unstack()
         t.columns = [config['param']['name']+'_'+str(i) for i in t.columns]
         config['param']['feature_scale'] = t.reset_index().to_dict()
@@ -307,8 +307,8 @@ def categorical_regress(feature, label, mode=0, method='mean', abnormal_value='m
                            'feature_scale':pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].agg(method).to_dict(),
                            'abnormal_value':label.mean() if abnormal_value=='mean' else label.median(), 
                            'miss_value':label.mean() if miss_value=='mean' else label.median(), 
-                           'name':feature.name if name is None else name, 'label':label.name},
-                  'type':'categorical_regress', 'variable':feature.name}
+                           'name':feature.name if name is None else name},
+                  'type':'categorical_regress', 'variable':feature.name, 'label':label.name}
     if mode==2:
         return config
     else:
@@ -343,8 +343,8 @@ def categorical_woe(feature, label, mode=0, pos_label=1, abnormal_value=-1, miss
         
         config = {'param':{'pos_label':pos_label, 'feature_scale':t.to_dict(),
                            'abnormal_value':abnormal_value, 'miss_value':miss_value, 
-                           'name':feature.name if name is None else name, 'label':label.name},
-                  'type':'categorical_woe', 'variable':feature.name}
+                           'name':feature.name if name is None else name},
+                  'type':'categorical_woe', 'variable':feature.name, 'label':label.name}
     if mode==2:
         return config
     else:

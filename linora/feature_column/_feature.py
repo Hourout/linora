@@ -22,6 +22,8 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
             ('categorical_hist', categorical_hist), ('categorical_regress', categorical_regress),
             ('categorical_onehot_binarizer', categorical_onehot_binarizer),
             ('categorical_onehot_multiple', categorical_onehot_multiple),
+            ('categorical_rare', categorical_rare), ('categorical_regress', categorical_regress),
+            ('categorical_woe', categorical_woe),
             ('numerical_binarizer', numerical_binarizer), ('numerical_bucketized', numerical_bucketized),
             ('numerical_padding', numerical_padding), ('numerical_outlier', numerical_outlier),
             ('normalize_max', normalize_max), ('normalize_maxabs', normalize_maxabs), 
@@ -58,7 +60,10 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
             config = self.pipe[r]
             for i in self._params.function:
                 if config['type']==i[0]:
-                    self.pipe[r] = i[1](df[config['variable']], mode=2, **config['param'])
+                    if 'lable' in config:
+                        self.pipe[r] = i[1](df[config['variable']], label=df[config['lable']], mode=2, **config['param'])
+                    else:
+                        self.pipe[r] = i[1](df[config['variable']], mode=2, **config['param'])
                     break
         return self
         
