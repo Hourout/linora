@@ -164,29 +164,29 @@ def categorical_onehot_binarizer(feature, mode=0, abnormal_value=0, miss_value=0
         Dataframe for onehot binarizer and feature parameters list.
     """
     if config is None:
-        config = {'feature_scale':feature.dropna().drop_duplicates().tolist(),
-                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
-                  'type':'categorical_onehot_binarizer', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':feature.dropna().drop_duplicates().tolist(),
+                           'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                           'name':feature.name if name is None else name},
+                  'type':'categorical_onehot_binarizer', 'variable':feature.name}
     if mode==2:
         return config
     else:
         scale = feature.dropna().drop_duplicates().tolist()
-        scale_dict = {i:'temp_str' for i in set.difference(set(scale), set(config['feature_scale']))}
-        t = pd.get_dummies(feature.replace(scale_dict), prefix=config['name_output'], dtype='int8', dummy_na=True)
+        scale_dict = {i:'temp_str' for i in set.difference(set(scale), set(config['param']['feature_scale']))}
+        t = pd.get_dummies(feature.replace(scale_dict), prefix=config['param']['name'], dtype='int8', dummy_na=True)
         
-        for i in set.difference(set(config['feature_scale']), set(scale)):
-            if config['name_output']+'_'+str(i) not in t.columns:
-                t[config['name_output']+'_'+str(i)] = 0
+        for i in set.difference(set(config['param']['feature_scale']), set(scale)):
+            if config['param']['name']+'_'+str(i) not in t.columns:
+                t[config['param']['name']+'_'+str(i)] = 0
                 
-        if f"{config['name_output']}_temp_str" in t.columns:
-            t.loc[t[f"{config['name_output']}_temp_str"]==1, :] = config['abnormal_value']
-            t = t.drop([f"{config['name_output']}_temp_str"], axis=1)
+        if f"{config['param']['name']}_temp_str" in t.columns:
+            t.loc[t[f"{config['param']['name']}_temp_str"]==1, :] = config['param']['abnormal_value']
+            t = t.drop([f"{config['param']['name']}_temp_str"], axis=1)
             
-        if f"{config['name_output']}_nan" in t.columns:
-            t.loc[t[f"{config['name_output']}_nan"]==1, :] = config['miss_value']
-            t = t.drop([f"{config['name_output']}_nan"], axis=1)
-        t = t[[config['name_output']+'_'+str(i) for i in config['feature_scale']]]
+        if f"{config['param']['name']}_nan" in t.columns:
+            t.loc[t[f"{config['param']['name']}_nan"]==1, :] = config['param']['miss_value']
+            t = t.drop([f"{config['param']['name']}_nan"], axis=1)
+        t = t[[config['param']['name']+'_'+str(i) for i in config['param']['feature_scale']]]
         return t if mode else (t, config)
 
 
@@ -205,10 +205,10 @@ def categorical_onehot_multiple(feature, mode=0, abnormal_value=0, miss_value=0,
         Dataframe for onehot binarizer and feature parameters list.
     """
     if config is None:
-        config = {'feature_scale':list(set(itertools.chain.from_iterable(feature.dropna()))),
-                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
-                  'type':'categorical_onehot_multiple', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':list(set(itertools.chain.from_iterable(feature.dropna()))),
+                           'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                           'name':feature.name if name is None else name},
+                  'type':'categorical_onehot_multiple', 'variable':feature.name}
     if mode==2:
         return config
     else:
@@ -220,17 +220,17 @@ def categorical_onehot_multiple(feature, mode=0, abnormal_value=0, miss_value=0,
         row = [i for i in itertools.chain.from_iterable(map(lambda x,y:[x]*len(y), range(len(feature)), feature.fillna('_')))]
         t = np.zeros([max(row)+1, len(class_mapping)], dtype='int8')
         t[row, col] = 1
-        t = pd.DataFrame(t, columns=[config['name_output']+'_'+str(i) for i in scale], index=feature.index)
+        t = pd.DataFrame(t, columns=[config['param']['name']+'_'+str(i) for i in scale], index=feature.index)
     
-        for i in set.difference(set(config['feature_scale']), set(scale)):
-            if config['name_output']+'_'+str(i) not in t.columns:
-                t[config['name_output']+'_'+str(i)] = 0
+        for i in set.difference(set(config['param']['feature_scale']), set(scale)):
+            if config['param']['name']+'_'+str(i) not in t.columns:
+                t[config['param']['name']+'_'+str(i)] = 0
 
-        if f"{config['name_output']}__" in t.columns:
-            t.loc[t[f"{config['name_output']}__"]==1, :] = config['miss_value']
-            t = t.drop([f"{config['name_output']}__"], axis=1)
+        if f"{config['param']['name']}__" in t.columns:
+            t.loc[t[f"{config['param']['name']}__"]==1, :] = config['param']['miss_value']
+            t = t.drop([f"{config['param']['name']}__"], axis=1)
         
-        t = t[[config['name_output']+'_'+str(i) for i in config['feature_scale']]]
+        t = t[[config['param']['name']+'_'+str(i) for i in config['param']['feature_scale']]]
         return t if mode else (t, config)
 
 
@@ -273,15 +273,16 @@ def categorical_rare(feature, mode=0, p=0.05, min_num=None, max_num=None, abnorm
             feature_scale = {**{i:r for r, i in enumerate(t[t>p].index)},
                              **{i:len(t[t>p]) for i in t[t<=p].index}}
             
-        config = {'feature_scale':feature_scale,
-                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
-                  'type':'categorical_rare', 'name_input':feature.name, 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'feature_scale':feature_scale,
+                           'p':p, 'min_num':min_num, 'max_num':max_num,
+                           'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                           'name':feature.name if name is None else name},
+                  'type':'categorical_rare', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
-        t = feature.replace(scale).fillna(config['miss_value']).rename(config['name_output'])
+        scale = {**config['param']['feature_scale'], **{i:config['param']['abnormal_value'] for i in feature.unique().tolist() if i not in config['param']['feature_scale']}}
+        t = feature.replace(scale).fillna(config['param']['miss_value']).rename(config['param']['name'])
         return t if mode else (t, config)
 
 
@@ -302,16 +303,17 @@ def categorical_regress(feature, label, mode=0, method='mean', abnormal_value='m
         return Regress labels and label parameters dict.
     """
     if config is None:
-        config = {'feature_scale':pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].agg(method).to_dict(),
-                  'abnormal_value':label.mean() if abnormal_value=='mean' else label.median(), 
-                  'miss_value':label.mean() if miss_value=='mean' else label.median(), 
-                  'type':'categorical_regress', 'name_input':[feature.name, label.name], 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'method':method,
+                           'feature_scale':pd.concat([feature, label], axis=1).groupby([feature.name])[label.name].agg(method).to_dict(),
+                           'abnormal_value':label.mean() if abnormal_value=='mean' else label.median(), 
+                           'miss_value':label.mean() if miss_value=='mean' else label.median(), 
+                           'name':feature.name if name is None else name, 'label':label.name},
+                  'type':'categorical_regress', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
-        t = feature.replace(scale).fillna(config['miss_value']).rename(config['name_output'])
+        scale = {**config['param']['feature_scale'], **{i:config['param']['abnormal_value'] for i in feature.unique().tolist() if i not in config['param']['feature_scale']}}
+        t = feature.replace(scale).fillna(config['param']['miss_value']).rename(config['param']['name'])
         return t if mode else (t, config)
 
     
@@ -339,15 +341,15 @@ def categorical_woe(feature, label, mode=0, pos_label=1, abnormal_value=-1, miss
         corr = t.label.sum()/(t.label.count()-t.label.sum())
         t = t.groupby(['feature']).label.apply(lambda x:np.log(x.sum()/(x.count()-x.sum())/corr))
         
-        config = {'feature_scale':t.to_dict(),
-                  'abnormal_value':abnormal_value, 'miss_value':miss_value, 
-                  'type':'categorical_woe', 'name_input':[feature.name, label.name], 
-                  'name_output':feature.name if name is None else name}
+        config = {'param':{'pos_label':pos_label, 'feature_scale':t.to_dict(),
+                           'abnormal_value':abnormal_value, 'miss_value':miss_value, 
+                           'name':feature.name if name is None else name, 'label':label.name},
+                  'type':'categorical_woe', 'variable':feature.name}
     if mode==2:
         return config
     else:
-        scale = {**config['feature_scale'], **{i:config['abnormal_value'] for i in feature.unique().tolist() if i not in config['feature_scale']}}
-        t = feature.replace(scale).fillna(config['miss_value']).rename(config['name_output'])
+        scale = {**config['param']['feature_scale'], **{i:config['param']['abnormal_value'] for i in feature.unique().tolist() if i not in config['param']['feature_scale']}}
+        t = feature.replace(scale).fillna(config['param']['miss_value']).rename(config['param']['name'])
         return t if mode else (t, config)
     
 
