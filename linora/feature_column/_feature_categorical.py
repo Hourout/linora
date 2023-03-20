@@ -13,7 +13,7 @@ class FeatureCategorical(object):
             abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
             miss_value: int or float, if feature values are missing, return `miss_value`.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None and variable!=name, variable whether to keep in the final output.
+            keep: if `name` is not None and `variable`!=`name`, `name` whether to keep in the final output.
         """
         keep = keep if name is not None and variable!=name else False
         config = {'param':{'normalize':normalize, 'abnormal_value':abnormal_value, 

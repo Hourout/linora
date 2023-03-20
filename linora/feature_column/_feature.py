@@ -44,53 +44,41 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
         self.pipe = {}
         
     def fit(self, df):
-        for r in range(len(self.pipe)):
-            config = self.pipe[r]
-            if 'lable' in config:
-                t = self._params.function[config['type']](df[config['variable']], label=df[config['lable']], **config['param'])
-            else:
-                t = self._params.function[config['type']](df[config['variable']], **config['param'])
-            
+        _ = self._fit_transform(df, fit=True)
         return self
         
     def fit_transform(self, df, keep_columns=None):
-        if isinstance(keep_columns, str):
-            keep_columns = [keep_columns]
-        self._params.data = pd.DataFrame() if keep_columns is None else df[keep_columns].copy()
-        for r in range(len(self.pipe)):
-            config = self.pipe[r]
-            self._run_function(self._params.function[config['type']], config, df)
-            
+        return self._fit_transform(df, keep_columns=keep_columns, fit=True)
         
-        
-        
-    
     def transform(self, df, keep_columns=None):
+        return self._fit_transform(df, keep_columns=keep_columns, fit=False)
+    
+    def _fit_transform(self, df, keep_columns=None, fit=True):
         if isinstance(keep_columns, str):
             keep_columns = [keep_columns]
-        self._params.data = pd.DataFrame() if keep_columns is None else df[keep_columns].copy()
+        data = pd.DataFrame() if keep_columns is None else df[keep_columns].copy()
         for r in range(len(self.pipe)):
-            config = self.pipe[r]
-            for i in self._params.function:
-                if config['type']==i[0]:
-                    self._run_function(i[1], config, df)
-                    break
-        return self._params.data
-                    
-    def _run_function(self, function, config, df):
+            config = self.pipe[r].copy()
+            t = self._run_function(self._params.function[config['type']], config, df, data)
+            data[config['param']['name']] = t[0]
+            if fit:
+                self.pipe[r]['param'] = t[1]
+        return data
+    
+    def _run_function(self, function, config, df, data):
         if config['variable'] in df.columns:
             if 'lable' in config:
                 t = function(df[config['variable']], label=df[config['lable']], **config['param'])
             else:
                 t = function(df[config['variable']], **config['param'])
-        elif config['variable'] in self._params.data.columns:
+        elif config['variable'] in data.columns:
             if 'lable' in config:
-                t = function(self._params.data[config['variable']], label=df[config['lable']], **config['param'])
+                t = function(data[config['variable']], label=df[config['lable']], **config['param'])
             else:
-                t = function(self._params.data[config['variable']], **config['param'])
+                t = function(data[config['variable']], **config['param'])
         else:
             raise ValueError(f"variable `{config['type']}` not exist.")
-        
+        return t
         
             
             
