@@ -11,8 +11,9 @@ class FeatureNumerical(object):
             variable: str, feature variable name.
             method: default 'mean', one of 'mean' or 'median' or float or int.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'method':method, 'name':variable if name is None else name},
                   'type':'numerical_binarizer', 'variable':variable, 'keep':keep}
         self.pipe[len(self.pipe)] = config
@@ -36,8 +37,9 @@ class FeatureNumerical(object):
             miss_score: int or float, None, score fillna value.
             method: True.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'boundaries':boundaries, 'miss_pad':miss_pad,
                            'score':score, 'miss_score':miss_score, 'method':method,
                            'name':variable if name is None else name},
@@ -52,8 +54,9 @@ class FeatureNumerical(object):
             variable: str, feature variable name.
             method: default 'mean', one of 'mean' or 'median' or float or int.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'method':method, 'name':variable if name is None else name},
                   'type':'numerical_padding', 'variable':variable, 'keep':keep}
         self.pipe[len(self.pipe)] = config
@@ -107,8 +110,9 @@ class FeatureNumerical(object):
             delta: float, default 0.9545
             tail: str, default 'right', one of ['left', 'right', 'both'], statistical distribution boundary.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'method':method, 'delta':delta, 'tail':tail,
                            'name':variable if name is None else name},
                   'type':'numerical_outlier', 'variable':variable, 'keep':keep}

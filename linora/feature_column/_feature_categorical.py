@@ -13,8 +13,9 @@ class FeatureCategorical(object):
             abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
             miss_value: int or float, if feature values are missing, return `miss_value`.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'normalize':normalize, 'abnormal_value':abnormal_value, 
                            'miss_value':miss_value, 'name':variable if name is None else name},
                   'type':'categorical_count', 'variable':variable, 'keep':keep}
@@ -28,8 +29,9 @@ class FeatureCategorical(object):
             variable: list, feature variable name of list.
             hash_bucket_size: int, number of categories that need hash.
             name: str, output feature name, if None, name is feature.name .
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'hash_bucket_size':hash_bucket_size, 
                            'name':'_'.join(name)+'_crossed' if name is None else name}, 
                   'type':'categorical_crossed', 'variable':variable, 'keep':keep}
@@ -44,8 +46,9 @@ class FeatureCategorical(object):
             abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
             miss_value: int or float, if feature values are missing, return `miss_value`.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'abnormal_value':abnormal_value, 'miss_value':miss_value, 
                            'name':variable if name is None else name},
                   'type':'categorical_encoder', 'variable':variable, 'keep':keep}
@@ -59,8 +62,9 @@ class FeatureCategorical(object):
             variable: str, feature variable name.
             hash_bucket_size: int, number of categories that need hash.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'hash_bucket_size':hash_bucket_size, 
                            'name':variable if name is None else name},
                   'type':'categorical_hash', 'variable':variable, 'keep':keep}
@@ -76,8 +80,9 @@ class FeatureCategorical(object):
             abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
             miss_value: int or float, if feature values are missing, return `miss_value`.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'abnormal_value':abnormal_value, 'miss_value':miss_value, 
                            'name':variable if name is None else name, 'label':label},
                   'type':'categorical_hist', 'variable':variable, 'keep':keep}
@@ -92,8 +97,9 @@ class FeatureCategorical(object):
             abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
             miss_value: int or float, if feature values are missing, return `miss_value`.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'abnormal_value':abnormal_value, 'miss_value':miss_value, 
                            'name':variable if name is None else name},
                   'type':'categorical_onehot_binarizer', 'variable':variable, 'keep':keep}
@@ -108,8 +114,9 @@ class FeatureCategorical(object):
             abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
             miss_value: int or float, if feature values are missing, return `miss_value`.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'abnormal_value':abnormal_value, 'miss_value':miss_value, 
                            'name':variable if name is None else name},
                   'type':'categorical_onehot_multiple', 'variable':variable, 'keep':keep}
@@ -131,8 +138,9 @@ class FeatureCategorical(object):
             abnormal_value: int or float, if feature values not in feature_scale dict, return `abnormal_value`.
             miss_value: int or float, if feature values are missing, return `miss_value`.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'p':p, 'min_num':min_num, 'max_num':max_num,
                            'abnormal_value':abnormal_value, 'miss_value':miss_value, 
                            'name':variable if name is None else name},
@@ -150,8 +158,9 @@ class FeatureCategorical(object):
             abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
             miss_value: int or float, if feature values are missing, return `miss_value`.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'method':method,
                            'abnormal_value':abnormal_value, 'miss_value':miss_value, 
                            'name':variable if name is None else name, 'label':label},
@@ -169,8 +178,9 @@ class FeatureCategorical(object):
             abnormal_value: int, if feature values not in feature_scale dict, return `abnormal_value`.
             miss_value: int or float, if feature values are missing, return `miss_value`.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None, variable whether to keep in the final output.
+            keep: if name is not None and variable!=name, variable whether to keep in the final output.
         """
+        keep = keep if name is not None and variable!=name else False
         config = {'param':{'pos_label':pos_label,
                            'abnormal_value':abnormal_value, 'miss_value':miss_value, 
                            'name':variable if name is None else name, 'label':label},

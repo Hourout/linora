@@ -47,11 +47,24 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
         for r in range(len(self.pipe)):
             config = self.pipe[r]
             if 'lable' in config:
-                self._params.function[config['type']](df[config['variable']], label=df[config['lable']], mode=2, **config['param'])
+                t = self._params.function[config['type']](df[config['variable']], label=df[config['lable']], **config['param'])
             else:
-                self._params.function[config['type']](df[config['variable']], mode=2, **config['param'])
+                t = self._params.function[config['type']](df[config['variable']], **config['param'])
+            
         return self
         
+    def fit_transform(self, df, keep_columns=None):
+        if isinstance(keep_columns, str):
+            keep_columns = [keep_columns]
+        self._params.data = pd.DataFrame() if keep_columns is None else df[keep_columns].copy()
+        for r in range(len(self.pipe)):
+            config = self.pipe[r]
+            self._run_function(self._params.function[config['type']], config, df)
+            
+        
+        
+        
+    
     def transform(self, df, keep_columns=None):
         if isinstance(keep_columns, str):
             keep_columns = [keep_columns]
@@ -65,10 +78,22 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
         return self._params.data
                     
     def _run_function(self, function, config, df):
-        print(config['variable'])
         if config['variable'] in df.columns:
-            self._params.data[config['param']['name']] = function(df[config['variable']], config=config, mode=1)
+            if 'lable' in config:
+                t = function(df[config['variable']], label=df[config['lable']], **config['param'])
+            else:
+                t = function(df[config['variable']], **config['param'])
         elif config['variable'] in self._params.data.columns:
-            self._params.data[config['param']['name']] = function(self._params.data[config['variable']], config=config, mode=1)
+            if 'lable' in config:
+                t = function(self._params.data[config['variable']], label=df[config['lable']], **config['param'])
+            else:
+                t = function(self._params.data[config['variable']], **config['param'])
         else:
             raise ValueError(f"variable `{config['type']}` not exist.")
+        
+        
+            
+            
+            
+            
+            
