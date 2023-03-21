@@ -173,7 +173,10 @@ def categorical_onehot_binarizer(feature, mode=0, abnormal_value=0, miss_value=0
     else:
         scale = feature.dropna().drop_duplicates().tolist()
         scale_dict = {i:'temp_str' for i in set.difference(set(scale), set(config['param']['feature_scale']))}
-        t = pd.get_dummies(feature.replace(scale_dict), prefix=config['param']['name'], dtype='int8', dummy_na=True)
+        if feature.dtype.char=='O':
+            t = pd.get_dummies(feature.replace(scale_dict), prefix=config['param']['name'], dtype='int8', dummy_na=True)
+        else:
+            t = pd.get_dummies(feature.replace(scale_dict).astype(str), prefix=config['param']['name'], dtype='int8', dummy_na=True)
         
         for i in set.difference(set(config['param']['feature_scale']), set(scale)):
             if config['param']['name']+'_'+str(i) not in t.columns:

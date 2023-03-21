@@ -102,7 +102,12 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
         for r in range(len(self.pipe)):
             config = self.pipe[r].copy()
             t = self._run_function(self._params.function[config['type']], config, df, data, fit)
-            data[config['param']['name']] = t[0]
+            if type(t[0])==pd.core.series.Series:
+                data[config['param']['name']] = t[0]
+            elif type(t[0])==pd.core.frame.DataFrame:
+                data = pd.concat([data, t[0]], axis=1)
+            else:
+                raise ValueError(f"final result not Series or DataFrame, type error.")
             name_dict[config['param']['name']] += 1
             if fit:
                 self.pipe[r]['param'] = t[1]['param']
