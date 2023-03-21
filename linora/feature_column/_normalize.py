@@ -14,7 +14,7 @@ def normalize_max(feature, mode=0, name=None, config=None):
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':feature.max(), 'name':feature.name if name is None else name},
@@ -37,7 +37,7 @@ def normalize_maxabs(feature, mode=0, name=None, config=None):
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':feature.abs().max(), 'name':feature.name if name is None else name},
@@ -60,7 +60,7 @@ def normalize_l1(feature, mode=0, name=None, config=None):
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':feature.abs().sum(), 'name':feature.name if name is None else name},
@@ -83,7 +83,7 @@ def normalize_l2(feature, mode=0, name=None, config=None):
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':np.sqrt(np.sum(np.square(feature))), 
@@ -107,7 +107,7 @@ def normalize_meanminmax(feature, mode=0, name=None, config=None):
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':[feature.mean(), feature.min(), feature.max()],
@@ -132,7 +132,7 @@ def normalize_minmax(feature, mode=0, feature_range=(0, 1), name=None, config=No
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':[feature.min(), feature.max()], 
@@ -157,7 +157,7 @@ def normalize_norm(feature, mode=0, name=None, config=None):
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':[feature.mean(), feature.std()],
@@ -183,7 +183,7 @@ def normalize_robust(feature, mode=0, feature_scale=(0.5, 0.5), name=None, confi
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':[feature.quantile(feature_scale[0]), feature.quantile(0.5+feature_scale[1]/2)-feature.quantile(0.5-feature_scale[1]/2)], 

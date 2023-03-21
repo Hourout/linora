@@ -1,4 +1,7 @@
-__all__ = ['numerical_binarizer', 'numerical_bucketized', 
+import numpy as np
+
+
+__all__ = ['numerical_binarizer', 'numerical_bucketized', 'numerical_cyclical',
            'numerical_padding', 'numerical_outlier']
 
 
@@ -13,7 +16,7 @@ def numerical_binarizer(feature, mode=0, method='mean', name=None, config=None):
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'method':method, 'name':feature.name if name is None else name},
@@ -55,7 +58,7 @@ def numerical_bucketized(feature, boundaries, mode=0, miss_pad=-1, score=None, m
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid, but `boundaries` must be passed in.
     Returns:
-        normalize feature.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'boundaries':boundaries, 'miss_pad':miss_pad,
@@ -86,6 +89,39 @@ def numerical_bucketized(feature, boundaries, mode=0, miss_pad=-1, score=None, m
         return t if mode else (t, config)
 
 
+def numerical_cyclical(feature, mode=0, name=None, config=None):
+    """feature cyclical transform.
+    
+    applies cyclical transformations to numerical variables, returning 2 new features per variable.
+    according to:
+        var_sin = sin(variable * (2. * pi / max_value))
+        var_cos = cos(variable * (2. * pi / max_value))
+
+    where max_value is the maximum value in the variable, and pi is 3.14…
+    
+    Args:
+        feature: pd.Series, sample feature.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.        
+        name: str, output feature name, if None, name is feature.name .
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid.
+    Returns:
+        Refer to params `mode` explanation.
+    """
+    if config is None:
+        if name is None:
+            name = feature.name
+        config = {'param'{'max_value':feature.max(), 'name':[f'{name}_sin', f'{name}_cos']}
+                  'type':'numerical_cyclical', 'variable':feature.name}
+    if mode==2:
+        return config
+    else:
+        t = feature*(2.*np.pi/config['param']['max_value'])
+        t = pd.concat([np.sin(t), np.cos(t)], axis=1)
+        t.columns = config['param']['name']
+        return t if mode else (t, config)
+
+
 def numerical_padding(feature, mode=0, method='mean', name=None, config=None):
     """feature fillna method.
     
@@ -97,7 +133,7 @@ def numerical_padding(feature, mode=0, method='mean', name=None, config=None):
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'method':method, 'name':feature.name if name is None else name},
@@ -168,7 +204,7 @@ def numerical_outlier(feature, mode=0, method='norm', delta=0.9545, tail='right'
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        normalize feature and feature_scale.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'method':method, 'delta':delta, 'tail':tail,

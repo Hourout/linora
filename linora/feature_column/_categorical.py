@@ -25,7 +25,7 @@ def categorical_count(feature, mode=0, normalize=True, abnormal_value=0, miss_va
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        return count labels and label parameters dict.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':feature.value_counts(normalize).to_dict(),
@@ -51,7 +51,7 @@ def categorical_crossed(feature_list, mode=0, hash_bucket_size=3, name=None, con
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature_list` and `mode` is invalid.
     Returns:
-        return hash labels.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'hash_bucket_size':hash_bucket_size, 
@@ -76,7 +76,7 @@ def categorical_encoder(feature, mode=0, abnormal_value=-1, miss_value=-1, name=
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        return encoded labels and label parameters dict.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':{j:i for i,j in feature.drop_duplicates().reset_index(drop=True).to_dict().items()},
@@ -102,7 +102,7 @@ def categorical_hash(feature, mode=0, hash_bucket_size=3, name=None, config=None
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        return hash labels.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'hash_bucket_size':hash_bucket_size, 
@@ -128,7 +128,7 @@ def categorical_hist(feature, label, mode=0, abnormal_value=0, miss_value=0, nam
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid, but `label` must be passed in.
     Returns:
-        return hist labels and label parameters DataFrame.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':None,
@@ -161,7 +161,7 @@ def categorical_onehot_binarizer(feature, mode=0, abnormal_value=0, miss_value=0
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        Dataframe for onehot binarizer and feature parameters list.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':feature.dropna().drop_duplicates().tolist(),
@@ -205,7 +205,7 @@ def categorical_onehot_multiple(feature, mode=0, abnormal_value=0, miss_value=0,
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        Dataframe for onehot binarizer and feature parameters list.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'feature_scale':list(set(itertools.chain.from_iterable(feature.dropna()))),
@@ -255,7 +255,7 @@ def categorical_rare(feature, mode=0, p=0.05, min_num=None, max_num=None, abnorm
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid.
     Returns:
-        return count labels and label parameters dict.
+        Refer to params `mode` explanation.
     """
     if config is None:
         t = feature.value_counts(True)
@@ -303,7 +303,7 @@ def categorical_regress(feature, label, mode=0, method='mean', abnormal_value='m
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid, but `label` must be passed in.
     Returns:
-        return Regress labels and label parameters dict.
+        Refer to params `mode` explanation.
     """
     if config is None:
         config = {'param':{'method':method,
@@ -334,7 +334,7 @@ def categorical_woe(feature, label, mode=0, pos_label=1, abnormal_value=-1, miss
         config: dict, label parameters dict for this estimator. 
             if config is not None, only parameter `feature` and `mode` is invalid, but `label` must be passed in.
     Return:
-        return series woe value and label parameters DataFrame.
+        Refer to params `mode` explanation.
     """
     if config is None:
         t = pd.DataFrame({'label':label, 'feature':feature})
