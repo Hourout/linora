@@ -4,22 +4,21 @@ class FeatureNumerical(object):
     def __init__(self):
         self.pipe = {}
         
-    def numerical_binarizer(self, variable, method='mean', name=None, keep=False):
+    def numerical_binarizer(self, variable, method='mean', name=None, keep=True):
         """Encode labels with value between 0 and 1.
 
         Args:
             variable: str, feature variable name.
             method: default 'mean', one of 'mean' or 'median' or float or int.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None and variable!=name, variable whether to keep in the final output.
+            keep: If the `name` is output only once in the calculation, the `name` will be kept in the final result.
         """
-        keep = keep if name is not None and variable!=name else False
         config = {'param':{'method':method, 'name':variable if name is None else name},
                   'type':'numerical_binarizer', 'variable':variable, 'keep':keep}
         self.pipe[len(self.pipe)] = config
         return self
     
-    def numerical_bucketized(self, variable, boundaries, miss_pad=-1, score=None, miss_score=None, method=1, name=None, keep=False):
+    def numerical_bucketized(self, variable, boundaries, miss_pad=-1, score=None, miss_score=None, method=1, name=None, keep=True):
         """feature bucket.
 
         if method is True:
@@ -37,9 +36,8 @@ class FeatureNumerical(object):
             miss_score: int or float, None, score fillna value.
             method: True.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None and variable!=name, variable whether to keep in the final output.
+            keep: If the `name` is output only once in the calculation, the `name` will be kept in the final result.
         """
-        keep = keep if name is not None and variable!=name else False
         config = {'param':{'boundaries':boundaries, 'miss_pad':miss_pad,
                            'score':score, 'miss_score':miss_score, 'method':method,
                            'name':variable if name is None else name},
@@ -47,22 +45,21 @@ class FeatureNumerical(object):
         self.pipe[len(self.pipe)] = config
         return self
     
-    def numerical_padding(self, variable, method='mean', name=None, keep=False):
+    def numerical_padding(self, variable, method='mean', name=None, keep=True):
         """feature fillna method.
 
         Args:
             variable: str, feature variable name.
             method: default 'mean', one of 'mean' or 'median' or float or int.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None and variable!=name, variable whether to keep in the final output.
+            keep: If the `name` is output only once in the calculation, the `name` will be kept in the final result.
         """
-        keep = keep if name is not None and variable!=name else False
         config = {'param':{'method':method, 'name':variable if name is None else name},
                   'type':'numerical_padding', 'variable':variable, 'keep':keep}
         self.pipe[len(self.pipe)] = config
         return self
     
-    def numerical_outlier(self, variable, method='norm', delta=0.9545, tail='right', name=None, keep=False):
+    def numerical_outlier(self, variable, method='norm', delta=0.9545, tail='right', name=None, keep=True):
         """feature clip outlier.
 
         Caps maximum and/or minimum values of a variable at automatically determined values, and optionally adds indicators
@@ -110,9 +107,8 @@ class FeatureNumerical(object):
             delta: float, default 0.9545
             tail: str, default 'right', one of ['left', 'right', 'both'], statistical distribution boundary.
             name: str, output feature name, if None, name is variable.
-            keep: if name is not None and variable!=name, variable whether to keep in the final output.
+            keep: If the `name` is output only once in the calculation, the `name` will be kept in the final result.
         """
-        keep = keep if name is not None and variable!=name else False
         config = {'param':{'method':method, 'delta':delta, 'tail':tail,
                            'name':variable if name is None else name},
                   'type':'numerical_outlier', 'variable':variable, 'keep':keep}

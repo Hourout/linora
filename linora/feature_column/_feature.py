@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import pandas as pd
 
 from linora.utils._config import Config
@@ -57,25 +59,43 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
         if isinstance(keep_columns, str):
             keep_columns = [keep_columns]
         data = pd.DataFrame() if keep_columns is None else df[keep_columns].copy()
+        name_dict = defaultdict(lambda: 0)
+        name_drop = [self.pipe[i]['param']['name'] for i in self.pipe if not self.pipe[i]['keep']]
         for r in range(len(self.pipe)):
             config = self.pipe[r].copy()
-            t = self._run_function(self._params.function[config['type']], config, df, data)
+            t = self._run_function(self._params.function[config['type']], config, df, data, fit)
             data[config['param']['name']] = t[0]
+            name_dict[config['param']['name']] += 1
             if fit:
                 self.pipe[r]['param'] = t[1]
-        return data
+        name_if = [i for i in name_dict if name_dict[i]==1]
+        drop = [i for i in name_if if i in name_drop]
+        keep = [i for i in data.columns if i not in drop]
+        return data[keep]
     
-    def _run_function(self, function, config, df, data):
+    def _run_function(self, function, config, df, data, fit):
         if config['variable'] in df.columns:
             if 'lable' in config:
-                t = function(df[config['variable']], label=df[config['lable']], **config['param'])
+                if fit:
+                    t = function(df[config['variable']], label=df[config['lable']], **config['param'])
+                else:
+                    t = function(df[config['variable']], label=df[config['lable']], config=config)
             else:
-                t = function(df[config['variable']], **config['param'])
+                if fit:
+                    t = function(df[config['variable']], **config['param'])
+                else:
+                    t = function(df[config['variable']], config=config)
         elif config['variable'] in data.columns:
             if 'lable' in config:
-                t = function(data[config['variable']], label=df[config['lable']], **config['param'])
+                if fit:
+                    t = function(data[config['variable']], label=df[config['lable']], **config['param'])
+                else:
+                    t = function(data[config['variable']], label=df[config['lable']], config=config)
             else:
-                t = function(data[config['variable']], **config['param'])
+                if fit:
+                    t = function(data[config['variable']], **config['param'])
+                else:
+                    t = function(data[config['variable']], config=config)
         else:
             raise ValueError(f"variable `{config['type']}` not exist.")
         return t
