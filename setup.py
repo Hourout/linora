@@ -6,7 +6,7 @@ def readme():
         return f.read()
 
 setup(name='linora',
-      version='1.6.0',
+      version='2.0.0rc0',
       install_requires=[
           'pandas>=1.5.2', 
           'Pillow>=9.3.0',

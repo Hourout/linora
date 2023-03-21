@@ -39,7 +39,7 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
             'normalize_l1':normalize_l1, 
             'normalize_l2':normalize_l2,
             'normalize_meanminmax':normalize_meanminmax,
-            'normalize_minmax', normalize_minmax,
+            'normalize_minmax':normalize_minmax,
             'normalize_norm':normalize_norm, 
             'normalize_robust':normalize_robust
         }
