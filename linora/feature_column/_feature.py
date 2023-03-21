@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 
 import pandas as pd
@@ -45,14 +46,51 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
         }
         self.pipe = {}
         
+    def load_pipe(self, json_path):
+        """Load pipeline from json format file.
+        
+        Args:
+            json: json format file.
+        """
+        with open(json, 'r') as f:
+            self.pipe = json.load(f)
+        return self
+        
+    def save_pipe(self, json_path):
+        """Save pipeline to json format file.
+        
+        Args:
+            json_path: save json file path.
+        """
+        with open(json_path, 'w') as f:
+            json.dump(self.pipe, f)
+        return self
+        
     def fit(self, df):
+        """Fit param value of each variable.
+        
+        Args:
+            df:pd.DataFrame of shape = [n_samples, n_features]
+        """
         _ = self._fit_transform(df, fit=True)
         return self
         
     def fit_transform(self, df, keep_columns=None):
+        """Fit and transform param value of each variable.
+        
+        Args:
+            df: pd.DataFrame of shape = [n_samples, n_features]
+            keep_columns: The original variable that needs to be saved in the final result.
+        """
         return self._fit_transform(df, keep_columns=keep_columns, fit=True)
         
     def transform(self, df, keep_columns=None):
+        """Transform param value of each variable.
+        
+        Args:
+            df: pd.DataFrame of shape = [n_samples, n_features]
+            keep_columns: The original variable that needs to be saved in the final result.
+        """
         return self._fit_transform(df, keep_columns=keep_columns, fit=False)
     
     def _fit_transform(self, df, keep_columns=None, fit=True):
@@ -67,7 +105,7 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
             data[config['param']['name']] = t[0]
             name_dict[config['param']['name']] += 1
             if fit:
-                self.pipe[r]['param'] = t[1]
+                self.pipe[r]['param'] = t[1]['param']
         name_if = [i for i in name_dict if name_dict[i]==1]
         drop = [i for i in name_if if i in name_drop]
         keep = [i for i in data.columns if i not in drop]
