@@ -45,6 +45,88 @@ class FeatureNumerical(object):
         self.pipe[len(self.pipe)] = config
         return self
     
+    def numerical_cyclical(self, variable, name=None, keep=True):
+        """feature cyclical transform.
+
+        applies cyclical transformations to numerical variables, returning 2 new features per variable.
+        according to:
+            var_sin = sin(variable * (2. * pi / max_value))
+            var_cos = cos(variable * (2. * pi / max_value))
+
+        where max_value is the maximum value in the variable, and pi is 3.14…
+
+        Args:
+            variable: str, feature variable name.
+            name: str, output feature name, if None, name is variable.
+            keep: If the `name` is output only once in the calculation, the `name` will be kept in the final result.
+        """
+        config = {'param':{'name':variable if name is None else name},
+                  'type':'numerical_cyclical', 'variable':variable, 'keep':keep}
+        self.pipe[len(self.pipe)] = config
+        return self
+
+    def numerical_math(self, variable, method=['log'], log='e', c='auto', power=0.5, name=None, keep=True):
+        """feature math transform.
+
+        using:
+        - log
+        - power
+        - arcsin
+        - reciprocal
+        - BoxCox
+        - YeoJohnson
+
+        log:
+            x = log(x+c)
+            if c='auto', c = x.min().abs() + 1
+            if x<0, x=0
+
+            if log='e', x = log-e(x+c)
+            if log='2', x = log-2(x+c)
+            if log='10', x = log-10(x+c)
+
+        power:
+            x = x^power
+            if power<1, x[x<=0] = 1
+
+        arcsin:
+            x = arcsin(sqrt(x))
+            x must be 0~1
+
+        reciprocal:
+            x = 1/x
+            if x=0, x=0
+
+        BoxCox:
+            applies the BoxCox transformation to numerical variables.
+            The Box-Cox transformation is defined as:
+            - T(Y)=(Y exp(λ)−1)/λ if λ!=0
+            - log(Y) otherwise
+            where Y is the response variable and λ is the transformation parameter. 
+            λ varies, typically from -5 to 5. 
+            In the transformation, all values of λ are considered and the optimal value for a given variable is selected.
+            `Box and Cox. “An Analysis of Transformations”. Read at a RESEARCH MEETING, 1964.`
+
+        YeoJohnson:
+            applies the Yeo-Johnson transformation to the numerical variables.
+            `Yeo, In-Kwon and Johnson, Richard (2000). 
+            A new family of power transformations to improve normality or symmetry. Biometrika, 87, 954-959.`
+
+        Args:
+            variable: str, feature variable name.
+            method: list, must be one or more of ['log', 'power', 'arcsin', 'reciprocal', 'BoxCox', 'YeoJohnson']
+            log: Indicates if the natural or base 10 logarithm should be applied. Can take values ‘e’ or ‘10’, '2'.
+            c: The constant C to add to the variable before the logarithm, i.e., log(x + C).
+            power: The power (or exponent).
+            name: str, output feature name, if None, name is feature.name .
+            keep: If the `name` is output only once in the calculation, the `name` will be kept in the final result.
+        """
+        config = {'param':{'method':method, 'log':log, 'c':c, 'power':power,
+                           'name':variable if name is None else name},
+                  'type':'numerical_math', 'variable':variable, 'keep':keep}
+        self.pipe[len(self.pipe)] = config
+        return self
+    
     def numerical_padding(self, variable, method='mean', name=None, keep=True):
         """feature fillna method.
 

@@ -2,7 +2,7 @@ import numpy as np
 
 
 __all__ = ['numerical_binarizer', 'numerical_bucketized', 'numerical_cyclical',
-           'numerical_padding', 'numerical_outlier']
+           'numerical_math', 'numerical_padding', 'numerical_outlier']
 
 
 def numerical_binarizer(feature, mode=0, method='mean', name=None, config=None):
@@ -120,6 +120,127 @@ def numerical_cyclical(feature, mode=0, name=None, config=None):
         t = pd.concat([np.sin(t), np.cos(t)], axis=1)
         t.columns = config['param']['name']
         return t if mode else (t, config)
+
+
+def numerical_math(feature, mode=0, method=['log'], log='e', c='auto', power=0.5, name=None, config=None):
+    """feature math transform.
+    
+    using:
+    - log
+    - power
+    - arcsin
+    - reciprocal
+    - BoxCox
+    - YeoJohnson
+    
+    log:
+        x = log(x+c)
+        if c='auto', c = x.min().abs() + 1
+        if x<0, x=0
+        
+        if log='e', x = log-e(x+c)
+        if log='2', x = log-2(x+c)
+        if log='10', x = log-10(x+c)
+    
+    power:
+        x = x^power
+        if power<1, x[x<=0] = 1
+        
+    arcsin:
+        x = arcsin(sqrt(x))
+        x must be 0~1
+    
+    reciprocal:
+        x = 1/x
+        if x=0, x=0
+    
+    BoxCox:
+        applies the BoxCox transformation to numerical variables.
+        The Box-Cox transformation is defined as:
+        - T(Y)=(Y exp(λ)−1)/λ if λ!=0
+        - log(Y) otherwise
+        where Y is the response variable and λ is the transformation parameter. 
+        λ varies, typically from -5 to 5. 
+        In the transformation, all values of λ are considered and the optimal value for a given variable is selected.
+        `Box and Cox. “An Analysis of Transformations”. Read at a RESEARCH MEETING, 1964.`
+    
+    YeoJohnson:
+        applies the Yeo-Johnson transformation to the numerical variables.
+        `Yeo, In-Kwon and Johnson, Richard (2000). 
+        A new family of power transformations to improve normality or symmetry. Biometrika, 87, 954-959.`
+    
+    Args:
+        feature: pd.Series, sample feature.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.
+        method: list, must be one or more of ['log', 'power', 'arcsin', 'reciprocal']
+        log: Indicates if the natural or base 10 logarithm should be applied. Can take values ‘e’ or ‘10’, '2'.
+        c: The constant C to add to the variable before the logarithm, i.e., log(x + C).
+        power: The power (or exponent).
+        name: str, output feature name, if None, name is feature.name .
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid.
+    Returns:
+        Refer to params `mode` explanation.
+    """
+    method_list = ['log', 'power', 'arcsin', 'reciprocal', 'BoxCox', 'YeoJohnson']
+    if config is None:
+        if isinstance(method, str):
+            method = [method]
+        config = {'param'{'method':method, 'log':log, 'c':c,
+                          'negative_replace':negative_replace, 'power':power,
+                          'name':feature.name if name is None else name}
+                  'type':'numerical_math', 'variable':feature.name}
+        for i in method:
+            if i not in method_list:
+                raise ValueError(f"`method` must be one of {method_list}.")
+        if len(method)!=len(set(method)):
+            raise ValueError("`method` must be unique.")
+        if 'log' in method:
+            if c=='auto':
+                config['param']['c'] = feature.min().abs() + 1
+        if 'BoxCox' in method:
+            import scipy.stats.boxcox as boxcox
+            _, config['param']['boxcox_lambda'] = boxcox(feature)
+        if 'YeoJohnson' in method:
+            import scipy.stats.yeojohnson as yeojohnson
+            _, config['param']['yeojohnson_lambda'] = yeojohnson(feature)
+            
+    if mode==2:
+        return config
+    else:
+        log = config['param']['log']
+        power = config['param']['power']
+        
+        t = feature.copy().rename(config['param']['name'])
+        for i in config['param']['method']:
+            if i=='log':
+                t = t+config['param']['c']
+                t[t<=0] = 0
+                if log=='e':
+                    t = np.log(t)
+                elif log=='2':
+                    t = np.log2(t)
+                elif log=='10':
+                    t = np.log10(t)
+            elif i=='power':
+                if power<1:
+                    t[t<=0] = 1
+                t = np.power(t, power)
+            elif i=='arcsin':
+                t = np.arcsin(np.sqrt(t))
+            elif i=='reciprocal':
+                temp = t==0
+                t = 1/t
+                t[temp] = 0
+            elif i=='BoxCox':
+                import scipy.stats.boxcox as boxcox
+                t = boxcox(t, lmbda=config['param']['boxcox_lambda'])
+            elif i=='YeoJohnson':
+                import scipy.stats.yeojohnson as yeojohnson
+                t = yeojohnson(t, lmbda=config['param']['yeojohnson_lambda'])
+            else:
+                raise ValueError(f"`method` must be one of {method_list}.")
+    return t if mode else (t, config)
 
 
 def numerical_padding(feature, mode=0, method='mean', name=None, config=None):
