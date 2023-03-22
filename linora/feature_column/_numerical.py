@@ -2,7 +2,7 @@ import numpy as np
 
 
 __all__ = ['numerical_binarizer', 'numerical_bucketized', 'numerical_cyclical',
-           'numerical_math', 'numerical_padding', 'numerical_outlier']
+           'numerical_combine', 'numerical_math', 'numerical_padding', 'numerical_outlier']
 
 
 def numerical_binarizer(feature, mode=0, method='mean', name=None, config=None):
@@ -86,6 +86,31 @@ def numerical_bucketized(feature, boundaries, mode=0, miss_pad=-1, score=None, m
             t = t.replace({i:j for i,j in enumerate(config['param']['score'])})
             if config['param']['miss_score'] is not None:
                 t = t.replace({config['param']['miss_pad']:config['param']['miss_score']})
+        return t if mode else (t, config)
+
+
+def numerical_combine(feature, function, mode=0, name=None, config=None):
+    """feature combine transform.
+    
+    Args:
+        feature: pd.DataFrame, sample feature.
+        function: function or str, Function to use for aggregating the data. 
+            If a function, must either work when passed a DataFrame or when passed to DataFrame.apply.
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.        
+        name: str, output feature name, if None, name is feature.name .
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid.
+    Returns:
+        Refer to params `mode` explanation.
+    """
+    if config is None:
+        config = {'param'{'func':func, 
+                          'name':'_'.join([i.name for i in feature]) if name is None else name}
+                  'type':'numerical_combine', 'variable':[i for i in feature.columns]}
+    if mode==2:
+        return config
+    else:
+        t = feature.agg(function, axis=1).rename(config['param']['name'])
         return t if mode else (t, config)
 
 
@@ -215,13 +240,14 @@ def numerical_math(feature, mode=0, method=['log'], log='e', c='auto', power=0.5
         for i in config['param']['method']:
             if i=='log':
                 t = t+config['param']['c']
-                t[t<=0] = 0
+                temp = t<=0
                 if log=='e':
                     t = np.log(t)
                 elif log=='2':
                     t = np.log2(t)
                 elif log=='10':
                     t = np.log10(t)
+                t[temp] = 0
             elif i=='power':
                 if power<1:
                     t[t<=0] = 1
