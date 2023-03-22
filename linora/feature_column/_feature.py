@@ -16,7 +16,7 @@ from linora.feature_column._feature_normalize import FeatureNormalize
 __all__ = ['Feature']
 
 
-class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
+class Feature(FeatureCategorical, FeatureDatetime, FeatureNumerical, FeatureNormalize):
     def __init__(self):
         super(Feature, self).__init__()
         self._params = Config()
@@ -32,8 +32,10 @@ class Feature(FeatureCategorical, FeatureNumerical, FeatureNormalize):
             'categorical_rare':categorical_rare,
             'categorical_regress':categorical_regress,
             'categorical_woe':categorical_woe,
+            'datetime_extraction':datetime_extraction,
             'numerical_binarizer':numerical_binarizer,
             'numerical_bucketized':numerical_bucketized,
+            'numerical_cyclical':numerical_cyclical,
             'numerical_padding':numerical_padding, 
             'numerical_outlier':numerical_outlier,
             'normalize_max':normalize_max, 
