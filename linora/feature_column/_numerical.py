@@ -105,7 +105,7 @@ def numerical_combine(feature, function, mode=0, name=None, config=None):
     """
     if config is None:
         config = {'param'{'func':func, 
-                          'name':'_'.join([i.name for i in feature]) if name is None else name}
+                          'name':'combine_'+'_'.join([i.name for i in feature]) if name is None else name}
                   'type':'numerical_combine', 'variable':[i for i in feature.columns]}
     if mode==2:
         return config
