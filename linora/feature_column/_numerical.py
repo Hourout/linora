@@ -443,7 +443,6 @@ def numerical_relative(feature, reference, function, mode=0, name=None, config=N
         assert i in function_list, f'`function` must be one of {function_list}.'
     
     if config is None:
-        
         config = {'param':{'function':function, 'reference':reference.columns.tolist(),
                           'name':'relative' if name is None else name},
                   'type':'numerical_relative', 'variable':feature.columns.tolist()}
