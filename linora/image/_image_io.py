@@ -43,14 +43,21 @@ def save_image(filename, image, file_format=None, **kwargs):
             If a file object was used instead of a filename, this
             parameter should always be used.
         **kwargs: Additional keyword arguments passed to `PIL.Image.save()`.
+        if save gif, param `duration` and `loop` is optional.
     """
     if file_format is None:
         file_format = filename.split('.')[-1]
     if image.mode == 'RGBA' and file_format in ['jpg', 'jpeg']:
         image = image.convert('RGB')
-    image.save(filename, format=file_format, **kwargs)
+    if filename.lower().endswith('.gif'):
+        assert isinstance(image, list), '`image` must be image of list.'
+        duration = kwargs['duration'] if 'duration' in kwargs else 100
+        loop = kwargs['loop'] if 'loop' in kwargs else 0
+        image[0].save(filename, format='GIF', append_images=image[1:], save_all=True, duration=duration, loop=loop)
+    else:
+        image.save(filename, format=file_format, **kwargs)
 
-    
+
 def encode_base64(filename):
     """encode image to string.
     
