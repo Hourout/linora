@@ -2,7 +2,8 @@ import numpy as np
 
 
 __all__ = ['numerical_binarizer', 'numerical_bucketized', 'numerical_cyclical',
-           'numerical_combine', 'numerical_math', 'numerical_padding', 'numerical_outlier']
+           'numerical_combine', 'numerical_math', 'numerical_padding', 'numerical_outlier',
+           'numerical_relative']
 
 
 def numerical_binarizer(feature, mode=0, method='mean', name=None, config=None):
@@ -104,7 +105,7 @@ def numerical_combine(feature, function, mode=0, name=None, config=None):
         Refer to params `mode` explanation.
     """
     if config is None:
-        config = {'param'{'func':func, 
+        config = {'param'{'function':function, 
                           'name':'combine_'+'_'.join([i.name for i in feature]) if name is None else name}
                   'type':'numerical_combine', 'variable':[i for i in feature.columns]}
     if mode==2:
@@ -411,3 +412,64 @@ def numerical_outlier(feature, mode=0, method='norm', delta=0.9545, tail='right'
             raise ValueError("`method` must be one of ['norm', 'gaussian', 'iqr', 'mad', 'quantiles']")
         t = feature.clip(clip[0], clip[1]).rename(config['param']['name'])
         return t if mode else (t, config)
+
+
+def numerical_relative(feature, reference, function, mode=0, name=None, config=None):
+    """feature combine transform.
+    
+    Args:
+        feature: pd.Series or pd.DataFrame, sample feature.
+        reference: pd.Series or pd.DataFrame, sample feature.
+        function: str or str of list, one of ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow']
+        mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.        
+        name: str, output feature name, if None, name is feature.name .
+        config: dict, label parameters dict for this estimator. 
+            if config is not None, only parameter `feature` and `mode` is invalid.
+    Returns:
+        Refer to params `mode` explanation.
+    """
+    if type(feature)==pd.core.series.Series:
+        feature = feature.to_frame()
+    if type(reference)==pd.core.series.Series:
+        reference = reference.to_frame()
+    if isinstance(function, str):
+        function = [function]
+    function_list = ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow']
+    for i in function:
+        assert i in function_list, f'`function` must be one of {function_list}.'
+    
+    if config is None:
+        
+        config = {'param':{'function':function, 'reference':reference.columns.tolist(),
+                          'name':'relative' if name is None else name},
+                  'type':'numerical_relative', 'variable':feature.columns.tolist()}
+    if mode==2:
+        return config
+    else:
+        t = []
+        
+        for i in feature.columns:
+            for j in reference.columns:
+                for k in function:
+                    if k=='add':
+                        temp = feature[i].add(reference[j])
+                    elif k=='sub':
+                        temp = feature[i].sub(reference[j])
+                    elif k=='mul':
+                        temp = feature[i].mul(reference[j])
+                    elif k=='div':
+                        temp = feature[i].div(reference[j])
+                    elif k=='truediv':
+                        temp = feature[i].truediv(reference[j])
+                    elif k=='floordiv':
+                        temp = feature[i].floordiv(reference[j])
+                    elif k=='mod':
+                        temp = feature[i].mod(reference[j])
+                    elif k=='pow':
+                        temp = feature[i].pow(reference[j])
+                    t.append(temp.rename(f"{config['param']['name']}_{i}_{k}_{j}"))
+        if len(t)>1:
+            t = pd.concat(t, axis=1)
+        return t if mode else (t, config)
+
+

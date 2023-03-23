@@ -213,6 +213,20 @@ class FeatureNumerical(object):
         self.pipe[len(self.pipe)] = config
         return self
     
+    def numerical_relative(self, variable, reference, function, name=None, keep=True):
+        """feature combine transform.
+
+        Args:
+            variable: str or str of list, feature variable name.
+            reference: str or str of list, feature variable name.
+            function: str or str of list, one of ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow']
+            name: str, output feature name, if None, name is feature.name .
+            keep: If the `name` is output only once in the calculation, the `name` will be kept in the final result.
+        """
+        config = {'param':{'reference':reference, 'name':'relative' if name is None else name},
+                  'type':'numerical_relative', 'variable':variable, 'keep':keep}
+        self.pipe[len(self.pipe)] = config
+        return self
     
     
     
