@@ -216,10 +216,14 @@ class FeatureNumerical(object):
     def numerical_relative(self, variable, reference, function, name=None, keep=True):
         """feature combine transform.
 
+        supported method:
+            ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow', 'max', 'min', 'mean']
+        
         Args:
             variable: str or str of list, feature variable name.
             reference: str or str of list, feature variable name.
-            function: str or str of list, one of ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow']
+            function: str or str of list, 
+                one of ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow', 'max', 'min', 'mean']
             name: str, output feature name, if None, name is feature.name .
             keep: If the `name` is output only once in the calculation, the `name` will be kept in the final result.
         """

@@ -417,10 +417,14 @@ def numerical_outlier(feature, mode=0, method='norm', delta=0.9545, tail='right'
 def numerical_relative(feature, reference, function, mode=0, name=None, config=None):
     """feature combine transform.
     
+    supported method:
+        ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow', 'max', 'min', 'mean']
+    
     Args:
         feature: pd.Series or pd.DataFrame, sample feature.
         reference: pd.Series or pd.DataFrame, sample feature.
-        function: str or str of list, one of ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow']
+        function: str or str of list, 
+            one of ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow', 'max', 'min', 'mean']
         mode: if 0, output (transform feature, config); if 1, output transform feature; if 2, output config.        
         name: str, output feature name, if None, name is feature.name .
         config: dict, label parameters dict for this estimator. 
@@ -434,7 +438,7 @@ def numerical_relative(feature, reference, function, mode=0, name=None, config=N
         reference = reference.to_frame()
     if isinstance(function, str):
         function = [function]
-    function_list = ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow']
+    function_list = ['add', 'sub', 'mul', 'div', 'truediv', 'floordiv', 'mod', 'pow', 'max', 'min', 'mean']
     for i in function:
         assert i in function_list, f'`function` must be one of {function_list}.'
     
@@ -467,6 +471,12 @@ def numerical_relative(feature, reference, function, mode=0, name=None, config=N
                         temp = feature[i].mod(reference[j])
                     elif k=='pow':
                         temp = feature[i].pow(reference[j])
+                    elif k=='max':
+                        temp = pd.concat([feature[i], reference[j]], axis=1).max(axis=1)
+                    elif k=='min':
+                        temp = pd.concat([feature[i], reference[j]], axis=1).min(axis=1)
+                    elif k=='mean':
+                        temp = pd.concat([feature[i], reference[j]], axis=1).mean(axis=1)
                     t.append(temp.rename(f"{config['param']['name']}_{i}_{k}_{j}"))
         if len(t)>1:
             t = pd.concat(t, axis=1)
