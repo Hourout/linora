@@ -55,8 +55,8 @@ class FeatureNumerical(object):
             name: str, output feature name, if None, name is feature.name .
             keep: If the `name` is output only once in the calculation, the `name` will be kept in the final result.
         """
-        config = {'param'{'func':func, 
-                          'name':'combine_'+'_'.join(variable) if name is None else name}
+        config = {'param':{'func':func, 
+                          'name':'combine_'+'_'.join(variable) if name is None else name},
                   'type':'numerical_combine', 'variable':variable, 'keep':keep}
         self.pipe[len(self.pipe)] = config
         return self
