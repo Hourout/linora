@@ -5,6 +5,7 @@ import pandas as pd
 
 from linora.utils._config import Config
 from linora.feature_column._categorical import *
+from linora.feature_column._datetime import *
 from linora.feature_column._normalize import *
 from linora.feature_column._numerical import *
 from linora.feature_column._feature_categorical import FeatureCategorical
@@ -33,6 +34,7 @@ class Feature(FeatureCategorical, FeatureDatetime, FeatureNumerical, FeatureNorm
             'categorical_regress':categorical_regress,
             'categorical_woe':categorical_woe,
             'datetime_extraction':datetime_extraction,
+            'datetime_transform':datetime_transform,
             'numerical_binarizer':numerical_binarizer,
             'numerical_bucketized':numerical_bucketized,
             'numerical_combine':numerical_combine,
@@ -40,6 +42,7 @@ class Feature(FeatureCategorical, FeatureDatetime, FeatureNumerical, FeatureNorm
             'numerical_math':numerical_math,
             'numerical_padding':numerical_padding, 
             'numerical_outlier':numerical_outlier,
+            'numerical_relative':numerical_relative,
             'normalize_max':normalize_max, 
             'normalize_maxabs':normalize_maxabs, 
             'normalize_l1':normalize_l1, 
