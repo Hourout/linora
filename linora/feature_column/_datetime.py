@@ -178,16 +178,16 @@ def datetime_transform(feature, format_in, format_out='timestamp', mode=0, name=
             raise ValueError('`format_in` value error.')
 
         if format_out_mode=='timenumber':
-            t = t.map(lambda x: x.timestamp()).rename(config['param']['name'])
+            t = t.map(lambda x: x.timestamp())
         elif format_out_mode=='strtime':
             if format_out_param=='':
                 format_out_param = "%Y-%m-%d %H:%M:%S"
-            t = t.map(lambda x: x.strftime(format_out_param)).rename(config['param']['name'])
+            t = t.dt.strftime(format_out_param)
         elif format_out_mode=='datetime':
-            t = t.map(lambda x: x.to_pydatetime()).rename(config['param']['name'])
+            t = t.map(lambda x: x.to_pydatetime())
         elif format_out_mode=='timestamp':
             pass
         else:
             raise ValueError('`format_out` value error.')
-        return t if mode else (t, config)
+        return t.rename(config['param']['name']) if mode else (t.rename(config['param']['name']), config)
  

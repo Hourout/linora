@@ -105,8 +105,8 @@ def numerical_combine(feature, function, mode=0, name=None, config=None):
         Refer to params `mode` explanation.
     """
     if config is None:
-        config = {'param'{'function':function, 
-                          'name':'combine_'+'_'.join([i.name for i in feature]) if name is None else name}
+        config = {'param':{'function':function, 
+                          'name':'combine_'+'_'.join([i.name for i in feature]) if name is None else name},
                   'type':'numerical_combine', 'variable':[i for i in feature.columns]}
     if mode==2:
         return config
@@ -137,7 +137,7 @@ def numerical_cyclical(feature, mode=0, name=None, config=None):
     if config is None:
         if name is None:
             name = feature.name
-        config = {'param'{'max_value':feature.max(), 'name':[f'{name}_sin', f'{name}_cos']}
+        config = {'param':{'max_value':feature.max(), 'name':[f'{name}_sin', f'{name}_cos']},
                   'type':'numerical_cyclical', 'variable':feature.name}
     if mode==2:
         return config
@@ -212,9 +212,9 @@ def numerical_math(feature, mode=0, method=['log'], log='e', c='auto', power=0.5
     if config is None:
         if isinstance(method, str):
             method = [method]
-        config = {'param'{'method':method, 'log':log, 'c':c,
+        config = {'param':{'method':method, 'log':log, 'c':c,
                           'negative_replace':negative_replace, 'power':power,
-                          'name':feature.name if name is None else name}
+                          'name':feature.name if name is None else name},
                   'type':'numerical_math', 'variable':feature.name}
         for i in method:
             if i not in method_list:
