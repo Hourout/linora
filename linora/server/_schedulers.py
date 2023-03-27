@@ -19,8 +19,6 @@ class Schedulers():
                          example: .py file name is schedulers_config.py, contain a dict, 
                          config = {'hhh':{'mode':'every_minute', 'time':50, 'function':function, 'args':[], 'kwargs':{}}}
         """
-        warn = Logger(name='')
-        warn.info(f"la.utils.Schedulers has been deprecated and will be deleted in version 2.1.0. Please use la.server.Schedulers")
         self.config = dict()
         self.params = Config()
         self.params.verbose = verbose

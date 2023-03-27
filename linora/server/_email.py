@@ -11,8 +11,7 @@ from email.mime.text import MIMEText
 import pandas as pd
 
 from linora.utils._config import Config
-from linora.utils._logger import Logger
-from linora.utils._email_utils import parse_mail, parse_headers
+from linora.server._email_utils import parse_mail, parse_headers
 
 __all__ = ['EMail']
 
@@ -191,8 +190,6 @@ class EMail():
             pop_tls: email pop tls.
             enterprise: Shortcut for use enterprise mail,if specified, enterprise mail configs will replace all inner auto-generate configs. support ['qq', 'ali', '163', 'google']
         """
-        warn = Logger(name='')
-        warn.info(f"la.utils.EMail has been deprecated and will be deleted in version 2.1.0. Please use la.server.EMail")
         self._params = Config()
         self._params.mail_personal = mail_personal
         self._params.mail_enterprise = mail_enterprise

@@ -9,11 +9,12 @@ from linora import metrics
 from linora import parallel
 from linora import param_search
 from linora import sample
+from linora import server
 from linora import text
 from linora import train
 from linora import utils
 
-__version__ = '1.6.0'
+__version__ = '2.0.0rc0'
 __author__ = 'JinQing Lee'
 
 def _version():
