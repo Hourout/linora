@@ -1,8 +1,5 @@
 import requests
 
-from linora.utils._logger import Logger
-
-
 __all__ = ['BotFeiShu']
 
 
@@ -13,8 +10,6 @@ class BotFeiShu():
         webhook: Feishu robot url
     """
     def __init__(self, webhook):
-        warn = Logger(name='')
-        warn.info(f"la.utils.message.BotFeiShu has been deprecated and will be deleted in version 2.1.0. Please use la.server.message.BotFeiShu")
         self.webhook = webhook
         
     def send_text(self, msg):

@@ -9,7 +9,6 @@ from linora.utils._config import Config
 from linora.utils._logger import Logger
 from linora.sample._fold import kfold, train_test_split
 from linora.param_search._config import model_hp
-from linora.param_search._HyperParameters import HyperParametersRandom
 from linora.param_search._config import __xgboost_version__, __lightgbm_version__
 
 

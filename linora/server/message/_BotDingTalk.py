@@ -33,8 +33,6 @@ class BotDingTalk():
             logger: Logger object, la.utils.Logger() class.
             verbose: Verbosity mode, 0 (silent), 1 (verbose).
         """
-        warn = Logger(name='')
-        warn.info(f"la.utils.message.BotDingTalk has been deprecated and will be deleted in version 2.1.0. Please use la.server.message.BotDingTalk")
         self._params.Config()
         self._params.headers = {'Content-Type': 'application/json; charset=utf-8'}
         self._params.queue = queue.Queue(20)
