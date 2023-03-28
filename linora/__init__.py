@@ -13,6 +13,7 @@ from linora import server
 from linora import text
 from linora import train
 from linora import utils
+from linora import vedio
 
 __version__ = '2.0.0rc0'
 __author__ = 'JinQing Lee'
