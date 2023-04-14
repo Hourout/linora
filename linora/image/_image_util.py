@@ -72,40 +72,35 @@ def color_convert(image, color_mode=ColorMode.RGB):
     return image
 
 
-def image_to_array(image, data_format='channels_last', dtype='float32'):
+def image_to_array(image, data_format='HWC', dtype='float32'):
     """Converts a PIL Image instance to a Numpy array.
     
     Args:
         image: PIL instance.
-        data_format: Image data format, either "channels_first" or "channels_last".
+        data_format: array data format, eg.'HWC'.
         dtype: Dtype to use for the returned array.
     Returns:
         A Numpy array.
     Raises:
         ValueError: if invalid `img` or `data_format` is passed.
     """
-    if data_format not in {'channels_first', 'channels_last'}:
-        raise ValueError('Unknown data_format: %s' % data_format)
+    transpose = {'H':0, 'W':1, 'C':2}
     x = np.asarray(image, dtype=dtype)
+    if len(x.shape) == 2:
+        x = np.expand_dims(x, axis=-1)
     if len(x.shape) == 3:
-        if data_format == 'channels_first':
-            x = x.transpose(2, 0, 1)
-    elif len(x.shape) == 2:
-        if data_format == 'channels_first':
-            x = x.reshape((1, x.shape[0], x.shape[1]))
-        else:
-            x = x.reshape((x.shape[0], x.shape[1], 1))
+        x = x.transpose(tuple(transpose[i] for i in data_format))
     else:
         raise ValueError('Unsupported image shape: %s' % (x.shape,))
     return x
 
 
-def array_to_image(x, data_format='channels_last'):
+def array_to_image(x, data_format='HWC'):
     """Converts a 3D Numpy array to a PIL Image instance.
     
     Args:
         x: Input Numpy array.
-        data_format: Image data format, either "channels_first" or "channels_last".
+        data_format: array data format, eg.'HWC'.
     Returns:
         A PIL instance.
     Raises:
@@ -115,11 +110,9 @@ def array_to_image(x, data_format='channels_last'):
         raise ValueError('Expected image array to have rank 3 (single image). '
                          'Got array with shape: %s' % (x.shape,))
 
-    if data_format not in {'channels_first', 'channels_last'}:
-        raise ValueError('Invalid data_format: %s' % data_format)
-
-    if data_format == 'channels_first':
-        x = x.transpose(1, 2, 0)
+    transpose = {i:r for r,i in enumerate(data_format)}
+    if data_format != 'HWC':
+        x = x.transpose(tuple(transpose[i] for i in 'HWC'))
 
     if x.shape[2] == 4:
         return Image.fromarray(x.astype('uint8'), 'RGBA')
