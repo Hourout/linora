@@ -3,7 +3,7 @@ from linora.image._image_util import list_images
 __all__ = ['list_vedios', 'vedio_to_array', 'vedio_to_stream']
 
 
-def list_audios(directory, file_format=('mpeg', 'mpg', 'dat', 'mp4', 'avi', 'mov', 'asf', 'wmv', 'mkv', 'flv', 'rmvb')):
+def list_vedios(directory, file_format=('mpeg', 'mpg', 'dat', 'mp4', 'avi', 'mov', 'asf', 'wmv', 'mkv', 'flv', 'rmvb')):
     """Lists all vedios in a directory, including all subdirectories.
     
     Args:
