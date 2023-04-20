@@ -2,8 +2,9 @@ import av
 import numpy as np
 
 from linora.image._image_util import list_images
+from linora.vedio._vedio_io import Vedio
 
-__all__ = ['list_vedios', 'vedio_to_array', 'vedio_to_stream']
+__all__ = ['list_vedios', 'vedio_to_array', 'vedio_to_stream', 'array_to_vedio']
 
 
 def list_vedios(directory, file_format=('mpeg', 'mpg', 'dat', 'mp4', 'avi', 'mov', 'asf', 'wmv', 'mkv', 'flv', 'rmvb')):
@@ -56,14 +57,14 @@ def vedio_to_stream(vedio, batch=1, data_format='HWCN', dtype='float32'):
 
     
 def vedio_to_array(vedio, data_format='HWCN', dtype='float32'):
-    """Converts a Vedio instance to a Numpy array.
+    """Converts a Vedio instance to a 4D Numpy array.
     
     Args:
         image: Vedio instance.
         data_format: array data format, eg.'HWCN', 'CHWN'.
         dtype: Dtype to use for the returned array.
     Returns:
-        A Numpy array.
+        A 4D Numpy array.
     """
     container = av.open(vedio._filename)
     container.streams.video[0].thread_type = "AUTO"
@@ -75,3 +76,22 @@ def vedio_to_array(vedio, data_format='HWCN', dtype='float32'):
         data = data.transpose(tuple(transpose[i] for i in data_format))
     container.close()
     return data
+
+
+def array_to_vedio(x, data_format='HWCN', fps=30):
+    """Converts a 4D Numpy array to a Vedio instance.
+    
+    Args:
+        x: a 4D Numpy array.
+        data_format: array data format, eg.'HWCN'.
+        fps: Frames per second.
+    Returns:
+        Vedio instance.
+    """
+    vedio_params = {'vedio_duration':x.shape[data_format.find('N')]/fps, 
+                    'vedio_shape':(x.shape[data_format.find('W')], x.shape[data_format.find('H')]),
+                    'vedio_fps':fps,
+                    }
+    transpose = {i:r for r,i in enumerate(data_format)}
+    vedio = Vedio(params=vedio_params, data=x.transpose(tuple(transpose[i] for i in 'WHCN')))
+    return vedio
