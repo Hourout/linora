@@ -91,7 +91,8 @@ def array_to_vedio(x, data_format='HWCN', fps=30):
     vedio_params = {'vedio_duration':x.shape[data_format.find('N')]/fps, 
                     'vedio_shape':(x.shape[data_format.find('W')], x.shape[data_format.find('H')]),
                     'vedio_fps':fps,
+                    'vedio_frames':x.shape[data_format.find('N')]
                     }
     transpose = {i:r for r,i in enumerate(data_format)}
-    vedio = Vedio(params=vedio_params, data=x.transpose(tuple(transpose[i] for i in 'WHCN')))
+    vedio = Vedio(params=vedio_params, data=x.transpose(tuple(transpose[i] for i in 'HWCN')).astype('uint8'), fps=fps)
     return vedio
