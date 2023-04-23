@@ -5,7 +5,7 @@ from fractions import Fraction
 import av
 import numpy as np
 
-__all__ = ['read_vedio', 'save_video']
+__all__ = ['read_vedio', 'save_vedio']
 
 
 # def read_vedio(filename):
@@ -82,7 +82,7 @@ class Vedio():
         self._stream.append(stream)
         
         
-def save_video(filename, video_array, video_fps, video_codec="libx264", options=None,
+def save_vedio(filename, video_array, video_fps, video_codec="libx264", options=None,
                audio_array=None, audio_fps=None, audio_codec=None, audio_options=None):
     """
     Writes a 4d array in [H, W, C, N] format in a video file
@@ -221,7 +221,7 @@ def _read_stream(container, start_offset, end_offset, stream, stream_name):
     return result
 
 
-def read_video(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_type=np.uint8):
+def read_vedio(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_type=np.uint8):
     """Reads a video from a file, returning both the video frames and the audio frames
     
     Args:
