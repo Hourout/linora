@@ -1,3 +1,4 @@
+import gc
 import os
 import math
 from fractions import Fraction
@@ -6,7 +7,8 @@ import av
 import numpy as np
 
 __all__ = ['read_vedio', 'save_vedio']
-
+_CALLED_TIMES = 0
+_GC_COLLECTION_INTERVAL = 10
 
 # def read_vedio(filename):
 #     """Reads the contents of file to a Vedio instance.
@@ -172,10 +174,10 @@ def save_vedio(filename, video_array, video_fps, video_codec="libx264", options=
 
         
 def _read_stream(container, start_offset, end_offset, stream, stream_name):
-#     global _CALLED_TIMES, _GC_COLLECTION_INTERVAL
-#     _CALLED_TIMES += 1
-#     if _CALLED_TIMES % _GC_COLLECTION_INTERVAL == _GC_COLLECTION_INTERVAL - 1:
-#         gc.collect()
+    global _CALLED_TIMES, _GC_COLLECTION_INTERVAL
+    _CALLED_TIMES += 1
+    if _CALLED_TIMES % _GC_COLLECTION_INTERVAL == _GC_COLLECTION_INTERVAL - 1:
+        gc.collect()
 
     start_offset = int(math.floor(start_offset * (1 / stream.time_base)))
     if end_offset != float("inf"):
