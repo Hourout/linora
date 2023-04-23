@@ -1,17 +1,22 @@
+import os
+import math
+from fractions import Fraction
+
 import av
+import numpy as np
 
 __all__ = ['read_vedio', 'save_video']
 
 
-def read_vedio(filename):
-    """Reads the contents of file to a Vedio instance.
+# def read_vedio(filename):
+#     """Reads the contents of file to a Vedio instance.
         
-    Args:
-        filename: str, vedio absolute path.
-    Returns:
-        a Vedio instance.
-    """
-    return Vedio(filename)
+#     Args:
+#         filename: str, vedio absolute path.
+#     Returns:
+#         a Vedio instance.
+#     """
+#     return Vedio(filename)
 
 
 def format_convert(filename_in, filename_out):
@@ -166,4 +171,140 @@ def save_video(filename, video_array, video_fps, video_codec="libx264", options=
                 container.mux(packet)
 
         
-        
+def _read_stream(container, start_offset, end_offset, stream, stream_name):
+#     global _CALLED_TIMES, _GC_COLLECTION_INTERVAL
+#     _CALLED_TIMES += 1
+#     if _CALLED_TIMES % _GC_COLLECTION_INTERVAL == _GC_COLLECTION_INTERVAL - 1:
+#         gc.collect()
+
+    start_offset = int(math.floor(start_offset * (1 / stream.time_base)))
+    if end_offset != float("inf"):
+        end_offset = int(math.ceil(end_offset * (1 / stream.time_base)))
+
+    frames = {}
+    should_buffer = True
+    max_buffer_size = 5
+    if stream.type == "video":
+        extradata = stream.codec_context.extradata
+        if extradata and b"DivX" in extradata:
+            pos = extradata.find(b"DivX")
+            d = extradata[pos:]
+            o = re.search(rb"DivX(\d+)Build(\d+)(\w)", d)
+            if o is None:
+                o = re.search(rb"DivX(\d+)b(\d+)(\w)", d)
+            if o is not None:
+                should_buffer = o.group(3) == b"p"
+    seek_offset = max(start_offset - 1, 0)
+    if should_buffer:
+        seek_offset = max(seek_offset - max_buffer_size, 0)
+    try:
+        container.seek(seek_offset, any_frame=False, backward=True, stream=stream)
+    except av.AVError:
+        return []
+    buffer_count = 0
+    try:
+        for _idx, frame in enumerate(container.decode(**stream_name)):
+            frames[frame.pts] = frame
+            if frame.pts >= end_offset:
+                if should_buffer and buffer_count < max_buffer_size:
+                    buffer_count += 1
+                    continue
+                break
+    except av.AVError:
+        pass
+    result = [frames[i] for i in sorted(frames) if start_offset <= frames[i].pts <= end_offset]
+    if len(frames) > 0 and start_offset > 0 and start_offset not in frames:
+        preceding_frames = [i for i in frames if i < start_offset]
+        if len(preceding_frames) > 0:
+            first_frame_pts = max(preceding_frames)
+            result.insert(0, frames[first_frame_pts])
+    return result
+
+
+def read_video(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_type=np.uint8):
+    """Reads a video from a file, returning both the video frames and the audio frames
+    
+    Args:
+        filename: path to the video file
+        start_pts: float, The start presentation time of the video
+        end_pts: float, The end presentation time.
+        output_format: The format of the output video shape. Can be "HWCN" (default), "Image" return pillow instance.
+    Returns:
+        vedio: array[H, W, C, N]: the `N` video frames.
+        audio: array[C, L]): the audio frames, where `C` is the number of channels and `L` is the number of points.
+        info: metadata for the video and audio.
+    """
+    vedio_format = vedio_format.upper()
+    if vedio_format!='IMAGE':
+        if len([i for i in set(vedio_format) if i in 'HWCN'])!=len(vedio_format):
+            raise ValueError(f"`vedio_format` should be 'HWCN' or 'TCHW' e.g., got {vedio_format}.")
+
+    if not os.path.exists(filename):
+        raise RuntimeError(f"File not found: {filename}")
+
+    if end_pts is None:
+        end_pts = float("inf")
+
+    if end_pts < start_pts:
+        raise ValueError("end_pts should be larger than start_pts")
+
+    info = {'filename':filename}
+    video_frames = []
+    audio_frames = []
+    audio_timebase = Fraction(0, 1)
+
+    try:
+        with av.open(filename, metadata_errors="ignore") as container:
+            if container.streams.audio:
+                audio_timebase = container.streams.audio[0].time_base
+            if container.streams.video:
+                video_frames = _read_stream(container, start_pts, end_pts, container.streams.video[0], {"video": 0})
+                video_fps = container.streams.video[0].average_rate
+                if video_fps is not None:
+                    info["video_fps"]  = float(video_fps)
+                info["vedio_duration"] = container.duration/1000000
+                info["vedio_bitrate"]  = container.bit_rate
+                info["vedio_frames"]   = container.streams.video[0].frames
+                info["vedio_shape"]    = (container.streams.video[0].codec_context.height, 
+                                          container.streams.video[0].codec_context.width)
+            if container.streams.audio:
+                audio_frames = _read_stream(container, start_pts, end_pts, container.streams.audio[0], {"audio": 0})
+                info["audio_fps"]       = container.streams.audio[0].rate
+                info["audio_channel"]   = container.streams.audio[0].codec_context.channels
+                info["audio_frames"]     = container.streams.audio[0].duration
+    except av.AVError:
+        pass
+
+    if vedio_format!='IMAGE':
+        vframes_list = [frame.to_rgb().to_ndarray() for frame in video_frames]
+        if vframes_list:
+            vframes = np.stack(vframes_list).astype(vedio_type)
+        else:
+            vframes = np.empty((0, 1, 1, 3), dtype=np.uint8)
+        transpose = {'N':0, 'H':1, 'W':2, 'C':3}
+        if vedio_format!='NHWC':
+            vframes = vframes.transpose(tuple(transpose[i] for i in vedio_format))
+    else:
+        vframes_list = [frame.to_image() for frame in video_frames]
+    
+    aframes_list = [frame.to_ndarray() for frame in audio_frames]
+    if aframes_list:
+        aframes = np.concatenate(aframes_list, 1)
+        start_pts = int(math.floor(start_pts * (1 / audio_timebase)))
+        if end_pts != float("inf"):
+            end_pts = int(math.ceil(end_pts * (1 / audio_timebase)))
+        start, end = audio_frames[0].pts, audio_frames[-1].pts
+        total_aframes = aframes.shape[1]
+        step_per_aframe = (end - start + 1) / total_aframes
+        s_idx = 0
+        e_idx = total_aframes
+        if start < start_pts:
+            s_idx = int((start_pts - start) / step_per_aframe)
+        if end > end_pts:
+            e_idx = int((end_pts - end) / step_per_aframe)
+        aframes = aframes[:, s_idx:e_idx]
+    else:
+        aframes = np.empty((1, 0), dtype=np.float32)
+    return {'vedio':vframes, 'audio':aframes, 'info':info}
+
+
