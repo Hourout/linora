@@ -6,9 +6,9 @@ from fractions import Fraction
 import av
 import numpy as np
 
-__all__ = ['read_vedio', 'save_vedio']
+__all__ = ['read_vedio', 'read_video_timestamps', 'save_vedio']
 _CALLED_TIMES = 0
-_GC_COLLECTION_INTERVAL = 10
+_GC_COLLECTION_INTERVAL = 5
 
 # def read_vedio(filename):
 #     """Reads the contents of file to a Vedio instance.
@@ -309,4 +309,47 @@ def read_vedio(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_t
         aframes = np.empty((1, 0), dtype=np.float32)
     return {'vedio':vframes, 'audio':aframes, 'info':info}
 
+
+def read_video_timestamps(filename, pts_unit="pts"):
+    """List the video frames timestamps.
+    Note that the function decodes the whole video frame-by-frame.
+    
+    Args:
+        filename: path to the video file
+        pts_unit: unit in which timestamp values will be returned
+            either 'pts' or 'sec'. Defaults to 'pts'.
+    Returns:
+        pts (List[int] if pts_unit = 'pts', List[Fraction] if pts_unit = 'sec'):
+            presentation timestamps for each one of the frames in the video.
+        video_fps (float, optional): the frame rate for the video
+    """
+    video_fps = None
+    pts = []
+
+    try:
+        with av.open(filename, metadata_errors="ignore") as container:
+            if container.streams.video:
+                video_stream = container.streams.video[0]
+                video_time_base = video_stream.time_base
+                try:
+                    extradata = container.streams[0].codec_context.extradata
+                    if extradata is None:
+                        pts = [x.pts for x in container.decode(video=0) if x.pts is not None]
+                    elif b"Lavc" in extradata:
+                        pts = [x.pts for x in container.demux(video=0) if x.pts is not None]
+                    else:
+                        pts = [x.pts for x in container.decode(video=0) if x.pts is not None]
+                except av.AVError:
+                    warnings.warn(f"Failed decoding frames for file {filename}")
+                video_fps = float(video_stream.average_rate)
+    except av.AVError as e:
+        msg = f"Failed to open container for {filename}; Caught error: {e}"
+        warnings.warn(msg, RuntimeWarning)
+
+    pts.sort()
+
+    if pts_unit == "sec":
+        pts = [x * video_time_base for x in pts]
+
+    return pts, video_fps
 
