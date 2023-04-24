@@ -44,44 +44,44 @@ def format_convert(filename_in, filename_out):
     output.close()
 
 
-class Vedio():
-    def __init__(self, filename=None, params=None, data=None, **kwargs):
-        """Reads the contents of file to a Vedio instance.
+# class Vedio():
+#     def __init__(self, filename=None, params=None, data=None, **kwargs):
+#         """Reads the contents of file to a Vedio instance.
         
-        Args:
-            filename: str, vedio absolute path.
-        """
-        self._filename = filename
-        self.vedio_params = params
-        self._data = data
-        self._stream = []
-        if filename is not None:
-            self._file = av.open(filename, 'rb')
-            vedio = self._file.streams.video[0]
-            self.vedio_size = self._file.size
-            self.vedio_duration = self._file.duration/1000000
-            self.vedio_bitrate = self._file.bit_rate
-            self.vedio_frames = vedio.frames
-            self.vedio_shape = (vedio.codec_context.width, vedio.codec_context.height)
-            self.vedio_params = {'vedio_size':self.vedio_size, 
-                                 'vedio_duration':self.vedio_duration, 
-                                 'vedio_bitrate':self.vedio_bitrate,
-                                 'vedio_frames':self.vedio_frames,
-                                 'vedio_shape':self.vedio_shape,
-                                }
-        if data is not None:
-            self.vedio_fps = self.vedio_params['fps']
-            self.vedio_duration = self.vedio_params['vedio_duration']
+#         Args:
+#             filename: str, vedio absolute path.
+#         """
+#         self._filename = filename
+#         self.vedio_params = params
+#         self._data = data
+#         self._stream = []
+#         if filename is not None:
+#             self._file = av.open(filename, 'rb')
+#             vedio = self._file.streams.video[0]
+#             self.vedio_size = self._file.size
+#             self.vedio_duration = self._file.duration/1000000
 #             self.vedio_bitrate = self._file.bit_rate
-            self.vedio_frames = self.vedio_params['vedio_frames']
-            self.vedio_shape = self.vedio_params['vedio_shape']
+#             self.vedio_frames = vedio.frames
+#             self.vedio_shape = (vedio.codec_context.width, vedio.codec_context.height)
+#             self.vedio_params = {'vedio_size':self.vedio_size, 
+#                                  'vedio_duration':self.vedio_duration, 
+#                                  'vedio_bitrate':self.vedio_bitrate,
+#                                  'vedio_frames':self.vedio_frames,
+#                                  'vedio_shape':self.vedio_shape,
+#                                 }
+#         if data is not None:
+#             self.vedio_fps = self.vedio_params['fps']
+#             self.vedio_duration = self.vedio_params['vedio_duration']
+# #             self.vedio_bitrate = self._file.bit_rate
+#             self.vedio_frames = self.vedio_params['vedio_frames']
+#             self.vedio_shape = self.vedio_params['vedio_shape']
                     
-    def close(self):
-        """Close the underlying file."""
-        self._file.close()
+#     def close(self):
+#         """Close the underlying file."""
+#         self._file.close()
         
-    def add_stream(self, stream):
-        self._stream.append(stream)
+#     def add_stream(self, stream):
+#         self._stream.append(stream)
         
         
 def save_vedio(filename, video_array, video_fps, video_codec="libx264", options=None,
@@ -239,7 +239,7 @@ def read_vedio(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_t
     vedio_format = vedio_format.upper()
     if vedio_format!='IMAGE':
         if len([i for i in set(vedio_format) if i in 'HWCN'])!=len(vedio_format):
-            raise ValueError(f"`vedio_format` should be 'HWCN' or 'TCHW' e.g., got {vedio_format}.")
+            raise ValueError(f"`vedio_format` should be 'HWCN' or 'NCHW' e.g., got {vedio_format}.")
 
     if not os.path.exists(filename):
         raise RuntimeError(f"File not found: {filename}")
@@ -258,7 +258,12 @@ def read_vedio(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_t
     try:
         with av.open(filename, metadata_errors="ignore") as container:
             if container.streams.audio:
+                audio_frames = _read_stream(container, start_pts, end_pts, container.streams.audio[0], {"audio": 0})
                 audio_timebase = container.streams.audio[0].time_base
+                info["audio_fps"]       = container.streams.audio[0].rate
+                info["audio_channel"]   = container.streams.audio[0].codec_context.channels
+                info["audio_frames"]    = container.streams.audio[0].duration
+                
             if container.streams.video:
                 video_frames = _read_stream(container, start_pts, end_pts, container.streams.video[0], {"video": 0})
                 video_fps = container.streams.video[0].average_rate
@@ -269,11 +274,6 @@ def read_vedio(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_t
                 info["vedio_frames"]   = container.streams.video[0].frames
                 info["vedio_shape"]    = (container.streams.video[0].codec_context.height, 
                                           container.streams.video[0].codec_context.width)
-            if container.streams.audio:
-                audio_frames = _read_stream(container, start_pts, end_pts, container.streams.audio[0], {"audio": 0})
-                info["audio_fps"]       = container.streams.audio[0].rate
-                info["audio_channel"]   = container.streams.audio[0].codec_context.channels
-                info["audio_frames"]     = container.streams.audio[0].duration
     except av.AVError:
         pass
 
