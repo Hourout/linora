@@ -263,13 +263,14 @@ def read_vedio(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_t
                 info["audio_fps"]       = container.streams.audio[0].rate
                 info["audio_channel"]   = container.streams.audio[0].codec_context.channels
                 info["audio_frames"]    = container.streams.audio[0].duration
+                info["vedio_duration"]  = container.streams.audio[0].duration*container.streams.audio[0].time_base
                 
             if container.streams.video:
                 video_frames = _read_stream(container, start_pts, end_pts, container.streams.video[0], {"video": 0})
                 video_fps = container.streams.video[0].average_rate
                 if video_fps is not None:
                     info["video_fps"]  = float(video_fps)
-                info["vedio_duration"] = container.duration/1000000
+                info["vedio_duration"] = container.streams.video[0].duration*container.streams.video[0].time_base
                 info["vedio_bitrate"]  = container.bit_rate
                 info["vedio_frames"]   = container.streams.video[0].frames
                 info["vedio_shape"]    = (container.streams.video[0].codec_context.height, 
