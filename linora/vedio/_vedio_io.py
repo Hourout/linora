@@ -6,7 +6,7 @@ from fractions import Fraction
 import av
 import numpy as np
 
-__all__ = ['read_vedio', 'read_video_timestamps', 'save_vedio']
+__all__ = ['read_vedio', 'read_video_timestamps', 'save_vedio', 'VedioStream']
 _CALLED_TIMES = 0
 _GC_COLLECTION_INTERVAL = 5
 
@@ -353,4 +353,115 @@ def read_video_timestamps(filename, pts_unit="pts"):
         pts = [x * video_time_base for x in pts]
 
     return pts, video_fps
+
+
+class VedioStream():
+    def __init__(self, src, batch=1, data_format="HWCN", dtype=np.uint8):
+        """Converts a Vedio instance to a Numpy array.
+    
+        Args:
+            src: input vedio path or bytes.
+            batch: each iter batch number.
+            data_format: array data format, eg.'HWCN', 'CHWN'. 
+                'image' return pillow instance.
+                'CLN' or 'NCL' e.g. return audio array.
+            dtype: Dtype to use for the returned array.
+                if 'CLN' or 'NCL' e.g. dtype is np.float32
+        Returns:
+            A Numpy array iterator.
+        """
+        self._data_format = data_format.upper()
+        if 'L' in self._data_format:
+            if len([i for i in set(self._data_format) if i in 'CLN'])!=len(self._data_format):
+                raise ValueError(f"`data_format` should be 'CLN' or 'NCL' e.g., got {data_format}.")
+            self._dtype = np.float32
+        elif self._data_format!='IMAGE':
+            if len([i for i in set(self._data_format) if i in 'HWCN'])!=len(self._data_format):
+                raise ValueError(f"`data_format` should be 'HWCN' or 'NCHW' e.g., got {data_format}.")
+            self._dtype = dtype
+        self._batch = int(batch)
+        
+        if isinstance(src, bytes):
+            src = io.BytesIO(src)
+        self._container = av.open(src, metadata_errors="ignore")
+        if 'L' in self._data_format:
+            self._c = self._container.decode(audio=0)
+        else:
+            self._c = self._container.decode(video=0)
+        
+        self.metadata = {}
+        try:
+            if self._container.streams.video:
+                video_fps = self._container.streams.video[0].average_rate
+                if video_fps is not None:
+                    self.metadata["vedio_fps"]  = float(video_fps)
+                self.metadata["vedio_duration"] = self._container.streams.video[0].duration*self._container.streams.video[0].time_base
+                self.metadata["vedio_bitrate"]  = self._container.bit_rate
+                self.metadata["vedio_frames"]   = self._container.streams.video[0].frames
+                self.metadata["vedio_shape"]    = (self._container.streams.video[0].codec_context.height, 
+                                                   self._container.streams.video[0].codec_context.width)
+            if self._container.streams.audio:
+                self.metadata["audio_fps"]       = self._container.streams.audio[0].rate
+                self.metadata["audio_channel"]   = self._container.streams.audio[0].codec_context.channels
+                self.metadata["audio_frames"]    = self._container.streams.audio[0].duration
+                self.metadata["audio_duration"]  = self.metadata["audio_frames"]*self._container.streams.audio[0].time_base
+        except av.AVError:
+            pass
+
+    def __next__(self):
+        try:
+            batch_array = []
+            batch_pts = []
+            if 'L' in self._data_format:
+                for i in range(self._batch):
+                    try:
+                        frame = next(self._c)
+                        batch_array.append(frame.to_ndarray())
+                        batch_pts.append(float(frame.pts * frame.time_base))
+                    except:
+                        break
+                if not batch_array:
+                    self._container.close()
+                    raise StopIteration
+                try:
+                    batch_array = np.stack(batch_array).astype(self._dtype)
+                except ValueError:
+                    temp = np.zeros((batch_array[0].shape[0], batch_array[1].shape[1]-batch_array[0].shape[1]))
+                    batch_array[0] = np.concatenate([temp, batch_array[0]], axis=1)
+                    batch_array = np.stack(batch_array).astype(self._dtype)
+                transpose = {'N':0, 'C':1, 'L':2}
+                if self._data_format!='NCL':
+                    batch_array = batch_array.transpose(tuple(transpose[i] for i in self._data_format))
+            elif self._data_format=='IMAGE':
+                for i in range(self._batch):
+                    try:
+                        frame = next(self._c)
+                        batch_array.append(frame.to_image())
+                        batch_pts.append(float(frame.pts * frame.time_base))
+                    except:
+                        break
+                if not batch_array:
+                    self._container.close()
+                    raise StopIteration
+            else:
+                for i in range(self._batch):
+                    try:
+                        frame = next(self._c)
+                        batch_array.append(frame.to_rgb().to_ndarray())
+                        batch_pts.append(float(frame.pts * frame.time_base))
+                    except:
+                        break
+                if not batch_array:
+                    self._container.close()
+                    raise StopIteration
+                batch_array = np.stack(batch_array).astype(self._dtype)
+                transpose = {'N':0, 'H':1, 'W':2, 'C':3}
+                if self._data_format!='NHWC':
+                    batch_array = batch_array.transpose(tuple(transpose[i] for i in self._data_format))
+        except av.error.EOFError:
+            raise StopIteration
+        return {"data": batch_array, "pts": batch_pts}
+
+    def __iter__(self):
+        return self
 
