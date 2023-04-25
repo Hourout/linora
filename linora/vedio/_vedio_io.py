@@ -1,12 +1,12 @@
 import gc
-import os
+import io
 import math
 from fractions import Fraction
 
 import av
 import numpy as np
 
-__all__ = ['read_vedio', 'read_video_timestamps', 'save_vedio', 'VedioStream']
+__all__ = ['read_vedio', 'read_vedio_timestamps', 'save_vedio', 'VedioStream']
 _CALLED_TIMES = 0
 _GC_COLLECTION_INTERVAL = 5
 
@@ -223,11 +223,11 @@ def _read_stream(container, start_offset, end_offset, stream, stream_name):
     return result
 
 
-def read_vedio(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_type=np.uint8):
+def read_vedio(src, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_type=np.uint8):
     """Reads a video from a file, returning both the video frames and the audio frames
     
     Args:
-        filename: path to the video file
+        src: path to the video file or bytes.
         start_pts: float, The start presentation time of the video
         end_pts: float, The end presentation time.
         output_format: The format of the output video shape. Can be "HWCN" (default), "Image" return pillow instance.
@@ -241,16 +241,17 @@ def read_vedio(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_t
         if len([i for i in set(vedio_format) if i in 'HWCN'])!=len(vedio_format):
             raise ValueError(f"`vedio_format` should be 'HWCN' or 'NCHW' e.g., got {vedio_format}.")
 
-    if not os.path.exists(filename):
-        raise RuntimeError(f"File not found: {filename}")
-
     if end_pts is None:
         end_pts = float("inf")
 
     if end_pts < start_pts:
         raise ValueError("end_pts should be larger than start_pts")
 
-    info = {'filename':filename}
+    if isinstance(src, bytes):
+        src = io.BytesIO(src)
+        info = {'filename':''}
+    else:
+        info = {'filename':src}
     video_frames = []
     audio_frames = []
     audio_timebase = Fraction(0, 1)
@@ -263,7 +264,7 @@ def read_vedio(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_t
                 info["audio_fps"]       = container.streams.audio[0].rate
                 info["audio_channel"]   = container.streams.audio[0].codec_context.channels
                 info["audio_frames"]    = container.streams.audio[0].duration
-                info["vedio_duration"]  = container.streams.audio[0].duration*container.streams.audio[0].time_base
+                info["audio_duration"]  = container.streams.audio[0].duration*container.streams.audio[0].time_base
                 
             if container.streams.video:
                 video_frames = _read_stream(container, start_pts, end_pts, container.streams.video[0], {"video": 0})
@@ -308,10 +309,10 @@ def read_vedio(filename, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_t
         aframes = aframes[:, s_idx:e_idx]
     else:
         aframes = np.empty((1, 0), dtype=np.float32)
-    return {'vedio':vframes, 'audio':aframes, 'info':info}
+    return {'vedio':vframes, 'audio':aframes, 'metadata':info}
 
 
-def read_video_timestamps(filename, pts_unit="pts"):
+def read_vedio_timestamps(filename, pts_unit="pts"):
     """List the video frames timestamps.
     Note that the function decodes the whole video frame-by-frame.
     
@@ -383,13 +384,16 @@ class VedioStream():
         
         if isinstance(src, bytes):
             src = io.BytesIO(src)
+            self.metadata = {'filename':''}
+        else:
+            self.metadata = {'filename':src}
+            
         self._container = av.open(src, metadata_errors="ignore")
         if 'L' in self._data_format:
             self._c = self._container.decode(audio=0)
         else:
             self._c = self._container.decode(video=0)
         
-        self.metadata = {}
         try:
             if self._container.streams.video:
                 video_fps = self._container.streams.video[0].average_rate
