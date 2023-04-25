@@ -426,7 +426,8 @@ class VedioStream():
                 try:
                     batch_array = np.stack(batch_array).astype(self._dtype)
                 except ValueError:
-                    temp = np.zeros((batch_array[0].shape[0], batch_array[1].shape[1]-batch_array[0].shape[1]))
+                    self.metadata["audio_batch_fillna"] = batch_array[1].shape[1]-batch_array[0].shape[1]
+                    temp = np.zeros((batch_array[0].shape[0], self.metadata["audio_batch_fillna"]))
                     batch_array[0] = np.concatenate([temp, batch_array[0]], axis=1)
                     batch_array = np.stack(batch_array).astype(self._dtype)
                 transpose = {'N':0, 'C':1, 'L':2}

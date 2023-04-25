@@ -1,8 +1,9 @@
 import wave
 
+import av
 import numpy as np
 
-__all__ = ['read_audio', 'save_audio']
+__all__ = ['read_audio', 'save_audio', 'AudioStream']
 
 
 def read_audio(filename):
@@ -193,3 +194,67 @@ class Audio():
         return self.stream()
 
 
+
+    
+class AudioStream():
+    def __init__(self, src, batch=1, data_format="CLN", dtype=np.float32):
+        """Converts a Audio instance to a Numpy array.
+    
+        Args:
+            src: input audio path or bytes.
+            batch: each iter batch number.
+            data_format: array data format, 'CLN' or 'NCL' e.g.
+            dtype: Dtype to use for the returned array.
+        Returns:
+            A Numpy array iterator.
+        """
+        self._data_format = data_format.upper()
+        if len([i for i in set(self._data_format) if i in 'CLN'])!=len(self._data_format):
+            raise ValueError(f"`data_format` should be 'CLN' or 'NCL' e.g., got {data_format}.")
+        self._dtype = dtype
+        self._batch = int(batch)
+        
+        if isinstance(src, bytes):
+            src = io.BytesIO(src)
+        self._container = av.open(src, metadata_errors="ignore")
+        self._c = self._container.decode(audio=0)
+        
+        self.metadata = {}
+        try:
+            self.metadata["audio_fps"]       = self._container.streams.audio[0].rate
+            self.metadata["audio_channel"]   = self._container.streams.audio[0].codec_context.channels
+            self.metadata["audio_frames"]    = self._container.streams.audio[0].duration
+            self.metadata["audio_duration"]  = self.metadata["audio_frames"]*self._container.streams.audio[0].time_base
+        except av.AVError:
+            pass
+
+    def __next__(self):
+        try:
+            batch_array = []
+            batch_pts = []
+            for i in range(self._batch):
+                try:
+                    frame = next(self._c)
+                    batch_array.append(frame.to_ndarray())
+                    batch_pts.append(float(frame.pts * frame.time_base))
+                except:
+                    break
+            if not batch_array:
+                self._container.close()
+                raise StopIteration
+            try:
+                batch_array = np.stack(batch_array).astype(self._dtype)
+            except ValueError:
+                self.metadata["audio_batch_fillna"] = batch_array[1].shape[1]-batch_array[0].shape[1]
+                temp = np.zeros((batch_array[0].shape[0], self.metadata["audio_batch_fillna"]))
+                batch_array[0] = np.concatenate([temp, batch_array[0]], axis=1)
+                batch_array = np.stack(batch_array).astype(self._dtype)
+            transpose = {'N':0, 'C':1, 'L':2}
+            if self._data_format!='NCL':
+                batch_array = batch_array.transpose(tuple(transpose[i] for i in self._data_format))
+        except av.error.EOFError:
+            raise StopIteration
+        return {"data": batch_array, "pts": batch_pts}
+
+    def __iter__(self):
+        return self
