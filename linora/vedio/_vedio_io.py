@@ -257,7 +257,7 @@ def read_vedio(src, start_pts=0, end_pts=None, vedio_format="HWCN", vedio_type=n
     audio_timebase = Fraction(0, 1)
 
     try:
-        with av.open(filename, metadata_errors="ignore") as container:
+        with av.open(src, metadata_errors="ignore") as container:
             if container.streams.audio:
                 audio_frames = _read_stream(container, start_pts, end_pts, container.streams.audio[0], {"audio": 0})
                 audio_timebase = container.streams.audio[0].time_base
