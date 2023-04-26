@@ -286,30 +286,42 @@ def read_vedio_timestamps(filename, pts_unit="pts"):
 
 
 class VedioStream():
-    def __init__(self, src, batch=1, data_format="HWCN", dtype=np.uint8):
+    def __init__(self, src, batch=1, data_format="HWCN", start_sec=0, end_sec=np.inf, dtype=np.uint8):
         """Converts a Vedio instance to a Numpy array.
     
+        - if data_format is 'CL' or 'LC' e.g. return audio array.
+          batch=4096, dtype=np.float32
+        
         Args:
             src: input vedio path or bytes.
             batch: each iter batch number.
             data_format: array data format, eg.'HWCN', 'CHWN'. 
                 'image' return pillow instance.
-                'CLN' or 'NCL' e.g. return audio array.
+                'CL' or 'LC' e.g. return audio array.
+            start_sec: float, The start presentation time of the video.
+            end_sec: float, The end presentation time of the video.
             dtype: Dtype to use for the returned array.
-                if 'CLN' or 'NCL' e.g. dtype is np.float32
+                if 'CL' or 'LC' e.g. dtype is np.float32
         Returns:
             A Numpy array iterator.
         """
+        self._batch = int(batch)
         self._data_format = data_format.upper()
         if 'L' in self._data_format:
-            if len([i for i in set(self._data_format) if i in 'CLN'])!=len(self._data_format):
-                raise ValueError(f"`data_format` should be 'CLN' or 'NCL' e.g., got {data_format}.")
+            if len([i for i in set(self._data_format) if i in 'CL'])!=len(self._data_format):
+                raise ValueError(f"`data_format` should be 'CL' or 'LC' e.g., got {data_format}.")
             self._dtype = np.float32
+            if int(batch)==1:
+                self._batch = 4096
         elif self._data_format!='IMAGE':
             if len([i for i in set(self._data_format) if i in 'HWCN'])!=len(self._data_format):
                 raise ValueError(f"`data_format` should be 'HWCN' or 'NCHW' e.g., got {data_format}.")
             self._dtype = dtype
-        self._batch = int(batch)
+            
+        if end_sec < start_sec:
+            raise ValueError("end_sec should be larger than start_sec")
+        self._end_sec = end_sec
+        self._start_sec = start_sec
         
         if isinstance(src, bytes):
             src = io.BytesIO(src)
@@ -318,11 +330,6 @@ class VedioStream():
             self.metadata = {'filename':src}
             
         self._container = av.open(src, metadata_errors="ignore")
-        if 'L' in self._data_format:
-            self._c = self._container.decode(audio=0)
-        else:
-            self._c = self._container.decode(video=0)
-        
         try:
             if self._container.streams.video:
                 video_fps = self._container.streams.video[0].average_rate
@@ -340,49 +347,66 @@ class VedioStream():
                 self.metadata["audio_duration"]  = self.metadata["audio_frames"]*self._container.streams.audio[0].time_base
         except av.AVError:
             pass
+        if 'L' in self._data_format:
+            self._c = self._container.decode(audio=0)
+            self._aframes = np.concatenate([frame.to_ndarray() for frame in self._container.decode(audio=0)], axis=1)
+            mix = self._container.streams.audio[0].start_time
+            self._batch_start_time = max(self._start_sec, mix)
+            self._batch_end_time = min(self._end_sec, float(self.metadata["audio_duration"]))
+            self._batch_time = self._batch/self._aframes.shape[1]*(self.metadata["audio_duration"]-mix)
+            start = (self._batch_start_time-mix)/(self.metadata["audio_duration"]-mix)
+            end = (self._batch_end_time-mix)/(self.metadata["audio_duration"]-mix)
+            self._aframes = self._aframes[:, int(self._aframes.shape[1]*start):int(self._aframes.shape[1]*end)]
+        else:
+            self._c = self._container.decode(video=0)
 
     def __next__(self):
         try:
             batch_array = []
             batch_pts = []
+            count = 0
             if 'L' in self._data_format:
-                for i in range(self._batch):
-                    try:
-                        frame = next(self._c)
-                        batch_array.append(frame.to_ndarray())
-                        batch_pts.append(float(frame.pts * frame.time_base))
-                    except:
-                        break
-                if not batch_array:
+                if not self._aframes.shape[1]:
                     self._container.close()
                     raise StopIteration
-                try:
-                    batch_array = np.stack(batch_array).astype(self._dtype)
-                except ValueError:
-                    self.metadata["audio_batch_fillna"] = batch_array[1].shape[1]-batch_array[0].shape[1]
-                    temp = np.zeros((batch_array[0].shape[0], self.metadata["audio_batch_fillna"]))
-                    batch_array[0] = np.concatenate([temp, batch_array[0]], axis=1)
-                    batch_array = np.stack(batch_array).astype(self._dtype)
-                transpose = {'N':0, 'C':1, 'L':2}
-                if self._data_format!='NCL':
+                batch_array = self._aframes[:,:self._batch]
+                self._aframes = self._aframes[:,self._batch:]
+                batch_pts.append(self._batch_start_time)
+                if batch_array.shape[1]<self._batch:
+                    batch_pts.append(self._batch_end_time)
+                else:
+                    self._batch_start_time += self._batch_time
+                    batch_pts.append(self._batch_start_time)
+                transpose = {'C':0, 'L':1}
+                if self._data_format!='CL':
                     batch_array = batch_array.transpose(tuple(transpose[i] for i in self._data_format))
             elif self._data_format=='IMAGE':
-                for i in range(self._batch):
-                    try:
+                try: 
+                    while 1:
                         frame = next(self._c)
-                        batch_array.append(frame.to_image())
-                        batch_pts.append(float(frame.pts * frame.time_base))
-                    except:
-                        break
+                        time_stamp = float(frame.pts*frame.time_base)
+                        if self._start_sec<time_stamp<self._end_sec:                            
+                            batch_array.append(frame.to_image())
+                            batch_pts.append(time_stamp)
+                            count += 1
+                        if count==self._batch:
+                            break
+                except:
+                    pass
                 if not batch_array:
                     self._container.close()
                     raise StopIteration
             else:
-                for i in range(self._batch):
+                while 1:
                     try:
                         frame = next(self._c)
-                        batch_array.append(frame.to_rgb().to_ndarray())
-                        batch_pts.append(float(frame.pts * frame.time_base))
+                        time_stamp = float(frame.pts*frame.time_base)
+                        if self._start_sec<time_stamp<self._end_sec:
+                            batch_array.append(frame.to_rgb().to_ndarray())
+                            batch_pts.append(time_stamp)
+                            count += 1
+                        if count==self._batch:
+                            break
                     except:
                         break
                 if not batch_array:
@@ -398,4 +422,6 @@ class VedioStream():
 
     def __iter__(self):
         return self
+    
+
 
