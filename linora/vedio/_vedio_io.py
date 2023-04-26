@@ -302,18 +302,21 @@ class VedioStream():
         except av.AVError:
             pass
         if 'L' in self._data_format:
-            self._aframes = np.concatenate([frame.to_ndarray() for frame in self._container.decode(audio=0)],
-                                           axis=1, dtype=np.float32)
-            if self._aframes.shape[0]!=self.metadata["audio_channel"]:
-                self._aframes = self._aframes.reshape(-1, self.metadata["audio_channel"]).T
-            mix = self._container.streams.audio[0].start_time/1000000
-            interval = float(self.metadata["audio_duration"])-mix
-            self._batch_start_time = max(self._start_sec, mix)
-            self._batch_end_time = min(self._end_sec, float(self.metadata["audio_duration"]))
-            self._batch_time = self._batch/self._aframes.shape[1]*interval
-            start = (self._batch_start_time-mix)/interval
-            end = (self._batch_end_time-mix)/interval
-            self._aframes = self._aframes[:, int(self._aframes.shape[1]*start):int(self._aframes.shape[1]*end)]
+            try:
+                self._aframes = np.concatenate([frame.to_ndarray() for frame in self._container.decode(audio=0)],
+                                               axis=1, dtype=np.float32)
+                if self._aframes.shape[0]!=self.metadata["audio_channel"]:
+                    self._aframes = self._aframes.reshape(-1, self.metadata["audio_channel"]).T
+                mix = self._container.streams.audio[0].start_time/1000000
+                interval = float(self.metadata["audio_duration"])-mix
+                self._batch_start_time = max(self._start_sec, mix)
+                self._batch_end_time = min(self._end_sec, float(self.metadata["audio_duration"]))
+                self._batch_time = self._batch/self._aframes.shape[1]*interval
+                start = (self._batch_start_time-mix)/interval
+                end = (self._batch_end_time-mix)/interval
+                self._aframes = self._aframes[:, int(self._aframes.shape[1]*start):int(self._aframes.shape[1]*end)]
+            except av.AVError:
+                self._aframes = np.empty((1, 0), dtype=np.float32)
         else:
             self._c = self._container.decode(video=0)
 
