@@ -7,17 +7,6 @@ import numpy as np
 __all__ = ['read_vedio', 'read_vedio_timestamps', 'save_vedio', 'VedioStream']
 
 
-# def read_vedio(filename):
-#     """Reads the contents of file to a Vedio instance.
-        
-#     Args:
-#         filename: str, vedio absolute path.
-#     Returns:
-#         a Vedio instance.
-#     """
-#     return Vedio(filename)
-
-
 def format_convert(filename_in, filename_out):
     """transform vedio file format.
     
@@ -39,46 +28,6 @@ def format_convert(filename_in, filename_out):
 
     input_.close()
     output.close()
-
-
-# class Vedio():
-#     def __init__(self, filename=None, params=None, data=None, **kwargs):
-#         """Reads the contents of file to a Vedio instance.
-        
-#         Args:
-#             filename: str, vedio absolute path.
-#         """
-#         self._filename = filename
-#         self.vedio_params = params
-#         self._data = data
-#         self._stream = []
-#         if filename is not None:
-#             self._file = av.open(filename, 'rb')
-#             vedio = self._file.streams.video[0]
-#             self.vedio_size = self._file.size
-#             self.vedio_duration = self._file.duration/1000000
-#             self.vedio_bitrate = self._file.bit_rate
-#             self.vedio_frames = vedio.frames
-#             self.vedio_shape = (vedio.codec_context.width, vedio.codec_context.height)
-#             self.vedio_params = {'vedio_size':self.vedio_size, 
-#                                  'vedio_duration':self.vedio_duration, 
-#                                  'vedio_bitrate':self.vedio_bitrate,
-#                                  'vedio_frames':self.vedio_frames,
-#                                  'vedio_shape':self.vedio_shape,
-#                                 }
-#         if data is not None:
-#             self.vedio_fps = self.vedio_params['fps']
-#             self.vedio_duration = self.vedio_params['vedio_duration']
-# #             self.vedio_bitrate = self._file.bit_rate
-#             self.vedio_frames = self.vedio_params['vedio_frames']
-#             self.vedio_shape = self.vedio_params['vedio_shape']
-                    
-#     def close(self):
-#         """Close the underlying file."""
-#         self._file.close()
-        
-#     def add_stream(self, stream):
-#         self._stream.append(stream)
         
         
 def save_vedio(filename, video_array, video_fps, video_codec="libx264", options=None,
@@ -170,8 +119,8 @@ def save_vedio(filename, video_array, video_fps, video_codec="libx264", options=
                 container.mux(packet)
 
         
-def read_vedio(src, start_sec=0, end_sec=np.inf, vedio_format="HWCN", vedio_type=np.uint8):
-    """Reads a video from a file, returning both the video frames and the audio frames
+def read_vedio(src, start_sec=0, end_sec=np.inf, vedio_format="HWCN", vedio_type=np.uint8, audio_format='CL'):
+    """Reads a video from a file, returning both the video frames and the audio frames.
     
     Args:
         src: path to the video file or bytes.
@@ -232,9 +181,14 @@ def read_vedio(src, start_sec=0, end_sec=np.inf, vedio_format="HWCN", vedio_type
                 
                 aframes = [frame.to_ndarray() for frame in container.decode(audio=0) if start_sec<float(frame.pts*frame.time_base)<end_sec]
                 if aframes:
-                    aframes = np.concatenate(aframes, 1)
+                    aframes = np.concatenate(aframes, axis=1, dtype=np.float32)
+                    if aframes.shape[0]!=info["audio_channel"]:
+                        aframes = aframes.reshape(-1, info["audio_channel"]).T
                 else:
                     aframes = np.empty((1, 0), dtype=np.float32)
+                transpose = {'C':0, 'L':1}
+                if audio_format!='CL':
+                    aframes = aframes.transpose(tuple(transpose[i] for i in audio_format))
     except av.AVError:
         pass
     gc.collect()
@@ -335,7 +289,7 @@ class VedioStream():
                 video_fps = self._container.streams.video[0].average_rate
                 if video_fps is not None:
                     self.metadata["vedio_fps"]  = float(video_fps)
-                self.metadata["vedio_duration"] = self._container.streams.video[0].duration*self._container.streams.video[0].time_base
+                self.metadata["vedio_duration"] = float(self._container.streams.video[0].duration*self._container.streams.video[0].time_base)
                 self.metadata["vedio_bitrate"]  = self._container.bit_rate
                 self.metadata["vedio_frames"]   = self._container.streams.video[0].frames
                 self.metadata["vedio_shape"]    = (self._container.streams.video[0].codec_context.height, 
@@ -344,18 +298,21 @@ class VedioStream():
                 self.metadata["audio_fps"]       = self._container.streams.audio[0].rate
                 self.metadata["audio_channel"]   = self._container.streams.audio[0].codec_context.channels
                 self.metadata["audio_frames"]    = self._container.streams.audio[0].duration
-                self.metadata["audio_duration"]  = self.metadata["audio_frames"]*self._container.streams.audio[0].time_base
+                self.metadata["audio_duration"]  = float(self.metadata["audio_frames"]*self._container.streams.audio[0].time_base)
         except av.AVError:
             pass
         if 'L' in self._data_format:
-            self._c = self._container.decode(audio=0)
-            self._aframes = np.concatenate([frame.to_ndarray() for frame in self._container.decode(audio=0)], axis=1)
-            mix = self._container.streams.audio[0].start_time
+            self._aframes = np.concatenate([frame.to_ndarray() for frame in self._container.decode(audio=0)],
+                                           axis=1, dtype=np.float32)
+            if self._aframes.shape[0]!=self.metadata["audio_channel"]:
+                self._aframes = self._aframes.reshape(-1, self.metadata["audio_channel"]).T
+            mix = self._container.streams.audio[0].start_time/1000000
+            interval = float(self.metadata["audio_duration"])-mix
             self._batch_start_time = max(self._start_sec, mix)
             self._batch_end_time = min(self._end_sec, float(self.metadata["audio_duration"]))
-            self._batch_time = self._batch/self._aframes.shape[1]*(self.metadata["audio_duration"]-mix)
-            start = (self._batch_start_time-mix)/(self.metadata["audio_duration"]-mix)
-            end = (self._batch_end_time-mix)/(self.metadata["audio_duration"]-mix)
+            self._batch_time = self._batch/self._aframes.shape[1]*interval
+            start = (self._batch_start_time-mix)/interval
+            end = (self._batch_end_time-mix)/interval
             self._aframes = self._aframes[:, int(self._aframes.shape[1]*start):int(self._aframes.shape[1]*end)]
         else:
             self._c = self._container.decode(video=0)
@@ -417,6 +374,7 @@ class VedioStream():
                 if self._data_format!='NHWC':
                     batch_array = batch_array.transpose(tuple(transpose[i] for i in self._data_format))
         except av.error.EOFError:
+            self._container.close()
             raise StopIteration
         return {"data": batch_array, "pts": batch_pts}
 
