@@ -1,4 +1,4 @@
-import gc
+# import gc
 import io
 import wave
 
@@ -35,36 +35,33 @@ def save_audio(filename, audio_array, audio_fps=44100, audio_codec=None, audio_o
     if audio_codec is None:
         audio_codec = audio_codec_type.get(filename.split('.')[-1].lower(), filename.split('.')[-1].lower())
     if audio_codec in ['pcm_s16le']:
-        f = wave.open(filename, "wb")
-        f.setnchannels(len(audio_array.shape))
-        f.setsampwidth(2)
-        f.setframerate(int(audio_fps))
-        f.setnframes(max(audio_array.shape))
-        f.writeframes(audio_array.T.astype(np.int16).flat[:].tobytes())
-        f.close()
-        return 
-        
-        
-    audio_layout = "stereo" if audio_array.shape[0] > 1 else "mono"
-    container = av.open(filename, mode="w")
-    stream = container.add_stream(audio_codec, rate=int(audio_fps))
-    stream.options = audio_options or {}
-    audio_sample_fmt = stream.codec_context.format.name
-    dtype = np.dtype(audio_format_dtypes[audio_sample_fmt])
-#     print(stream.codec_context.format.name, dtype)
+        container = wave.open(filename, "wb")
+        container.setnchannels(len(audio_array.shape))
+        container.setsampwidth(2)
+        container.setframerate(int(audio_fps))
+        container.setnframes(max(audio_array.shape))
+        container.writeframes(audio_array.T.astype(np.int16).flat[:].tobytes())
+    else:
+        container = av.open(filename, mode="w")
+        audio_layout = "stereo" if audio_array.shape[0] > 1 else "mono"
+        stream = container.add_stream(audio_codec, rate=int(audio_fps))
+        stream.options = audio_options or {}
+        audio_sample_fmt = stream.codec_context.format.name
+        dtype = np.dtype(audio_format_dtypes[audio_sample_fmt])
+#         print(stream.codec_context.format.name, dtype)
 
-#             frame = av.AudioFrame.from_ndarray(np.expand_dims(audio_array.T.flat[:].astype(dtype), 0),
-#                                                format=audio_sample_fmt, layout=audio_layout)
-    frame = av.AudioFrame.from_ndarray(audio_array.astype(dtype), 
-                                       format=audio_sample_fmt, layout=audio_layout)
-    frame.pts = None
-    frame.sample_rate = int(audio_fps)
+#         frame = av.AudioFrame.from_ndarray(np.expand_dims(audio_array.T.flat[:].astype(dtype), 0),
+#                                            format=audio_sample_fmt, layout=audio_layout)
+        frame = av.AudioFrame.from_ndarray(audio_array.astype(dtype), 
+                                           format=audio_sample_fmt, layout=audio_layout)
+        frame.pts = None
+        frame.sample_rate = int(audio_fps)
 
-    for packet in stream.encode(frame):
-        container.mux(packet)
+        for packet in stream.encode(frame):
+            container.mux(packet)
 
-    for packet in stream.encode():
-        container.mux(packet)
+        for packet in stream.encode():
+            container.mux(packet)
     container.close()
 
 # def save_audio(filename, audio, file_format=None):
@@ -122,125 +119,125 @@ def save_audio(filename, audio_array, audio_fps=44100, audio_codec=None, audio_o
 #         raise ValueError(f'Not support audio file format with {filename}')
         
 
-class AudioWAV():
-    def __init__(self, filename):
-        """Reads the contents of file to a Audio instance.
+# class AudioWAV():
+#     def __init__(self, filename):
+#         """Reads the contents of file to a Audio instance.
         
-        Args:
-            filename: str, audio absolute path.
-        """
-        try:
-            self._file = wave.open(filename, 'rb')
-        except wave.Error:
-            raise ValueError('File is not a WAV file.')
+#         Args:
+#             filename: str, audio absolute path.
+#         """
+#         try:
+#             self._file = wave.open(filename, 'rb')
+#         except wave.Error:
+#             raise ValueError('File is not a WAV file.')
             
-        self.audio_channel = self._file.getnchannels()
-        self.audio_width = self._file.getsampwidth()
-        self.audio_framerate = self._file.getframerate()
-        self.audio_frame = self._file.getnframes()
-        self.audio_duration = self.audio_frame / self.audio_framerate
-        self.audio_params = {'audio_channel':self.audio_channel, 'audio_width':self.audio_width,
-                             'audio_framerate':self.audio_framerate, 'audio_frame':self.audio_frame,
-                             'audio_duration':self.audio_duration,
-                             'audio_type':'wav', 'audio_name':filename[:-4]}
+#         self.audio_channel = self._file.getnchannels()
+#         self.audio_width = self._file.getsampwidth()
+#         self.audio_framerate = self._file.getframerate()
+#         self.audio_frame = self._file.getnframes()
+#         self.audio_duration = self.audio_frame / self.audio_framerate
+#         self.audio_params = {'audio_channel':self.audio_channel, 'audio_width':self.audio_width,
+#                              'audio_framerate':self.audio_framerate, 'audio_frame':self.audio_frame,
+#                              'audio_duration':self.audio_duration,
+#                              'audio_type':'wav', 'audio_name':filename[:-4]}
         
-        if self.audio_width not in (1, 2, 3, 4):
-            self.close()
-            raise ValueError('The file uses an unsupported bit width.')
-
-    def close(self):
-        """Close the underlying file."""
-        self._file.close()
-        
-    @property
-    def audio_data(self):
-        """Reads and returns all frames of audio"""
-        data = self._get_data(self.audio_frame)
-        self._file.rewind()
-        return data
-    
-    def stream(self, nframes=1024):
-        """Generates blocks of PCM data found in the file."""
-        while True:
-            data = self._get_data(nframes)
-            if not data:
-                break
-            yield data
-    
-    def _get_data(self, n):
-        str_data  = self._file.readframes(n)
-        return np.frombuffer(str_data, dtype=np.int16).reshape(-1,self.audio_channel).T
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-        return False
-
-    def __iter__(self):
-        return self.stream()
-    
-    
-class Audio():
-    def __init__(self, filename='', data=None, audio_params=None):
-        """Reads the contents of file to a Vedio instance.
-        
-        Args:
-            filename: str, vedio absolute path.
-        """
-        self._data = data
-        self.audio_params = audio_params
-        if filename:
-            self._file = av.open(filename, 'r')
-            audio = self._file.streams.audio[0]
-
-            self.audio_size      = self._file.size
-            self.audio_channel   = audio.codec_context.channels
-    #         self.audio_width = self._file.getsampwidth()
-            self.audio_framerate = audio.codec_context.sample_rate
-            self.audio_frame     = audio.duration
-            self.audio_duration  = self._file.duration/1000000
+#         if self.audio_width not in (1, 2, 3, 4):
 #             self.close()
-        self.audio_params = {'audio_channel':self.audio_channel, 
-                            'audio_duration':self.audio_duration,
-                            'audio_framerate':self.audio_framerate, 
-                            'audio_frame':self.audio_frame,
-                            'audio_size':self.audio_size, 'audio_path':filename}
+#             raise ValueError('The file uses an unsupported bit width.')
+
+#     def close(self):
+#         """Close the underlying file."""
+#         self._file.close()
         
-    def close(self):
-        """Close the underlying file."""
-        self._file.close()
-
-    @property
-    def audio_data(self):
-        """Reads and returns all frames of audio"""
-        if self._data is None:
-            with av.open(self.audio_params['audio_path'], 'r') as container:
-                self._data = np.concatenate([frame.to_ndarray() for frame in container.decode(audio=0)], axis=1)
-        return self._data.reshape(-1,self.audio_channel).T
+#     @property
+#     def audio_data(self):
+#         """Reads and returns all frames of audio"""
+#         data = self._get_data(self.audio_frame)
+#         self._file.rewind()
+#         return data
     
-    def stream(self):
-        """Generates blocks of PCM data found in the file."""
-        if self._data is None:
-            with av.open(self.audio_params['audio_path'], 'r') as container:
-                self._data = [frame.to_ndarray() for frame in container.decode(audio=0)]
-        for frame in self._data:
-            yield frame.reshape(-1,self.audio_channel).T
+#     def stream(self, nframes=1024):
+#         """Generates blocks of PCM data found in the file."""
+#         while True:
+#             data = self._get_data(nframes)
+#             if not data:
+#                 break
+#             yield data
     
-    def __enter__(self):
-        return self
+#     def _get_data(self, n):
+#         str_data  = self._file.readframes(n)
+#         return np.frombuffer(str_data, dtype=np.int16).reshape(-1,self.audio_channel).T
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-        return False
+#     def __enter__(self):
+#         return self
 
-    def __iter__(self):
-        return self.stream()
+#     def __exit__(self, exc_type, exc_val, exc_tb):
+#         self.close()
+#         return False
+
+#     def __iter__(self):
+#         return self.stream()
+    
+    
+# class Audio():
+#     def __init__(self, filename='', data=None, audio_params=None):
+#         """Reads the contents of file to a Vedio instance.
+        
+#         Args:
+#             filename: str, vedio absolute path.
+#         """
+#         self._data = data
+#         self.audio_params = audio_params
+#         if filename:
+#             self._file = av.open(filename, 'r')
+#             audio = self._file.streams.audio[0]
+
+#             self.audio_size      = self._file.size
+#             self.audio_channel   = audio.codec_context.channels
+#     #         self.audio_width = self._file.getsampwidth()
+#             self.audio_framerate = audio.codec_context.sample_rate
+#             self.audio_frame     = audio.duration
+#             self.audio_duration  = self._file.duration/1000000
+# #             self.close()
+#         self.audio_params = {'audio_channel':self.audio_channel, 
+#                             'audio_duration':self.audio_duration,
+#                             'audio_framerate':self.audio_framerate, 
+#                             'audio_frame':self.audio_frame,
+#                             'audio_size':self.audio_size, 'audio_path':filename}
+        
+#     def close(self):
+#         """Close the underlying file."""
+#         self._file.close()
+
+#     @property
+#     def audio_data(self):
+#         """Reads and returns all frames of audio"""
+#         if self._data is None:
+#             with av.open(self.audio_params['audio_path'], 'r') as container:
+#                 self._data = np.concatenate([frame.to_ndarray() for frame in container.decode(audio=0)], axis=1)
+#         return self._data.reshape(-1,self.audio_channel).T
+    
+#     def stream(self):
+#         """Generates blocks of PCM data found in the file."""
+#         if self._data is None:
+#             with av.open(self.audio_params['audio_path'], 'r') as container:
+#                 self._data = [frame.to_ndarray() for frame in container.decode(audio=0)]
+#         for frame in self._data:
+#             yield frame.reshape(-1,self.audio_channel).T
+    
+#     def __enter__(self):
+#         return self
+
+#     def __exit__(self, exc_type, exc_val, exc_tb):
+#         self.close()
+#         return False
+
+#     def __iter__(self):
+#         return self.stream()
 
 
     
-def read_audio(src, start_sec=0, end_sec=np.inf, audio_format="CL"):
+def read_audio(src, start_sec=0, end_sec=np.inf, audio_format="CL", **kwargs):
     """Reads a audio from a file, returning both the audio frames and audio metadata.
     
     Args:
@@ -265,29 +262,50 @@ def read_audio(src, start_sec=0, end_sec=np.inf, audio_format="CL"):
     else:
         info = {'filename':src}
 
-    try:
+    if info['filename'].split('.')[-1].lower()=='wav':
+        container = wave.open(info['filename'], 'rb')
+        info["audio_fps"]       = container.getframerate()
+        info["audio_channel"]   = container.getnchannels()
+        info["audio_frames"]    = container.getnframes()
+        info["audio_duration"]  = info["audio_frames"]/info["audio_fps"]
+        str_data = container.readframes(container.getnframes())
+        aframes = np.frombuffer(str_data, dtype=np.float32).reshape(-1, container.getnchannels()).T
+        container.rewind()
+        start_time = 0
+    else:
         container = av.open(src, metadata_errors="ignore")
-        if container.streams.audio:
-            info["audio_fps"]       = container.streams.audio[0].rate
-            info["audio_channel"]   = container.streams.audio[0].codec_context.channels
-            aframes = [frame.to_ndarray() for frame in container.decode(audio=0) if start_sec<float(frame.pts*frame.time_base)<end_sec]
-            if aframes:
-                aframes = np.concatenate(aframes, axis=1, dtype=np.float32)
-                if aframes.shape[0]!=info["audio_channel"]:
-                    aframes = aframes.reshape(-1, info["audio_channel"]).T
-            else:
-                aframes = np.empty((1, 0), dtype=np.float32)
-            info["audio_frames"]    = container.streams.audio[0].duration
-            if info["audio_frames"] is None:
-                info["audio_frames"] = aframes.shape[1]
-            info["audio_duration"]  = info["audio_frames"]*float(container.streams.audio[0].time_base)
+        info["audio_fps"]       = container.streams.audio[0].rate
+        info["audio_channel"]   = container.streams.audio[0].codec_context.channels
+        aframes = [frame.to_ndarray() for frame in container.decode(audio=0)]
+        if aframes:
+            aframes = np.concatenate(aframes, axis=1, dtype=np.float32)
+            if aframes.shape[0]!=info["audio_channel"]:
+                aframes = aframes.reshape(-1, info["audio_channel"]).T
+        else:
+            aframes = np.empty((info["audio_channel"], 0), dtype=np.float32)
+        info["audio_frames"]    = container.streams.audio[0].duration
+        if info["audio_frames"] is None:
+            info["audio_frames"] = aframes.shape[1]
+        info["audio_duration"]  = info["audio_frames"]*float(container.streams.audio[0].time_base)
+        start_time = container.streams.audio[0].start_time/1000000
+    
+    container.close()
+#     gc.collect()
+
+    interval = float(info["audio_duration"])-start_time
+    batch_start_time = max(start_sec, start_time)
+    batch_end_time = min(end_sec, float(info["audio_duration"]))
+    start = (batch_start_time-start_time)/interval
+    end = (batch_end_time-start_time)/interval
+    aframes = aframes[:, int(aframes.shape[1]*start):int(aframes.shape[1]*end)]
+
+    if 'batch' in kwargs:
+        batch_time = kwargs['batch']/aframes.shape[1]*interval
+        return {'audio':aframes, 'metadata':info, 'batch_time':batch_time,
+                'batch_start_time':batch_start_time, 'batch_end_time':batch_end_time}
+    if audio_format!='CL':
         transpose = {'C':0, 'L':1}
-        if audio_format!='CL':
-            aframes = aframes.transpose(tuple(transpose[i] for i in audio_format))
-        container.close()
-    except av.AVError:
-        pass
-    gc.collect()
+        aframes = aframes.transpose(tuple(transpose[i] for i in audio_format))
     return {'audio':aframes, 'metadata':info}
 
 
@@ -304,50 +322,20 @@ class AudioStream():
         Returns:
             A Numpy array iterator.
         """
-        self._batch = int(batch)
-        self._data_format = data_format.upper()
-        if len([i for i in set(self._data_format) if i in 'CL'])!=len(self._data_format):
-            raise ValueError(f"`data_format` should be 'CL' or 'LC' e.g., got {data_format}.")
-        self._dtype = np.float32
-            
-        if end_sec < start_sec:
-            raise ValueError("end_sec should be larger than start_sec")
-        self._end_sec = end_sec
-        self._start_sec = start_sec
+        data = read_audio(src, start_sec=start_sec, end_sec=end_sec, audio_format=data_format, batch=batch)
+        self._batch            = int(batch)
+        self._data_format      = data_format.upper()
+        self._aframes          = data['audio']
+        self.metadata          = data['metadata']
+        self._batch_time       = data['batch_time']
+        self._batch_start_time = data['batch_start_time']
+        self._batch_end_time   = data['batch_end_time']
         
-        if isinstance(src, bytes):
-            src = io.BytesIO(src)
-            self.metadata = {'filename':''}
-        else:
-            self.metadata = {'filename':src}
-            
-        self._container = av.open(src, metadata_errors="ignore")
-        try:
-            if self._container.streams.audio:
-                self.metadata["audio_fps"]       = self._container.streams.audio[0].rate
-                self.metadata["audio_channel"]   = self._container.streams.audio[0].codec_context.channels
-                self.metadata["audio_frames"]    = self._container.streams.audio[0].duration
-                self.metadata["audio_duration"]  = self.metadata["audio_frames"]*self._container.streams.audio[0].time_base
-                
-                self._aframes = np.concatenate([frame.to_ndarray() for frame in self._container.decode(audio=0)], 
-                                               axis=1, dtype=np.float32)
-                mix = self._container.streams.audio[0].start_time/1000000
-                interval = float(self.metadata["audio_duration"])-mix
-                self._batch_start_time = max(self._start_sec, mix)
-                self._batch_end_time = min(self._end_sec, float(self.metadata["audio_duration"]))
-                self._batch_time = self._batch/self._aframes.shape[1]*interval
-                start = (self._batch_start_time-mix)/interval
-                end = (self._batch_end_time-mix)/interval
-                self._aframes = self._aframes[:, int(self._aframes.shape[1]*start):int(self._aframes.shape[1]*end)]
-        except av.AVError:
-            self._aframes = np.empty((1, 0), dtype=np.float32)
-
     def __next__(self):
         try:
             batch_pts = []
             count = 0
             if not self._aframes.shape[1]:
-                self._container.close()
                 raise StopIteration
             batch_array = self._aframes[:,:self._batch]
             self._aframes = self._aframes[:,self._batch:]
@@ -357,13 +345,13 @@ class AudioStream():
             else:
                 self._batch_start_time += self._batch_time
                 batch_pts.append(self._batch_start_time)
-            transpose = {'C':0, 'L':1}
             if self._data_format!='CL':
+                transpose = {'C':0, 'L':1}
                 batch_array = batch_array.transpose(tuple(transpose[i] for i in self._data_format))
         except av.error.EOFError:
-            self._container.close()
             raise StopIteration
         return {"data": batch_array, "pts": batch_pts}
 
     def __iter__(self):
         return self
+
