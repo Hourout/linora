@@ -168,8 +168,8 @@ def read_vedio(src, start_sec=0, end_sec=np.inf, vedio_format="HWCN", vedio_type
                         vframes = np.stack(vframes).astype(vedio_type)
                     else:
                         vframes = np.empty((0, 1, 1, 3), dtype=np.uint8)
-                    transpose = {'N':0, 'H':1, 'W':2, 'C':3}
                     if vedio_format!='NHWC':
+                        transpose = {'N':0, 'H':1, 'W':2, 'C':3}
                         vframes = vframes.transpose(tuple(transpose[i] for i in vedio_format))
                 else:
                     vframes = [frame.to_image() for frame in vframes]
@@ -187,8 +187,8 @@ def read_vedio(src, start_sec=0, end_sec=np.inf, vedio_format="HWCN", vedio_type
                         aframes = aframes.reshape(-1, info["audio_channel"]).T
                 else:
                     aframes = np.empty((1, 0), dtype=np.float32)
-                transpose = {'C':0, 'L':1}
                 if audio_format!='CL':
+                    transpose = {'C':0, 'L':1}
                     aframes = aframes.transpose(tuple(transpose[i] for i in audio_format))
     except av.AVError:
         pass
@@ -338,8 +338,8 @@ class VedioStream():
                 else:
                     self._batch_start_time += self._batch_time
                     batch_pts.append(self._batch_start_time)
-                transpose = {'C':0, 'L':1}
                 if self._data_format!='CL':
+                    transpose = {'C':0, 'L':1}
                     batch_array = batch_array.transpose(tuple(transpose[i] for i in self._data_format))
             elif self._data_format=='IMAGE':
                 try: 
@@ -374,8 +374,8 @@ class VedioStream():
                     self._container.close()
                     raise StopIteration
                 batch_array = np.stack(batch_array).astype(self._dtype)
-                transpose = {'N':0, 'H':1, 'W':2, 'C':3}
                 if self._data_format!='NHWC':
+                    transpose = {'N':0, 'H':1, 'W':2, 'C':3}
                     batch_array = batch_array.transpose(tuple(transpose[i] for i in self._data_format))
         except av.error.EOFError:
             self._container.close()
