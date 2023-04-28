@@ -12,7 +12,8 @@ setup(name='linora',
           'Pillow>=9.3.0',
           'joblib>=1.2.0',
           'requests>=2.28.0',
-          'rarfile'
+          'rarfile',
+          'av'
       ],
       description='Simple and efficient tools for data mining and data analysis.',
       long_description=readme(),
