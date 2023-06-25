@@ -33,8 +33,8 @@ def format_convert(filename_in, filename_out):
         
 def save_vedio(filename, video_array, video_fps, video_codec="libx264", options=None,
                audio_array=None, audio_fps=None, audio_codec=None, audio_options=None):
-    """
-    Writes a 4d array in [H, W, C, N] format in a video file
+    """Writes a 4d array in [H, W, C, N] format in a video file
+    
     Args:
         filename: path where the video will be saved
         video_array: array containing the individual frames, as a uint8 array in [H, W, C, N] format,
@@ -130,6 +130,7 @@ def read_vedio(src, start_sec=0, end_sec=np.inf, vedio_format="HWCN", vedio_type
         end_sec: float, The end presentation time of the video.
         vedio_format: The format of the output video shape. Can be "HWCN" (default), "Image" return pillow instance.
         vedio_type: The dtype of the output video.
+        audio_format: The format of the output audio shape. 'CL' or 'LC' e.g. 
     Returns:
         vedio: array[H, W, C, N]: the `N` video frames.
         audio: array[C, L]): the audio frames, where `C` is the number of channels and `L` is the number of points.

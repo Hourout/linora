@@ -9,12 +9,12 @@ __all__ = ['read_audio', 'save_audio', 'AudioStream']
 
 
 def save_audio(filename, audio_array, audio_fps=44100, audio_codec=None, audio_options=None):
-    """
-    Writes a 2d array in [C, L] format in a audio file
+    """Writes a 2d array in [C, L] format in a audio file.
+    
     Args:
         filename: path where the video will be saved.
-        audio_array: array[C, N] containing the audio, where C is the number of channels
-            and N is the number of samples
+        audio_array: array[C, L] containing the audio, where C is the number of channels
+            and L is the number of samples.
         audio_fps: audio sample rate, typically 44100 or 48000
         audio_codec: the name of the audio codec, i.e. "mp3", "aac", etc.
         audio_options: dictionary containing options to be passed into the PyAV audio stream
