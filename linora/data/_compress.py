@@ -71,14 +71,14 @@ def compress(files, file):
         if mat in ['zip']:
             with zipfile.ZipFile(file, 'w', zipfile.ZIP_DEFLATED) as z:
                 for dirpath, dirnames, filenames in gfile.walk(files):
-                    fpath = dirpath.replace(startdir, '')
+                    fpath = dirpath.replace(files, '')
                     fpath = fpath and fpath + os.sep or ''
                     for filename in filenames:
                         z.write(gfile.path_join(dirpath, filename), gfile.path_join(fpath, filename))
         elif mat in ['tar']:
             with tarfile.open(file, 'w') as tar:
                 for dirpath, dirnames, filenames in gfile.walk(files):
-                    fpath = dirpath.replace(startdir, '')
+                    fpath = dirpath.replace(files, '')
                     fpath = fpath and fpath + os.sep or ''
                     for filename in filenames:
                         tar.add(gfile.path_join(dirpath, filename), gfile.path_join(fpath, filename))
