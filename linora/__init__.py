@@ -15,7 +15,7 @@ from linora import train
 from linora import utils
 from linora import vedio
 
-__version__ = '2.0.0rc0'
+__version__ = '2.0.0rc1'
 __author__ = 'JinQing Lee'
 
 def _version():
