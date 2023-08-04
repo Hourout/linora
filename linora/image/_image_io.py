@@ -2,7 +2,7 @@ import io
 import base64
 
 import requests
-from PIL import Image
+from PIL import Image, ImageOps
 
 from linora.gfile._gfile import exists
 
@@ -27,7 +27,7 @@ def read_image(filename):
         image = Image.open(filename)
     else:
         raise TypeError('path should be absolute path or io.BytesIO')
-    return image
+    return ImageOps.exif_transpose(image)
 
 
 def save_image(filename, image, file_format=None, **kwargs):

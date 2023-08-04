@@ -8,27 +8,57 @@ import numpy as np
 __all__ = ['read_vedio', 'read_vedio_timestamps', 'save_vedio', 'VedioStream']
 
 
-def format_convert(filename_in, filename_out):
-    """transform vedio file format.
+
+# def format_convert(filename_in, filename_out):
+#     """transform vedio file format.
     
-    Args
-        filename_in: input vedio path.
-        filename_out: output vedio path.
-    """
-    input_ = av.open(filename_in)
-    output = av.open(filename_out, "w")
+#     Args
+#         filename_in: input vedio path.
+#         filename_out: output vedio path.
+#     """
+#     input_ = av.open(filename_in)
+#     output = av.open(filename_out, "w")
 
-    in_stream = input_.streams.video[0]
-    out_stream = output.add_stream(template=in_stream)
+#     in_stream = input_.streams.video[0]
+#     out_stream = output.add_stream(template=in_stream)
+#     for packet in input_.demux(in_stream):
+#         if packet.dts is None:
+#             continue
+#         packet.stream = out_stream
+#         output.mux(packet)
+    
+#     in_audio = input_.streams.audio[0]
+#     out_audio = output.add_stream(template=in_audio)
+#     for packet in input_.demux(in_audio):
+#         if packet.dts is None:
+#             continue
+#         packet.stream = out_audio
+#         output.mux(packet)
 
-    for packet in input_.demux(in_stream):
-        if packet.dts is None:
-            continue
-        packet.stream = out_stream
-        output.mux(packet)
+#     input_.close()
+#     output.close()
 
-    input_.close()
-    output.close()
+# def format_convert(filename_in, filename_out):
+#     """transform vedio file format.
+    
+#     Args
+#         filename_in: input vedio path.
+#         filename_out: output vedio path.
+#     """
+#     input_ = av.open(filename_in)
+#     output = av.open(filename_out, "w")
+
+#     in_stream = input_.streams.video[0]
+#     out_stream = output.add_stream(template=in_stream)
+
+#     for packet in input_.demux(in_stream):
+#         if packet.dts is None:
+#             continue
+#         packet.stream = out_stream
+#         output.mux(packet)
+
+#     input_.close()
+#     output.close()
         
         
 def save_vedio(filename, video_array, video_fps, video_codec="libx264", options=None,
