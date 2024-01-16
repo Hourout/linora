@@ -464,7 +464,7 @@ def ks(y_true, y_pred, sample_weight=None, pos_label=1):
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
     t['label'] = t.label.replace(label_dict)
-    t = t.sort_values(['prob', 'label'], ascending=False).reset_index(drop=True)   
+    t = t.dropna().sort_values(['prob', 'label'], ascending=False).reset_index(drop=True)   
     t['tp'] = (t.label*t.weight).cumsum()
     t['fp'] = t.weight.cumsum()-t.tp
     t['tpr'] = t.tp/(t.label*t.weight).sum()
