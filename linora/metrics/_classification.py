@@ -494,26 +494,27 @@ def gini(y_true, y_pred, sample_weight=None, pos_label=1):
     return gini
 
 
-def psi(y_true, y_pred, threshold):
+def psi(y_expected, y_actual, threshold=None, bins=10):
     """population stability index
     
     Args:
-        y_true: pd.Series or array or list, a feature variable.
-        y_pred: pd.Series or array or list, a feature variable.
+        y_base: pd.Series or array or list, a feature variable.
+        y_actual: pd.Series or array or list, a feature variable.
         threshold: list, a threshold list.
+        bins: int or list-like of float, number of quantiles. 10 for deciles, 4 for quartiles, etc. 
     Returns:
         psi value of two variable.
     """
-    y_true = pd.Series(y_true)
-    y_pred = pd.Series(y_pred)
-    actual = (y_true-y_true.min())/(y_true.max()-y_true.min())
-    predict = (y_pred-y_pred.min())/(y_pred.max()-y_pred.min())
-    actual = pd.cut(actual, threshold, labels=range(1, len(threshold))).value_counts(normalize=True).reset_index()
+    actual = pd.Series(y_actual)    
+    expected = pd.Series(y_expected)
+    if threshold is None:
+        threshold = pd.qcut(pd.Series(expected), q=bins, duplicates='drop', retbins=True)[1]
+    actual = pd.cut(actual, threshold, include_lowest=True, labels=False).value_counts(normalize=True).reset_index()
     actual.columns = ['label', 'prob1']
-    predict = pd.cut(predict, threshold, labels=range(1, len(threshold))).value_counts(normalize=True).reset_index()
-    predict.columns = ['label', 'prob2']
-    predict = actual.merge(predict, on='label', how='outer')
-    psi = ((predict.prob1-predict.prob2)*np.log((predict.prob1/(predict.prob2+0.00000001)))).sum()
+    expected = pd.cut(expected, threshold, include_lowest=True, labels=False).value_counts(normalize=True).reset_index()
+    expected.columns = ['label', 'prob2']
+    predict = actual.merge(expected, on='label', how='outer').fillna(0.00000001)
+    psi = ((predict.prob1-predict.prob2)*np.log((predict.prob1/predict.prob2))).sum()
     return psi
 
 
