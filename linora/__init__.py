@@ -30,11 +30,11 @@ def _version():
       Homepage     : https://github.com/Hourout/linora
       Docpage      : https://www.yuque.com/jinqing-ps0ax/linora
       Description  : Simple and efficient tools for data mining and data analysis.
-      Language     : python 3.8|3.9|3.10|3.11
+      Language     : python 3.7｜3.8|3.9|3.10|3.11
       Email        : hourout@163.com
-      Requires     : ['pandas>=1.5.2', 
-                      'Pillow>=9.3.0',
-                      'joblib>=1.2.0',
+      Requires     : ['pandas>=1.3.5', 
+                      'Pillow>=9.5.0',
+                      'joblib>=1.3.2',
                       'requests>=2.28.0',
                       'rarfile',
                       'av']
