@@ -1,5 +1,6 @@
 from linora import audio
 from linora import chart
+from linora import credit
 from linora import data
 from linora import feature_column
 from linora import feature_selection
@@ -27,5 +28,15 @@ def _version():
       Author       : --  {__author__}  --
       License      : Apache-2.0
       Homepage     : https://github.com/Hourout/linora
+      Docpage      : https://www.yuque.com/jinqing-ps0ax/linora
       Description  : Simple and efficient tools for data mining and data analysis.
+      Language     : python 3.8|3.9|3.10|3.11
+      Email        : hourout@163.com
+      Requires     : ['pandas>=1.5.2', 
+                      'Pillow>=9.3.0',
+                      'joblib>=1.2.0',
+                      'requests>=2.28.0',
+                      'rarfile',
+                      'av']
+      Time         : 2018-2024
 ------------------------------------------------------------------------------------""")
