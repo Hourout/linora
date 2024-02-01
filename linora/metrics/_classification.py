@@ -448,29 +448,23 @@ def crossentropy_categorical(y_true, y_pred, sample_weight=None, one_hot=False):
     return t
 
 
-def ks(y_true, y_pred, sample_weight=None, pos_label=1):
+def ks(y_true, y_pred, pos_label=1):
     """Kolmogorov-Smirnov metrics.
     
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
         y_pred: pd.Series or array or list, predicted probability, as returned by a classifier.
-        sample_weight: list or array or dict of sample weight.
         pos_label: positive label.
     Returns:
         KS score of the positive class in binary classification.
     """
-    sample_weight = _sample_weight(y_true, sample_weight)
-    t = pd.DataFrame({'prob':y_pred, 'label':y_true, 'weight':sample_weight})
+    t = pd.DataFrame({'prob':y_pred, 'label':y_true})
     assert t.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in t.label.unique()}
     t['label'] = t.label.replace(label_dict)
-    t = t.dropna().sort_values(['prob', 'label'], ascending=False).reset_index(drop=True)   
-    t['tp'] = (t.label*t.weight).cumsum()
-    t['fp'] = t.weight.cumsum()-t.tp
-    t['tpr'] = t.tp/(t.label*t.weight).sum()
-    t['fpr'] = t.fp/(t.weight.sum()-(t.label*t.weight).sum())
-    ks = (t.tpr-t.fpr).abs().max()
-    return ks
+    t = pd.crosstab(t['prob'], t['label'])
+    t = t.cumsum(axis=0)/t.sum()
+    return (t[0]-t[1]).abs().max()
 
 
 def gini(y_true, y_pred, sample_weight=None, pos_label=1):
