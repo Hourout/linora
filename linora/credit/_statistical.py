@@ -105,6 +105,8 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
         data: DataFrame columns include label_list and score_list
         label_list: y label name list.
         score_list: score name list.
+        tag_name: sample distinguishing columns, such as pre-lending and in-lending.
+        excel: excel path.
     Return:
         excel path.
     """
