@@ -127,12 +127,12 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
                 temp = data[data[tag_name]==c].reset_index(drop=True)
             temp.groupby(['apply_month'])[label_list].count().to_excel(writer, sheet_name=f'{c}样本量')
             temp.groupby(['apply_month'])[label_list].sum().to_excel(writer, sheet_name=f'{c}坏样本量')
-            temp.groupby(['apply_month'])[label_list].mean().to_excel(writer, sheet_name=f'{c}坏样本率')
+            temp.groupby(['apply_month'])[label_list].mean().applymap(lambda x:format(x, '.2%')).to_excel(writer, sheet_name=f'{c}坏样本率')
         for c in tag_lists:
             if c=='总体':
-                data[score_list].corr().to_excel(writer, sheet_name='总体相关系数')
+                data[score_list].corr().applymap(lambda x:format(x, '.0%')).to_excel(writer, sheet_name='总体相关系数')
             else:
-                data[data[tag_name]==c][score_list].corr().to_excel(writer, sheet_name=f'{c}相关系数')
+                data[data[tag_name]==c][score_list].corr().applymap(lambda x:format(x, '.0%')).to_excel(writer, sheet_name=f'{c}相关系数')
         #计算psi
         for c in tag_lists:
             if c=='总体':
@@ -141,11 +141,11 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
                 temp = data[data[tag_name]==c].reset_index(drop=True)
             df_list = []
             df_list.append([None]+score_list)
-            df_list.append(['PSI-按基期']+[psi(temp[i][:int(len(temp)/2)], temp[i][int(len(temp)/2):]) for i in score_list])
+            df_list.append(['PSI-按基期']+[round(psi(temp[i][:int(len(temp)/2)], temp[i][int(len(temp)/2):]), 4) for i in score_list])
             df_list.append([temp.apply_month.min()]+['/']*len(score_list))
             month_list = temp.apply_month.drop_duplicates().sort_values().tolist()
             for m, n in zip(month_list[:-1], month_list[1:]):
-                df_list.append([n]+[psi(temp[temp.apply_month==m][i].values, temp[temp.apply_month==n][i].values) for i in score_list])
+                df_list.append([n]+[round(psi(temp[temp.apply_month==m][i].values, temp[temp.apply_month==n][i].values), 4) for i in score_list])
             pd.DataFrame(df_list).to_excel(writer, sheet_name=f'{c}psi')
         #计算逐月指标
         for c in tag_lists:
@@ -161,19 +161,25 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
                 result = statistical_feature(temp[temp.apply_month==m].reset_index(drop=True), label_list, score_list)
                 for i in ['KS', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']:
                     for k in score_list:
-                        df.append([i, k, m]+[result.loc[(result['y标签']==j)&(result['标准分数']==k), i].values[0] for j in label_list])
-            (pd.DataFrame(df, columns=['metrics', 'score', 'month']+label_list)
-             .sort_values(['metrics', 'score', 'month']).set_index(['metrics', 'score', 'month'])
+                        df.append([i, k, m]+[round(result.loc[(result['y标签']==j)&(result['标准分数']==k), i].values[0], 2) for j in label_list])
+            df = pd.DataFrame(df, columns=['metrics', 'score', 'month']+label_list)
+            df.loc[df.metrics=='KS', label_list] = df.loc[df.metrics=='KS', label_list].applymap(lambda x:format(x, '.0%')).replace('nan%', '')
+            (df.sort_values(['metrics', 'score', 'month']).set_index(['metrics', 'score', 'month'])
              .to_excel(writer, sheet_name=f'{c}逐月指标'))
 
+        #计算整体指标
         for c in tag_lists:
             if c=='总体':
                 result = statistical_feature(data, label_list, score_list)
             else:
                 result = statistical_feature(data[data[tag_name]==c], label_list, score_list)
             result = result[['标准分数', 'y标签', '坏样本量', '坏样本率', '总样本量','KS', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']]
+            for i in ['坏样本率', 'KS']:
+                result[i] = result[i].map(lambda x:format(x, '.1%')).replace({'nan%':''})
+            for i in ['尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']:
+                result[i] = result[i].round(2)
             (result.loc[[result.loc[(result['标准分数']==i)&(result['y标签']==j)].index[0] for i in score_list for j in label_list]]
-             .to_excel(writer, sheet_name=f'{c}指标'))
+             .set_index(['标准分数']).to_excel(writer, sheet_name=f'{c}指标'))
     
         df = pd.DataFrame()
         for bins in [10, 20, 40]:
@@ -195,6 +201,10 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
                         temp = temp[['流量', '分箱类型', 'y标签', '标品名称', 'bins', '样本量', '累积样本量', '累积样本率', 
                                      '坏样本量', '坏样本率', '累积坏样本率', 'lift', 'cum_lift', 'ks']]
                         df = pd.concat([df, temp])
+        for i,j in [('坏样本率',1), ('累积样本率',0), ('累积坏样本率',0), ('ks',0)]:
+            df[i] = df[i].map(lambda x:format(x, f'.{j}%')).replace({'nan%':''})
+        for i in ['lift', 'cum_lift']:
+            df[i] = df[i].round(2)
         
         if tag_name is not None:
             for i in tag_list:
