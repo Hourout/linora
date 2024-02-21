@@ -4,6 +4,7 @@ import itertools
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split as train_test_split1
 
 from linora.sample._sampling import sampling_stratify
 
@@ -88,6 +89,8 @@ def train_test_split(df, stratify=None, test_size=0.2, shuffle=True, seed=None):
     Returns:
         list, length=2, List containing train-test split of inputs.
     """
+    #暂时用sklearn 替代
+    return train_test_split1(df, stratify, test_size=test_size, random_state=seed, shuffle= shuffle)
     test = sampling_stratify(df, stratify=stratify, frac=test_size, seed=seed)
     train = df.drop(test).index.tolist()
     if shuffle:
