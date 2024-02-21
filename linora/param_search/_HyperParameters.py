@@ -40,7 +40,7 @@ class HyperParametersRandom():
             self._space[name] = {'mode':'Choice', 'values':list(values), 'weight':weight, 'default':default}
             self.params[name] = np.random.choice(self._space[name]['values'], p=weight) if default is None else default
             if 'numpy.int' in str(type(self.params[name])):
-		self.params[name] = int(self.params[name])
+    	        self.params[name] = int(self.params[name])
     
     def Dependence(self, name, dependent_name, function, default=None):
         """Values generated depending on other parameters.
@@ -109,8 +109,8 @@ class HyperParametersRandom():
                     self.params[name] = int(np.random.randint(config['min_value'], config['max_value']))
                 elif config['mode']=='Choice':
                     self.params[name] = np.random.choice(config['values'], p=config['weight'])
-		    if 'numpy.int' in str(type(self.params[name])):
-			self.params[name] = int(self.params[name])
+        		    if 'numpy.int' in str(type(self.params[name])):
+            			self.params[name] = int(self.params[name])
                 elif config['mode']=='Dependence':
                     self.params[name] = config['function'](self.params[config['dependent_name']])
         self.params_history[self._update_nums] = self.params.copy()
@@ -171,7 +171,7 @@ class HyperParametersGrid():
                 self._rank[rank].append(name)
             self.params[name] = random.choice(self._space[name]['values']) if default is None else default
 	    if 'numpy.int' in str(type(self.params[name])):
-		self.params[name] = int(self.params[name])
+    		self.params[name] = int(self.params[name])
         
     def Dependence(self, name, dependent_name, function, default=None):
         """Values generated depending on other parameters.
@@ -296,4 +296,3 @@ class HyperParametersGrid():
                     else:
                         if name in self._rank[rank]:
                             self._rank[rank].remove(name)
-                        
