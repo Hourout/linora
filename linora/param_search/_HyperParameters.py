@@ -91,7 +91,7 @@ class HyperParametersRandom():
         """
         if name not in self._space:
             self._space[name] = {'mode':'Int', 'min_value':min_value, 'max_value':max_value+1, 'default':default}
-            self.params[name] = np.random.randint(min_value, max_value+1) if default is None else default
+            self.params[name] = int(np.random.randint(min_value, max_value+1)) if default is None else default
         
     def update(self, best_params=None):
         """params update"""
@@ -104,7 +104,7 @@ class HyperParametersRandom():
                 elif config['mode']=='Float':
                     self.params[name] = round(np.random.uniform(config['min_value'], config['max_value']), config['round'])
                 elif config['mode']=='Int':
-                    self.params[name] = np.random.randint(config['min_value'], config['max_value'])
+                    self.params[name] = int(np.random.randint(config['min_value'], config['max_value']))
                 elif config['mode']=='Choice':
                     self.params[name] = np.random.choice(config['values'], p=config['weight'])
                 elif config['mode']=='Dependence':
@@ -227,7 +227,7 @@ class HyperParametersGrid():
             self._space[name] = {'mode':'Int', 'default':default, 'rank':rank, 'values':list(range(min_value, max_value+1))}
             if rank>0:
                 self._rank[rank].append(name)
-            self.params[name] = round(random.uniform(min_value, max_value)) if default is None else default
+            self.params[name] = int(round(random.uniform(min_value, max_value))) if default is None else default
     
     def _rank_list_func(self):
         rank = sorted(self._rank)
