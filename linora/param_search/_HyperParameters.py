@@ -170,9 +170,9 @@ class HyperParametersGrid():
             if rank>0:
                 self._rank[rank].append(name)
             self.params[name] = random.choice(self._space[name]['values']) if default is None else default
-    	    if 'numpy.int' in str(type(self.params[name])):
-        		self.params[name] = int(self.params[name])
-        
+            if 'numpy.int' in str(type(self.params[name])):
+                self.params[name] = int(self.params[name])
+    
     def Dependence(self, name, dependent_name, function, default=None):
         """Values generated depending on other parameters.
 
