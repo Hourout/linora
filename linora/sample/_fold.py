@@ -90,7 +90,9 @@ def train_test_split(df, stratify=None, test_size=0.2, shuffle=True, seed=None):
         list, length=2, List containing train-test split of inputs.
     """
     #暂时用sklearn 替代
-    return train_test_split1(df, stratify, test_size=test_size, random_state=seed, shuffle= shuffle)
+    _, _, train_y, test_y = train_test_split1(df, stratify, test_size=test_size, random_state=seed, shuffle= shuffle)
+    return [train_y.index.tolist(), test_y.index.tolist()]
+
     test = sampling_stratify(df, stratify=stratify, frac=test_size, seed=seed)
     train = df.drop(test).index.tolist()
     if shuffle:
