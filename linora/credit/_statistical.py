@@ -207,7 +207,7 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
 
         for c in tag_list:
             df = pd.DataFrame()
-            for bins in [10, 20, 40]:
+            for bins in [10, 20, 40, 50]:
                 for i in score_list:
                     for j in label_list:
                         temp = data[data[tag_name]==c].reset_index(drop=True)
