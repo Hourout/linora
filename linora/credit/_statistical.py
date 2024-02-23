@@ -49,6 +49,7 @@ def statistical_bins(y_true, y_pred, bins=10, method='quantile', pos_label=1):
             logic = False
     return t
 
+
 def statistical_feature(data, label_list, score_list):
     """Statistics ks and lift for feature list and label list.
     Args:
@@ -58,7 +59,7 @@ def statistical_feature(data, label_list, score_list):
     Return:
         Statistical dataframe
     """
-    score_result = pd.DataFrame()
+    score_result = []
     for label in label_list:
         for score in score_list:
             df = data.loc[data[label].isin([1,0]), [label, score]].dropna().reset_index(drop=True)
@@ -96,8 +97,9 @@ def statistical_feature(data, label_list, score_list):
                     stat_dict['累计lift_20箱是否单调'] = '是' if cnt==0 else '否'
                 except:
                     pass
-            score_result = score_result.append(stat_dict, ignore_index = True)
-    return score_result
+            score_result.append(stat_dict)
+    return pd.DataFrame.from_dict(score_result)
+
 
 def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本统计.xlsx'):
     """score and label statistics and result output to excel.
@@ -117,44 +119,76 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
     else:
         raise ValueError('tag_name should be in `data.columns`.')
     tag_lists = tag_list.copy() if '总体' in tag_list else ['总体']+tag_list
-      
+
+    css_indexes = 'background-color: steelblue; color: white;'
+    
     with pd.ExcelWriter(excel) as writer:
-        for c in tag_lists:
-            if c=='总体':
-                temp = data.groupby(['user_guid', 'apply_date'], as_index=False)[label_list].max()
-                temp['apply_month'] = temp.apply_date.map(lambda x:x[:7])
-            else:
-                temp = data[data[tag_name]==c].reset_index(drop=True)
-            temp.groupby(['apply_month'])[label_list].count().to_excel(writer, sheet_name=f'{c}样本量')
-            temp.groupby(['apply_month'])[label_list].sum().to_excel(writer, sheet_name=f'{c}坏样本量')
-            temp.groupby(['apply_month'])[label_list].mean().applymap(lambda x:format(x, '.2%')).to_excel(writer, sheet_name=f'{c}坏样本率')
-        for c in tag_lists:
-            if c=='总体':
-                data[score_list].corr().applymap(lambda x:format(x, '.0%')).to_excel(writer, sheet_name='总体相关系数')
-            else:
-                data[data[tag_name]==c][score_list].corr().applymap(lambda x:format(x, '.0%')).to_excel(writer, sheet_name=f'{c}相关系数')
-        #计算psi
-        for c in tag_lists:
-            if c=='总体':
-                temp = data.copy()
-            else:
-                temp = data[data[tag_name]==c].reset_index(drop=True)
+        pd.DataFrame(['样本情况']).to_excel(writer, sheet_name='样本情况', startrow=1, index=False, header=None)
+    with pd.ExcelWriter(excel, mode='a', if_sheet_exists='overlay', engine='openpyxl') as writer:
+        
+        for r, c in enumerate(tag_list):
+            temp = data[data[tag_name]==c].reset_index(drop=True)
+            n = writer.sheets['样本情况'].max_column+2 if r else 0
+            r = temp['apply_month'].nunique()+1
+            pd.DataFrame([c]).to_excel(writer, sheet_name='样本情况', index=False, header=None, startrow=4, startcol=n)
+
+            headers = {'selector': 'th.col_heading','props': 'background-color: #00688B; color: white;'}
+
+            (temp.groupby(['apply_month'])[label_list].agg('mean').map(lambda x:format(x, '.2%')).replace({'nan%':''})
+             .reset_index().rename(columns={'apply_month':'坏样本率'})
+             .style.map_index(lambda _: css_indexes, axis=1)
+             .to_excel(writer, sheet_name='样本情况', index=False, startrow=4+1, startcol=n, engine='openpyxl'))
+            (temp.groupby(['apply_month'], as_index=False)[label_list].agg('count').rename(columns={'apply_month':'样本量'})
+             .style.map_index(lambda _: css_indexes, axis=1)
+             .to_excel(writer, sheet_name='样本情况', index=False, startrow=4+r+2, startcol=n))
+            (temp.groupby(['apply_month'], as_index=False)[label_list].agg('sum').rename(columns={'apply_month':'坏样本量'})
+             .style.map_index(lambda _: css_indexes, axis=1)
+             .to_excel(writer, sheet_name='样本情况', index=False, startrow=4+r*2+2, startcol=n))
+        
+        
+        
+        # 计算整体指标
+        for c in tag_list:
+            pd.DataFrame(['性能']).to_excel(writer, sheet_name=f'{c}评估', startrow=1, index=False, header=None)
+            result = statistical_feature(data[data[tag_name]==c], label_list, score_list)
+            result = result[['标准分数', 'y标签', '坏样本量', '坏样本率', '总样本量', 'KS', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']]
+            for i in ['坏样本率', 'KS']:
+                result[i] = result[i].map(lambda x:format(x, '.1%'))
+            for i in ['尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']:
+                result[i] = result[i].round(2)
+            (result.loc[[result.loc[(result['标准分数']==i)&(result['y标签']==j)].index[0] for i in score_list for j in label_list]]
+             .style.map_index(lambda _: css_indexes, axis=1)
+             .to_excel(writer, index=False, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row+1))
+
+        # 计算相关性
+        for c in tag_list:
+            pd.DataFrame(['相关性']).to_excel(writer, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row+3, index=False, header=None)
+            (data[data[tag_name]==c][score_list].corr().map(lambda x:format(x, '.0%'))
+             .style.map_index(lambda _: css_indexes, axis=1)
+             .to_excel(writer, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row+1))
+        
+        # 计算psi
+        for c in tag_list:
+            pd.DataFrame(['稳定性-PSI']).to_excel(writer, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row+3, index=False, header=None)
+            pd.DataFrame(["注：\n1. PSI分十箱计算；\n2. 基期为样本按时间顺序排序之后取前50%的样本；"]).to_excel(
+                writer, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row+1, index=False, header=None)
+            
+            temp = data[data[tag_name]==c].reset_index(drop=True)
             df_list = []
-            df_list.append([None]+score_list)
+            # df_list.append([None]+score_list)
             df_list.append(['PSI-按基期']+[round(psi(temp[i][:int(len(temp)/2)], temp[i][int(len(temp)/2):]), 4) for i in score_list])
             df_list.append([temp.apply_month.min()]+['/']*len(score_list))
             month_list = temp.apply_month.drop_duplicates().sort_values().tolist()
             for m, n in zip(month_list[:-1], month_list[1:]):
                 df_list.append([n]+[round(psi(temp[temp.apply_month==m][i].values, temp[temp.apply_month==n][i].values), 4) for i in score_list])
-            pd.DataFrame(df_list).to_excel(writer, sheet_name=f'{c}psi')
-        #计算逐月指标
-        for c in tag_lists:
-            if c=='总体':
-                temp = (data.groupby(['user_guid', 'apply_date'], as_index=False)[label_list].max()
-                        .merge(data[['user_guid', 'apply_date']+score_list].drop_duplicates(), how='left', on=['user_guid', 'apply_date']))
-                temp['apply_month'] = temp.apply_date.map(lambda x:x[:7])
-            else:
-                temp = data[data[tag_name]==c].reset_index(drop=True)
+            (pd.DataFrame(df_list, columns=['PSI']+score_list).set_index('PSI')
+             .style.map_index(lambda _: css_indexes, axis=1)
+             .to_excel(writer, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row))
+
+        # 计算逐月指标
+        for c in tag_list:
+            pd.DataFrame(['性能-稳定性']).to_excel(writer, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row+3, index=False, header=None)
+            temp = data[data[tag_name]==c].reset_index(drop=True)
             df = []
             month_list = temp.apply_month.drop_duplicates().sort_values().tolist()
             for m in month_list:
@@ -163,34 +197,21 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
                     for k in score_list:
                         df.append([i, k, m]+[round(result.loc[(result['y标签']==j)&(result['标准分数']==k), i].values[0], 2) for j in label_list])
             df = pd.DataFrame(df, columns=['metrics', 'score', 'month']+label_list)
-            df.loc[df.metrics=='KS', label_list] = df.loc[df.metrics=='KS', label_list].applymap(lambda x:format(x, '.0%')).replace('nan%', '')
-            (df.sort_values(['metrics', 'score', 'month']).set_index(['metrics', 'score', 'month'])
-             .to_excel(writer, sheet_name=f'{c}逐月指标'))
+            (df[df.metrics=='KS'].sort_values(['metrics', 'score', 'month']).set_index(['metrics', 'score', 'month'])
+             .map(lambda x:format(x, '.0%')).replace({'nan%':''}).reset_index()
+             .style.map_index(lambda _: css_indexes, axis=1)
+             .to_excel(writer, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row+1, index=False))
+            (df[df.metrics!='KS'].sort_values(['metrics', 'score', 'month'])
+             .style.map_index(lambda _: css_indexes, axis=1)
+             .to_excel(writer, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row, index=False, header=None))
 
-        #计算整体指标
-        for c in tag_lists:
-            if c=='总体':
-                result = statistical_feature(data, label_list, score_list)
-            else:
-                result = statistical_feature(data[data[tag_name]==c], label_list, score_list)
-            result = result[['标准分数', 'y标签', '坏样本量', '坏样本率', '总样本量','KS', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']]
-            for i in ['坏样本率', 'KS']:
-                result[i] = result[i].map(lambda x:format(x, '.1%')).replace({'nan%':''})
-            for i in ['尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']:
-                result[i] = result[i].round(2)
-            (result.loc[[result.loc[(result['标准分数']==i)&(result['y标签']==j)].index[0] for i in score_list for j in label_list]]
-             .set_index(['标准分数']).to_excel(writer, sheet_name=f'{c}指标'))
-    
-        df = pd.DataFrame()
-        for bins in [10, 20, 40]:
-            for c in tag_lists:
+        for c in tag_list:
+            df = pd.DataFrame()
+            for bins in [10, 20, 40]:
                 for i in score_list:
                     for j in label_list:
-                        if c=='总体':
-                            temp = data.copy()
-                        else:
-                            temp = data[data[tag_name]==c].reset_index(drop=True)
-                        temp = statistical_bins(temp[j], temp[i], bins=10, method='quantile')
+                        temp = data[data[tag_name]==c].reset_index(drop=True)
+                        temp = statistical_bins(temp[j], temp[i], bins=bins, method='quantile')
                         temp['流量'] = c
                         temp['分箱类型'] = f'{bins}等频'
                         temp['标品名称'] = i
@@ -201,24 +222,26 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
                         temp = temp[['流量', '分箱类型', 'y标签', '标品名称', 'bins', '样本量', '累积样本量', '累积样本率', 
                                      '坏样本量', '坏样本率', '累积坏样本率', 'lift', 'cum_lift', 'ks']]
                         df = pd.concat([df, temp])
-        for i,j in [('坏样本率',1), ('累积样本率',0), ('累积坏样本率',0), ('ks',0)]:
-            df[i] = df[i].map(lambda x:format(x, f'.{j}%')).replace({'nan%':''})
-        for i in ['lift', 'cum_lift']:
-            df[i] = df[i].round(2)
+            for i,j in [('坏样本率',1), ('累积样本率',0), ('累积坏样本率',0), ('ks',0)]:
+                df[i] = df[i].map(lambda x:format(x, f'.{j}%')).replace({'nan%':''})
+            for i in ['lift', 'cum_lift']:
+                df[i] = df[i].round(2)
+            (df.style.map_index(lambda _: css_indexes, axis=1)
+             .to_excel(writer, sheet_name=f'分箱明细-{c}', startrow=2, index=False))
         
-        if tag_name is not None:
-            for i in tag_list:
-                df_temp1 = pd.DataFrame()
-                for j in ['10等频', '20等频', '40等频']:
-                    for m in label_list:
-                        df_temp = pd.DataFrame()
-                        df_list = [df[(df['流量']==i)&(df['分箱类型']==j)&(df['y标签']==m)&(df['标品名称']==n)] for n in score_list]
-                        df_len = max([len(x) for x in df_list])
-                        for x in df_list:
-                            df_temp = pd.concat([df_temp, pd.DataFrame([x.columns.tolist()]+x.values.tolist()), 
-                                                 pd.DataFrame(['']*df_len, columns=['']), pd.DataFrame(['']*df_len, columns=[''])], axis=1)
-                            df_temp.columns = range(0, df_temp.shape[1])
-                        df_temp1 = pd.concat([df_temp1, pd.DataFrame([['']*df_temp.shape[1], ['']*df_temp.shape[1]]), df_temp])
-                df_temp1.to_excel(writer, sheet_name=f'{i}明细', index=False)
-        df.to_excel(writer, sheet_name=f'分箱明细', index=False)
-    return os.path.join(os.getcwd(), excel)
+    #     if tag_name is not None:
+    #         for i in tag_list:
+    #             df_temp1 = pd.DataFrame()
+    #             for j in ['10等频', '20等频', '40等频']:
+    #                 for m in label_list:
+    #                     df_temp = pd.DataFrame()
+    #                     df_list = [df[(df['流量']==i)&(df['分箱类型']==j)&(df['y标签']==m)&(df['标品名称']==n)] for n in score_list]
+    #                     df_len = max([len(x) for x in df_list])
+    #                     for x in df_list:
+    #                         df_temp = pd.concat([df_temp, pd.DataFrame([x.columns.tolist()]+x.values.tolist()), 
+    #                                              pd.DataFrame(['']*df_len, columns=['']), pd.DataFrame(['']*df_len, columns=[''])], axis=1)
+    #                         df_temp.columns = range(0, df_temp.shape[1])
+    #                     df_temp1 = pd.concat([df_temp1, pd.DataFrame([['']*df_temp.shape[1], ['']*df_temp.shape[1]]), df_temp])
+    #             df_temp1.to_excel(writer, sheet_name=f'{i}明细', index=False)
+    #     df.to_excel(writer, sheet_name=f'分箱明细', index=False)
+    # return os.path.join(os.getcwd(), excel)
