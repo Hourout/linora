@@ -244,4 +244,4 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
     #                     df_temp1 = pd.concat([df_temp1, pd.DataFrame([['']*df_temp.shape[1], ['']*df_temp.shape[1]]), df_temp])
     #             df_temp1.to_excel(writer, sheet_name=f'{i}明细', index=False)
     #     df.to_excel(writer, sheet_name=f'分箱明细', index=False)
-    # return os.path.join(os.getcwd(), excel)
+    return os.path.join(os.getcwd(), excel)
