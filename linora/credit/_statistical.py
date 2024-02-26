@@ -32,9 +32,10 @@ def statistical_bins(y_true, y_pred, bins=10, method='quantile', pos_label=1):
         t.columns = ['bins', 'bad_num', 'sample_num']
         t['bad_rate'] = t['bad_num']/t['sample_num']
         t['bad_num_cum'] = t['bad_num'].cumsum()
+        t['bad_rate_cum'] = t['bad_num_cum']/t['bad_num'].sum()
+        t['sample_rate'] = t['sample_num']/t['sample_num'].sum()
         t['sample_num_cum'] = t['sample_num'].cumsum()
         t['sample_rate_cum'] = t['sample_num_cum']/t['sample_num'].sum()
-        t['bad_rate_cum'] = t['bad_num_cum']/t['bad_num'].sum()
         t['good_num'] = t['sample_num']-t['bad_num']
         t['good_rate'] = t['good_num']/t['sample_num']
         t['good_num_cum'] = t['good_num'].cumsum()
@@ -126,9 +127,9 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
         pd.DataFrame(['样本情况']).to_excel(writer, sheet_name='样本情况', startrow=1, index=False, header=None)
     with pd.ExcelWriter(excel, mode='a', if_sheet_exists='overlay', engine='openpyxl') as writer:
         
-        for r, c in enumerate(tag_list):
+        for rank, c in enumerate(tag_list):
             temp = data[data[tag_name]==c].reset_index(drop=True)
-            n = writer.sheets['样本情况'].max_column+2 if r else 0
+            n = writer.sheets['样本情况'].max_column+2 if rank else 0
             r = temp['apply_month'].nunique()+1
             pd.DataFrame([c]).to_excel(writer, sheet_name='样本情况', index=False, header=None, startrow=4, startcol=n)
 
