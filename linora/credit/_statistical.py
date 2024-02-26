@@ -197,12 +197,14 @@ def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本�
                 for i in ['KS', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']:
                     for k in score_list:
                         df.append([i, k, m]+[round(result.loc[(result['y标签']==j)&(result['标准分数']==k), i].values[0], 2) for j in label_list])
-            df = pd.DataFrame(df, columns=['metrics', 'score', 'month']+label_list)
-            (df[df.metrics=='KS'].sort_values(['metrics', 'score', 'month']).set_index(['metrics', 'score', 'month'])
+            df = pd.DataFrame(df, columns=['metrics', 'score', 'month']+label_list).sort_values(['metrics', 'score', 'month'])
+            df = pd.concat([df[df.metrics==i] for i in ['KS', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']])
+            
+            (df[df.metrics=='KS'].set_index(['metrics', 'score', 'month'])
              .map(lambda x:format(x, '.0%')).replace({'nan%':''}).reset_index()
              .style.map_index(lambda _: css_indexes, axis=1)
              .to_excel(writer, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row+1, index=False))
-            (df[df.metrics!='KS'].sort_values(['metrics', 'score', 'month'])
+            (df[df.metrics!='KS']
              .style.map_index(lambda _: css_indexes, axis=1)
              .to_excel(writer, sheet_name=f'{c}评估', startrow=writer.sheets[f'{c}评估'].max_row, index=False, header=None))
 
