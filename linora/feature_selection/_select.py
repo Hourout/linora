@@ -4,7 +4,7 @@ __all__ = ['missing_columns', 'single_columns', 'correlation_columns',
            'cv_columns']
 
 
-def missing_columns(df, missing_rate=0.):
+def missing_columns(df, missing_rate=0., less=True):
     """Find missing features
     
     Args:
@@ -12,6 +12,7 @@ def missing_columns(df, missing_rate=0.):
             Training data, where n_samples is the number of samples and n_features is the number of features.
         threshold: float, default=0.,[0,1)
             Count all features with a missing rate greater than `missing_rate`.
+        less: True return less than missing_rate features.
     
     Return:
         t : All features with a missing rate greater than `missing_rate`
@@ -19,6 +20,8 @@ def missing_columns(df, missing_rate=0.):
     assert 1>=missing_rate>=0, "`missing_rate` should be one of [0, 1]."
     t = (1-df.count()/len(df)).reset_index()
     t.columns = ['feature_name', 'missing_rate']
+    if less:
+        return t[t.missing_rate<missing_rate].reset_index(drop=True)
     return t[t.missing_rate>=missing_rate].reset_index(drop=True)
 
 
