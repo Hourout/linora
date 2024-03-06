@@ -54,6 +54,8 @@ def statistical_bins(y_true, y_pred, bins=10, method='quantile', pos_label=1):
         else:
             t = data.groupby('bins', observed=True).label.agg(['sum', 'count']).sort_index(ascending=False).reset_index()
             logic = False
+    if 'Special' not in t['bins'].tolist():
+        t = pd.concat([t, pd.DataFrame({i:['Special'] if i=='bins' else [0] for i in t.columns})]).reset_index(drop=True)
     return t.drop(['pos_rate', 'neg_rate'], axis=1)
 
 
