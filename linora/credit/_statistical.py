@@ -23,6 +23,7 @@ def statistical_bins(y_true, y_pred, bins=10, method='quantile', pos_label=1):
         data['bins'] = pd.qcut(data['bins'], q=bins, duplicates='drop')
     else:
         data['bins'] = pd.cut(data['bins'], bins, duplicates='drop')
+    data['bins'] = data['bins'].astype(str).replace('nan', 'Special')
     assert data.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in data.label.unique()}
     data['label'] = data.label.replace(label_dict)
@@ -43,12 +44,17 @@ def statistical_bins(y_true, y_pred, bins=10, method='quantile', pos_label=1):
         t['ks'] = (t['bad_rate_cum']-t['good_rate_cum']).abs()
         t['lift'] = t['bad_num']/t['sample_num']/t['bad_num'].sum()*t['sample_num'].sum()
         t['cum_lift'] = t['bad_num'].cumsum()/t['sample_num'].cumsum()/t['bad_num'].sum()*t['sample_num'].sum()
+        
+        t['pos_rate'] = t['bad_num'].replace({0:1})/t['bad_num'].sum()
+        t['neg_rate'] = t['good_num'].replace({0:1})/t['good_num'].sum()
+        t['WoE'] = np.log(t['pos_rate']/t['neg_rate'])
+        t['IV'] = (t['pos_rate'] - t['neg_rate']) * t['WoE']
         if t['cum_lift'].values[0]>t['cum_lift'].values[-1] or not logic:
             break
         else:
             t = data.groupby('bins', observed=True).label.agg(['sum', 'count']).sort_index(ascending=False).reset_index()
             logic = False
-    return t
+    return t.drop(['pos_rate', 'neg_rate'], axis=1)
 
 
 def statistical_feature(data, label_list, score_list):
