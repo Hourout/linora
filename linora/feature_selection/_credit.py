@@ -1,7 +1,10 @@
+
+import itertools
+
 import numpy as np
 import pandas as pd
 
-__all__ = ['woe', 'iv']
+__all__ = ['woe', 'iv', 'psi_columns']
 
 
 def woe(feature, y_true, max_bins=5, pos_label=1):
@@ -54,3 +57,12 @@ def iv(feature, y_true, max_bins=5, pos_label=1):
     df['iv'] = (df['pos_rate'] - df['neg_rate']) * df['woe']
     iv = df['iv'].sum()
     return iv
+
+
+def psi_columns(feature_list, data_dict, bins=4):
+    name = list(itertools.combinations([i for i in data_dict], 2))
+    t = pd.DataFrame({'feature_name':feature_list})
+    for i,j in name:
+        t[f'{i}_{j}_psi'] = [la.metrics.psi(data_dict[i][f], data_dict[j][f], bins=bins) for f in feature_list]
+    return t
+
