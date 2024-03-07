@@ -85,6 +85,7 @@ def statistical_feature(data, label_list, score_list):
             if len(df)>10 and df[label].nunique()==2:
                 try:
                     df_10bin = statistical_bins(df[label], df[score], bins=10)
+                    df_10bin = df_10bin[df_10bin.bins!='Special']
                     stat_dict['KS_10箱'] = round(df_10bin['ks'].max(),4)
                     stat_dict['尾部10%lift'] = round(df_10bin['lift'].values[0] ,4)
                     stat_dict['头部10%lift'] = round(df_10bin['lift'].values[-1] ,4)
@@ -98,6 +99,7 @@ def statistical_feature(data, label_list, score_list):
             if len(df)>20 and df[label].nunique()==2:
                 try:
                     df_20bin = statistical_bins(df[label], df[score], bins=20)
+                    df_20bin = df_20bin[df_20bin.bins!='Special']
                     stat_dict['KS_20箱'] = round(df_20bin['ks'].max(),4)
                     stat_dict['尾部5%lift'] = round(df_20bin['lift'].values[0] ,4)
                     stat_dict['头部5%lift'] = round(df_20bin['lift'].values[-1] ,4)
