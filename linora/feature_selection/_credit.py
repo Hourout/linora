@@ -4,6 +4,8 @@ import itertools
 import numpy as np
 import pandas as pd
 
+from linora.metrics import psi
+
 __all__ = ['woe', 'iv', 'psi_columns']
 
 
@@ -63,6 +65,6 @@ def psi_columns(feature_list, data_dict, bins=4):
     name = list(itertools.combinations([i for i in data_dict], 2))
     t = pd.DataFrame({'feature_name':feature_list})
     for i,j in name:
-        t[f'{i}_{j}_psi'] = [la.metrics.psi(data_dict[i][f], data_dict[j][f], bins=bins) for f in feature_list]
+        t[f'{i}_{j}_psi'] = [psi(data_dict[i][f], data_dict[j][f], bins=bins) for f in feature_list]
     return t
 
