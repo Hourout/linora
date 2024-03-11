@@ -71,7 +71,7 @@ def statistical_feature(data, label_list, score_list):
     score_result = []
     for label in label_list:
         for score in score_list:
-            df = data.loc[data[label].isin([1,0])&(data[score]>0), [label, score]].dropna().reset_index(drop=True)
+            df = data.loc[data[label].isin([1,0])&(data[score]>=0), [label, score]].dropna().reset_index(drop=True)
             stat_dict = {'y标签':label, '标准分数':score, '坏样本量':df[label].sum(), 
                          '坏样本率':df[label].sum()/len(df), '总样本量':len(df)}
             for i in ['KS', 'KS_10箱', 'KS_20箱', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift',
