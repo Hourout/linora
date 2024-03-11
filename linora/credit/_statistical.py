@@ -4,10 +4,73 @@ import numpy as np
 import pandas as pd
 from linora.metrics import ks, psi
 
-__all__ = ['statistical_bins', 'statistical_feature', 'risk_statistics']
+__all__ = ['statistical_bins', 'statistical_feature', 'risk_statistics', 'statistical_bins1']
 
 
-def statistical_bins(y_true, y_pred, bins=10, method='quantile', pos_label=1):
+
+def statistical_bins(y_true, y_pred, bins=10, method='quantile', sort_bins=False, pos_label=1):
+    """Statistics ks and lift for feature and label.
+    Args:
+        y_true: pd.Series or array or list, ground truth (correct) labels.
+        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
+        bins: Number of boxes.
+        method: 'quantile' is Equal frequency bin, 'uniform' is Equal width bin.
+        pos_label: positive label.
+    Returns:
+        Statistical dataframe
+    """
+    data = pd.DataFrame({'bins':y_pred, 'label':y_true})
+    if method=='quantile':
+        data['bins'] = pd.qcut(data['bins'], q=bins, duplicates='drop')
+    else:
+        data['bins'] = pd.cut(data['bins'], bins, duplicates='drop')
+    data['bins'] = data['bins'].astype(str).replace('nan', 'Special')
+    assert data.label.nunique()==2, "`y_true` should be binary classification."
+    label_dict = {i:1 if i==pos_label else 0 for i in data.label.unique()}
+    data['label'] = data.label.replace(label_dict)
+    logic = True
+    t = data.groupby('bins', observed=True).label.agg(['sum', 'count']).sort_index(ascending=True).reset_index()
+    t = pd.concat([t[t['bins']!='Special'], t[t['bins']=='Special']]).reset_index(drop=True)
+    while True:
+        t.columns = ['bins', 'bad_num', 'sample_num']
+        t['bad_rate'] = t['bad_num']/t['sample_num']
+        t['bad_num_cum'] = t['bad_num'].cumsum()
+        t['bad_rate_cum'] = t['bad_num_cum']/t['bad_num'].sum()
+        t['sample_rate'] = t['sample_num']/t['sample_num'].sum()
+        t['sample_num_cum'] = t['sample_num'].cumsum()
+        t['sample_rate_cum'] = t['sample_num_cum']/t['sample_num'].sum()
+        t['good_num'] = t['sample_num']-t['bad_num']
+        t['good_rate'] = t['good_num']/t['sample_num']
+        t['good_num_cum'] = t['good_num'].cumsum()
+        t['good_rate_cum'] = t['good_num_cum']/t['good_num'].sum()
+        t['ks'] = (t['bad_rate_cum']-t['good_rate_cum']).abs()
+        t['lift'] = t['bad_num']/t['sample_num']/t['bad_num'].sum()*t['sample_num'].sum()
+        t['cum_lift'] = t['bad_num'].cumsum()/t['sample_num'].cumsum()/t['bad_num'].sum()*t['sample_num'].sum()
+        
+        t['pos_rate'] = t['bad_num'].replace({0:1})/t['bad_num'].sum()
+        t['neg_rate'] = t['good_num'].replace({0:1})/t['good_num'].sum()
+        t['WoE'] = np.log(t['pos_rate']/t['neg_rate'])
+        t['IV'] = (t['pos_rate'] - t['neg_rate']) * t['WoE']
+        if t['cum_lift'].values[0]>t['cum_lift'].values[-1] or not logic:
+            break
+        else:
+            t = data.groupby('bins', observed=True).label.agg(['sum', 'count']).sort_index(ascending=False).reset_index()
+            t = pd.concat([t[t['bins']!='Special'], t[t['bins']=='Special']]).reset_index(drop=True)
+            logic = False
+    if 'Special' not in t['bins'].tolist():
+        t = pd.concat([t, pd.DataFrame({i:['Special'] if i=='bins' else [0] for i in t.columns})]).reset_index(drop=True)
+    if sort_bins:
+        t = t.sort_values(['bins'])
+    t.insert(0, '序号', t.reset_index().index)
+    t = pd.concat([t.drop(['pos_rate', 'neg_rate'], axis=1), pd.DataFrame({
+        '序号':['Totals'], 'bad_num':[t['bad_num'].sum()], 'sample_num':[t['sample_num'].sum()], 
+        'bad_rate':[t['bad_num'].sum()/t['sample_num'].sum()], 
+        'good_num':[t['good_num'].sum()], 'good_rate':[t['good_num'].sum()/t['sample_num'].sum()],
+        'ks':[t['ks'].max()], 'IV':[t['IV'].sum()]})], ignore_index=True)
+    return t
+
+
+def statistical_bins1(y_true, y_pred, bins=10, method='quantile', pos_label=1):
     """Statistics ks and lift for feature and label.
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
