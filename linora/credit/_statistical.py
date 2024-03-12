@@ -134,7 +134,7 @@ def statistical_feature(data, label_list, score_list):
     score_result = []
     for label in label_list:
         for score in score_list:
-            df = data.loc[data[label].isin([1,0])&(data[score]>=0), [label, score]].dropna().reset_index(drop=True)
+            df = data.loc[data[label].isin([1,0]), [label, score]].reset_index(drop=True)
             stat_dict = {'y标签':label, '标准分数':score, '坏样本量':df[label].sum(), 
                          '坏样本率':df[label].sum()/len(df), '总样本量':len(df)}
             for i in ['KS', 'KS_10箱', 'KS_20箱', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift',
@@ -147,8 +147,9 @@ def statistical_feature(data, label_list, score_list):
             # 分10箱
             if len(df)>10 and df[label].nunique()==2:
                 try:
-                    df_10bin = statistical_bins(df[label], df[score], bins=10)
+                    df_10bin = statistical_bins(df[label], df[score], bins=10, method='quantile', sort_bins=False)
                     df_10bin = df_10bin[df_10bin.bins!='Special']
+                    df_10bin = df_10bin[df_10bin['序号']!='Totals']
                     stat_dict['KS_10箱'] = round(df_10bin['ks'].max(),4)
                     stat_dict['尾部10%lift'] = round(df_10bin['lift'].values[0] ,4)
                     stat_dict['头部10%lift'] = round(df_10bin['lift'].values[-1] ,4)
@@ -161,8 +162,9 @@ def statistical_feature(data, label_list, score_list):
             # 分20箱
             if len(df)>20 and df[label].nunique()==2:
                 try:
-                    df_20bin = statistical_bins(df[label], df[score], bins=20)
+                    df_20bin = statistical_bins(df[label], df[score], bins=20, method='quantile', sort_bins=False)
                     df_20bin = df_20bin[df_20bin.bins!='Special']
+                    df_20bin = df_20bin[df_20bin['序号']!='Totals']
                     stat_dict['KS_20箱'] = round(df_20bin['ks'].max(),4)
                     stat_dict['尾部5%lift'] = round(df_20bin['lift'].values[0] ,4)
                     stat_dict['头部5%lift'] = round(df_20bin['lift'].values[-1] ,4)
