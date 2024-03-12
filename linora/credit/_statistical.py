@@ -142,7 +142,10 @@ def statistical_feature(data, label_list, score_list):
                 stat_dict[i] = np.nan
             
             if df[label].nunique()==2:
-                stat_dict['KS'] = ks(df[label], df[score])
+                try:
+                    stat_dict['KS'] = ks(df[label], df[score])
+                except:
+                    pass
 
             # 分10箱
             if len(df)>10 and df[label].nunique()==2:
