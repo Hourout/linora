@@ -61,7 +61,16 @@ def iv(feature, y_true, max_bins=5, pos_label=1):
     return iv
 
 
-def psi_columns(feature_list, data_dict, bins=4):
+def psi_columns(feature_list, data_dict, bins=4, value=0.1):
+    """Statistics feature psi value.
+    Args:
+        feature_list: feature name list.
+        data_dict: {'train':df_train, 'test':df_test, 'oot':df_oot}, key if df name, value is df.
+        bins: Number of boxes.
+        value: return less than value features.
+    Returns:
+        Statistical dataframe
+    """
     name = list(itertools.combinations([i for i in data_dict], 2))
     t = pd.DataFrame({'feature_name':feature_list})
     for i,j in name:
@@ -72,5 +81,5 @@ def psi_columns(feature_list, data_dict, bins=4):
             except:
                 psi_list.append(None)
         t[f'{i}_{j}_psi'] = psi_list
-    return t
+    return t.set_index('feature_name').where(lambda x:x<value).dropna().reset_index()
 
