@@ -136,7 +136,7 @@ def statistical_feature(data, label_list, score_list):
         for score in score_list:
             df = data.loc[data[label].isin([1,0]), [label, score]].reset_index(drop=True)
             stat_dict = {'y标签':label, '标准分数':score, '坏样本量':df[label].sum(), 
-                         '坏样本率':df[label].sum()/len(df), '总样本量':len(df)}
+                         '坏样本率':df[label].sum()/max(len(df),1), '总样本量':len(df)}
             for i in ['KS', 'KS_10箱', 'KS_20箱', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift',
                       '累计lift_10箱单调变化次数', '累计lift_10箱是否单调', '累计lift_20箱单调变化次数', '累计lift_20箱是否单调']:
                 stat_dict[i] = np.nan
