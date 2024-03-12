@@ -65,6 +65,12 @@ def psi_columns(feature_list, data_dict, bins=4):
     name = list(itertools.combinations([i for i in data_dict], 2))
     t = pd.DataFrame({'feature_name':feature_list})
     for i,j in name:
-        t[f'{i}_{j}_psi'] = [psi(data_dict[i][f], data_dict[j][f], bins=bins) for f in feature_list]
+        psi_list = []
+        for f in feature_list:
+            try:
+                psi_list.append(psi(data_dict[i][f], data_dict[j][f], bins=bins))
+            except:
+                psi_list.append(None)
+        t[f'{i}_{j}_psi'] = psi_list
     return t
 
