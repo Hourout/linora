@@ -503,9 +503,9 @@ def psi(y_expected, y_actual, threshold=None, bins=10):
     expected = pd.Series(y_expected)
     if threshold is None:
         threshold = pd.qcut(pd.Series(expected), q=bins, duplicates='drop', retbins=True)[1]
-    actual = pd.cut(actual, threshold, include_lowest=True, labels=False).value_counts(normalize=True).reset_index()
+    actual = pd.cut(actual, threshold, include_lowest=True, labels=False).value_counts(dropna=False, normalize=True).reset_index()
     actual.columns = ['label', 'prob1']
-    expected = pd.cut(expected, threshold, include_lowest=True, labels=False).value_counts(normalize=True).reset_index()
+    expected = pd.cut(expected, threshold, include_lowest=True, labels=False).value_counts(dropna=False, normalize=True).reset_index()
     expected.columns = ['label', 'prob2']
     predict = actual.merge(expected, on='label', how='outer').fillna(0.00000001)
     psi = ((predict.prob1-predict.prob2)*np.log((predict.prob1/predict.prob2))).sum()
