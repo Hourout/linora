@@ -24,13 +24,13 @@ def statistical_bins(y_true, y_pred, bins=10, method='quantile', sort_bins=False
         data['bins'] = pd.qcut(data['bins'], q=bins, duplicates='drop')
     else:
         data['bins'] = pd.cut(data['bins'], bins, duplicates='drop')
-    data['bins'] = data['bins'].astype(str).replace('nan', 'Special')
+    data['bins'] = data['bins'].astype(str).replace('nan', 'Missing')
     assert data.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in data.label.unique()}
     data['label'] = data.label.replace(label_dict)
     logic = True
     t = data.groupby('bins', observed=True).label.agg(['sum', 'count']).sort_index(ascending=True).reset_index()
-    t = pd.concat([t[t['bins']!='Special'], t[t['bins']=='Special']]).reset_index(drop=True)
+    t = pd.concat([t[t['bins']!='Missing'], t[t['bins']=='Missing']]).reset_index(drop=True)
     while True:
         t.columns = ['bins', 'bad_num', 'sample_num']
         t['bad_rate'] = t['bad_num']/t['sample_num']
@@ -55,10 +55,10 @@ def statistical_bins(y_true, y_pred, bins=10, method='quantile', sort_bins=False
             break
         else:
             t = data.groupby('bins', observed=True).label.agg(['sum', 'count']).sort_index(ascending=False).reset_index()
-            t = pd.concat([t[t['bins']!='Special'], t[t['bins']=='Special']]).reset_index(drop=True)
+            t = pd.concat([t[t['bins']!='Missing'], t[t['bins']=='Missing']]).reset_index(drop=True)
             logic = False
-    if 'Special' not in t['bins'].tolist():
-        t = pd.concat([t, pd.DataFrame({i:['Special'] if i=='bins' else [0] for i in t.columns})]).reset_index(drop=True)
+    if 'Missing' not in t['bins'].tolist():
+        t = pd.concat([t, pd.DataFrame({i:['Missing'] if i=='bins' else [0] for i in t.columns})]).reset_index(drop=True)
     if sort_bins:
         t = t.sort_values(['bins'])
     t.insert(0, '序号', t.reset_index().index)
@@ -86,7 +86,7 @@ def statistical_bins1(y_true, y_pred, bins=10, method='quantile', pos_label=1):
         data['bins'] = pd.qcut(data['bins'], q=bins, duplicates='drop')
     else:
         data['bins'] = pd.cut(data['bins'], bins, duplicates='drop')
-    data['bins'] = data['bins'].astype(str).replace('nan', 'Special')
+    data['bins'] = data['bins'].astype(str).replace('nan', 'Missing')
     assert data.label.nunique()==2, "`y_true` should be binary classification."
     label_dict = {i:1 if i==pos_label else 0 for i in data.label.unique()}
     data['label'] = data.label.replace(label_dict)
@@ -117,8 +117,8 @@ def statistical_bins1(y_true, y_pred, bins=10, method='quantile', pos_label=1):
         else:
             t = data.groupby('bins', observed=True).label.agg(['sum', 'count']).sort_index(ascending=False).reset_index()
             logic = False
-    if 'Special' not in t['bins'].tolist():
-        t = pd.concat([t, pd.DataFrame({i:['Special'] if i=='bins' else [0] for i in t.columns})]).reset_index(drop=True)
+    if 'Missing' not in t['bins'].tolist():
+        t = pd.concat([t, pd.DataFrame({i:['Missing'] if i=='bins' else [0] for i in t.columns})]).reset_index(drop=True)
     return t.drop(['pos_rate', 'neg_rate'], axis=1)
 
 
@@ -151,7 +151,7 @@ def statistical_feature(data, label_list, score_list):
             if len(df)>10 and df[label].nunique()==2:
                 try:
                     df_10bin = statistical_bins(df[label], df[score], bins=10, method='quantile', sort_bins=False)
-                    df_10bin = df_10bin[df_10bin.bins!='Special']
+                    df_10bin = df_10bin[df_10bin.bins!='Missing']
                     df_10bin = df_10bin[df_10bin['序号']!='Totals']
                     stat_dict['KS_10箱'] = round(df_10bin['ks'].max(),4)
                     stat_dict['尾部10%lift'] = round(df_10bin['lift'].values[0] ,4)
@@ -166,7 +166,7 @@ def statistical_feature(data, label_list, score_list):
             if len(df)>20 and df[label].nunique()==2:
                 try:
                     df_20bin = statistical_bins(df[label], df[score], bins=20, method='quantile', sort_bins=False)
-                    df_20bin = df_20bin[df_20bin.bins!='Special']
+                    df_20bin = df_20bin[df_20bin.bins!='Missing']
                     df_20bin = df_20bin[df_20bin['序号']!='Totals']
                     stat_dict['KS_20箱'] = round(df_20bin['ks'].max(),4)
                     stat_dict['尾部5%lift'] = round(df_20bin['lift'].values[0] ,4)
