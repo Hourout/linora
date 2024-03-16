@@ -2,7 +2,9 @@ import os
 
 import numpy as np
 import pandas as pd
+
 from linora.metrics import ks, psi
+from linora.linora.feature_selection._credit import iv
 
 __all__ = ['statistical_bins', 'statistical_feature', 'risk_statistics', 'statistical_bins1']
 
@@ -138,12 +140,18 @@ def statistical_feature(data, label_list, score_list):
             stat_dict = {'y标签':label, '标准分数':score, '坏样本量':df[label].sum(), 
                          '坏样本率':df[label].sum()/max(len(df),1), '总样本量':len(df)}
             for i in ['KS', 'KS_10箱', 'KS_20箱', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift',
-                      '累计lift_10箱单调变化次数', '累计lift_10箱是否单调', '累计lift_20箱单调变化次数', '累计lift_20箱是否单调']:
+                      '累计lift_10箱单调变化次数', '累计lift_10箱是否单调', '累计lift_20箱单调变化次数', '累计lift_20箱是否单调',
+                      'IV']:
                 stat_dict[i] = np.nan
             
             if df[label].nunique()==2:
                 try:
                     stat_dict['KS'] = ks(df[label], df[score])
+                except:
+                    pass
+
+                try:
+                    stat_dict['IV'] = iv(df[score], df[label])
                 except:
                     pass
 
@@ -177,7 +185,6 @@ def statistical_feature(data, label_list, score_list):
                 except:
                     pass
             score_result.append(stat_dict)
-    return pd.DataFrame.from_dict(score_result)
 
 
 def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本统计.xlsx'):
