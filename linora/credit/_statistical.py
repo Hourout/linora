@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from linora.metrics import ks, psi
-from linora.linora.feature_selection._credit import iv
+from linora.feature_selection._credit import iv
 
 __all__ = ['statistical_bins', 'statistical_feature', 'risk_statistics', 'statistical_bins1']
 

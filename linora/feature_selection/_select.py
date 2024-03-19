@@ -21,7 +21,7 @@ def missing_columns(df, missing_rate=0., less=True):
     t = (1-df.count()/len(df)).reset_index()
     t.columns = ['feature_name', 'missing_rate']
     if less:
-        return t[t.missing_rate<missing_rate].reset_index(drop=True)
+        return t[t.missing_rate<=missing_rate].reset_index(drop=True)
     return t[t.missing_rate>=missing_rate].reset_index(drop=True)
 
 
