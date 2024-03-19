@@ -10,11 +10,12 @@ __all__ = ['statistical_bins', 'statistical_feature', 'risk_statistics', 'statis
 
 
 
-def statistical_bins(y_true, y_pred, bins=10, method='quantile', sort_bins=False, pos_label=1):
+def statistical_bins(y_true, y_pred, bins=10, method='quantile', feature=True, pos_label=1):
     """Statistics ks and lift for feature and label.
+
     Args:
         y_true: pd.Series or array or list, ground truth (correct) labels.
-        y_pred: pd.Series or array or list, predicted labels, as returned by a classifier.
+        y_pred: pd.Series or array or list, predicted score, as returned by a classifier.
         bins: Number of boxes.
         method: 'quantile' is Equal frequency bin, 'uniform' is Equal width bin.
         pos_label: positive label.
@@ -22,17 +23,33 @@ def statistical_bins(y_true, y_pred, bins=10, method='quantile', sort_bins=False
         Statistical dataframe
     """
     data = pd.DataFrame({'bins':y_pred, 'label':y_true})
+    if_iv = False if data['bins'].nunique()<=bins else True
     if method=='quantile':
         data['bins'] = pd.qcut(data['bins'], q=bins, duplicates='drop')
+    elif method=='uniform':
+        if data['bins'].nunique()>bins:
+            data['bins'] = pd.cut(data['bins'], bins, duplicates='drop')
+    elif method=='monotonicity':
+        from optbinning import OptimalBinning
+        optb = OptimalBinning(name='bins', max_n_bins=bins, dtype="numerical", solver="cp")
+        optb.fit(data['bins'], data['label'])
+        optb_t = (optb.binning_table.build()[['Bin', 'Event', 'Count']]
+                  .rename(columns={'Bin':'bins', 'Event':'bad_num', 'Count':'sample_num'}))
+        optb_t = pd.concat([optb_t[:-3], optb_t[optb_t['bins']=='Missing']])
+    elif method=='onevaluebins':
+        pass
+
+    if method=='monotonicity':
+        t = optb_t.copy()
     else:
-        data['bins'] = pd.cut(data['bins'], bins, duplicates='drop')
-    data['bins'] = data['bins'].astype(str).replace('nan', 'Missing')
-    assert data.label.nunique()==2, "`y_true` should be binary classification."
-    label_dict = {i:1 if i==pos_label else 0 for i in data.label.unique()}
-    data['label'] = data.label.replace(label_dict)
+        # data['bins'] = data['bins'].astype(str).replace('nan', 'Missing')
+        assert data.label.nunique()==2, "`y_true` should be binary classification."
+        label_dict = {i:1 if i==pos_label else 0 for i in data.label.unique()}
+        data['label'] = data.label.replace(label_dict)
+        t = data.groupby('bins', dropna=False, observed=True).label.agg(['sum', 'count']).sort_index(ascending=True).reset_index()
+        # t = pd.concat([t[t['bins']!='Missing'], t[t['bins']=='Missing']]).reset_index(drop=True)
+
     logic = True
-    t = data.groupby('bins', observed=True).label.agg(['sum', 'count']).sort_index(ascending=True).reset_index()
-    t = pd.concat([t[t['bins']!='Missing'], t[t['bins']=='Missing']]).reset_index(drop=True)
     while True:
         t.columns = ['bins', 'bad_num', 'sample_num']
         t['bad_rate'] = t['bad_num']/t['sample_num']
@@ -46,29 +63,48 @@ def statistical_bins(y_true, y_pred, bins=10, method='quantile', sort_bins=False
         t['good_num_cum'] = t['good_num'].cumsum()
         t['good_rate_cum'] = t['good_num_cum']/t['good_num'].sum()
         t['ks'] = (t['bad_rate_cum']-t['good_rate_cum']).abs()
-        t['lift'] = t['bad_num']/t['sample_num']/t['bad_num'].sum()*t['sample_num'].sum()
-        t['cum_lift'] = t['bad_num'].cumsum()/t['sample_num'].cumsum()/t['bad_num'].sum()*t['sample_num'].sum()
-        
+        t['lift'] =  t['bad_rate']/t.loc[t['bins'].notna(), 'bad_num'].sum()*t.loc[t['bins'].notna(), 'sample_num'].sum()
+        t.loc[t['bins'].isna(), 'lift'] = np.nan
+        t.loc[t['bins'].notna(), 'cum_lift'] = (t.loc[t['bins'].notna(), 'bad_num'].cumsum()
+                                                /t.loc[t['bins'].notna(), 'sample_num'].cumsum()
+                                                /t.loc[t['bins'].notna(), 'bad_num'].sum()
+                                                *t.loc[t['bins'].notna(), 'sample_num'].sum())
+        t.loc[t['bins'].notna(), 'cum_lift_reversed'] = (t.loc[t['bins'].notna(), 'bad_num'][::-1].cumsum()
+                                                         /t.loc[t['bins'].notna(), 'sample_num'][::-1].cumsum()
+                                                        /t.loc[t['bins'].notna(), 'bad_num'].sum()
+                                                         *t.loc[t['bins'].notna(), 'sample_num'].sum())
         t['pos_rate'] = t['bad_num'].replace({0:1})/t['bad_num'].sum()
         t['neg_rate'] = t['good_num'].replace({0:1})/t['good_num'].sum()
         t['WoE'] = np.log(t['pos_rate']/t['neg_rate'])
         t['IV'] = (t['pos_rate'] - t['neg_rate']) * t['WoE']
+        if feature:
+            break
         if t['cum_lift'].values[0]>t['cum_lift'].values[-1] or not logic:
             break
         else:
-            t = data.groupby('bins', observed=True).label.agg(['sum', 'count']).sort_index(ascending=False).reset_index()
-            t = pd.concat([t[t['bins']!='Missing'], t[t['bins']=='Missing']]).reset_index(drop=True)
-            logic = False
+            if method=='monotonicity':
+                t = optb_t.copy()
+                logic = False
+            else:
+                t = data.groupby('bins', dropna=False, observed=True).label.agg(['sum', 'count']).sort_index(ascending=False).reset_index()
+                # t = pd.concat([t[t['bins']!='Missing'], t[t['bins']=='Missing']]).reset_index(drop=True)
+                logic = False
+    # if sort_bins and method!='monotonicity':
+    #     t = t.sort_values(['bins'])
+    t['bins'] = t['bins'].astype(str).replace('nan', 'Missing')
     if 'Missing' not in t['bins'].tolist():
         t = pd.concat([t, pd.DataFrame({i:['Missing'] if i=='bins' else [0] for i in t.columns})]).reset_index(drop=True)
-    if sort_bins:
-        t = t.sort_values(['bins'])
+    
     t.insert(0, '序号', t.reset_index().index)
     t = pd.concat([t.drop(['pos_rate', 'neg_rate'], axis=1), pd.DataFrame({
         '序号':['Totals'], 'bad_num':[t['bad_num'].sum()], 'sample_num':[t['sample_num'].sum()], 
         'bad_rate':[t['bad_num'].sum()/t['sample_num'].sum()], 
+        'sample_rate':[1.], 
         'good_num':[t['good_num'].sum()], 'good_rate':[t['good_num'].sum()/t['sample_num'].sum()],
         'ks':[t['ks'].max()], 'IV':[t['IV'].sum()]})], ignore_index=True)
+    if not if_iv:
+        t['WoE'] = np.nan
+        t['IV'] = np.nan
     return t
 
 
@@ -124,7 +160,7 @@ def statistical_bins1(y_true, y_pred, bins=10, method='quantile', pos_label=1):
     return t.drop(['pos_rate', 'neg_rate'], axis=1)
 
 
-def statistical_feature(data, label_list, score_list):
+def statistical_feature(data, label_list, score_list, method='quantile'):
     """Statistics ks and lift for feature list and label list.
     Args:
         data: DataFrame columns include label_list and score_list
@@ -141,7 +177,7 @@ def statistical_feature(data, label_list, score_list):
                          '坏样本率':df[label].sum()/max(len(df),1), '总样本量':len(df)}
             for i in ['KS', 'KS_10箱', 'KS_20箱', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift',
                       '累计lift_10箱单调变化次数', '累计lift_10箱是否单调', '累计lift_20箱单调变化次数', '累计lift_20箱是否单调',
-                      'IV']:
+                      'IV', '单值单箱头部累计最小lift', '单值单箱尾部累计最大lift', '单值单箱最小lift', '单值单箱最大lift']:
                 stat_dict[i] = np.nan
             
             if df[label].nunique()==2:
@@ -155,10 +191,20 @@ def statistical_feature(data, label_list, score_list):
                 except:
                     pass
 
+                if df[score].nunique()/max(df[score].count(),1)<0.5:
+                    try:
+                        df_bin = statistical_bins(df[label], df[score], bins=10, method='onevaluebins')
+                        stat_dict['单值单箱最小lift'] = df_bin['lift'].min()
+                        stat_dict['单值单箱最大lift'] = df_bin['lift'].max()
+                        stat_dict['单值单箱头部累计最小lift'] = df_bin['cum_lift_reversed'].min()
+                        stat_dict['单值单箱尾部累计最大lift'] = df_bin['cum_lift'].max()
+                    except:
+                        pass
+                    
             # 分10箱
             if len(df)>10 and df[label].nunique()==2:
                 try:
-                    df_10bin = statistical_bins(df[label], df[score], bins=10, method='quantile', sort_bins=False)
+                    df_10bin = statistical_bins(df[label], df[score], bins=10, method=method)
                     df_10bin = df_10bin[df_10bin.bins!='Missing']
                     df_10bin = df_10bin[df_10bin['序号']!='Totals']
                     stat_dict['KS_10箱'] = round(df_10bin['ks'].max(),4)
@@ -173,7 +219,7 @@ def statistical_feature(data, label_list, score_list):
             # 分20箱
             if len(df)>20 and df[label].nunique()==2:
                 try:
-                    df_20bin = statistical_bins(df[label], df[score], bins=20, method='quantile', sort_bins=False)
+                    df_20bin = statistical_bins(df[label], df[score], bins=20, method=method)
                     df_20bin = df_20bin[df_20bin.bins!='Missing']
                     df_20bin = df_20bin[df_20bin['序号']!='Totals']
                     stat_dict['KS_20箱'] = round(df_20bin['ks'].max(),4)
@@ -185,6 +231,7 @@ def statistical_feature(data, label_list, score_list):
                 except:
                     pass
             score_result.append(stat_dict)
+    return pd.DataFrame.from_dict(score_result)
 
 
 def risk_statistics(data, label_list, score_list, tag_name=None, excel='样本统计.xlsx'):
