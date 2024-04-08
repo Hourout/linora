@@ -564,14 +564,14 @@ def statistical_report_feature(data, label_list, score_list, tag_name=None, exce
                 for k in score_list:
                     for b in [10, 20]:
                         for m1,m2 in zip(['等距'], ['uniform']):
-                            temp = statistical_bins(data[data.user_type==c][j], data[data.user_type==c][k], bins=b, method=m2, feature=True)
+                            temp = statistical_bins(data[data[tag_name]==c][j], data[data[tag_name]==c][k], bins=b, method=m2, feature=True)
                             temp.insert(0, 'feature', k)
                             temp.insert(0, 'y_label', j)
                             temp.insert(0, '分箱类型', f'{b}{m1}')
                             temp.insert(0, 'user_type', c)
                             df_list.append(temp)
                     # try:
-                    #     temp = statistical_bins(data[data.user_type==c][j], data[data.user_type==c][k], bins=5, method='monotonicity', sort_bins=True)
+                    #     temp = statistical_bins(data[data[tag_name]==c][j], data[data[tag_name]==c][k], bins=5, method='monotonicity', sort_bins=True)
                     #     temp.insert(0, 'feature', k)
                     #     temp.insert(0, 'y_label', j)
                     #     temp.insert(0, '分箱类型', '最优分箱')
