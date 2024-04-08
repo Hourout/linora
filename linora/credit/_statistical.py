@@ -553,7 +553,7 @@ def statistical_report_feature(data, label_list, score_list, tag_name=None, exce
             r = writer.sheets['相关性明细'].max_row if rank else 0
             pd.DataFrame([f'{c}']).to_excel(writer, sheet_name='相关性明细', startrow=r, index=False, header=None)
             pd.DataFrame(['相关性']).to_excel(writer, sheet_name='相关性明细', startrow=writer.sheets['相关性明细'].max_row, index=False, header=None)
-            (data[data[tag_name]==c][score_list].corr().map(lambda x:format(x, '.0%')).replace({'nan%':''})
+            (data[data[tag_name]==c][score_list].fillna(-999).corr().map(lambda x:format(x, '.0%')).replace({'nan%':''})
              .style.map_index(lambda _: css_indexes, axis=1)
              .to_excel(writer, sheet_name='相关性明细', startrow=writer.sheets['相关性明细'].max_row+1))
             
