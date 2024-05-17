@@ -290,13 +290,14 @@ def statistical_report_score(data, label_list, score_list, tag_name=None, excel=
         for c in tag_list:
             pd.DataFrame(['性能']).to_excel(writer, sheet_name=f'{c}评估', startrow=1, index=False, header=None)
             result = statistical_feature(data[data[tag_name]==c], label_list, score_list, method='quantile', feature=False)
-            result = result[['特征分数', 'y标签', '坏样本量', '坏样本率', '总样本量', 'KS', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']]
+            result = result[['特征分数', 'y标签', '坏样本量', '坏样本率', '总样本量', 'KS', '尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift', '单值单箱头部累计最小lift', '单值单箱尾部累计最大lift', 
+                             '单值单箱最小lift', '单值单箱最大lift']]
             
             result = result[result['特征分数'].isin(result.groupby('特征分数')[['尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']].count().max(axis=1).where(lambda x:x>0).dropna().index.tolist())]
             score_list1 = result.groupby(['特征分数'])[['尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']].max().max(axis=1).sort_values(ascending=False).index.tolist()
             for i in ['坏样本率', 'KS']:
                 result[i] = result[i].map(lambda x:format(x, '.1%')).replace({'nan%':''})
-            for i in ['尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift']:
+            for i in ['尾部5%lift', '尾部10%lift', '头部5%lift', '头部10%lift', '单值单箱头部累计最小lift', '单值单箱尾部累计最大lift', '单值单箱最小lift', '单值单箱最大lift']:
                 result[i] = result[i].round(2)
             (result.loc[[result[(result['特征分数']==i)&(result['y标签']==j)].index[0] for i in score_list1 for j in label_list]]
              .style.map_index(lambda _: css_indexes, axis=1)
@@ -404,14 +405,14 @@ def statistical_report_score(data, label_list, score_list, tag_name=None, excel=
                         temp['标品名称'] = i
                         temp['y标签'] = j
                         temp = temp[['流量', '分箱类型', 'y标签', '标品名称', '序号', 'bins', 'bad', 'good', 'sample', 
-                                     'bad_rate', 'sample_rate', 'KS', 'Lift', 'cum_lift']]
+                                     'bad_rate', 'sample_rate', 'KS', 'Lift', 'cum_lift', 'cum_lift_reversed']]
                         df_list.append(temp)
         df = pd.concat(df_list)
         for i,j in [('bad_rate',1), ('sample_rate',1), ('KS',0)]:
             df[i] = df[i].map(lambda x:format(x, f'.{j}%')).replace({'nan%':''})
         for i in ['Lift', 'cum_lift']:
             df[i] = df[i].round(2)
-        (df.rename(columns={'cum_lift':'尾部累积Lift'})
+        (df.rename(columns={'cum_lift':'尾部累积Lift', 'cum_lift_reversed':'头部累计Lift'})
          .style.map_index(lambda _: css_indexes, axis=1)
          .to_excel(writer, sheet_name=f'分箱明细', startrow=2, index=False))
     return os.path.join(os.getcwd(), excel)
